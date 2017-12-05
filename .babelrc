@@ -1,0 +1,43 @@
+{
+  "presets": [
+    "es2015",
+    "stage-1"
+  ],
+  "plugins": [
+    "transform-runtime",
+    ["transform-es2015-computed-properties", {
+      "loose": true
+    }],
+    "transform-class-properties"
+  ],
+
+  "env": {
+    "production": {
+      "comments": false,
+      "plugins": [
+        ["minify-replace", {
+          "replacements": [{
+            "identifierName": "__DEV__",
+            "replacement": {
+              "type": "booleanLiteral",
+              "value": false
+            }
+          }]
+        }]
+      ]
+    },
+    "development": {
+      "plugins": [
+        ["minify-replace", {
+          "replacements": [{
+            "identifierName": "__DEV__",
+            "replacement": {
+              "type": "booleanLiteral",
+              "value": true
+            }
+          }]
+        }]
+      ]
+    }
+  }
+}

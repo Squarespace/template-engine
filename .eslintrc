@@ -1,0 +1,20 @@
+{
+  "extends": "@sqs/eslint-config-squarespace/vanilla",
+  "parser": "babel-eslint",
+  "env": {
+    "browser": true,
+    "node": true,
+    "es6": true,
+    "jest/globals": true
+  },
+  "plugins": [
+    "jest"
+  ],
+  "globals": {
+    "__DEV__": true
+  },
+  "rules": {
+    "jest/no-identical-title": "error",
+    "jest/valid-expect": "error"
+  }
+}
