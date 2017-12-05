@@ -11,7 +11,7 @@
     "lint:test": "eslint __tests__/**/*.js",
     "prepublish": "npm run build",
     "test": "jest",
-		"test:watch": "jest --watch"
+    "test:watch": "jest --watch"
   },
   "keywords": [],
   "author": "Patrick Hensley <phensley@squarespace.com>",
@@ -40,5 +40,10 @@
     "collectCoverageFrom": [
       "src/**/*.js"
     ]
+  },
+  "dependencies": {
+    "moment": "^2.19.3",
+    "moment-timezone": "^0.5.14",
+    "utf8": "^3.0.0"
   }
 }

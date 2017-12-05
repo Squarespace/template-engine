@@ -1,0 +1,21 @@
+// Opcode values for abstract syntax version 1
+export const NOOP = -1;
+export const TEXT = 0;
+export const VARIABLE = 1;
+export const SECTION = 2;
+export const END = 3;
+export const REPEATED = 4;
+export const PREDICATE = 5;
+export const BINDVAR = 6;
+export const OR_PREDICATE = 7;
+export const IF = 8;
+export const INJECT = 9;
+export const MACRO = 10;
+export const COMMENT = 11;
+export const META_LEFT = 12;
+export const META_RIGHT = 13;
+export const NEWLINE = 14;
+export const SPACE = 15;
+export const TAB = 16;
+export const ROOT = 17;
+export const EOF = 18;
