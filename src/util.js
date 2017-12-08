@@ -57,7 +57,6 @@ export const isJsonStart = (s) => {
 
 /**
  * Deep compare of two objects for equality.
- * TODO: increase test coverage.
  */
 export const deepEquals = (o1, o2) => {
   const left = new Map();

@@ -1,6 +1,7 @@
 import Context from '../src/context';
 import Engine from '../src/engine';
 
+
 test('literals', () => {
   const engine = new Engine();
   const inst = [17, 1, [
@@ -138,6 +139,29 @@ test('repeated 3', () => {
 });
 
 
+test('repeated 4', () => {
+  const engine = new Engine();
+  const inst = [17, 1, [
+    [4, 'a', [
+      [0, 'A'],
+      [2, 'b', [
+        [0, '---']
+      ], 3]],
+    [7, 0, 0, [
+      [0, 'B']
+    ], 3], []]
+  ], 18];
+
+  let ctx = new Context({ a: [1, 2, 3], b: 1 });
+  engine.execute(inst, ctx);
+  expect(ctx.buf).toEqual('A---A---A---');
+
+  ctx = new Context({ a: {}, b: 1 });
+  engine.execute(inst, ctx);
+  expect(ctx.buf).toEqual('B');
+});
+
+
 test('predicates', () => {
   const engine = new Engine();
   const inst = [17, 1, [
@@ -173,12 +197,15 @@ test('bindvar', () => {
   const engine = new Engine();
   const inst = [17, 1 ,[
     [6, '@foo', ['bar'], [['html']]],
-    [1, ['@foo'], 0]
+    [6, '@baz', ['quux'], 0],
+    [1, ['@foo'], 0],
+    [1, ['@baz'], 0],
+    [1, ['@missing'], 0]
   ], 18];
 
-  const ctx = new Context({ bar: '<hi>' });
+  const ctx = new Context({ bar: '<hi>', quux: '<bye>' });
   engine.execute(inst, ctx);
-  expect(ctx.buf).toEqual('&lt;hi&gt;');
+  expect(ctx.buf).toEqual('&lt;hi&gt;<bye>');
 });
 
 
@@ -260,6 +287,9 @@ test('macro', () => {
       [1, ['name'], 0],
       [0, ' is ' ],
       [1, ['status'], 0],
+    ]],
+    [10, 'unused.html', [
+      [0, 'never called']
     ]],
     [2, 'person', [
       [1, ['@'], [[ 'apply', ['person.html']]]],

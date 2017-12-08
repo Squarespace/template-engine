@@ -1,6 +1,7 @@
 import Node, { MISSING_NODE } from '../src/node';
 import types from '../src/types';
 
+
 test('node is null', () => {
   const n1 = new Node(null);
   expect(n1.isNull()).toEqual(true);
@@ -156,6 +157,14 @@ test('as number', () => {
 
   n = new Node(NaN);
   expect(n.asNumber()).toEqual(0);
+});
+
+
+test('equals', () => {
+  let n = new Node(123);
+  expect(n.equals(123)).toEqual(true);
+  expect(n.equals(124)).toEqual(false);
+  expect(n.equals({})).toEqual(false);
 });
 
 

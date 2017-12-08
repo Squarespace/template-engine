@@ -35,7 +35,6 @@ const compute = (args, ctx, f) => {
   return len === 1 ? f(ctx.node(), nodes[0]) : f(nodes[0], nodes[1]);
 };
 
-
 class Debug extends Predicate {
   apply(args, ctx) {
     const node = ctx.resolve(['debug'], ctx);
@@ -104,7 +103,6 @@ class NotEqual extends Predicate {
     return compute(args, ctx, notEqual);
   }
 }
-
 
 const isInteger = (n) => {
   return typeof n === 'number' && parseInt(n) === n;

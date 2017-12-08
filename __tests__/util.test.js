@@ -61,20 +61,20 @@ test('json start', () => {
 });
 
 
-// test('deep equals', () => {
-//   expect(deepEquals([], [])).toEqual(true);
-//   expect(deepEquals([], [1])).toEqual(false);
+test('deep equals', () => {
+  expect(deepEquals([], [])).toEqual(true);
+  expect(deepEquals([], [1])).toEqual(false);
 
-//   expect(deepEquals({}, {})).toEqual(true);
-//   expect(deepEquals({}, { a: 1 })).toEqual(false);
+  expect(deepEquals({}, {})).toEqual(true);
+  expect(deepEquals({}, { a: 1 })).toEqual(false);
 
-//   let o = { a: 1, b: [2, { c: false }, null] };
-//   expect(deepEquals(o, o)).toEqual(true);
-//   expect(deepEquals(o, { a: 1, b: [3, { c: false }, null] })).toEqual(false);
-//   expect(deepEquals(o, { a: 1 })).toEqual(false);
-//   expect(deepEquals(o, { a: 1, b: [2, { c: false }, null], d: 3 })).toEqual(false);
-//   expect(deepEquals(o, { a: 1, b: [] })).toEqual(false);
-// });
+  let o = { a: 1, b: [2, { c: false }, null] };
+  expect(deepEquals(o, o)).toEqual(true);
+  expect(deepEquals(o, { a: 1, b: [3, { c: false }, null] })).toEqual(false);
+  expect(deepEquals(o, { a: 1 })).toEqual(false);
+  expect(deepEquals(o, { a: 1, b: [2, { c: false }, null], d: 3 })).toEqual(false);
+  expect(deepEquals(o, { a: 1, b: [] })).toEqual(false);
+});
 
 
 test('string compare', () => {

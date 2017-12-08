@@ -144,7 +144,7 @@ class Context {
    */
   initIteration() {
     const node = this.frame.node;
-    if (node.type !== types.ARRAY || node.value === 0) {
+    if (node.type !== types.ARRAY || node.value.length === 0) {
       return false;
     }
     this.frame.currentIndex = 0;

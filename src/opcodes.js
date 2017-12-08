@@ -19,3 +19,36 @@ export const SPACE = 15;
 export const TAB = 16;
 export const ROOT = 17;
 export const EOF = 18;
+
+// AlternatesWith never appears instruction trees, but its type
+// may be referenced in code.
+export const ALTERNATES_WITH = 19;
+
+const NAMES = {
+  [NOOP]: 'NOOP',
+  [TEXT]: 'TEXT',
+  [VARIABLE]: 'VARIABLE',
+  [SECTION]: 'SECTION',
+  [END]: 'END',
+  [REPEATED]: 'REPEATED',
+  [PREDICATE]: 'PREDICATE',
+  [BINDVAR]: 'BINDVAR',
+  [OR_PREDICATE]: 'OR_PREDICATE',
+  [IF]: 'IF',
+  [INJECT]: 'INJECT',
+  [MACRO]: 'MACRO',
+  [COMMENT]: 'COMMENT',
+  [META_LEFT]: 'META_LEFT',
+  [META_RIGHT]: 'META_RIGHT',
+  [NEWLINE]: 'NEWLINE',
+  [SPACE]: 'SPACE',
+  [TAB]: 'TAB',
+  [ROOT]: 'ROOT',
+  [EOF]: 'EOF',
+  [ALTERNATES_WITH]: 'ALTERNATES_WITH'
+};
+
+export const nameOf = (opcode) => {
+  const name = NAMES[opcode];
+  return typeof name === 'undefined' ? 'UNKNOWN' : name;
+};
