@@ -1,5 +1,5 @@
 import Frame from './frame';
-import { Node, MISSING_NODE } from './node';
+import Node, { MISSING_NODE } from './node';
 import types from './types';
 import Visitor from './visitor';
 

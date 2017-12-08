@@ -171,7 +171,8 @@ class MissingNode extends Node {
 // Singleton, used any time we need to return a missing node
 MISSING_NODE = new MissingNode();
 
+export default Node;
+
 export {
-  Node,
   MISSING_NODE,
 };

@@ -1,5 +1,5 @@
 import { Predicate } from '../plugin';
-import { Node } from '../node';
+import Node from '../node';
 import { isJsonStart, isTruthy, splitVariable } from '../util';
 import types from '../types';
 
@@ -8,7 +8,7 @@ import types from '../types';
  * or a variable reference. It attempts to parse the JSON values, and falls
  * through to resolving the variable references.
  */
-function resolve(args, ctx) {
+const resolve = (args, ctx) => {
   return args.map(arg => {
     if (typeof arg === 'string' && isJsonStart(arg)) {
       try {
@@ -21,7 +21,7 @@ function resolve(args, ctx) {
     const names = splitVariable(arg);
     return ctx.resolve(names);
   });
-}
+};
 
 /**
  * Resolves the arguments and then computes the predicate function.

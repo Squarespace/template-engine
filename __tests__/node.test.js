@@ -1,4 +1,4 @@
-import { Node, MISSING_NODE } from '../src/node';
+import Node, { MISSING_NODE } from '../src/node';
 import types from '../src/types';
 
 test('node is null', () => {

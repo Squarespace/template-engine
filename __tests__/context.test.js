@@ -1,5 +1,5 @@
 import Context from '../src/context';
-import { Node, MISSING_NODE } from '../src/node';
+import Node, { MISSING_NODE } from '../src/node';
 
 test('buffer append', () => {
   const ctx = new Context({});
