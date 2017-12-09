@@ -74,6 +74,20 @@ test('deep equals', () => {
   expect(deepEquals(o, { a: 1 })).toEqual(false);
   expect(deepEquals(o, { a: 1, b: [2, { c: false }, null], d: 3 })).toEqual(false);
   expect(deepEquals(o, { a: 1, b: [] })).toEqual(false);
+
+  o = { a: { b: { c: { d: 789 } } } };
+  expect(deepEquals(o, o)).toEqual(true);
+  expect(deepEquals(o, { a: { b: [1,2,3] } })).toEqual(false);
+
+  const common = { x: { y: 123 } };
+  o = { a: { b: common } };
+  expect(deepEquals(o, o)).toEqual(true);
+  expect(deepEquals(o, { a: { b: common } } )).toEqual(true);
+
+  // refrerence cycle
+  o = { a: { b: null } };
+  o.a.b = o;
+  expect(deepEquals(o, o)).toEqual(true);
 });
 
 

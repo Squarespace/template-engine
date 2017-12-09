@@ -87,7 +87,7 @@ test('count', () => {
   Core.count.apply([], vars, null);
   expect(vars[0].get()).toEqual(0);
 
-  vars = variables([1,2,3]);
+  vars = variables([1, 2, 3]);
   Core.count.apply([], vars, null);
   expect(vars[0].get()).toEqual(3);
 
@@ -139,7 +139,7 @@ test('cycle', () => {
 
 
 test('date', () => {
-  const tz = (s) => { return { website: { timeZone: s } }};
+  const tz = (s) => { return { website: { timeZone: s } }; };
   const losAngeles = tz('America/Los_Angeles');
   const paris = tz('Europe/Paris');
   const may2013 = 1368406800000;
@@ -203,10 +203,16 @@ test('encode-uri-component', () => {
 
 
 test('format', () => {
-  const vars = variables('The {0} is {1}.');
+  const msg = 'The {0} is {1}.';
   const ctx = new Context({ what: 'sky', color: 'bronze' });
+
+  let vars = variables(msg);
   Core.format.apply(['what', 'color'], vars, ctx);
   expect(vars[0].get()).toEqual('The sky is bronze.');
+
+  vars = variables(msg);
+  Core.format.apply(['missing', 'none'], vars, ctx);
+  expect(vars[0].get()).toEqual('The  is .');
 });
 
 
@@ -305,7 +311,7 @@ test('pluralize', () => {
 
 
 test('raw', () => {
-  let vars = variables(3.14159);
+  const vars = variables(3.14159);
   Core.raw.apply([], vars, null);
   expect(vars[0].get()).toEqual('3.14159');
 });

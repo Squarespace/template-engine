@@ -1,6 +1,19 @@
 import Context from '../src/context';
 import Node, { MISSING_NODE } from '../src/node';
 
+
+test('node constructor', () => {
+  const ctx = new Context(new Node(123));
+  expect(ctx.node()).toEqual(new Node(123));
+});
+
+
+test('injectables', () => {
+  const ctx = new Context(123, { injectables: { foo: new Node(123) } });
+  expect(ctx.getInjectable('foo')).toEqual(new Node(123));
+});
+
+
 test('buffer append', () => {
   const ctx = new Context({});
   expect(ctx.buf).toEqual('');

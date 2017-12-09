@@ -6,7 +6,7 @@
   "scripts": {
     "build": "npm run build:prod",
     "build:prod": "BABEL_ENV=production babel src --out-dir dist",
-    "lint": "npm run lint:src",
+    "lint": "npm run lint:src && npm run lint:test",
     "lint:src": "eslint src/**/*.js",
     "lint:test": "eslint __tests__/**/*.js",
     "prepublish": "npm run build",

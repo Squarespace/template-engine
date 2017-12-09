@@ -101,7 +101,7 @@ const getMomentFormat = (m, raw) => {
     }
   }
   return parts.join('');
-}
+};
 
 class DateFormatter extends Formatter {
   apply(args, vars, ctx) {
