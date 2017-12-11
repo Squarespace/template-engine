@@ -1,5 +1,5 @@
 import Node from './node';
-import * as OP from './opcodes';
+import { ROOT } from './opcodes';
 import types from './types';
 
 const ALL_DIGITS = /\d+/;
@@ -164,7 +164,7 @@ export const executeTemplate = (ctx, inst, node, privateContext) => {
   ctx.pushNode(node);
   ctx.stopResolution(privateContext);
 
-  if (inst.length >= 1 && inst[0] === OP.ROOT) {
+  if (inst.length >= 1 && inst[0] === ROOT) {
     // Partials will be a full template including a ROOT instruction.
     ctx.engine.execute(inst, ctx);
   } else {
@@ -177,4 +177,3 @@ export const executeTemplate = (ctx, inst, node, privateContext) => {
   ctx.restoreBuffer(buf);
   return text;
 };
-

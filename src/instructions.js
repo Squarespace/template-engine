@@ -188,9 +188,10 @@ class Variable extends Instruction {
 }
 
 export {
+  getCode,
+  getType,
   Bindvar,
   Comment,
-  getType,
   If,
   Inject,
   Instruction,

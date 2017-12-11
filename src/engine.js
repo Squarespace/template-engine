@@ -1,7 +1,7 @@
 import Formatters from './formatters';
+import * as opcodes from './opcodes';
 import { Formatter, Predicate } from './plugin';
 import Predicates from './predicates';
-import * as OP from './opcodes';
 import types from './types';
 import { splitVariable, isTruthy } from './util';
 import Variable from './variable';
@@ -29,77 +29,77 @@ class Engine {
 
     // COMPOSITE INSTRUCTIONS
 
-    case OP.ROOT:
+    case opcodes.ROOT:
       ctx.version = inst[1];
       ctx.engine = this;
       this.executeBlock(inst[2], ctx);
       break;
 
-    case OP.TEXT:
+    case opcodes.TEXT:
       ctx.append(inst[1]);
       break;
 
-    case OP.VARIABLE:
+    case opcodes.VARIABLE:
       this.executeVariable(inst, ctx);
       break;
 
-    case OP.SECTION:
+    case opcodes.SECTION:
       this.executeSection(inst, ctx);
       break;
 
-    case OP.REPEATED:
+    case opcodes.REPEATED:
       this.executeRepeated(inst, ctx);
       break;
 
-    case OP.PREDICATE:
-    case OP.OR_PREDICATE:
+    case opcodes.PREDICATE:
+    case opcodes.OR_PREDICATE:
       this.executePredicate(inst, ctx);
       break;
 
-    case OP.BINDVAR:
+    case opcodes.BINDVAR:
       this.executeBindvar(inst, ctx);
       break;
 
-    case OP.IF:
+    case opcodes.IF:
       this.executeIf(inst, ctx);
       break;
 
-    case OP.INJECT:
+    case opcodes.INJECT:
       this.executeInject(inst, ctx);
       break;
 
-    case OP.MACRO:
+    case opcodes.MACRO:
       this.executeMacro(inst, ctx);
       break;
 
     // ATOMIC INSTRUCTIONS
 
-    case OP.META_LEFT:
+    case opcodes.META_LEFT:
       ctx.append('{');
       break;
 
-    case OP.META_RIGHT:
+    case opcodes.META_RIGHT:
       ctx.append('}');
       break;
 
-    case OP.NEWLINE:
+    case opcodes.NEWLINE:
       ctx.append('\n');
       break;
 
-    case OP.SPACE:
+    case opcodes.SPACE:
       ctx.append(' ');
       break;
 
-    case OP.TAB:
+    case opcodes.TAB:
       ctx.append('\t');
       break;
 
     // IGNORED INSTRUCTIONS
 
-    case OP.COMMENT:
-    case OP.EOF:
-    case OP.END:
-    case OP.NOOP:
+    case opcodes.COMMENT:
+    case opcodes.EOF:
+    case opcodes.END:
+    case opcodes.NOOP:
     default:
       break;
     }
