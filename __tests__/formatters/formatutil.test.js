@@ -1,4 +1,4 @@
-import { format, MAX_ARGS } from '../../src/formatters/formatutil';
+import { format } from '../../src/formatters/formatutil';
 
 test('basic', () => {
   const msg = 'Hi {0}, your last visit was on {1}.';
@@ -7,14 +7,12 @@ test('basic', () => {
 });
 
 
-test('too many args', () => {
+test('many args', () => {
   let expected = '';
   let msg = '';
   const args = [];
   for (let i = 0; i < 60; i++) {
-    if (i <= MAX_ARGS) {
-      expected += i;
-    }
+    expected += i;
     msg += '{' + i + '}';
     args.push(i);
   }

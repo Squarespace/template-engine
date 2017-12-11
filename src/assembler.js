@@ -66,6 +66,13 @@ class Assembler extends Sink {
   }
 
   /**
+   * Return the raw code assembled.
+   */
+  code() {
+    return this.root.code;
+  }
+
+  /**
    * Append a message to the errors list.
    */
   fail(msg) {

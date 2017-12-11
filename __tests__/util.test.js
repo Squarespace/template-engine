@@ -88,8 +88,9 @@ test('deep equals', () => {
   o = { a: { b: null } };
   o.a.b = o;
   expect(deepEquals(o, o)).toEqual(true);
-});
 
+  deepEquals({ a: { c: 1 }, b: { c: 1 } }, { a: { c: 1 }, b: { c: 1 } });
+});
 
 test('string compare', () => {
   expect(stringCompare('', 'aaa')).toEqual(-3);
@@ -97,9 +98,4 @@ test('string compare', () => {
   expect(stringCompare('aaa', 'aaa')).toEqual(0);
   expect(stringCompare('aaa', 'bbb')).toEqual(-1);
   expect(stringCompare('bbb', 'aaa')).toEqual(1);
-});
-
-
-test('foo', () => {
-  deepEquals({ a: { c: 1 }, b: { c: 1 } }, { a: { c: 1 }, b: { c: 1 } });
 });

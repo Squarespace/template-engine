@@ -82,11 +82,11 @@ class Inject extends Instruction {
 class Macro extends Instruction {
   constructor(name) {
     super(MACRO);
-    this.code = [this.type, []];
+    this.code = [this.type, name, []];
   }
 
   addConsequent(inst) {
-    this.code[1].push(getCode(inst));
+    this.code[2].push(getCode(inst));
   }
 }
 

@@ -1,5 +1,4 @@
 
-const MAX_ARGS = 50;
 const BASE = '0'.charCodeAt(0);
 
 /*eslint complexity: ["error", 30]*/
@@ -7,7 +6,6 @@ const format = (pattern, args) => {
   let buf = '';
   let i = 0;
   let index = -1;
-  let bail = false;
   const limit = args.length;
   const length = pattern.length;
   while (i < length) {
@@ -33,9 +31,6 @@ const format = (pattern, args) => {
           index *= 10;
         }
         index += ch.charCodeAt(0) - BASE;
-        if (index > MAX_ARGS) {
-          bail = true;
-        }
         break;
 
       case '}':
@@ -58,15 +53,11 @@ const format = (pattern, args) => {
       buf += ch;
     }
 
-    if (bail) {
-      break;
-    }
     i++;
   }
   return buf;
 };
 
 export {
-  format,
-  MAX_ARGS,
+  format
 };

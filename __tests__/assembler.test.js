@@ -229,7 +229,7 @@ test('macro', () => {
 
   expect(errors).toEqual([]);
   expect(root.code).toEqual([17, 1, [
-    [10, [
+    [10, 'foo.html', [
       [0, 'A'],
       [2, 'bar', [
         [0, 'B']
