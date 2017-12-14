@@ -1,6 +1,7 @@
 import Context from '../src/context';
 import Engine from '../src/engine';
 import Visitor from '../src//visitor';
+import { END, EOF, ROOT, SECTION, VARIABLE } from '../src/opcodes';
 
 /**
  * Example of constructing a custom context to modify in visitor methods.
@@ -33,11 +34,11 @@ class ExampleVisitor extends Visitor {
 
 test('basic', () => {
   const engine = new Engine();
-  const inst = [17, 1, [
-    [2, 'b', [
-      [1, ['a'], 0]
-    ], 3]
-  ], 18];
+  const inst = [ROOT, 1, [
+    [SECTION, 'b', [
+      [VARIABLE, ['a'], 0]
+    ], END]
+  ], EOF];
 
   const visitor = new ExampleVisitor();
   const ctx = new VisitorContext({ a: 1, b: { c: 2 } }, { visitor });

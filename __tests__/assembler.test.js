@@ -11,9 +11,25 @@ import {
 
 import {
   ALTERNATES_WITH,
+  BINDVAR,
+  COMMENT,
   END,
+  EOF,
+  IF,
+  INJECT,
+  MACRO,
+  META_LEFT,
+  META_RIGHT,
+  NEWLINE,
   OR_PREDICATE,
+  PREDICATE,
+  REPEATED,
+  ROOT,
   SECTION,
+  SPACE,
+  TAB,
+  TEXT,
+  VARIABLE,
 } from '../src/opcodes';
 
 
@@ -56,18 +72,18 @@ test('atomic instructions', () => {
     .get();
 
   expect(errors).toEqual([]);
-  expect(root.code).toEqual([17, 1, [
-    [6, '@foo', ['a', 'b'], [['html'], ['json-pretty']]],
-    [9, '@bar', 'messages.json', 0],
-    [1, '@baz', [['json'], ['capitalize']]]
-  ], 18]);
+  expect(root.code).toEqual([ROOT, 1, [
+    [BINDVAR, '@foo', ['a', 'b'], [['html'], ['json-pretty']]],
+    [INJECT, '@bar', 'messages.json', 0],
+    [VARIABLE, '@baz', [['json'], ['capitalize']]]
+  ], EOF]);
 });
 
 test('empty', () => {
   const { root, errors } = new CodeBuilder().eof().get();
 
   expect(errors).toEqual([]);
-  expect(root.code).toEqual([17, 1, [], 18]);
+  expect(root.code).toEqual([ROOT, 1, [], EOF]);
 });
 
 
@@ -129,11 +145,11 @@ test('comments and literals', () => {
     .get();
 
   expect(errors).toEqual([]);
-  expect(root.code).toEqual([17, 1, [
-    [11, 'single', 0],
-    [11, 'multiline', 1],
-    12, 13, 14, 15, 16
-  ], 18]);
+  expect(root.code).toEqual([ROOT, 1, [
+    [COMMENT, 'single', 0],
+    [COMMENT, 'multiline', 1],
+    META_LEFT, META_RIGHT, NEWLINE, SPACE, TAB
+  ], EOF]);
 });
 
 
@@ -174,14 +190,14 @@ test('if', () => {
     .get();
 
   expect(errors).toEqual([]);
-  expect(root.code).toEqual([17, 1, [
-    [8, [1, 0], ['a', 'b', 'c'], [
-      [2, 'a', [[0, '...']], 3],
-      [0, 'A']
-    ], [7, 'odd?', ['a'], [
-      [0, 'B']
-    ], 3]]
-  ], 18]);
+  expect(root.code).toEqual([ROOT, 1, [
+    [IF, [1, 0], ['a', 'b', 'c'], [
+      [SECTION, 'a', [[TEXT, '...']], END],
+      [TEXT, 'A']
+    ], [OR_PREDICATE, 'odd?', ['a'], [
+      [TEXT, 'B']
+    ], END]]
+  ], EOF]);
 });
 
 
@@ -228,13 +244,13 @@ test('macro', () => {
     .get();
 
   expect(errors).toEqual([]);
-  expect(root.code).toEqual([17, 1, [
-    [10, 'foo.html', [
-      [0, 'A'],
-      [2, 'bar', [
-        [0, 'B']
-      ], 3]]]
-  ], 18]);
+  expect(root.code).toEqual([ROOT, 1, [
+    [MACRO, 'foo.html', [
+      [TEXT, 'A'],
+      [SECTION, 'bar', [
+        [TEXT, 'B']
+      ], END]]]
+  ], EOF]);
 });
 
 
@@ -302,19 +318,19 @@ test('predicate with or branch', () => {
     .get();
 
   expect(errors).toEqual([]);
-  expect(root.code).toEqual([17, 1, [
-    [5, '.even?', ['a'], [
-      [2, 'a', [
-        [0, 'A']
-      ], 3]
-    ], [7, '.equal?', ['a', 'b'], [
-      [2, 'b', [
-        [0, 'B']
-      ], 3]
-    ], [7, 0, 0, [
-      [0, 'C']
-    ], 3]]]
-  ], 18]);
+  expect(root.code).toEqual([ROOT, 1, [
+    [PREDICATE, '.even?', ['a'], [
+      [SECTION, 'a', [
+        [TEXT, 'A']
+      ], END]
+    ], [OR_PREDICATE, '.equal?', ['a', 'b'], [
+      [SECTION, 'b', [
+        [TEXT, 'B']
+      ], END]
+    ], [OR_PREDICATE, 0, 0, [
+      [TEXT, 'C']
+    ], END]]]
+  ], EOF]);
 });
 
 
@@ -357,13 +373,13 @@ test('repeated', () => {
     .get();
 
   expect(errors).toEqual([]);
-  expect(root.code).toEqual([17, 1, [
-    [4, 'a', [
-      [2, 'b', [
-        [0, 'B']
-      ], 3]
-    ], 3, []]
-  ], 18]);
+  expect(root.code).toEqual([ROOT, 1, [
+    [REPEATED, 'a', [
+      [SECTION, 'b', [
+        [TEXT, 'B']
+      ], END]
+    ], END, []]
+  ], EOF]);
 });
 
 
@@ -375,13 +391,13 @@ test('repeated with or branch', () => {
     .get();
 
   expect(errors).toEqual([]);
-  expect(root.code).toEqual([17, 1, [
-    [4, 'a', [
-      [0, 'A']
-    ], [7, 0, 0, [
-      [0, 'B']
-    ], 3], []]
-  ], 18]);
+  expect(root.code).toEqual([ROOT, 1, [
+    [REPEATED, 'a', [
+      [TEXT, 'A']
+    ], [OR_PREDICATE, 0, 0, [
+      [TEXT, 'B']
+    ], END], []]
+  ], EOF]);
 });
 
 
@@ -394,14 +410,14 @@ test('repeated with or branch and alternates block', () => {
     .get();
 
   expect(errors).toEqual([]);
-  expect(root.code).toEqual([17, 1, [
-    [4, 'a', [
-      [0, 'A']
+  expect(root.code).toEqual([ROOT, 1, [
+    [REPEATED, 'a', [
+      [TEXT, 'A']
     ],
-    [7, 0, 0, [
-      [0, 'B']
-    ], 3], []]
-  ], 18]);
+    [OR_PREDICATE, 0, 0, [
+      [TEXT, 'B']
+    ], END], []]
+  ], EOF]);
 });
 
 
@@ -414,16 +430,16 @@ test('repeated with or branch and alternates block 2', () => {
     .get();
 
   expect(errors).toEqual([]);
-  expect(root.code).toEqual([17, 1, [
-    [4, 'a', [
-      [0, 'A'],
-      [2, 'b', [
-        [0, '---']
-      ], 3]],
-    [7, 0, 0, [
-      [0, 'B']
-    ], 3], []]
-  ], 18]);
+  expect(root.code).toEqual([ROOT, 1, [
+    [REPEATED, 'a', [
+      [TEXT, 'A'],
+      [SECTION, 'b', [
+        [TEXT, '---']
+      ], END]],
+    [OR_PREDICATE, 0, 0, [
+      [TEXT, 'B']
+    ], END], []]
+  ], EOF]);
 });
 
 
@@ -453,14 +469,14 @@ test('section with or branch', () => {
     .get();
 
   expect(errors).toEqual([]);
-  expect(root.code).toEqual([17, 1, [
-    [2, 'foo.bar', [
-      [0, 'hello']
-    ], [7, 0, 0, [
-      [0, 'goodbye']
-    ], 3]
+  expect(root.code).toEqual([ROOT, 1, [
+    [SECTION, 'foo.bar', [
+      [TEXT, 'hello']
+    ], [OR_PREDICATE, 0, 0, [
+      [TEXT, 'goodbye']
+    ], END]
     ]
-  ], 18]);
+  ], EOF]);
 });
 
 
@@ -473,15 +489,15 @@ test('sections nested', () => {
     .get();
 
   expect(errors).toEqual([]);
-  expect(root.code).toEqual([17, 1, [
-    [2, 'foo', [
-      [0, 'A'],
-      [2, 'bar', [
-        [0, 'B'],
-        [2, 'baz', [
-          [0, 'C']
-        ], 3]
-      ], 3]
-    ], 3]
-  ], 18]);
+  expect(root.code).toEqual([ROOT, 1, [
+    [SECTION, 'foo', [
+      [TEXT, 'A'],
+      [SECTION, 'bar', [
+        [TEXT, 'B'],
+        [SECTION, 'baz', [
+          [TEXT, 'C']
+        ], END]
+      ], END]
+    ], END]
+  ], EOF]);
 });

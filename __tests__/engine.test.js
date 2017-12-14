@@ -1,20 +1,41 @@
 import Context from '../src/context';
 import Engine from '../src/engine';
 
+import {
+  BINDVAR,
+  END,
+  EOF,
+  IF,
+  INJECT,
+  MACRO,
+  META_LEFT,
+  META_RIGHT,
+  NEWLINE,
+  OR_PREDICATE,
+  PREDICATE,
+  REPEATED,
+  ROOT,
+  SECTION,
+  SPACE,
+  TAB,
+  TEXT,
+  VARIABLE,
+} from '../src/opcodes';
+
 
 test('literals', () => {
   const engine = new Engine();
-  const inst = [17, 1, [
-    14,
-    [0, '\n'],
-    12,
-    [0, 'abc'],
-    13,
-    [0, '\n'],
-    15,
-    [0, '\n'],
-    16
-  ], 18];
+  const inst = [ROOT, 1, [
+    NEWLINE,
+    [TEXT, '\n'],
+    META_LEFT,
+    [TEXT, 'abc'],
+    META_RIGHT,
+    [TEXT, '\n'],
+    SPACE,
+    [TEXT, '\n'],
+    TAB
+  ], EOF];
 
   const ctx = new Context({});
   engine.execute(inst, ctx);
@@ -24,14 +45,14 @@ test('literals', () => {
 
 test('variables', () => {
   const engine = new Engine();
-  const inst = [17, 1, [
-    [0, 'a'],
-    [1, ['bbb'], 0],
-    [0, 'c\n'],
-    [1, ['ddd'], 0],
-    [0, 'e'],
-    [1, ['fff'], 0]
-  ], 18];
+  const inst = [ROOT, 1, [
+    [TEXT, 'a'],
+    [VARIABLE, ['bbb'], 0],
+    [TEXT, 'c\n'],
+    [VARIABLE, ['ddd'], 0],
+    [TEXT, 'e'],
+    [VARIABLE, ['fff'], 0]
+  ], EOF];
 
   const ctx = new Context({ 'bbb': '*', 'ddd': '-', 'fff': '+' });
   engine.execute(inst, ctx);
@@ -41,11 +62,11 @@ test('variables', () => {
 
 test('variables missing', () => {
   const engine = new Engine();
-  const inst = [17, 1, [
-    [0, 'a'],
-    [1, ['b'], 0],
-    [0, 'c']
-  ], 18];
+  const inst = [ROOT, 1, [
+    [TEXT, 'a'],
+    [VARIABLE, ['b'], 0],
+    [TEXT, 'c']
+  ], EOF];
   const ctx = new Context({});
   engine.execute(inst, ctx);
   expect(ctx.buf).toEqual('ac');
@@ -54,13 +75,13 @@ test('variables missing', () => {
 
 test('variables with formatters', () => {
   const engine = new Engine();
-  const inst = [17, 1, [
-    [1, ['foo'], [['html']]],
-    [0, '\n'],
-    [1, ['bar'], [['truncate', ['5']], ['json']]],
-    [0, '\n'],
-    [1, ['baz'], [['json-pretty']]]
-  ], 18];
+  const inst = [ROOT, 1, [
+    [VARIABLE, ['foo'], [['html']]],
+    [TEXT, '\n'],
+    [VARIABLE, ['bar'], [['truncate', ['5']], ['json']]],
+    [TEXT, '\n'],
+    [VARIABLE, ['baz'], [['json-pretty']]]
+  ], EOF];
 
   const ctx = new Context({
     foo: '<tag> & tag',
@@ -74,11 +95,9 @@ test('variables with formatters', () => {
 
 test('section', () => {
   const engine = new Engine();
-  const inst = [17, 1, [
-    [2, 'a', [
-      [1, ['b'], 0],
-    ], 3]
-  ], 18];
+  const inst = [ROOT, 1, [
+    [SECTION, 'a', [[VARIABLE, ['b'], 0]], END]
+  ], EOF];
 
   let ctx = new Context({ a: { b: 123 } });
   engine.execute(inst, ctx);
@@ -92,13 +111,13 @@ test('section', () => {
 
 test('repeated 1', () => {
   const engine = new Engine();
-  const inst = [17, 1, [
-    [4, 'items',
-      [[0, 'a']],
-      [7, 0, 0, [[0, 'b']], 3],
-      [[0, '|']]
+  const inst = [ROOT, 1, [
+    [REPEATED, 'items',
+      [[TEXT, 'a']],
+      [OR_PREDICATE, 0, 0, [[TEXT, 'b']], 3],
+      [[TEXT, '|']]
     ]
-  ], 18];
+  ], EOF];
 
   let ctx = new Context({ items: [0, 0, 0] });
   engine.execute(inst, ctx);
@@ -113,11 +132,9 @@ test('repeated 1', () => {
 
 test('repeated 2', () => {
   const engine = new Engine();
-  const inst = [17, 1, [
-    [4, 'a', [
-      [1, ['@'], ['iter']]
-    ], 3]
-  ], 18];
+  const inst = [ROOT, 1, [
+    [REPEATED, 'a', [[VARIABLE, ['@'], ['iter']]], END]
+  ], EOF];
 
   const ctx = new Context({ a: [1, 2, 3] });
   engine.execute(inst, ctx);
@@ -127,11 +144,9 @@ test('repeated 2', () => {
 
 test('repeated 3', () => {
   const engine = new Engine();
-  const inst = [17, 1, [
-    [4, 'a', [
-      [1, ['@'], 0]
-    ]]
-  ], 18];
+  const inst = [ROOT, 1, [
+    [REPEATED, 'a', [[VARIABLE, ['@'], 0]]]
+  ], EOF];
 
   const ctx = new Context({ a: [1, null, 2, null, 3] });
   engine.execute(inst, ctx);
@@ -141,16 +156,16 @@ test('repeated 3', () => {
 
 test('repeated 4', () => {
   const engine = new Engine();
-  const inst = [17, 1, [
-    [4, 'a', [
-      [0, 'A'],
-      [2, 'b', [
-        [0, '---']
-      ], 3]],
-    [7, 0, 0, [
-      [0, 'B']
-    ], 3], []]
-  ], 18];
+  const inst = [ROOT, 1, [
+    [REPEATED, 'a', [
+      [TEXT, 'A'],
+      [SECTION, 'b', [
+        [TEXT, '---']
+      ], END]],
+    [OR_PREDICATE, 0, 0, [
+      [TEXT, 'B']
+    ], END], []]
+  ], EOF];
 
   let ctx = new Context({ a: [1, 2, 3], b: 1 });
   engine.execute(inst, ctx);
@@ -164,14 +179,14 @@ test('repeated 4', () => {
 
 test('predicates', () => {
   const engine = new Engine();
-  const inst = [17, 1, [
-    [5, 'equal?', ['foo', 'bar'],
-      [[0, 'equal']],
-      [7,0,0,[
-        [0, 'not equal']
-      ], 3]
+  const inst = [ROOT, 1, [
+    [PREDICATE, 'equal?', ['foo', 'bar'],
+      [[TEXT, 'equal']],
+      [OR_PREDICATE, 0, 0, [
+        [TEXT, 'not equal']
+      ], END]
     ]
-  ], 18];
+  ], EOF];
 
   let ctx = new Context({ foo: 1, bar: 1 });
   engine.execute(inst, ctx);
@@ -195,13 +210,13 @@ test('predicates', () => {
 
 test('bindvar', () => {
   const engine = new Engine();
-  const inst = [17, 1 ,[
-    [6, '@foo', ['bar'], [['html']]],
-    [6, '@baz', ['quux'], 0],
-    [1, ['@foo'], 0],
-    [1, ['@baz'], 0],
-    [1, ['@missing'], 0]
-  ], 18];
+  const inst = [ROOT, 1, [
+    [BINDVAR, '@foo', ['bar'], [['html']]],
+    [BINDVAR, '@baz', ['quux'], 0],
+    [VARIABLE, ['@foo'], 0],
+    [VARIABLE, ['@baz'], 0],
+    [VARIABLE, ['@missing'], 0]
+  ], EOF];
 
   const ctx = new Context({ bar: '<hi>', quux: '<bye>' });
   engine.execute(inst, ctx);
@@ -211,16 +226,16 @@ test('bindvar', () => {
 
 test('if', () => {
   const engine = new Engine();
-  const inst = [17, 1, [
-    [8, [1, 0], ['a', 'b', 'c'], [
-      [1, ['a'], 0],
-      [0, ' and '],
-      [1, ['b'], 0]
-    ], [7, 0, 0, [
-      [0, 'or '],
-      [1, ['c'], 0],
-    ], 3]]
-  ], 18];
+  const inst = [ROOT, 1, [
+    [IF, [1, 0], ['a', 'b', 'c'], [
+      [VARIABLE, ['a'], 0],
+      [TEXT, ' and '],
+      [VARIABLE, ['b'], 0]
+    ], [OR_PREDICATE, 0, 0, [
+      [TEXT, 'or '],
+      [VARIABLE, ['c'], 0],
+    ], END]]
+  ], EOF];
 
   let ctx = new Context({ a: 'a', b: 'b', c: 0 });
   engine.execute(inst, ctx);
@@ -238,10 +253,10 @@ test('if', () => {
 
 test('inject', () => {
   const engine = new Engine();
-  const inst = [17, 1, [
-    [9, '@foo', 'file.html', 0],
-    [1, ['@foo'], [['html']]]
-  ], 18];
+  const inst = [ROOT, 1, [
+    [INJECT, '@foo', 'file.html', 0],
+    [VARIABLE, ['@foo'], [['html']]]
+  ], EOF];
   const inject = {
     'file.html': '<b>file contents</b>'
   };
@@ -253,10 +268,10 @@ test('inject', () => {
 
 test('inject missing', () => {
   const engine = new Engine();
-  const inst = [17, 1, [
-    [9, '@foo', 'missing.html', 0],
-    [1, ['@foo'], 0]
-  ], 18];
+  const inst = [ROOT, 1, [
+    [INJECT, '@foo', 'missing.html', 0],
+    [VARIABLE, ['@foo'], 0]
+  ], EOF];
   const inject = {
     'file.html': 'file contents',
   };
@@ -269,10 +284,10 @@ test('inject missing', () => {
 
 test('inject mapping empty', () => {
   const engine = new Engine();
-  const inst = [17, 1, [
-    [9, '@foo', 'file.html', 0],
-    [1, ['@foo'], [['html']]]
-  ], 18];
+  const inst = [ROOT, 1, [
+    [INJECT, '@foo', 'file.html', 0],
+    [VARIABLE, ['@foo'], [['html']]]
+  ], EOF];
   const ctx = new Context({});
   engine.execute(inst, ctx);
   expect(ctx.buf).toEqual('');
@@ -281,21 +296,21 @@ test('inject mapping empty', () => {
 
 test('macro', () => {
   const engine = new Engine();
-  const inst = [17, 1, [
+  const inst = [ROOT, 1, [
     // define macro
-    [10, 'person.html', [
-      [1, ['name'], 0],
-      [0, ' is ' ],
-      [1, ['status'], 0],
+    [MACRO, 'person.html', [
+      [VARIABLE, ['name'], 0],
+      [TEXT, ' is ' ],
+      [VARIABLE, ['status'], 0],
     ]],
-    [10, 'unused.html', [
-      [0, 'never called']
+    [MACRO, 'unused.html', [
+      [TEXT, 'never called']
     ]],
-    [2, 'person', [
-      [1, ['@'], [[ 'apply', ['person.html']]]],
-    ], 3]
+    [SECTION, 'person', [
+      [VARIABLE, ['@'], [[ 'apply', ['person.html']]]],
+    ], END]
 
-  ], 18];
+  ], EOF];
 
   const ctx = new Context({ person: { name: 'Betty', status: 'offline' } });
   engine.execute(inst, ctx);
@@ -305,11 +320,11 @@ test('macro', () => {
 
 test('macro not defined', () => {
   const engine = new Engine();
-  const inst = [17, 1, [
-    [2, 'person', [
-      [1, ['@'], [[ 'apply', ['person.html']]]],
-    ], 3]
-  ], 18];
+  const inst = [ROOT, 1, [
+    [SECTION, 'person', [
+      [VARIABLE, ['@'], [[ 'apply', ['person.html']]]],
+    ], END]
+  ], EOF];
 
   const ctx = new Context({ person: { name: 'Betty', status: 'offline' } });
   engine.execute(inst, ctx);

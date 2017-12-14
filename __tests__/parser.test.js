@@ -3,6 +3,23 @@ import Context from '../src/context';
 import Engine from '../src/engine';
 import Parser from '../src/parser';
 
+import {
+  BINDVAR,
+  COMMENT,
+  END,
+  EOF,
+  IF,
+  INJECT,
+  MACRO,
+  OR_PREDICATE,
+  PREDICATE,
+  REPEATED,
+  ROOT,
+  SECTION,
+  TEXT,
+  VARIABLE,
+} from '../src/opcodes';
+
 
 const parse = (str) => {
   const assembler = new Assembler();
@@ -14,37 +31,37 @@ const parse = (str) => {
 
 test('degenerate cases', () => {
   let { code } = parse('a{b');
-  expect(code).toEqual([17, 1, [
-    [0, 'a{b']
-  ], 18]);
+  expect(code).toEqual([ROOT, 1, [
+    [TEXT, 'a{b']
+  ], EOF]);
 
   ({ code } = parse('{{{}{{}'));
-  expect(code).toEqual([17, 1, [
-    [0, '{{'],
-    [0, '{}'],
-    [0, '{'],
-    [0, '{}']
-  ], 18]);
+  expect(code).toEqual([ROOT, 1, [
+    [TEXT, '{{'],
+    [TEXT, '{}'],
+    [TEXT, '{'],
+    [TEXT, '{}']
+  ], EOF]);
 
   ({ code } = parse('{.end  }'));
-  expect(code).toEqual([17, 1, [
-    [0, '{.end  }']
-  ], 18]);
+  expect(code).toEqual([ROOT, 1, [
+    [TEXT, '{.end  }']
+  ], EOF]);
 });
 
 
 test('parse and execute', () => {
   const { assembler, code } = parse('a{b}c{## comment\ncomment ##}d{e}f');
 
-  expect(code).toEqual([17, 1, [
-    [0, 'a'],
-    [1, ['b'], 0],
-    [0, 'c'],
-    [11, ' comment\ncomment ', 1],
-    [0, 'd'],
-    [1, ['e'], 0],
-    [0, 'f']
-  ], 18]);
+  expect(code).toEqual([ROOT, 1, [
+    [TEXT, 'a'],
+    [VARIABLE, ['b'], 0],
+    [TEXT, 'c'],
+    [COMMENT, ' comment\ncomment ', 1],
+    [TEXT, 'd'],
+    [VARIABLE, ['e'], 0],
+    [TEXT, 'f']
+  ], EOF]);
 
   const ctx = new Context({ b: '...', e: '---' });
   const engine = new Engine();
@@ -55,268 +72,260 @@ test('parse and execute', () => {
 
 test('bindvar', () => {
   let { code } = parse('abc{.var @foo bar}def');
-  expect(code).toEqual([17, 1, [
-    [0, 'abc'],
-    [6, '@foo', ['bar'], 0],
-    [0, 'def']
-  ], 18]);
+  expect(code).toEqual([ROOT, 1, [
+    [TEXT, 'abc'],
+    [BINDVAR, '@foo', ['bar'], 0],
+    [TEXT, 'def']
+  ], EOF]);
 
   ({ code } = parse('{.var @foo a, b|html}'));
-  expect(code).toEqual([17, 1, [[6, '@foo', ['a', 'b'], [['html']]]], 18]);
+  expect(code).toEqual([ROOT, 1, [[BINDVAR, '@foo', ['a', 'b'], [['html']]]], EOF]);
 
   ({ code } = parse('{.var}'));
-  expect(code).toEqual([17, 1, [[0, '{.var}']], 18]);
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.var}']], EOF]);
 
   ({ code } = parse('{.var+}'));
-  expect(code).toEqual([17, 1, [[0, '{.var+}']], 18]);
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.var+}']], EOF]);
 
   ({ code } = parse('{.var **}'));
-  expect(code).toEqual([17, 1, [[0, '{.var **}']], 18]);
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.var **}']], EOF]);
 
   ({ code } = parse('{.var @foo}'));
-  expect(code).toEqual([17, 1, [[0, '{.var @foo}']], 18]);
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.var @foo}']], EOF]);
 
   ({ code } = parse('{.var @foo+}'));
-  expect(code).toEqual([17, 1, [[0, '{.var @foo+}']], 18]);
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.var @foo+}']], EOF]);
 
   ({ code } = parse('{.var @foo +}'));
-  expect(code).toEqual([17, 1, [[0, '{.var @foo +}']], 18]);
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.var @foo +}']], EOF]);
 
   ({ code } = parse('{.var @foo bar }'));
-  expect(code).toEqual([17, 1, [[0, '{.var @foo bar }']], 18]);
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.var @foo bar }']], EOF]);
 });
 
 
 test('comments', () => {
   const { code } = parse('abc{# comment 1} {#comment 2}def');
-  expect(code).toEqual([17, 1, [
-    [0, 'abc'],
-    [11, ' comment 1', 0],
-    [0, ' '],
-    [11, 'comment 2', 0],
-    [0, 'def']
-  ], 18]);
+  expect(code).toEqual([ROOT, 1, [
+    [TEXT, 'abc'],
+    [COMMENT, ' comment 1', 0],
+    [TEXT, ' '],
+    [COMMENT, 'comment 2', 0],
+    [TEXT, 'def']
+  ], EOF]);
 });
 
 
 test('if', () => {
   let { code } = parse('{.if a}A{.end}');
-  expect(code).toEqual([17,1, [
-    [8, [], ['a'], [
-      [0, 'A']
-    ], 3]
-  ], 18]);
+  expect(code).toEqual([ROOT, 1, [
+    [IF, [], ['a'], [
+      [TEXT, 'A']
+    ], END]
+  ], EOF]);
 
   // Generates a PREDICATE instruction instead of an If
   ({ code } = parse('{.if equal?}A{.end}'));
-  expect(code).toEqual([17, 1, [
-    [5, 'equal?', 0, [
-      [0, 'A']
-    ], 3]
-  ], 18]);
+  expect(code).toEqual([ROOT, 1, [
+    [PREDICATE, 'equal?', 0, [[TEXT, 'A']], END]
+  ], EOF]);
 
   ({ code } = parse('{.if}'));
-  expect(code).toEqual([17, 1, [[0, '{.if}']], 18]);
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.if}']], EOF]);
 
   ({ code } = parse('{.if a**}'));
-  expect(code).toEqual([17, 1, [[0, '{.if a**}']], 18]);
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.if a**}']], EOF]);
 
   ({ code } = parse('{.if a || **}'));
-  expect(code).toEqual([17, 1, [[0, '{.if a || **}']], 18]);
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.if a || **}']], EOF]);
 });
 
 
 test('inject', () => {
   let { code } = parse('abc{.inject @foo ./messages-en_US.json a b c}def');
-  expect(code).toEqual([17, 1, [
-    [0, 'abc'],
-    [9, '@foo', './messages-en_US.json', 0], // arguments parsed but currently ignored
-    [0, 'def']
-  ], 18]);
+  expect(code).toEqual([ROOT, 1, [
+    [TEXT, 'abc'],
+    [INJECT, '@foo', './messages-en_US.json', 0], // arguments parsed but currently ignored
+    [TEXT, 'def']
+  ], EOF]);
 
   ({ code } = parse('{.inject @foo ./bar.json}'));
-  expect(code).toEqual([17, 1, [[9, '@foo', './bar.json', 0]], 18]);
+  expect(code).toEqual([ROOT, 1, [[INJECT, '@foo', './bar.json', 0]], EOF]);
 
   ({ code } = parse('{.inject}'));
-  expect(code).toEqual([17, 1, [[0, '{.inject}']], 18]);
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.inject}']], EOF]);
 
   ({ code } = parse('{.inject }'));
-  expect(code).toEqual([17, 1, [[0, '{.inject }']], 18]);
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.inject }']], EOF]);
 
   ({ code } = parse('{.inject **}'));
-  expect(code).toEqual([17, 1, [[0, '{.inject **}']], 18]);
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.inject **}']], EOF]);
 
   ({ code } = parse('{.inject @foo}'));
-  expect(code).toEqual([17, 1, [[0, '{.inject @foo}']], 18]);
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.inject @foo}']], EOF]);
 
   ({ code } = parse('{.inject @foo+}'));
-  expect(code).toEqual([17, 1, [[0, '{.inject @foo+}']], 18]);
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.inject @foo+}']], EOF]);
 
   ({ code } = parse('{.inject @foo }'));
-  expect(code).toEqual([17, 1, [[0, '{.inject @foo }']], 18]);
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.inject @foo }']], EOF]);
 
   ({ code } = parse('{.inject @foo **}'));
-  expect(code).toEqual([17, 1, [[0, '{.inject @foo **}']], 18]);
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.inject @foo **}']], EOF]);
 
   ({ code } = parse('{.inject @foo a b c|}'));
-  expect(code).toEqual([17, 1, [[0, '{.inject @foo a b c|}']], 18]);
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.inject @foo a b c|}']], EOF]);
 });
 
 
 test('macro', () => {
   let { code } = parse('abc\n\t{.macro foo.html}{a.b.c}{.end}\ndef');
-  expect(code).toEqual([17, 1, [
-    [0, 'abc\n\t'],
-    [10, 'foo.html', [
-      [1, ['a.b.c'], 0]
+  expect(code).toEqual([ROOT, 1, [
+    [TEXT, 'abc\n\t'],
+    [MACRO, 'foo.html', [
+      [VARIABLE, ['a.b.c'], 0]
     ]],
-    [0, '\ndef']
-  ], 18]);
+    [TEXT, '\ndef']
+  ], EOF]);
 
   ({ code } = parse('{.macro}'));
-  expect(code).toEqual([17, 1, [[0, '{.macro}']], 18]);
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.macro}']], EOF]);
 
   ({ code } = parse('{.macro }'));
-  expect(code).toEqual([17, 1, [[0, '{.macro }']], 18]);
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.macro }']], EOF]);
 
   ({ code } = parse('{.macro **}'));
-  expect(code).toEqual([17, 1, [[0, '{.macro **}']], 18]);
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.macro **}']], EOF]);
 
   ({ code } = parse('{.macro ./foo.json**}'));
-  expect(code).toEqual([17, 1, [[0, '{.macro ./foo.json**}']], 18]);
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.macro ./foo.json**}']], EOF]);
 });
 
 
 test('multiline comments', () => {
   let { code } = parse('abc{##\ncomment ## comment\n##}def');
-  expect(code).toEqual([17, 1, [
-    [0, 'abc'],
-    [11, '\ncomment ## comment\n', 1],
-    [0, 'def']
-  ], 18]);
+  expect(code).toEqual([ROOT, 1, [
+    [TEXT, 'abc'],
+    [COMMENT, '\ncomment ## comment\n', 1],
+    [TEXT, 'def']
+  ], EOF]);
 
   ({ code } = parse('{## foo bar ##'));
-  expect(code).toEqual([17, 1, [
-    [11, ' foo bar ##', 1]
-  ], 18]);
+  expect(code).toEqual([ROOT, 1, [
+    [COMMENT, ' foo bar ##', 1]
+  ], EOF]);
 });
 
 
 test('or predicate', () => {
   let { code } = parse('foo{.section a}{.or}A{.end}bar');
-  expect(code).toEqual([17, 1, [
-    [0, 'foo'],
-    [2, 'a', [], [7, 0, 0, [
-      [0, 'A']
-    ], 3]],
-    [0, 'bar']
-  ], 18]);
+  expect(code).toEqual([ROOT, 1, [
+    [TEXT, 'foo'],
+    [SECTION, 'a', [], [OR_PREDICATE, 0, 0, [
+      [TEXT, 'A']
+    ], END]],
+    [TEXT, 'bar']
+  ], EOF]);
 
   ({ code } = parse('foo{.section a}{.or equal? b c}A{.end}bar'));
-  expect(code).toEqual([17, 1, [
-    [0, 'foo'],
-    [2, 'a', [], [7, 'equal?', ['b', 'c'], [
-      [0, 'A']
-    ], 3]],
-    [0, 'bar']
-  ], 18]);
+  expect(code).toEqual([ROOT, 1, [
+    [TEXT, 'foo'],
+    [SECTION, 'a', [], [OR_PREDICATE, 'equal?', ['b', 'c'], [
+      [TEXT, 'A']
+    ], END]],
+    [TEXT, 'bar']
+  ], EOF]);
 });
 
 
 test('predicate', () => {
   let { code } = parse('foo{.equal? a b}A{.or greaterThan? c d}B{.end}bar');
-  expect(code).toEqual([17, 1, [
-    [0, 'foo'],
-    [5, 'equal?', ['a', 'b'], [
-      [0, 'A']
-    ], [7, 'greaterThan?', ['c', 'd'], [
-      [0, 'B']
-    ], 3]],
-    [0, 'bar']
-  ], 18]);
+  expect(code).toEqual([ROOT, 1, [
+    [TEXT, 'foo'],
+    [PREDICATE, 'equal?', ['a', 'b'], [
+      [TEXT, 'A']
+    ], [OR_PREDICATE, 'greaterThan?', ['c', 'd'], [
+      [TEXT, 'B']
+    ], END]],
+    [TEXT, 'bar']
+  ], EOF]);
 
   ({ code } = parse('foo{.equal?:a:"b c d"}A{.or}B{.end}bar'));
-  expect(code).toEqual([17, 1, [
-    [0, 'foo'],
-    [5, 'equal?', ['a', '\"b c d\"'], [
-      [0, 'A']
-    ], [7, 0, 0, [
-      [0, 'B']
-    ], 3]],
-    [0, 'bar'],
-  ], 18]);
+  expect(code).toEqual([ROOT, 1, [
+    [TEXT, 'foo'],
+    [PREDICATE, 'equal?', ['a', '\"b c d\"'], [
+      [TEXT, 'A']
+    ], [OR_PREDICATE, 0, 0, [
+      [TEXT, 'B']
+    ], END]],
+    [TEXT, 'bar'],
+  ], EOF]);
 
   ({ code } = parse('{.equal?|}'));
-  expect(code).toEqual([17, 1, [[0, '{.equal?|}']], 18]);
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.equal?|}']], EOF]);
 
   ({ code } = parse('{.**?}'));
-  expect(code).toEqual([17, 1, [[0, '{.**?}']], 18]);
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.**?}']], EOF]);
 });
 
 
 test('repeated section', () => {
   let { code } = parse('{.repeated section a.b.c}A{.end}');
-  expect(code).toEqual([17, 1, [
-    [4, 'a.b.c', [
-      [0, 'A']
-    ], 3, []]
-  ], 18]);
+  expect(code).toEqual([ROOT, 1, [
+    [REPEATED, 'a.b.c', [[TEXT, 'A']], END, []]
+  ], EOF]);
 
   ({ code } = parse('{.repeated section @items}A{.alternates with}---{.end}'));
-  expect(code).toEqual([17, 1, [
-    [4, '@items', [
-      [0, 'A']
-    ], 3, [
-      [0, '---']
-    ]]
-  ], 18]);
+  expect(code).toEqual([ROOT, 1, [
+    [REPEATED, '@items', [[TEXT, 'A']], END, [[TEXT, '---']]]
+  ], EOF]);
 
   ({ code } = parse('{.repeated section}'));
-  expect(code).toEqual([17, 1, [[0, '{.repeated section}']], 18]);
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.repeated section}']], EOF]);
 
   ({ code } = parse('{.repeated section }'));
-  expect(code).toEqual([17, 1, [[0, '{.repeated section }']], 18]);
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.repeated section }']], EOF]);
 
   ({ code } = parse('{.repeated section **}'));
-  expect(code).toEqual([17, 1, [[0, '{.repeated section **}']], 18]);
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.repeated section **}']], EOF]);
 
   ({ code } = parse('{.repeated section a.b**}'));
-  expect(code).toEqual([17, 1, [[0, '{.repeated section a.b**}']], 18]);
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.repeated section a.b**}']], EOF]);
 });
 
 
 test('section', () => {
   let { code } = parse('{.section a.b.c}A{.end}');
-  expect(code).toEqual([17, 1, [
-    [2, 'a.b.c', [
-      [0, 'A']
-    ], 3]
-  ], 18]);
+  expect(code).toEqual([ROOT, 1, [
+    [SECTION, 'a.b.c', [
+      [TEXT, 'A']
+    ], END]
+  ], EOF]);
 
   ({ code } = parse('{.section}'));
-  expect(code).toEqual([17, 1, [[0, '{.section}']], 18]);
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.section}']], EOF]);
 
   ({ code } = parse('{.section }'));
-  expect(code).toEqual([17, 1, [[0, '{.section }']], 18]);
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.section }']], EOF]);
 
   ({ code } = parse('{.section **}'));
-  expect(code).toEqual([17, 1, [[0, '{.section **}']], 18]);
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.section **}']], EOF]);
 
   ({ code } = parse('{.section a.b**}'));
-  expect(code).toEqual([17, 1, [[0, '{.section a.b**}']], 18]);
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.section a.b**}']], EOF]);
 
 });
 
 
 test('variables', () => {
   let { code } = parse('{a, b, c|foo d e|bar}');
-  expect(code).toEqual([17, 1, [
-    [1, ['a', 'b', 'c'], [['foo', ['d', 'e']], ['bar']]]
-  ], 18]);
+  expect(code).toEqual([ROOT, 1, [
+    [VARIABLE, ['a', 'b', 'c'], [['foo', ['d', 'e']], ['bar']]]
+  ], EOF]);
 
   ({ code } = parse('{a**}'));
-  expect(code).toEqual([17, 1, [[0, '{a**}']], 18]);
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{a**}']], EOF]);
 
   ({ code } = parse('{a|**}'));
-  expect(code).toEqual([17, 1, [[0, '{a|**}']], 18]);
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{a|**}']], EOF]);
 });

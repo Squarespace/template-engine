@@ -3,6 +3,30 @@ import Context from '../../src/context';
 import Engine from '../../src/engine';
 import Variable from '../../src/variable';
 
+import {
+  ALTERNATES_WITH,
+  BINDVAR,
+  COMMENT,
+  END,
+  EOF,
+  IF,
+  INJECT,
+  MACRO,
+  META_LEFT,
+  META_RIGHT,
+  NEWLINE,
+  OR_PREDICATE,
+  PREDICATE,
+  REPEATED,
+  ROOT,
+  SECTION,
+  SPACE,
+  TAB,
+  TEXT,
+  VARIABLE,
+} from '../../src/opcodes';
+
+
 function variables(...n) {
   return n.map((v, i) => new Variable('var' + i, v));
 }
@@ -10,14 +34,14 @@ function variables(...n) {
 
 test('apply', () => {
   const engine = new Engine();
-  const inst = [17, 1, [
-    [0, 'Hi, '],
-    [1, ['person'], [['apply', ['person.html']]]]
-  ], 18];
-  const partial = [17, 1, [
-    [1, ['name'], 0],
-    [1, ['sym'], 0]
-  ], 18];
+  const inst = [ROOT, 1, [
+    [TEXT, 'Hi, '],
+    [VARIABLE, ['person'], [['apply', ['person.html']]]]
+  ], EOF];
+  const partial = [ROOT, 1, [
+    [VARIABLE, ['name'], 0],
+    [VARIABLE, ['sym'], 0]
+  ], EOF];
 
   const node = { person: { name: 'User Name' }, sym: '!!' };
   const ctx = new Context(node, { partials: { 'person.html': partial } });
@@ -28,14 +52,14 @@ test('apply', () => {
 
 test('apply private scope', () => {
   const engine = new Engine();
-  const inst = [17, 1, [
-    [0, 'Hi, '],
-    [1, ['person'], [['apply', ['person.html', 'private']]]],
-  ], 18];
-  const partial = [17, 1, [
-    [1, ['name'], 0],
-    [1, ['sym'], 0]
-  ], 18];
+  const inst = [ROOT, 1, [
+    [TEXT, 'Hi, '],
+    [VARIABLE, ['person'], [['apply', ['person.html', 'private']]]],
+  ], EOF];
+  const partial = [ROOT, 1, [
+    [VARIABLE, ['name'], 0],
+    [VARIABLE, ['sym'], 0]
+  ], EOF];
 
   const node = { person: { name: 'User Name' }, sym: '!!' };
   const ctx = new Context(node, { partials: { 'person.html': partial } });
@@ -46,14 +70,14 @@ test('apply private scope', () => {
 
 test('apply missing partial', () => {
   const engine = new Engine();
-  const inst = [17, 1, [
-    [0, 'Hi, '],
-    [1, ['person'], [['apply', ['missing.html']]]],
-  ], 18];
-  const partial = [17, 1, [
-    [1, ['name'], 0],
-    [1, ['sym'], 0]
-  ], 18];
+  const inst = [ROOT, 1, [
+    [TEXT, 'Hi, '],
+    [VARIABLE, ['person'], [['apply', ['missing.html']]]],
+  ], EOF];
+  const partial = [ROOT, 1, [
+    [VARIABLE, ['name'], 0],
+    [VARIABLE, ['sym'], 0]
+  ], EOF];
 
   const node = { person: { name: 'User Name' } };
   const ctx = new Context(node, { partials: { 'person.html': partial } });
@@ -64,14 +88,14 @@ test('apply missing partial', () => {
 
 test('apply no arguments', () => {
   const engine = new Engine();
-  const inst = [17, 1, [
-    [0, 'Hi, '],
-    [1, ['person'], [['apply']]],
-  ], 18];
-  const partial = [17, 1, [
-    [1, ['name'], 0],
-    [1, ['sym'], 0]
-  ], 18];
+  const inst = [ROOT, 1, [
+    [TEXT, 'Hi, '],
+    [VARIABLE, ['person'], [['apply']]],
+  ], EOF];
+  const partial = [ROOT, 1, [
+    [VARIABLE, ['name'], 0],
+    [VARIABLE, ['sym'], 0]
+  ], EOF];
 
   const node = { person: { name: 'User Name' } };
   const ctx = new Context(node, { partials: { 'person.html': partial } });

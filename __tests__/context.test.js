@@ -1,5 +1,6 @@
 import Context from '../src/context';
 import Node, { MISSING_NODE } from '../src/node';
+import { EOF, ROOT, TEXT } from '../src/opcodes';
 
 
 test('node constructor', () => {
@@ -134,9 +135,9 @@ test('set variable', () => {
 
 test('set macro', () => {
   const ctx = new Context({});
-  const inst = [17, 1, [
-    [0, 'Hi']
-  ], 18];
+  const inst = [ROOT, 1, [
+    [TEXT, 'Hi']
+  ], EOF];
   ctx.setMacro('foo', inst);
   expect(ctx.getPartial('foo')).toEqual(inst);
 });
