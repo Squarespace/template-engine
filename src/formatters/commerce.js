@@ -3,6 +3,7 @@ import { executeTemplate } from '../util';
 
 import addToCartBtn from './templates/add-to-cart-btn.json';
 
+
 class AddToCartButton extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];

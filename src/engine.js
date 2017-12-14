@@ -6,6 +6,7 @@ import types from './types';
 import { splitVariable, isTruthy } from './util';
 import Variable from './variable';
 
+
 const defaultProps = {
   formatters: Formatters,
   predicates: Predicates,
@@ -13,13 +14,14 @@ const defaultProps = {
 
 /**
  * Engine that evaluates a tree of instructions and appends output to
- * the given context.
+ * the given context. All state for a single execution is maintained
+ * in the Context, so a single instance can be reused globally.
  */
 class Engine {
 
   constructor({ formatters, predicates } = defaultProps) {
-    this.formatters = formatters || {};
-    this.predicates = predicates || {};
+    this.formatters = formatters;
+    this.predicates = predicates;
   }
 
   /*eslint complexity: ["error", 30]*/
@@ -129,7 +131,7 @@ class Engine {
     const vars = this.resolveVariables(inst[1], ctx);
     this.applyFormatters(inst[2], vars, ctx);
     if (ctx.visitor) {
-      ctx.visitor.onVariable(vars[0], ctx);
+      ctx.visitor.onVariable(vars, ctx);
     }
     this.emit(vars, ctx);
   }
@@ -230,7 +232,7 @@ class Engine {
     const vars = this.resolveVariables(inst[2], ctx);
     this.applyFormatters(inst[3], vars, ctx);
     if (ctx.visitor) {
-      ctx.visitor.onBindvar(name, vars[0], ctx);
+      ctx.visitor.onBindvar(name, vars, ctx);
     }
     ctx.setVar(inst[1], vars[0].node);
   }

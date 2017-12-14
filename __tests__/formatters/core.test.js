@@ -4,24 +4,8 @@ import Engine from '../../src/engine';
 import Variable from '../../src/variable';
 
 import {
-  ALTERNATES_WITH,
-  BINDVAR,
-  COMMENT,
-  END,
   EOF,
-  IF,
-  INJECT,
-  MACRO,
-  META_LEFT,
-  META_RIGHT,
-  NEWLINE,
-  OR_PREDICATE,
-  PREDICATE,
-  REPEATED,
   ROOT,
-  SECTION,
-  SPACE,
-  TAB,
   TEXT,
   VARIABLE,
 } from '../../src/opcodes';
@@ -102,8 +86,6 @@ test('apply no arguments', () => {
   engine.execute(inst, ctx);
   expect(ctx.render()).toEqual('Hi, ');
 });
-
-
 
 
 test('count', () => {
@@ -255,6 +237,8 @@ const htmlattr = () => {
 
 
 test('htmlattr', htmlattr);
+
+
 test('htmltag', htmlattr);
 
 

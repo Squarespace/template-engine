@@ -1,7 +1,7 @@
 import Context from '../src/context';
 import Engine from '../src/engine';
 import Visitor from '../src//visitor';
-import { END, EOF, ROOT, SECTION, VARIABLE } from '../src/opcodes';
+import { END, EOF, ROOT, SECTION, VARIABLE, BINDVAR } from '../src/opcodes';
 
 /**
  * Example of constructing a custom context to modify in visitor methods.
@@ -22,13 +22,19 @@ class ExampleVisitor extends Visitor {
     this.names = [];
   }
 
-  onVariable(variable, ctx) {
-    this.names.push(variable.name);
+  onBindvar(name, variables, ctx) {
+    this.names.push(name);
+    this.names.push(variables[0].name);
+  }
+
+  onVariable(variables, ctx) {
+    this.names.push(variables[0].name);
   }
 
   onSection(name, ctx) {
     ctx.path.push(name);
   }
+
 }
 
 
@@ -36,13 +42,15 @@ test('basic', () => {
   const engine = new Engine();
   const inst = [ROOT, 1, [
     [SECTION, 'b', [
-      [VARIABLE, ['a'], 0]
+      [BINDVAR, '@foo', ['a', 'b'], [['html']]],
+      [VARIABLE, ['a'], 0],
+      [VARIABLE, ['@foo'], 0]
     ], END]
   ], EOF];
 
   const visitor = new ExampleVisitor();
   const ctx = new VisitorContext({ a: 1, b: { c: 2 } }, { visitor });
   engine.execute(inst, ctx);
-  expect(visitor.names).toEqual(['a']);
+  expect(visitor.names).toEqual(['@foo', 'a', 'a', '@foo']);
   expect(ctx.path).toEqual(['b']);
 });

@@ -1,4 +1,5 @@
 import { Formatter } from '../plugin';
+import { EOF, ROOT, TEXT, VARIABLE } from '../opcodes';
 import { executeTemplate } from '../util';
 
 
@@ -11,16 +12,16 @@ class AbsUrl extends Formatter {
   }
 }
 
-const audioPlayer = [17, 1, [
-  [0, '<script>Y.use(\'squarespace-audio-player-frontend\');</script>'],
-  [0, '<div class="squarespace-audio-player" data-audio-asset-url="'],
-  [1, ['structuredContent.audioAssetUrl'], 0],
-  [0, '" data-item-id="'],
-  [1, ['id'], 0],
-  [0, '" id="audio-player-'],
-  [1, ['id'], 0],
-  [0, '"></div>']
-], 18];
+const audioPlayer = [ROOT, 1, [
+  [TEXT, '<script>Y.use(\'squarespace-audio-player-frontend\');</script>'],
+  [TEXT, '<div class="squarespace-audio-player" data-audio-asset-url="'],
+  [VARIABLE, ['structuredContent.audioAssetUrl'], 0],
+  [TEXT, '" data-item-id="'],
+  [VARIABLE, ['id'], 0],
+  [TEXT, '" id="audio-player-'],
+  [VARIABLE, ['id'], 0],
+  [TEXT, '"></div>']
+], EOF];
 
 class AudioPlayer extends Formatter {
   apply(args, vars, ctx) {

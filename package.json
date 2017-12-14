@@ -1,11 +1,12 @@
 {
-  "name": "template-engine",
+  "name": "@squarespace/template-engine",
   "version": "1.0.0",
   "description": "Squarespace template engine",
   "main": "dist/index.js",
+  "module": "src/index.js",
   "scripts": {
     "build": "npm run build:prod",
-    "build:prod": "BABEL_ENV=production babel src --out-dir dist",
+    "build:prod": "BABEL_ENV=production babel src --out-dir dist --source-maps",
     "lint": "npm run lint:src && npm run lint:test",
     "lint:src": "eslint src/**/*.js",
     "lint:test": "eslint __tests__/**/*.js",
@@ -15,9 +16,13 @@
   },
   "keywords": [],
   "author": "Patrick Hensley <phensley@squarespace.com>",
-  "license": "UNLICENSED",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Squarespace/template-engine.git"
+  },
   "devDependencies": {
-    "@sqs/eslint-config-squarespace": "^4.2.0",
+    "@sqs/eslint-config-squarespace": "^4.3.0",
     "babel-cli": "^6.26.0",
     "babel-eslint": "^8.0.3",
     "babel-jest": "^21.2.0",
@@ -32,6 +37,7 @@
     "chai": "^4.1.2",
     "eslint": "^4.12.1",
     "eslint-config-google": "^0.9.1",
+    "eslint-config-squarespace": "^1.0.1",
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-jest": "^21.4.1",
     "jest": "^21.2.1"

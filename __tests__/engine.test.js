@@ -208,6 +208,22 @@ test('predicates', () => {
 });
 
 
+test('predicates missing', () => {
+  const engine = new Engine();
+  const inst = [ROOT, 1, [
+    [TEXT, 'A'],
+    [PREDICATE, 'missing?', ['foo'], [
+      [TEXT, 'not executed'],
+    ], END],
+    [TEXT, 'B']
+  ], EOF];
+
+  const ctx = new Context({ foo: 1 });
+  engine.execute(inst, ctx);
+  expect(ctx.buf).toEqual('AB');
+});
+
+
 test('bindvar', () => {
   const engine = new Engine();
   const inst = [ROOT, 1, [
@@ -248,6 +264,28 @@ test('if', () => {
   ctx = new Context({ a: 'a', b: 0, c: 0 });
   engine.execute(inst, ctx);
   expect(ctx.buf).toEqual('or 0');
+});
+
+
+test('if or', () => {
+  const engine = new Engine();
+  const inst = [ROOT, 1, [
+    [IF, [0], ['a', 'b'], [[TEXT, 'A']],
+      [OR_PREDICATE, 0, 0, [[TEXT, 'B']], END],
+    ],
+  ], EOF];
+
+  let ctx = new Context({ a: 1, b: 1 });
+  engine.execute(inst, ctx);
+  expect(ctx.buf).toEqual('A');
+
+  ctx = new Context({ a: 0, b: 1 });
+  engine.execute(inst, ctx);
+  expect(ctx.buf).toEqual('A');
+
+  ctx = new Context({ a: 0, b: 0 });
+  engine.execute(inst, ctx);
+  expect(ctx.buf).toEqual('B');
 });
 
 
