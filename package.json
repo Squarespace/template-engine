@@ -10,7 +10,7 @@
     "lint": "npm run lint:src && npm run lint:test",
     "lint:src": "eslint src/**/*.js",
     "lint:test": "eslint __tests__/**/*.js",
-    "prepublish": "npm run build",
+    "prepare": "npm run build",
     "test": "jest",
     "test:watch": "jest --watch"
   },
