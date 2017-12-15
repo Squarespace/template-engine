@@ -1,4 +1,5 @@
 import Matcher from './matcher';
+import Sink from './sink';
 
 import {
   Bindvar,
@@ -40,6 +41,10 @@ import {
 class Parser {
 
   constructor(str, sink) {
+    if (!(sink instanceof Sink)) {
+      throw new Error('Argument "sink" must be a Sink instance.');
+    }
+
     this.str = str;
     this.idx = 0;
     this.len = str.length;

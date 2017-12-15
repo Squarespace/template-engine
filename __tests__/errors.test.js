@@ -3,6 +3,7 @@ import { END } from '../src/opcodes';
 
 
 test('error messages', () => {
-  const msg = errors.notAllowedAtRoot(END);
-  expect(msg).toContain('END not allowed at root');
+  const err = errors.notAllowedAtRoot(END);
+  expect(err.type).toEqual(errors.ASSEMBLER);
+  expect(err.message).toContain('END not allowed at root');
 });

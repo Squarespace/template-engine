@@ -7,11 +7,6 @@ import { splitVariable, isTruthy } from './util';
 import Variable from './variable';
 
 
-const defaultProps = {
-  formatters: Formatters,
-  predicates: Predicates,
-};
-
 /**
  * Engine that evaluates a tree of instructions and appends output to
  * the given context. All state for a single execution is maintained
@@ -19,7 +14,7 @@ const defaultProps = {
  */
 class Engine {
 
-  constructor({ formatters, predicates } = defaultProps) {
+  constructor({ formatters = Formatters, predicates = Predicates } = {}) {
     this.formatters = formatters;
     this.predicates = predicates;
   }

@@ -29,6 +29,11 @@ const parse = (str) => {
 };
 
 
+test('initialization failures', () => {
+  expect(() => new Parser('hello', {})).toThrowError();
+});
+
+
 test('degenerate cases', () => {
   let { code } = parse('a{b');
   expect(code).toEqual([ROOT, 1, [

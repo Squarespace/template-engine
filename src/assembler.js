@@ -51,16 +51,23 @@ class Assembler extends Sink {
   }
 
   /**
+   * Accept an error and append to the errors array.
+   */
+  error(err) {
+    this.errors.push(err);
+  }
+
+  /**
    * Indicates that the last instruction has been fed to the assembler.
    * Performs a check and returns a flag indicating success.
    */
   complete() {
     const type = getType(this.current);
     if (type !== ROOT) {
-      this.fail(errors.unclosed(this.current));
+      this.error(errors.unclosed(this.current));
     }
     if (this.state !== this.stateEOF) {
-      this.fail(errors.stateEOFNotReached());
+      this.error(errors.stateEOFNotReached());
     }
     return this.errors.length === 0;
   }
@@ -70,13 +77,6 @@ class Assembler extends Sink {
    */
   code() {
     return this.root.code;
-  }
-
-  /**
-   * Append a message to the errors list.
-   */
-  fail(msg) {
-    this.errors.push(msg);
   }
 
   /**
@@ -157,11 +157,11 @@ class Assembler extends Sink {
     }
     switch (type) {
     case EOF:
-      this.fail(errors.eofInBlock(this.current));
+      this.error(errors.eofInBlock(this.current));
       break;
 
     case ALTERNATES_WITH:
-      this.fail(errors.notAllowedInBlock(inst, this.current));
+      this.error(errors.notAllowedInBlock(inst, this.current));
       break;
 
     case OR_PREDICATE:
@@ -192,7 +192,7 @@ class Assembler extends Sink {
    */
   stateEOF(type, inst, push) {
     // Attempting to transition from this state is an error.
-    this.fail(errors.transitionFromEOF(inst));
+    this.error(errors.transitionFromEOF(inst));
     return this.stateDead;
   }
 
@@ -205,11 +205,11 @@ class Assembler extends Sink {
     }
     switch (type) {
     case EOF:
-      this.fail(errors.eofInBlock(this.current));
+      this.error(errors.eofInBlock(this.current));
       break;
 
     case ALTERNATES_WITH:
-      this.fail(errors.notAllowedInBlock(inst, this.current));
+      this.error(errors.notAllowedInBlock(inst, this.current));
       break;
 
     case END:
@@ -237,12 +237,12 @@ class Assembler extends Sink {
     }
     switch (type) {
     case EOF:
-      this.fail(errors.eofInBlock(this.current));
+      this.error(errors.eofInBlock(this.current));
       break;
 
     case ALTERNATES_WITH:
     case OR_PREDICATE:
-      this.fail(errors.notAllowedInBlock(inst, this.current));
+      this.error(errors.notAllowedInBlock(inst, this.current));
       break;
 
     case END:
@@ -265,11 +265,11 @@ class Assembler extends Sink {
     }
     switch (type) {
     case EOF:
-      this.fail(errors.eofInBlock(this.current));
+      this.error(errors.eofInBlock(this.current));
       break;
 
     case ALTERNATES_WITH:
-      this.fail(errors.notAllowedInBlock(inst, this.current));
+      this.error(errors.notAllowedInBlock(inst, this.current));
       break;
 
     case END:
@@ -281,7 +281,7 @@ class Assembler extends Sink {
       // Any OR following another OR that has no predicate is dead code.
       const parentType = getType(this.current);
       if (parentType === OR_PREDICATE && !this.current.hasPredicate()) {
-        this.fail(errors.deadCode(inst));
+        this.error(errors.deadCode(inst));
         break;
       }
       this.setAlternate(inst);
@@ -305,11 +305,11 @@ class Assembler extends Sink {
     }
     switch (type) {
     case EOF:
-      this.fail(errors.eofInBlock(this.current));
+      this.error(errors.eofInBlock(this.current));
       break;
 
     case ALTERNATES_WITH:
-      this.fail(errors.notAllowedInBlock(inst, this.current));
+      this.error(errors.notAllowedInBlock(inst, this.current));
       break;
 
     case END:
@@ -337,7 +337,7 @@ class Assembler extends Sink {
     }
     switch (type) {
     case EOF:
-      this.fail(errors.eofInBlock(this.current));
+      this.error(errors.eofInBlock(this.current));
       break;
 
     case END:
@@ -374,7 +374,7 @@ class Assembler extends Sink {
     case END:
     case ALTERNATES_WITH:
     case OR_PREDICATE:
-      this.fail(errors.notAllowedAtRoot(inst));
+      this.error(errors.notAllowedAtRoot(inst));
       break;
 
     default:
@@ -392,11 +392,11 @@ class Assembler extends Sink {
     }
     switch (type) {
     case EOF:
-      this.fail(errors.eofInBlock(this.current));
+      this.error(errors.eofInBlock(this.current));
       break;
 
     case ALTERNATES_WITH:
-      this.fail(errors.notAllowedInBlock(inst, this.current));
+      this.error(errors.notAllowedInBlock(inst, this.current));
       break;
 
     case END:
