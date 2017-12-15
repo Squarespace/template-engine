@@ -8,7 +8,7 @@ import Visitor from './visitor';
  */
 class Context {
 
-  constructor(node, { locale, partials, injectables, visitor } = {}) {
+  constructor(node, { locale, partials = {}, injectables = {}, visitor } = {}) {
     if (!(node instanceof Node)) {
       node = new Node(node);
     }
@@ -24,9 +24,9 @@ class Context {
     this.buf = '';
     this.frame = new Frame(null, node);
     this.version = 1;
-    this.locale = locale || {};
-    this.partials = partials || {};
-    this.injectables = injectables || {};
+    this.locale = locale;
+    this.partials = partials;
+    this.injectables = injectables;
     this.visitor = visitor instanceof Visitor ? visitor : null;
   }
 
@@ -116,8 +116,9 @@ class Context {
    * Pops the stack.
    */
   pop() {
-    // If the compiler is correctly-implemented and the instruction tree is sound,
-    // this should never happen. Treat as a severe error.
+    // If the compiler is correctly-implemented and the instruction tree built by
+    // the assembler is valid, this should never happen. Treat as a severe error.
+    // If can (of course) occur when compiling a hand-created invalid instruction tree.
     if (this.frame.parent === null) {
       throw new Error('Too many Context.pop() calls, attempt to pop the root frame!!!');
     }
