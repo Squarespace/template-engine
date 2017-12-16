@@ -444,7 +444,7 @@ class Parser {
       }
 
       // Check for start of a multi-line comment and process it.
-      if (this.str.indexOf('{##', start) === start) {
+      if (this.str[start + 1] === '#' && this.str[start + 2] === '#') {
         this.flushText(save, start);
         return this.stateMultiLineComment;
       }
