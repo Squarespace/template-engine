@@ -15,11 +15,11 @@ class AbsUrl extends Formatter {
 const audioPlayer = [ROOT, 1, [
   [TEXT, '<script>Y.use(\'squarespace-audio-player-frontend\');</script>'],
   [TEXT, '<div class="squarespace-audio-player" data-audio-asset-url="'],
-  [VARIABLE, ['structuredContent.audioAssetUrl'], 0],
+  [VARIABLE, [['structuredContent', 'audioAssetUrl']], 0],
   [TEXT, '" data-item-id="'],
-  [VARIABLE, ['id'], 0],
+  [VARIABLE, [['id']], 0],
   [TEXT, '" id="audio-player-'],
-  [VARIABLE, ['id'], 0],
+  [VARIABLE, [['id']], 0],
   [TEXT, '"></div>']
 ], EOF];
 

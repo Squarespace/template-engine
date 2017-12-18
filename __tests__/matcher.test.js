@@ -69,7 +69,7 @@ test('bindvar sequencing', () => {
   expect(m.matchSpace()).toEqual(true);
   m.consume();
 
-  expect(m.matchVariables()).toEqual(['bar']);
+  expect(m.matchVariables()).toEqual([['bar']]);
   m.consume();
 
   expect(m.matchFormatters()).toEqual([['html'], ['baz', ['a', 'b', 'c']]]);
@@ -150,7 +150,7 @@ test('section sequencing', () => {
   expect(m.matchSpace()).toEqual(true);
   m.consume();
 
-  expect(m.matchVariable()).toEqual('foo.bar');
+  expect(m.matchVariable()).toEqual(['foo', 'bar']);
   m.consume();
 
   expect(m.complete()).toEqual(true);
@@ -178,8 +178,8 @@ test('spaces', () => {
 test('variable', () => {
   const impl = 'matchVariable';
 
-  expect(match(impl, 'foo.bar')).toEqual('foo.bar');
-  expect(match(impl, '0.a.2.c')).toEqual('0.a.2.c');
+  expect(match(impl, 'foo.bar')).toEqual(['foo', 'bar']);
+  expect(match(impl, '0.a.2.c')).toEqual([0, 'a', 2, 'c']);
 
   expect(match(impl, 'foo.bar,')).toEqual(null);
   expect(match(impl, 'foo,bar,baz')).toEqual(null);
@@ -189,12 +189,12 @@ test('variable', () => {
 test('variables', () => {
   const impl = 'matchVariables';
 
-  expect(match(impl, 'foo')).toEqual(['foo']);
-  expect(match(impl, 'foo,bar,baz')).toEqual(['foo', 'bar', 'baz']);
-  expect(match(impl, 'foo  ,  bar  ,  baz')).toEqual(['foo', 'bar', 'baz']);
-  expect(match(impl, '@foo,bar')).toEqual(['@foo', 'bar']);
-  expect(match(impl, '$foo,$bar')).toEqual(['$foo', '$bar']);
-  expect(match(impl, '0.a,1.b')).toEqual(['0.a', '1.b']);
+  expect(match(impl, 'foo')).toEqual([['foo']]);
+  expect(match(impl, 'foo,bar,baz')).toEqual([['foo'], ['bar'], ['baz']]);
+  expect(match(impl, 'foo  ,  bar  ,  baz')).toEqual([['foo'], ['bar'], ['baz']]);
+  expect(match(impl, '@foo,bar')).toEqual([['@foo'], ['bar']]);
+  expect(match(impl, '$foo,$bar')).toEqual([['$foo'], ['$bar']]);
+  expect(match(impl, '0.a,1.b')).toEqual([[0, 'a'], [1, 'b']]);
 
   expect(match(impl, '!')).toEqual(null);
   expect(match(impl, 'foo,$')).toEqual(null);

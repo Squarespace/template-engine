@@ -74,7 +74,6 @@ class Parser {
     this.sink.accept(inst);
   }
 
-  /*eslint complexity: ["error", 30]*/
   parseTag(start, end) {
     // TODO: support preprocessor scoped instructions, e.g. {^.section foo}..{^.end}
 
@@ -92,6 +91,13 @@ class Parser {
       m.set(start, end);
       return this.parseVariable();
     }
+
+    return this.parseInstruction(start, end);
+  }
+
+  /*eslint complexity: ["error", 20]*/
+  parseInstruction(start, end) {
+    const m = this.matcher;
 
     // Set bounds of our low-level pattern matcher.
     start++;

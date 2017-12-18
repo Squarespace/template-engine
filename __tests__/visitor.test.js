@@ -42,15 +42,15 @@ test('basic', () => {
   const engine = new Engine();
   const inst = [ROOT, 1, [
     [SECTION, 'b', [
-      [BINDVAR, '@foo', ['a', 'b'], [['html']]],
-      [VARIABLE, ['a'], 0],
-      [VARIABLE, ['@foo'], 0]
+      [BINDVAR, '@foo', [['a', 'b']], [['html']]],
+      [VARIABLE, [['a']], 0],
+      [VARIABLE, [['@foo']], 0]
     ], END]
   ], EOF];
 
   const visitor = new ExampleVisitor();
   const ctx = new VisitorContext({ a: 1, b: { c: 2 } }, { visitor });
   engine.execute(inst, ctx);
-  expect(visitor.names).toEqual(['@foo', 'a', 'a', '@foo']);
+  expect(visitor.names).toEqual(['@foo', ['a', 'b'], ['a'], ['@foo']]);
   expect(ctx.path).toEqual(['b']);
 });

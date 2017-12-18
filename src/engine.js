@@ -1,10 +1,43 @@
 import Formatters from './formatters';
-import * as opcodes from './opcodes';
 import { Formatter, Predicate } from './plugin';
 import Predicates from './predicates';
-import types from './types';
-import { splitVariable, isTruthy } from './util';
+import { isTruthy } from './util';
 import Variable from './variable';
+
+/**
+ * Resolve one or more variables against the context. Accepts a raw list of
+ * variable names (e.g. ['foo.bar', 'baz.quux']), splits each info parts
+ * (.e.g. [['foo', 'bar'], ['baz', 'quux']]), resolves them against the
+ * context, and wraps in a Variable instance.
+ */
+const resolveVariables = (rawlist, ctx) => {
+  const result = new Array(rawlist.length);
+  const size = rawlist.length;
+  for (let i = 0; i < size; i++) {
+    const names = rawlist[i];
+    result[i] = new Variable(names, ctx.resolve(names, ctx.frame));
+  }
+  return result;
+};
+
+
+/**
+ * Apply formatters to the list of vars.
+ */
+const applyFormatters = (formatters, calls, vars, ctx) => {
+  const len = calls.length;
+  for (let i = 0; i < len; i++) {
+    const call = calls[i];
+    const name = call[0];
+    const formatter = formatters[name];
+    // Undefined formatters currently do not raise an error.
+    if (!formatter || !(formatter instanceof Formatter)) {
+      continue;
+    }
+    const args = call.length === 1 ? [] : call[1];
+    formatter.apply(args, vars, ctx);
+  }
+};
 
 
 /**
@@ -17,102 +50,74 @@ class Engine {
   constructor({ formatters = Formatters, predicates = Predicates } = {}) {
     this.formatters = formatters;
     this.predicates = predicates;
+
+    // Instruction implementations are at linear offsets corresponding
+    // to their opcode number, e.g. TEXT == 0, VARIABLE == 1, ...
+    //
+    // TODO: these don't need to be instance methods. move them out to support
+    // versioned instructions
+    this.impls = [
+      (inst, ctx) => ctx.append(inst[1]), // TEXT
+      this.executeVariable,
+      this.executeSection,
+      null, // END
+      this.executeRepeated, // REPEATED
+      this.executePredicate, // PREDICATE
+      this.executeBindvar, // BINDVAR
+      this.executePredicate, // OR_PREDICATE
+      this.executeIf, // IF
+      this.executeInject, // INJECT
+      this.executeMacro, // MACRO
+      null, // COMMENT
+      (inst, ctx) => ctx.append('{'), // META_LEFT
+      (inst, ctx) => ctx.append('}'), // META_RIGHT
+      (inst, ctx) => ctx.append('\n'), // NEWLINE
+      (inst, ctx) => ctx.append(' '), // SPACE
+      (inst, ctx) => ctx.append('\t'), // TAB
+      this.executeRoot, // ROOT
+      // Rest are undefined.
+    ];
   }
 
-  /*eslint complexity: ["error", 30]*/
+  /**
+   * Looks up an opcode and executes the corresponding instruction.
+   */
   execute(inst, ctx) {
-    const opcode = Array.isArray(inst) ? inst[0] : inst;
-    switch (opcode) {
-
-    // COMPOSITE INSTRUCTIONS
-
-    case opcodes.ROOT:
-      ctx.version = inst[1];
-      ctx.engine = this;
-      this.executeBlock(inst[2], ctx);
-      break;
-
-    case opcodes.TEXT:
-      ctx.append(inst[1]);
-      break;
-
-    case opcodes.VARIABLE:
-      this.executeVariable(inst, ctx);
-      break;
-
-    case opcodes.SECTION:
-      this.executeSection(inst, ctx);
-      break;
-
-    case opcodes.REPEATED:
-      this.executeRepeated(inst, ctx);
-      break;
-
-    case opcodes.PREDICATE:
-    case opcodes.OR_PREDICATE:
-      this.executePredicate(inst, ctx);
-      break;
-
-    case opcodes.BINDVAR:
-      this.executeBindvar(inst, ctx);
-      break;
-
-    case opcodes.IF:
-      this.executeIf(inst, ctx);
-      break;
-
-    case opcodes.INJECT:
-      this.executeInject(inst, ctx);
-      break;
-
-    case opcodes.MACRO:
-      this.executeMacro(inst, ctx);
-      break;
-
-    // ATOMIC INSTRUCTIONS
-
-    case opcodes.META_LEFT:
-      ctx.append('{');
-      break;
-
-    case opcodes.META_RIGHT:
-      ctx.append('}');
-      break;
-
-    case opcodes.NEWLINE:
-      ctx.append('\n');
-      break;
-
-    case opcodes.SPACE:
-      ctx.append(' ');
-      break;
-
-    case opcodes.TAB:
-      ctx.append('\t');
-      break;
-
-    // IGNORED INSTRUCTIONS
-
-    case opcodes.COMMENT:
-    case opcodes.EOF:
-    case opcodes.END:
-    case opcodes.NOOP:
-    default:
-      break;
+    const opcode = typeof inst === 'number' ? inst : inst[0];
+    const impl = this.impls[opcode];
+    if (impl) {
+      impl.call(this, inst, ctx);
     }
+  }
+
+  /**
+   * Executes the root instruction.
+   *
+   * TODO: instead of setting version on context, use it to switch vN's impls array.
+   */
+  executeRoot(inst, ctx) {
+    ctx.version = inst[1];
+    ctx.engine = this;
+    this.executeBlock(inst[2], ctx);
   }
 
   /**
    * Execute a block of instructions.
    */
   executeBlock(block, ctx) {
-    // The value 0 is used as a fast null, to save space when defining empty blocks.
-    if (block === 0 || !Array.isArray(block)) {
+    if (!Array.isArray(block)) {
       return;
     }
     const size = block.length;
     for (let i = 0; i < size; i++) {
-      this.execute(block[i], ctx);
+
+      // Inlined execute() to save a stack frame.
+      const inst = block[i];
+      const opcode = typeof inst === 'number' ? inst : inst[0];
+      const impl = this.impls[opcode];
+      if (impl) {
+        impl.call(this, inst, ctx);
+      }
     }
   }
 
@@ -123,12 +128,12 @@ class Engine {
    * inst[2]  - list of formatters with optional arguments [["html"], ["truncate", "10"]]
    */
   executeVariable(inst, ctx) {
-    const vars = this.resolveVariables(inst[1], ctx);
-    this.applyFormatters(inst[2], vars, ctx);
+    const vars = resolveVariables(inst[1], ctx);
+    applyFormatters(this.formatters, inst[2], vars, ctx);
     if (ctx.visitor) {
       ctx.visitor.onVariable(vars, ctx);
     }
-    this.emit(vars, ctx);
+    ctx.emit(vars);
   }
 
   /**
@@ -139,13 +144,11 @@ class Engine {
    * inst[3]  - alternate instruction
    */
   executeSection(inst, ctx) {
-    const name = inst[1];
-    const names = splitVariable(name);
+    const names = inst[1];
     ctx.pushNames(names);
     const node = ctx.node();
-
     if (ctx.visitor) {
-      ctx.visitor.onSection(name, ctx);
+      ctx.visitor.onSection(names, ctx);
     }
     if (isTruthy(node)) {
       this.executeBlock(inst[2], ctx);
@@ -164,11 +167,11 @@ class Engine {
    * inst[4]  - alternates-with block
    */
   executeRepeated(inst, ctx) {
-    const names = splitVariable(inst[1]);
+    const names = inst[1];
     ctx.pushNames(names);
     const alternatesWith = inst[4];
     if (ctx.initIteration()) {
-      const frame = ctx.frame;
+      const frame = ctx.frame();
       const len = ctx.node().value.length;
       const lastIndex = len - 1;
       while (frame.currentIndex < len) {
@@ -226,8 +229,8 @@ class Engine {
    */
   executeBindvar(inst, ctx) {
     const name = inst[1];
-    const vars = this.resolveVariables(inst[2], ctx);
-    this.applyFormatters(inst[3], vars, ctx);
+    const vars = resolveVariables(inst[2], ctx);
+    applyFormatters(this.formatters, inst[3], vars, ctx);
     if (ctx.visitor) {
       ctx.visitor.onBindvar(name, vars, ctx);
     }
@@ -244,7 +247,7 @@ class Engine {
    */
   executeIf(inst, ctx) {
     const operators = inst[1];
-    const vars = this.resolveVariables(inst[2], ctx);
+    const vars = resolveVariables(inst[2], ctx);
     const len = vars.length;
 
     // Compute the boolean value of the operators. This is a legacy
@@ -302,51 +305,6 @@ class Engine {
     ctx.setMacro(name, block);
   }
 
-  /**
-   * Apply formatters to the list of vars.
-   */
-  applyFormatters(calls, vars, ctx) {
-    const len = calls.length;
-    for (let i = 0; i < len; i++) {
-      const call = calls[i];
-      const name = call[0];
-      const formatter = this.formatters[name];
-      // Undefined formatters currently do not raise an error.
-      if (!formatter || !(formatter instanceof Formatter)) {
-        continue;
-      }
-      const args = call.length === 1 ? [] : call[1];
-      formatter.apply(args, vars, ctx);
-    }
-  }
-
-  /**
-   * Emit a variable into the output.
-   */
-  emit(vars, ctx) {
-    const first = vars[0].node;
-    switch (first.type) {
-    case types.NUMBER:
-    case types.STRING:
-    case types.BOOLEAN:
-    case types.NULL:
-      ctx.append(first.value);
-      break;
-    }
-  }
-
-  /**
-   * Resolve one or more variables against the context. Accepts a raw list of
-   * variable names (e.g. ['foo.bar', 'baz.quux']), splits each info parts
-   * (.e.g. [['foo', 'bar'], ['baz', 'quux']]), resolves them against the
-   * context, and wraps in a Variable instance.
-   */
-  resolveVariables(rawlist, ctx) {
-    return rawlist.map(r => {
-      const names = splitVariable(r);
-      return new Variable(r, ctx.resolve(names, ctx.frame));
-    });
-  }
 }
 
 export default Engine;

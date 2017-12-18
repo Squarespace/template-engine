@@ -5,8 +5,7 @@ import { MISSING_NODE } from './node';
  */
 class Frame {
 
-  constructor(parent, node) {
-    this.parent = parent || null;
+  constructor(node) {
     this.node = node;
     this.currentIndex = -1;
     this.stopResolution = false;
@@ -40,21 +39,6 @@ class Frame {
       this.macros = {};
     }
     this.macros[name] = inst;
-  }
-
-  /**
-   * Returns a macro instruction, or null if none is defined.
-   */
-  getMacro(name) {
-    let frame = this;
-    while (frame !== null) {
-      const inst = frame._getMacro(name);
-      if (inst !== null) {
-        return inst;
-      }
-      frame = frame.parent;
-    }
-    return null;
   }
 
   _getMacro(name) {

@@ -16,10 +16,10 @@ test('compiler defaults', () => {
   const json = { a: '<tag>' };
   const compiler = new Compiler();
   let { ctx } = compiler.execute({ code: source, json });
-  expect(ctx.buf).toEqual('&lt;tag&gt;');
+  expect(ctx.render()).toEqual('&lt;tag&gt;');
 
   ({ ctx } = compiler.execute());
-  expect(ctx.buf).toEqual('');
+  expect(ctx.render()).toEqual('');
 });
 
 
@@ -35,13 +35,13 @@ test('compiler custom formatter', () => {
   const json = { a: 'world' };
   const compiler = new Compiler({ formatters });
   let { ctx } = compiler.execute({ code, json });
-  expect(ctx.buf).toEqual('Hello, world.');
+  expect(ctx.render()).toEqual('Hello, world.');
 
   const source = '{a|dummy}';
   ({ ctx } = compiler.execute({ code: source, json }));
-  expect(ctx.buf).toEqual('Hello, world.');
+  expect(ctx.render()).toEqual('Hello, world.');
 
   ({ code } = compiler.parse(source));
   ({ ctx } = compiler.execute({ code, json }));
-  expect(ctx.buf).toEqual('Hello, world.');
+  expect(ctx.render()).toEqual('Hello, world.');
 });

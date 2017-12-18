@@ -19,6 +19,8 @@ import {
 } from './opcodes';
 
 import * as patterns from './patterns';
+import { splitVariable } from './util';
+
 
 // Table for fast mapping of instructions to their opcodes.
 const INSTRUCTIONS = {
@@ -111,7 +113,7 @@ class Matcher {
       const len = m.length;
       for (let i = 0; i < len; i += 2) {
         const val = m[i];
-        if (str.indexOf(val,start) === start) {
+        if (str.startsWith(val, start)) {
           this.matchEnd = start + val.length;
           return m[i + 1];
         }
@@ -168,7 +170,7 @@ class Matcher {
 
       // Skip any optional whitespace.
       start = this.matchEnd;
-      this.match(this.whitespace, start);
+      this.test(this.whitespace, start);
       start = this.matchEnd;
 
       const op = this.match(this.operator, start);
@@ -181,7 +183,7 @@ class Matcher {
 
       // Skip any optional whitespace.
       start = this.matchEnd;
-      this.match(this.whitespace, start);
+      this.test(this.whitespace, start);
       start = this.matchEnd;
     }
     return [operators, variables];
@@ -255,7 +257,8 @@ class Matcher {
    * Match a single variable reference.
    */
   matchVariable() {
-    return this.match(this.variableReference, this.start);
+    const raw = this.match(this.variableReference, this.start);
+    return raw === null ? null : splitVariable(raw);
   }
 
   /**
@@ -280,11 +283,11 @@ class Matcher {
       if (result === null) {
         result = [];
       }
-      result.push(raw);
+      result.push(splitVariable(raw));
 
       // See if there are any remaining separators.
       start = this.matchEnd;
-      if (this.match(this.variableSeparator, start) === null) {
+      if (!this.test(this.variableSeparator, start)) {
         break;
       }
 
@@ -309,7 +312,7 @@ class Matcher {
    * Match one or more whitespace characters.
    */
   matchWhitespace() {
-    return this.match(this.whitespace, this.start) !== null;
+    return this.test(this.whitespace, this.start);
   }
 
   /**
@@ -326,6 +329,14 @@ class Matcher {
     return null;
   }
 
+  test(pattern, start) {
+    pattern.lastIndex = start;
+    if (pattern.test(this.str)) {
+      this.matchEnd = pattern.lastIndex;
+      return true;
+    }
+    return false;
+  }
 }
 
 export default Matcher;

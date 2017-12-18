@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "module": "src/index.js",
   "scripts": {
-    "bench": "babel-node __benchmarks__/*.benchmark.js",
+    "bench": "babel-node __benchmarks__/",
     "build": "npm run build:prod",
     "build:prod": "BABEL_ENV=production babel src --out-dir dist --source-maps",
     "lint": "npm run lint:src && npm run lint:test",

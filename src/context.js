@@ -22,7 +22,7 @@ class Context {
     this.engine = null;
 
     this.buf = '';
-    this.frame = new Frame(null, node);
+    this.stack = [new Frame(node)];
     this.version = 1;
     this.locale = locale;
     this.partials = partials;
@@ -46,6 +46,10 @@ class Context {
     this.buf = old;
   }
 
+  frame() {
+    return this.stack[this.stack.length - 1];
+  }
+
   /**
    * Hide details of how the buffer is updated. This allows someone to intercept
    * each string fragment as it is appended. For instance, to append fragments to
@@ -63,18 +67,47 @@ class Context {
   }
 
   /**
+   * Emit a variable into the output.
+   */
+  emit(vars) {
+    const first = vars[0].node;
+    switch (first.type) {
+    case types.NUMBER:
+    case types.STRING:
+    case types.BOOLEAN:
+    case types.NULL:
+      this.buf += first.value;
+      break;
+    }
+  }
+
+  /**
    * Return the current stack frame's node.
    */
   node() {
-    return this.frame.node;
+    return this.frame().node;
   }
 
   /**
    * Return the partial template for the given name.
    */
   getPartial(name) {
-    const inst = this.frame.getMacro(name);
+    const inst = this.getMacro(name);
     return inst === null ? (this.partials[name] || null) : inst;
+  }
+
+  /**
+   * Returns a macro instruction, or null if none is defined.
+   */
+  getMacro(name) {
+    const len = this.stack.length - 1;
+    for (let i = len; i >= 0; i--) {
+      const inst = this.stack[i]._getMacro(name);
+      if (inst !== null) {
+        return inst;
+      }
+    }
+    return null;
   }
 
   /**
@@ -94,49 +127,49 @@ class Context {
    * which no variables can be resolved.
    */
   stopResolution(flag) {
-    this.frame.stopResolution = flag;
+    this.frame().stopResolution = flag;
   }
 
   /**
    * Resolve the names to a node (or missing node) and push a frame onto the stack.
    */
   pushNames(names) {
-    const node = this.resolve(names, this.frame);
-    this.frame = new Frame(this.frame, node);
+    const node = this.resolve(names);
+    this.stack.push(new Frame(node));
   }
 
   /**
    * Push a node explicitly onto the stack (no resolution).
    */
   pushNode(node) {
-    this.frame = new Frame(this.frame, node);
+    this.stack.push(new Frame(node));
   }
 
   /**
    * Pops the stack.
    */
   pop() {
+    this.stack.pop();
     // If the compiler is correctly-implemented and the instruction tree built by
     // the assembler is valid, this should never happen. Treat as a severe error.
     // If can (of course) occur when compiling a hand-created invalid instruction tree.
-    if (this.frame.parent === null) {
+    if (this.stack.length === 0) {
       throw new Error('Too many Context.pop() calls, attempt to pop the root frame!!!');
     }
-    this.frame = this.frame.parent;
   }
 
   /**
    * Defines an @-prefixed variable on the current stack frame.
    */
   setVar(name, node) {
-    this.frame.setVar(name, node);
+    this.frame().setVar(name, node);
   }
 
   /**
    * Defines a macro on the current stack frame.
    */
   setMacro(name, inst) {
-    this.frame.setMacro(name, inst);
+    this.frame().setMacro(name, inst);
   }
 
   /**
@@ -144,11 +177,12 @@ class Context {
    * repeated section instruction.
    */
   initIteration() {
-    const node = this.frame.node;
+    const frame = this.frame();
+    const node = frame.node;
     if (node.type !== types.ARRAY || node.value.length === 0) {
       return false;
     }
-    this.frame.currentIndex = 0;
+    frame.currentIndex = 0;
     return true;
   }
 
@@ -156,7 +190,8 @@ class Context {
    * Push the next element of the current array onto the stack.
    */
   pushNext() {
-    const node = this.frame.node.path([this.frame.currentIndex]);
+    const frame = this.frame();
+    const node = frame.node.path([frame.currentIndex]);
     if (node.isNull()) {
       this.pushNode(MISSING_NODE);
     } else {
@@ -168,10 +203,7 @@ class Context {
    * Resolve the name array against the stack frame. If no frame is defined
    * it uses the current frame.
    */
-  resolve(names, frame) {
-    if (!frame) {
-      frame = this.frame;
-    }
+  resolve(names) {
     const len = names.length;
     if (len === 0) {
       return MISSING_NODE;
@@ -188,8 +220,9 @@ class Context {
    * If a frame is marked "stopResolution" we bail out at that point.
    */
   lookupStack(name) {
-    let frame = this.frame;
-    while (frame !== null) {
+    const len = this.stack.length - 1;
+    for (let i = len; i >= 0; i--) {
+      const frame = this.stack[i];
       const node = this.resolveName(name, frame);
       if (node.type !== types.MISSING) {
         return node;
@@ -198,7 +231,6 @@ class Context {
       if (frame.stopResolution) {
         break;
       }
-      frame = frame.parent;
     }
     return MISSING_NODE;
   }

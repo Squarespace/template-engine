@@ -17,16 +17,16 @@ test('injectables', () => {
 
 test('buffer append', () => {
   const ctx = new Context({});
-  expect(ctx.buf).toEqual('');
+  expect(ctx.render()).toEqual('');
   ctx.append('a');
-  expect(ctx.buf).toEqual('a');
+  expect(ctx.render()).toEqual('a');
 });
 
 
 test('invalid push', () => {
   const ctx = new Context( { a: { b: 1 } });
   ctx.pushNames([]);
-  expect(ctx.frame.node).toBe(MISSING_NODE);
+  expect(ctx.frame().node).toBe(MISSING_NODE);
 });
 
 
@@ -34,25 +34,25 @@ test('push / pop', () => {
   const o1 = { a: { b: [1, 2, 3] } };
   const ctx = new Context(o1);
   expect(ctx.node().value).toEqual(o1);
-  expect(ctx.frame.node.value).toEqual(o1);
+  expect(ctx.frame().node.value).toEqual(o1);
   ctx.pushNames(['a']);
-  expect(ctx.frame.node.value).toEqual({ b: [1, 2, 3] });
+  expect(ctx.frame().node.value).toEqual({ b: [1, 2, 3] });
   ctx.pop();
-  expect(ctx.frame.node.value).toEqual(o1);
+  expect(ctx.frame().node.value).toEqual(o1);
 
   ctx.pushNames(['a', 'b']);
-  expect(ctx.frame.node.value).toEqual([1, 2, 3]);
+  expect(ctx.frame().node.value).toEqual([1, 2, 3]);
   ctx.pushNames([1]);
-  expect(ctx.frame.node.value).toEqual(2);
+  expect(ctx.frame().node.value).toEqual(2);
   ctx.pop();
-  expect(ctx.frame.node.value).toEqual([1, 2, 3]);
+  expect(ctx.frame().node.value).toEqual([1, 2, 3]);
   ctx.pop();
-  expect(ctx.frame.node.value).toEqual(o1);
+  expect(ctx.frame().node.value).toEqual(o1);
 
   ctx.pushNames(['@']);
-  expect(ctx.frame.node.value).toEqual(o1);
+  expect(ctx.frame().node.value).toEqual(o1);
   ctx.pop();
-  expect(ctx.frame.node.value).toEqual(o1);
+  expect(ctx.frame().node.value).toEqual(o1);
 });
 
 

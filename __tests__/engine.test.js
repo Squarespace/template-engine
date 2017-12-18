@@ -39,7 +39,7 @@ test('literals', () => {
 
   const ctx = new Context({});
   engine.execute(inst, ctx);
-  expect(ctx.buf).toEqual('\n\n{abc}\n \n\t');
+  expect(ctx.render()).toEqual('\n\n{abc}\n \n\t');
 });
 
 
@@ -47,16 +47,16 @@ test('variables', () => {
   const engine = new Engine();
   const inst = [ROOT, 1, [
     [TEXT, 'a'],
-    [VARIABLE, ['bbb'], 0],
+    [VARIABLE, [['bbb']], 0],
     [TEXT, 'c\n'],
-    [VARIABLE, ['ddd'], 0],
+    [VARIABLE, [['ddd']], 0],
     [TEXT, 'e'],
-    [VARIABLE, ['fff'], 0]
+    [VARIABLE, [['fff']], 0]
   ], EOF];
 
   const ctx = new Context({ 'bbb': '*', 'ddd': '-', 'fff': '+' });
   engine.execute(inst, ctx);
-  expect(ctx.buf).toEqual('a*c\n-e+');
+  expect(ctx.render()).toEqual('a*c\n-e+');
 });
 
 
@@ -69,18 +69,18 @@ test('variables missing', () => {
   ], EOF];
   const ctx = new Context({});
   engine.execute(inst, ctx);
-  expect(ctx.buf).toEqual('ac');
+  expect(ctx.render()).toEqual('ac');
 });
 
 
 test('variables with formatters', () => {
   const engine = new Engine();
   const inst = [ROOT, 1, [
-    [VARIABLE, ['foo'], [['html']]],
+    [VARIABLE, [['foo']], [['html']]],
     [TEXT, '\n'],
-    [VARIABLE, ['bar'], [['truncate', ['5']], ['json']]],
+    [VARIABLE, [['bar']], [['truncate', ['5']], ['json']]],
     [TEXT, '\n'],
-    [VARIABLE, ['baz'], [['json-pretty']]]
+    [VARIABLE, [['baz']], [['json-pretty']]]
   ], EOF];
 
   const ctx = new Context({
@@ -89,7 +89,7 @@ test('variables with formatters', () => {
     baz: { a: 1 }
   });
   engine.execute(inst, ctx);
-  expect(ctx.buf).toEqual('&lt;tag&gt; &amp; tag\n"abcde"\n{\n  "a": 1\n}');
+  expect(ctx.render()).toEqual('&lt;tag&gt; &amp; tag\n"abcde"\n{\n  "a": 1\n}');
 });
 
 
@@ -101,18 +101,18 @@ test('section', () => {
 
   let ctx = new Context({ a: { b: 123 } });
   engine.execute(inst, ctx);
-  expect(ctx.buf).toEqual('123');
+  expect(ctx.render()).toEqual('123');
 
   ctx = new Context({ x: { b: 123 } });
   engine.execute(inst, ctx);
-  expect(ctx.buf).toEqual('');
+  expect(ctx.render()).toEqual('');
 });
 
 
 test('repeated 1', () => {
   const engine = new Engine();
   const inst = [ROOT, 1, [
-    [REPEATED, 'items',
+    [REPEATED, ['items'],
       [[TEXT, 'a']],
       [OR_PREDICATE, 0, 0, [[TEXT, 'b']], 3],
       [[TEXT, '|']]
@@ -121,12 +121,12 @@ test('repeated 1', () => {
 
   let ctx = new Context({ items: [0, 0, 0] });
   engine.execute(inst, ctx);
-  expect(ctx.buf).toEqual('a|a|a');
+  expect(ctx.render()).toEqual('a|a|a');
 
   // Non-array, execute the OR branch
   ctx = new Context({ items: {} });
   engine.execute(inst, ctx);
-  expect(ctx.buf).toEqual('b');
+  expect(ctx.render()).toEqual('b');
 });
 
 
@@ -138,7 +138,7 @@ test('repeated 2', () => {
 
   const ctx = new Context({ a: [1, 2, 3] });
   engine.execute(inst, ctx);
-  expect(ctx.buf).toEqual('123');
+  expect(ctx.render()).toEqual('123');
 });
 
 
@@ -150,7 +150,7 @@ test('repeated 3', () => {
 
   const ctx = new Context({ a: [1, null, 2, null, 3] });
   engine.execute(inst, ctx);
-  expect(ctx.buf).toEqual('123');
+  expect(ctx.render()).toEqual('123');
 });
 
 
@@ -169,11 +169,11 @@ test('repeated 4', () => {
 
   let ctx = new Context({ a: [1, 2, 3], b: 1 });
   engine.execute(inst, ctx);
-  expect(ctx.buf).toEqual('A---A---A---');
+  expect(ctx.render()).toEqual('A---A---A---');
 
   ctx = new Context({ a: {}, b: 1 });
   engine.execute(inst, ctx);
-  expect(ctx.buf).toEqual('B');
+  expect(ctx.render()).toEqual('B');
 });
 
 
@@ -190,21 +190,21 @@ test('predicates', () => {
 
   let ctx = new Context({ foo: 1, bar: 1 });
   engine.execute(inst, ctx);
-  expect(ctx.buf).toEqual('equal');
+  expect(ctx.render()).toEqual('equal');
 
   ctx = new Context({
     foo: { a: 1, b: [2, 3] },
     bar: { a: 1, b: [2, 3] },
   });
   engine.execute(inst, ctx);
-  expect(ctx.buf).toEqual('equal');
+  expect(ctx.render()).toEqual('equal');
 
   ctx = new Context({
     foo: { a: 1, b: [2, 3] },
     bar: { a: 1, b: [2, 4] },
   });
   engine.execute(inst, ctx);
-  expect(ctx.buf).toEqual('not equal');
+  expect(ctx.render()).toEqual('not equal');
 });
 
 
@@ -220,23 +220,23 @@ test('predicates missing', () => {
 
   const ctx = new Context({ foo: 1 });
   engine.execute(inst, ctx);
-  expect(ctx.buf).toEqual('AB');
+  expect(ctx.render()).toEqual('AB');
 });
 
 
 test('bindvar', () => {
   const engine = new Engine();
   const inst = [ROOT, 1, [
-    [BINDVAR, '@foo', ['bar'], [['html']]],
-    [BINDVAR, '@baz', ['quux'], 0],
-    [VARIABLE, ['@foo'], 0],
-    [VARIABLE, ['@baz'], 0],
-    [VARIABLE, ['@missing'], 0]
+    [BINDVAR, '@foo', [['bar']], [['html']]],
+    [BINDVAR, '@baz', [['quux']], 0],
+    [VARIABLE, [['@foo']], 0],
+    [VARIABLE, [['@baz']], 0],
+    [VARIABLE, [['@missing']], 0]
   ], EOF];
 
   const ctx = new Context({ bar: '<hi>', quux: '<bye>' });
   engine.execute(inst, ctx);
-  expect(ctx.buf).toEqual('&lt;hi&gt;<bye>');
+  expect(ctx.render()).toEqual('&lt;hi&gt;<bye>');
 });
 
 
@@ -255,15 +255,15 @@ test('if', () => {
 
   let ctx = new Context({ a: 'a', b: 'b', c: 0 });
   engine.execute(inst, ctx);
-  expect(ctx.buf).toEqual('a and b');
+  expect(ctx.render()).toEqual('a and b');
 
   ctx = new Context({ a: 'a', b: 0, c: 'c' });
   engine.execute(inst, ctx);
-  expect(ctx.buf).toEqual('or c');
+  expect(ctx.render()).toEqual('or c');
 
   ctx = new Context({ a: 'a', b: 0, c: 0 });
   engine.execute(inst, ctx);
-  expect(ctx.buf).toEqual('or 0');
+  expect(ctx.render()).toEqual('or 0');
 });
 
 
@@ -277,15 +277,15 @@ test('if or', () => {
 
   let ctx = new Context({ a: 1, b: 1 });
   engine.execute(inst, ctx);
-  expect(ctx.buf).toEqual('A');
+  expect(ctx.render()).toEqual('A');
 
   ctx = new Context({ a: 0, b: 1 });
   engine.execute(inst, ctx);
-  expect(ctx.buf).toEqual('A');
+  expect(ctx.render()).toEqual('A');
 
   ctx = new Context({ a: 0, b: 0 });
   engine.execute(inst, ctx);
-  expect(ctx.buf).toEqual('B');
+  expect(ctx.render()).toEqual('B');
 });
 
 
@@ -293,14 +293,15 @@ test('inject', () => {
   const engine = new Engine();
   const inst = [ROOT, 1, [
     [INJECT, '@foo', 'file.html', 0],
-    [VARIABLE, ['@foo'], [['html']]]
+    [VARIABLE, [['@foo']], [['html']]]
   ], EOF];
   const inject = {
     'file.html': '<b>file contents</b>'
   };
+
   const ctx = new Context({}, { injectables: inject });
   engine.execute(inst, ctx);
-  expect(ctx.buf).toEqual('&lt;b&gt;file contents&lt;/b&gt;');
+  expect(ctx.render()).toEqual('&lt;b&gt;file contents&lt;/b&gt;');
 });
 
 
@@ -316,7 +317,7 @@ test('inject missing', () => {
 
   const ctx = new Context({}, { injectables: inject });
   engine.execute(inst, ctx);
-  expect(ctx.buf).toEqual('');
+  expect(ctx.render()).toEqual('');
 });
 
 
@@ -328,31 +329,30 @@ test('inject mapping empty', () => {
   ], EOF];
   const ctx = new Context({});
   engine.execute(inst, ctx);
-  expect(ctx.buf).toEqual('');
+  expect(ctx.render()).toEqual('');
 });
 
 
 test('macro', () => {
   const engine = new Engine();
   const inst = [ROOT, 1, [
-    // define macro
     [MACRO, 'person.html', [
-      [VARIABLE, ['name'], 0],
+      [VARIABLE, [['name']], 0],
       [TEXT, ' is ' ],
-      [VARIABLE, ['status'], 0],
+      [VARIABLE, [['status']], 0],
     ]],
     [MACRO, 'unused.html', [
       [TEXT, 'never called']
     ]],
-    [SECTION, 'person', [
-      [VARIABLE, ['@'], [[ 'apply', ['person.html']]]],
+    [SECTION, ['person'], [
+      [VARIABLE, [['@']], [[ 'apply', ['person.html']]]],
     ], END]
 
   ], EOF];
 
   const ctx = new Context({ person: { name: 'Betty', status: 'offline' } });
   engine.execute(inst, ctx);
-  expect(ctx.buf).toEqual('Betty is offline');
+  expect(ctx.render()).toEqual('Betty is offline');
 });
 
 
@@ -360,11 +360,11 @@ test('macro not defined', () => {
   const engine = new Engine();
   const inst = [ROOT, 1, [
     [SECTION, 'person', [
-      [VARIABLE, ['@'], [[ 'apply', ['person.html']]]],
+      [VARIABLE, [['@']], [[ 'apply', ['person.html']]]],
     ], END]
   ], EOF];
 
   const ctx = new Context({ person: { name: 'Betty', status: 'offline' } });
   engine.execute(inst, ctx);
-  expect(ctx.buf).toEqual('');
+  expect(ctx.render()).toEqual('');
 });

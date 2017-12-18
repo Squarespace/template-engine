@@ -60,11 +60,11 @@ test('parse and execute', () => {
 
   expect(code).toEqual([ROOT, 1, [
     [TEXT, 'a'],
-    [VARIABLE, ['b'], 0],
+    [VARIABLE, [['b']], 0],
     [TEXT, 'c'],
     [COMMENT, ' comment\ncomment ', 1],
     [TEXT, 'd'],
-    [VARIABLE, ['e'], 0],
+    [VARIABLE, [['e']], 0],
     [TEXT, 'f']
   ], EOF]);
 
@@ -79,12 +79,12 @@ test('bindvar', () => {
   let { code } = parse('abc{.var @foo bar}def');
   expect(code).toEqual([ROOT, 1, [
     [TEXT, 'abc'],
-    [BINDVAR, '@foo', ['bar'], 0],
+    [BINDVAR, '@foo', [['bar']], 0],
     [TEXT, 'def']
   ], EOF]);
 
   ({ code } = parse('{.var @foo a, b|html}'));
-  expect(code).toEqual([ROOT, 1, [[BINDVAR, '@foo', ['a', 'b'], [['html']]]], EOF]);
+  expect(code).toEqual([ROOT, 1, [[BINDVAR, '@foo', [['a'], ['b']], [['html']]]], EOF]);
 
   ({ code } = parse('{.var}'));
   expect(code).toEqual([ROOT, 1, [[TEXT, '{.var}']], EOF]);
@@ -188,7 +188,7 @@ test('macro', () => {
   expect(code).toEqual([ROOT, 1, [
     [TEXT, 'abc\n\t'],
     [MACRO, 'foo.html', [
-      [VARIABLE, ['a.b.c'], 0]
+      [VARIABLE, [['a', 'b', 'c']], 0]
     ]],
     [TEXT, '\ndef']
   ], EOF]);
@@ -226,7 +226,7 @@ test('or predicate', () => {
   let { code } = parse('foo{.section a}{.or}A{.end}bar');
   expect(code).toEqual([ROOT, 1, [
     [TEXT, 'foo'],
-    [SECTION, 'a', [], [OR_PREDICATE, 0, 0, [
+    [SECTION, ['a'], [], [OR_PREDICATE, 0, 0, [
       [TEXT, 'A']
     ], END]],
     [TEXT, 'bar']
@@ -235,7 +235,7 @@ test('or predicate', () => {
   ({ code } = parse('foo{.section a}{.or equal? b c}A{.end}bar'));
   expect(code).toEqual([ROOT, 1, [
     [TEXT, 'foo'],
-    [SECTION, 'a', [], [OR_PREDICATE, 'equal?', ['b', 'c'], [
+    [SECTION, ['a'], [], [OR_PREDICATE, 'equal?', ['b', 'c'], [
       [TEXT, 'A']
     ], END]],
     [TEXT, 'bar']
@@ -277,12 +277,12 @@ test('predicate', () => {
 test('repeated section', () => {
   let { code } = parse('{.repeated section a.b.c}A{.end}');
   expect(code).toEqual([ROOT, 1, [
-    [REPEATED, 'a.b.c', [[TEXT, 'A']], END, []]
+    [REPEATED, ['a', 'b', 'c'], [[TEXT, 'A']], END, []]
   ], EOF]);
 
   ({ code } = parse('{.repeated section @items}A{.alternates with}---{.end}'));
   expect(code).toEqual([ROOT, 1, [
-    [REPEATED, '@items', [[TEXT, 'A']], END, [[TEXT, '---']]]
+    [REPEATED, ['@items'], [[TEXT, 'A']], END, [[TEXT, '---']]]
   ], EOF]);
 
   ({ code } = parse('{.repeated section}'));
@@ -302,7 +302,7 @@ test('repeated section', () => {
 test('section', () => {
   let { code } = parse('{.section a.b.c}A{.end}');
   expect(code).toEqual([ROOT, 1, [
-    [SECTION, 'a.b.c', [
+    [SECTION, ['a', 'b', 'c'], [
       [TEXT, 'A']
     ], END]
   ], EOF]);
@@ -325,7 +325,7 @@ test('section', () => {
 test('variables', () => {
   let { code } = parse('{a, b, c|foo d e|bar}');
   expect(code).toEqual([ROOT, 1, [
-    [VARIABLE, ['a', 'b', 'c'], [['foo', ['d', 'e']], ['bar']]]
+    [VARIABLE, [['a'], ['b'], ['c']], [['foo', ['d', 'e']], ['bar']]]
   ], EOF]);
 
   ({ code } = parse('{a**}'));

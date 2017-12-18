@@ -3,18 +3,14 @@ import beautify from 'beautify-benchmark';
 import chalk from 'chalk';
 
 
-export const onComplete = function() {
-  beautify.log();
-  console.log(`Fastest is: ${chalk.green(this.filter('fastest').map('name'))}`);
-  console.log(`Slowest is: ${chalk.red(this.filter('slowest').map('name'))}`);
-};
-
-export const onCycle = e => beautify.add(e.target);
-
 export const makeSuite = (name) => {
   const suite = new Suite(name);
-  suite.on('cycle', onCycle);
-  suite.on('complete', onComplete);
+  suite.on('cycle', e => beautify.add(e.target));
+  suite.on('complete', (e) => {
+    beautify.log();
+    console.log(`Fastest is: ${chalk.green(suite.filter('fastest').map('name'))}`);
+    console.log(`Slowest is: ${chalk.red(suite.filter('slowest').map('name'))}`);
+  });
   return suite;
 };
 

@@ -110,6 +110,9 @@ class Node {
     }
   }
 
+  /**
+   * Replace characters in the string with those in the mapping.
+   */
   replace(mapping) {
     const s = this.asString();
     const len = s.length;
@@ -127,9 +130,12 @@ class Node {
     let type = this.type;
     for (let i = 0, len = path.length; i < len; i++) {
       const name = path[i];
+
+      // Short circuit lookups on objects that don't support them.
       if (type !== types.OBJECT && type !== types.ARRAY) {
         return MISSING_NODE;
       }
+
       value = value[name];
       type = types.of(value);
     }
@@ -140,7 +146,7 @@ class Node {
   }
 
   get(key) {
-    const value = this.value[key];
+    const value = this.value === null ? undefined : this.value[key];
     const type = types.of(value);
     if (type === types.MISSING) {
       return MISSING_NODE;
@@ -149,27 +155,8 @@ class Node {
   }
 }
 
-/**
- * Represents a missing node, or a non-value type.
- */
-class MissingNode extends Node {
-
-  constructor() {
-    super(null, types.MISSING);
-  }
-
-  path(path) {
-    return MISSING_NODE;
-  }
-
-  get(key) {
-    return MISSING_NODE;
-  }
-
-}
-
 // Singleton, used any time we need to return a missing node
-MISSING_NODE = new MissingNode();
+MISSING_NODE = new Node(null, types.MISSING);
 
 export default Node;
 

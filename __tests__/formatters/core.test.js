@@ -20,11 +20,11 @@ test('apply', () => {
   const engine = new Engine();
   const inst = [ROOT, 1, [
     [TEXT, 'Hi, '],
-    [VARIABLE, ['person'], [['apply', ['person.html']]]]
+    [VARIABLE, [['person']], [['apply', ['person.html']]]]
   ], EOF];
   const partial = [ROOT, 1, [
-    [VARIABLE, ['name'], 0],
-    [VARIABLE, ['sym'], 0]
+    [VARIABLE, [['name']], 0],
+    [VARIABLE, [['sym']], 0]
   ], EOF];
 
   const node = { person: { name: 'User Name' }, sym: '!!' };
@@ -38,11 +38,11 @@ test('apply private scope', () => {
   const engine = new Engine();
   const inst = [ROOT, 1, [
     [TEXT, 'Hi, '],
-    [VARIABLE, ['person'], [['apply', ['person.html', 'private']]]],
+    [VARIABLE, [['person']], [['apply', ['person.html', 'private']]]],
   ], EOF];
   const partial = [ROOT, 1, [
-    [VARIABLE, ['name'], 0],
-    [VARIABLE, ['sym'], 0]
+    [VARIABLE, [['name']], 0],
+    [VARIABLE, [['sym']], 0]
   ], EOF];
 
   const node = { person: { name: 'User Name' }, sym: '!!' };
@@ -253,7 +253,7 @@ test('iter', () => {
   expect(vars[0].get()).toEqual('1');
   ctx.pop();
 
-  ctx.frame.currentIndex++;
+  ctx.frame().currentIndex++;
   ctx.pushNext();
   Core.iter.apply([], vars, ctx);
   ctx.pop();
