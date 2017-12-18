@@ -1,28 +1,8 @@
 import types from './types';
-import { deepEquals, stringCompare } from './util';
+import { deepEquals, replaceMappedChars, stringCompare } from './util';
 
 // Forward declaration
 let MISSING_NODE = null;
-
-/**
- * Note: This converts a value to a boolean using the Jackson JSON rules.
- * For example, string "true" is true, all else false. For this reason
- * we do not expose it publically. It is only used for comparisons.
- */
-const asBoolean = (n) => {
-  const value = n.value;
-  switch (n.type) {
-  case types.BOOLEAN:
-    return value;
-  case types.STRING:
-    return value === 'true' ? true : false;
-  case types.NUMBER:
-    // Only non-zero integers are true, floats are false.
-    return parseInt(value, 10) === value ? value !== 0 : false;
-  default:
-    return false;
-  }
-};
 
 /**
  * Wrapper for a typed value with some utility methods.
@@ -61,12 +41,48 @@ class Node {
 
     case types.BOOLEAN:
     {
-      const n = asBoolean(node);
+      const n = node.asBoolean();
       return this.value === n ? 0 : (this.value ? 1 : -1);
     }
 
     default:
       return deepEquals(this.value, node.value) ? 0 : -1;
+    }
+  }
+
+  /**
+   * Returns the number of properties in an object, or number of elements in
+   * an array. All other types return 0.
+   */
+  size() {
+    switch (this.type) {
+    case types.OBJECT:
+      return Object.keys(this.value).length;
+    case types.ARRAY:
+      return this.value.length;
+    default:
+      return 0;
+    }
+  }
+
+  /**
+   * This converts a value to a boolean using the Jackson JSON rules.
+   * For example, string "true" is true, all other string values are false.
+   */
+  asBoolean() {
+    switch (this.type) {
+    case types.BOOLEAN:
+      return this.value;
+    case types.STRING:
+      return this.value === 'true' ? true : false;
+    case types.NUMBER:
+    {
+      // Only non-zero integers are true, floats are false.
+      const value = this.value;
+      return parseInt(value, 10) === value ? value !== 0 : false;
+    }
+    default:
+      return false;
     }
   }
 
@@ -114,15 +130,7 @@ class Node {
    * Replace characters in the string with those in the mapping.
    */
   replace(mapping) {
-    const s = this.asString();
-    const len = s.length;
-    let out = '';
-    for (let i = 0; i < len; i++) {
-      const ch = s[i];
-      const repl = mapping[ch];
-      out += repl ? repl : ch;
-    }
-    return out;
+    return replaceMappedChars(this.asString(), mapping);
   }
 
   path(path) {
@@ -146,12 +154,14 @@ class Node {
   }
 
   get(key) {
-    const value = this.value === null ? undefined : this.value[key];
-    const type = types.of(value);
-    if (type === types.MISSING) {
-      return MISSING_NODE;
+    if (this.type === types.ARRAY || this.type === types.OBJECT) {
+      const value = this.value[key];
+      const type = types.of(value);
+      if (type !== types.MISSING) {
+        return new Node(value, type);
+      }
     }
-    return new Node(value, type);
+    return MISSING_NODE;
   }
 }
 

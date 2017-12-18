@@ -1,0 +1,40 @@
+[17, 1, [
+  [6, "@selectText", [["localizedStrings", "productVariantSelectText"]], 0],
+  [0, "\n\n"],
+  [8, [], ["options"], [
+      [0, "\n  "],
+      [6, "@content", [["item", "structuredContent"]], 0],
+      [0, "\n  "],
+      [6, "@variants", [["@content", "variants"]], 0],
+      [0, "\n  <div class=\"product-variants\" data-item-id=\""],
+      [1, [["item", "id"]], 0],
+      [0, "\" data-variants=\""],
+      [1, [["@variants"]], [["json"], ["htmltag"]]],
+      [0, "\">"],
+      [4, ["options"], [
+          [0, "\n    <div class=\"variant-option\">\n    <div class=\"variant-option-title\">"],
+          [1, [["name"]], 0],
+          [0, ": </div>\n    <div class=\"variant-select-wrapper\">\n      <select data-variant-option-name=\""],
+          [1, [["name"]], [["htmltag"]]],
+          [0, "\">\n        <option value=\"\">"],
+          [8, [], ["@selectText"], [
+              [1, [["@selectText"]], 0]
+            ], [7, 0, 0, [
+              [0, "Select"]
+            ], 3]],
+          [0, " "],
+          [1, [["name"]], 0],
+          [0, "</option>\n        "],
+          [4, ["values"], [
+              [0, "<option value=\""],
+              [1, [["@"]], [["htmltag"]]],
+              [0, "\">"],
+              [1, [["@"]], 0],
+              [0, "</option>"]
+            ], 3, []],
+          [0, "\n      </select>\n    </div>\n    </div>"]
+        ], 3, []],
+      [0, "\n  </div>\n"]
+    ], 3],
+  [0, "\n"]
+], 18]

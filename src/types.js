@@ -7,6 +7,16 @@ const STRING = 4;
 const BOOLEAN = 5;
 const NULL = 6;
 
+const NAMES = [
+  'MISSING',
+  'OBJECT',
+  'ARRAY',
+  'NUMBER',
+  'STRING',
+  'BOOLEAN',
+  'NULL',
+];
+
 /**
  * Returns a constant indicating the type of the given value.
  */
@@ -30,8 +40,11 @@ function of(value) {
   return MISSING;
 }
 
+const nameOf = t => NAMES[t];
+
 export default {
   of,
+  nameOf,
   MISSING,
   OBJECT,
   ARRAY,

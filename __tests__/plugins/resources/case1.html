@@ -1,0 +1,20 @@
+:JSON
+{
+  "bar": 123
+}
+
+:INJECT
+{
+  "./foo.json": {
+    "numbers": [1, 2, 3],
+    "letters": ["a", "b", "c"]
+  }
+}
+
+:PARTIALS
+{
+  "person.html": "hi {name}!"
+}
+
+:OUTPUT
+foo

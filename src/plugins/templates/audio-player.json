@@ -1,0 +1,9 @@
+[17, 1, [
+  [0, "<script>Y.use('squarespace-audio-player-frontend');</script>\n<div class=\"squarespace-audio-player\" data-audio-asset-url=\""],
+  [1, [["structuredContent", "audioAssetUrl"]], 0],
+  [0, "\" data-item-id=\""],
+  [1, [["id"]], 0],
+  [0, "\" id=\"audio-player-"],
+  [1, [["id"]], 0],
+  [0, "\"></div>\n"]
+], 18]

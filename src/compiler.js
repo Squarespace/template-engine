@@ -2,10 +2,10 @@
 import Assembler from './assembler';
 import Context from './context';
 import Engine from './engine';
-import Parser from './parser';
 import { EOF, ROOT } from './opcodes';
-import Formatters from './formatters';
-import Predicates from './predicates';
+import Parser from './parser';
+import { Formatters, Predicates } from './plugins';
+
 
 const EMPTY_CODE = [ROOT, 1, [], EOF];
 

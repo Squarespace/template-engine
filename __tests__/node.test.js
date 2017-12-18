@@ -36,6 +36,27 @@ test('node is missing', () => {
 });
 
 
+test('node size', () => {
+  const n1 = new Node(false);
+  expect(n1.size()).toEqual(0);
+
+  const n2 = new Node({});
+  expect(n2.size()).toEqual(0);
+
+  const n3 = new Node({ a: 1, b: 2 });
+  expect(n3.size()).toEqual(2);
+
+  const n4 = new Node([]);
+  expect(n4.size()).toEqual(0);
+
+  const n5 = new Node([1, 2, 3, 4]);
+  expect(n5.size()).toEqual(4);
+
+  const n6 = new Node('hello, world');
+  expect(n6.size()).toEqual(0);
+});
+
+
 test('node path resolution', () => {
   const o1 = { a: { b: { c: 123 } } };
   const n1 = new Node(o1);

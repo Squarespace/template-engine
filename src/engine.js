@@ -1,6 +1,5 @@
-import Formatters from './formatters';
 import { Formatter, Predicate } from './plugin';
-import Predicates from './predicates';
+import { Formatters, Predicates } from './plugins';
 import { isTruthy } from './util';
 import Variable from './variable';
 

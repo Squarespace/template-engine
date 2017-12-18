@@ -1,0 +1,35 @@
+:TEMPLATE
+{.macro person.html}
+'{name}' is {status}.
+{.end}
+{.macro unused.html}
+never called.
+{.end}
+{.section foo}{.end}
+{.section person}
+{@|apply person.html}
+{.end}
+
+:PRETTY
+[17, 1, [
+  [10, "person.html", [
+      [0, "\n'"],
+      [1, [["name"]], 0],
+      [0, "' is "],
+      [1, [["status"]], 0],
+      [0, ".\n"]
+    ]],
+  [0, "\n"],
+  [10, "unused.html", [
+      [0, "\nnever called.\n"]
+    ]],
+  [0, "\n"],
+  [2, ["foo"], [], 3],
+  [0, "\n"],
+  [2, ["person"], [
+      [0, "\n"],
+      [1, [["@"]], [["apply", ["person.html"]]]],
+      [0, "\n"]
+    ], 3],
+  [0, "\n"]
+], 18]

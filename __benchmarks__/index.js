@@ -1,6 +1,6 @@
 
-import { assembleSuite, parseSuite } from './parser.benchmark';
-import { executeSuite } from './engine.benchmark';
+import { assembleSuite, parseSuite } from './benchmark.parser';
+import { executeSuite } from './benchmark.engine';
 
 
 const options = { async: false, delay: 1 };

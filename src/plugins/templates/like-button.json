@@ -1,0 +1,10 @@
+[17, 1, [
+  [8, [1], ["@", "websiteSettings.simpleLikingEnabled"], [
+      [0, "\n  <span class=\"sqs-simple-like\" data-item-id=\""],
+      [1, [["id"]], 0],
+      [0, "\" data-like-count=\""],
+      [1, [["likeCount"]], 0],
+      [0, "\">\n    <span class=\"like-icon\"></span>\n    <span class=\"like-count\"></span>\n  </span>\n"]
+    ], 3],
+  [0, "\n"]
+], 18]

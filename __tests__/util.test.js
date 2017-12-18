@@ -1,10 +1,13 @@
 import Node from '../src/node';
 import {
   deepEquals,
+  deepMerge,
   isJsonStart,
   isTruthy,
+  repeat,
   splitVariable,
   stringCompare,
+  deepCopy,
 } from '../src/util';
 
 
@@ -98,4 +101,45 @@ test('string compare', () => {
   expect(stringCompare('aaa', 'aaa')).toEqual(0);
   expect(stringCompare('aaa', 'bbb')).toEqual(-1);
   expect(stringCompare('bbb', 'aaa')).toEqual(1);
+});
+
+
+test('repeat', () => {
+  expect(repeat(3, 'a')).toEqual('aaa');
+  expect(repeat(5, 'xyz')).toEqual('xyzxyzxyzxyzxyz');
+});
+
+
+test('deep merge', () => {
+  const foo = Object.freeze({ a: { b: 1, c: [1, 2, 3] } });
+  const bar = Object.freeze({ b: 3.14159, d: { e: 'hello, world' } });
+  let obj = { c: 'nothing' };
+  let result = deepMerge(obj, foo, bar);
+  expect(result).toEqual({
+    a: { b: 1, c: [ 1, 2, 3 ] },
+    b: 3.14159,
+    c: 'nothing',
+    d: { e: 'hello, world' }
+  });
+
+  obj = { a: 1, b: 2, c: 3 };
+  result = deepMerge(obj, foo);
+  expect(result).toEqual(obj);
+
+  obj = { a: 1, c: 3 };
+  result = deepMerge(obj, bar);
+  expect(result).toEqual({
+    a: 1,
+    b: 3.14159,
+    c: 3,
+    d: { e: 'hello, world' }
+  });
+});
+
+
+test('deep copy', () => {
+  const foo = { a: 1, b: 'hello', c: { d: 3.14, e: [1, 2, 3] } };
+  const bar = deepCopy(foo);
+  expect(foo).toEqual(bar);
+  expect(foo).not.toBe(bar);
 });

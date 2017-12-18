@@ -177,3 +177,80 @@ export const executeTemplate = (ctx, inst, node, privateContext) => {
   ctx.restoreBuffer(buf);
   return text;
 };
+
+
+/**
+ * Repeat a string N times.
+ */
+export const repeat = (n, str) => {
+  if (n === 1) {
+    return str;
+  }
+  let res = '';
+  for (let i = 0; i < n; i++) {
+    res += str;
+  }
+  return res;
+};
+
+
+const isObject = o => types.of(o) === types.OBJECT;
+
+/**
+ * Merge object deeply nested properties.
+ */
+export const deepMerge = (dst, ...sources) => {
+  if (!sources.length) {
+    return dst;
+  }
+
+  const src = sources.shift();
+  if (isObject(dst) && isObject(src)) {
+    for (const key in src) {
+      if (isObject(src[key])) {
+        if (!dst[key]) {
+          Object.assign(dst, { [key]: {} });
+        }
+        deepMerge(dst[key], src[key]);
+      } else {
+        Object.assign(dst, { [key]: src[key] });
+      }
+    }
+  }
+
+  return deepMerge(dst, ...sources);
+};
+
+
+/**
+ * Create a deep copy of value, object or array.
+ */
+export const deepCopy = (obj) => {
+  const type = types.of(obj);
+  switch (type) {
+  case types.ARRAY:
+    return obj.map(e => deepCopy(e));
+  case types.OBJECT:
+    return Object.keys(obj).reduce(function (o, k) {
+      o[k] = deepCopy(obj[k]);
+      return o;
+    }, {});
+  default:
+    return obj;
+  }
+};
+
+
+/**
+ * For each character in the mapping, replace it in the output.
+ */
+export const replaceMappedChars = (str, mapping) => {
+  const len = str.length;
+  let out = '';
+  for (let i = 0; i < len; i++) {
+    const ch = str[i];
+    const repl = mapping[ch];
+    out += repl ? repl : ch;
+  }
+  return out;
+};

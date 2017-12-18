@@ -3,6 +3,9 @@ import beautify from 'beautify-benchmark';
 import chalk from 'chalk';
 
 
+/**
+ * Constructs a benchmark suite, setting a few lifecycle handlers.
+ */
 export const makeSuite = (name) => {
   const suite = new Suite(name);
   suite.on('cycle', e => beautify.add(e.target));
@@ -14,7 +17,9 @@ export const makeSuite = (name) => {
   return suite;
 };
 
-
+/**
+ * Pad a string to length n using the replacement string.
+ */
 export const pad = (n, str, repl) => {
   if (n < str.length) {
     throw new Error(`String is longer than the padding amount ${n}`);
@@ -27,17 +32,6 @@ export const pad = (n, str, repl) => {
   let i = 0;
   while (res.length < n) {
     res += repl[i++ % repl.length];
-  }
-  return res;
-};
-
-export const repeat = (n, str) => {
-  if (n === 1) {
-    return str;
-  }
-  let res = '';
-  for (let i = 0; i < n; i++) {
-    res += str;
   }
   return res;
 };
