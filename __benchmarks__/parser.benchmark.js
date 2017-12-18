@@ -10,7 +10,7 @@ const assembleSuite = makeSuite('Parse + Assemble');
 const compiler = new Compiler();
 const nullSink = new Sink();
 
-const sizes = [1, 4, 16, 64, 256, 1024];
+const sizes = [1, 4, 16, 64, 256, 1024, 4096];
 const padding = 32;
 
 
@@ -18,6 +18,22 @@ let base = pad(padding, 'fooooooooooooooooooooo', 'x');
 sizes.forEach(n => {
   const source = repeat(n, base);
   const desc = `- text ${n} (${source.length} chars)`;
+
+  parseSuite.add(`parse ${desc}`, () => {
+    const parser = new Parser(source, nullSink);
+    parser.parse();
+  });
+
+  assembleSuite.add(`parse + assemble ${desc}`, () => {
+    compiler.parse(source);
+  });
+});
+
+
+base = pad(padding, 'fooooooooooooooooooooo{a}', 'x');
+sizes.forEach(n => {
+  const source = repeat(n, base);
+  const desc = `- text + var ${n} (${source.length} chars)`;
 
   parseSuite.add(`parse ${desc}`, () => {
     const parser = new Parser(source, nullSink);
@@ -50,6 +66,22 @@ base = pad(padding, '{.section a}{@|html}{.end}', 'x');
 sizes.forEach(n => {
   const source = repeat(n, base);
   const desc = `- section ${n} (${source.length} chars)`;
+
+  parseSuite.add(`parse ${desc}`, () => {
+    const parser = new Parser(source, nullSink);
+    parser.parse();
+  });
+
+  assembleSuite.add(`parse + assemble ${desc}`, () => {
+    compiler.parse(source);
+  });
+});
+
+
+base = pad(padding, '{.repeated section a}{b}{.end}', 'x');
+sizes.forEach(n => {
+  const source = repeat(n, base);
+  const desc = `- repeated ${n} (${source.length} chars)`;
 
   parseSuite.add(`parse ${desc}`, () => {
     const parser = new Parser(source, nullSink);

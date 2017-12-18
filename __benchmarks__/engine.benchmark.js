@@ -1,15 +1,13 @@
 
 import { makeSuite, pad, repeat } from './util';
-import Compiler, { Parser } from '../src';
-import Sink from '../src/sink';
+import Compiler from '../src';
 
 
 const engineSuite = makeSuite('Execute');
 
 const compiler = new Compiler();
 
-const sizes = [1, 4, 16, 64, 256, 1024];
-// const sizes = [1, 4];
+const sizes = [1, 4, 16, 64, 256, 1024, 4096];
 const padding = 32;
 
 
@@ -17,6 +15,19 @@ let base = pad(padding, 'fooooooooooooooooooooo', 'x');
 sizes.forEach(n => {
   const source = repeat(n, base);
   const desc = `- text ${n} (${source.length} chars)`;
+  const { code } = compiler.parse(source);
+  const json = {};
+
+  engineSuite.add(`execute ${desc}`, () => {
+    compiler.execute({ code, json });
+  });
+});
+
+
+base = pad(padding, 'fooooooooooooooooooooo{a}', 'x');
+sizes.forEach(n => {
+  const source = repeat(n, base);
+  const desc = `- text + var ${n} (${source.length} chars)`;
   const { code } = compiler.parse(source);
   const json = {};
 
@@ -45,6 +56,19 @@ sizes.forEach(n => {
   const desc = `- section ${n} (${source.length} chars)`;
   const { code } = compiler.parse(source);
   const json = { a: { b: 'hello' } };
+
+  engineSuite.add(`execute ${desc}`, () => {
+    compiler.execute({ code, json });
+  });
+});
+
+
+base = pad(padding, '{.repeated section a}{b}{.end}', 'x');
+sizes.forEach(n => {
+  const source = repeat(n, base);
+  const desc = `- repeated ${n} (${source.length} chars)`;
+  const { code } = compiler.parse(source);
+  const json = { a: [{ b: 'hello' }, { b: 'world' }] };
 
   engineSuite.add(`execute ${desc}`, () => {
     compiler.execute({ code, json });
