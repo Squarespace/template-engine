@@ -180,6 +180,8 @@ class Engine {
         ctx.pop();
         frame.currentIndex++;
       }
+      ctx.pop();
+
     } else {
       ctx.pop();
       this.execute(inst[3], ctx);

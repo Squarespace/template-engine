@@ -7,7 +7,6 @@ import { EOF, ROOT } from './opcodes';
 import Formatters from './formatters';
 import Predicates from './predicates';
 
-
 const EMPTY_CODE = [ROOT, 1, [], EOF];
 
 /**

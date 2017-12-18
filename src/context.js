@@ -191,9 +191,10 @@ class Context {
     let frame = this.frame;
     while (frame !== null) {
       const node = this.resolveName(name, frame);
-      if (!node.isMissing()) {
+      if (node.type !== types.MISSING) {
         return node;
       }
+
       if (frame.stopResolution) {
         break;
       }
@@ -208,7 +209,7 @@ class Context {
    * or looks up a user-defined variable.
    */
   resolveName(name, frame) {
-    if (typeof name === 'string' && name.startsWith('@')) {
+    if (typeof name === 'string' && name[0] === '@') {
       if (name === '@') {
         return frame.node;
 
