@@ -4,11 +4,11 @@ import { Formatter } from '../plugin';
 import { executeTemplate, isTruthy } from '../util';
 import { isOnSale, isSoldOut } from './util.commerce';
 import {
-  outputImageMeta,
-  splitDimensions,
   getAltTextFromContentItem,
   getFocalPoint,
-  isLicensedAssetPreview } from './util.content';
+  isLicensedAssetPreview,
+  outputImageMeta,
+  splitDimensions } from './util.content';
 import { escapeHtmlAttributes, slugify } from './util.string';
 import { hexColorToInt } from './util.color';
 
@@ -46,7 +46,7 @@ class ChildImageMetaFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const index = args.length === 0 ? 0 : parseInt(args[0], 10);
-    const child = first.node().path(['items', index]);
+    const child = first.node.path(['items', index]);
     first.set(outputImageMeta(child));
   }
 }
@@ -54,7 +54,7 @@ class ChildImageMetaFormatter extends Formatter {
 class CoverImageMetaFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
-    const image = first.node().get('coverImage');
+    const image = first.node.get('coverImage');
     first.set(outputImageMeta(image));
   }
 }
@@ -64,7 +64,7 @@ const HALFBRIGHT = 0xFFFFFF / 2;
 class ColorWeightFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
-    const hex = first.node().asString();
+    const hex = first.node.asString();
     const color = hexColorToInt(hex);
     if (color === -1) {
       first.set(MISSING_NODE);
@@ -78,7 +78,7 @@ class ColorWeightFormatter extends Formatter {
 class HeightFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
-    const parts = splitDimensions(first.node());
+    const parts = splitDimensions(first.node);
     if (parts === null) {
       first.set(MISSING_NODE);
     } else {
@@ -97,7 +97,7 @@ class HumanizeDurationFormatter extends Formatter {
 class ImageFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
-    const node = first.node();
+    const node = first.node;
     const cls = args.length === 1 ? args[0] : 'thumb-image';
 
     const id = node.get('id').asString();
@@ -109,9 +109,9 @@ class ImageFormatter extends Formatter {
     let res = '<noscript>';
     res += `<img src="${assetUrl}" `;
     if (altText.length > 0) {
-      res += `alt="${altText}" `;
+      res += ` alt="${altText}" `;
     }
-    res += '/></noscript>';
+    res += ' /></noscript>';
 
     res += `<img class="${cls}" `;
     if (altText.length > 0) {
@@ -126,7 +126,7 @@ class ImageFormatter extends Formatter {
     res += `data-image="${assetUrl}" `;
     res += `data-image-dimensions="${origSize}" `;
     res += `data-image-focal-point="${focalPoint}" `;
-    res += 'data-load="false"';
+    res += 'data-load="false" ';
     res += `data-image-id="${id}" `;
     res += 'data-type="image" />';
     first.set(res);
@@ -155,7 +155,7 @@ const IMAGE_COLOR_POSITIONS = [
 class ImageColorFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
-    const colorData = first.node().get('colorData');
+    const colorData = first.node.get('colorData');
 
     if (colorData.isMissing()) {
       first.set(MISSING_NODE);
@@ -167,8 +167,8 @@ class ImageColorFormatter extends Formatter {
       const key = args[0];
       const color = colorData.get(key + 'Average').asString();
       if (color.length > 0) {
-        if (args.length === 2) {
-          res += args[0].append(': ');
+        if (args.length > 1) {
+          res += `${args[1]}: `;
         }
         res += `#${color}`;
       } else {
@@ -189,7 +189,7 @@ class ImageColorFormatter extends Formatter {
 class ImageMetaFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
-    const image = first.node();
+    const image = first.node;
     first.set(outputImageMeta(image));
   }
 }
@@ -207,7 +207,7 @@ const slugifyClasses = (prefix, node) => {
 class ItemClassesFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
-    const value = first.node();
+    const value = first.node;
 
     let res = 'hentry';
     let node = ctx.resolve(['promotedBlockType']);
@@ -293,7 +293,7 @@ class TimeSinceFormatter extends Formatter {
 class WidthFormatter extends Formatter {
   apply(vars, args, ctx) {
     const first = vars[0];
-    const parts = splitDimensions(first.node());
+    const parts = splitDimensions(first.node);
     if (parts === null) {
       first.set(MISSING_NODE);
     } else {

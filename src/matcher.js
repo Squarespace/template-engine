@@ -166,7 +166,7 @@ class Matcher {
         break;
       }
 
-      variables.push(variable);
+      variables.push(splitVariable(variable));
 
       // Skip any optional whitespace.
       start = this.matchEnd;

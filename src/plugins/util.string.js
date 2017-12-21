@@ -46,3 +46,10 @@ export const slugify = str => {
   str = str.replace(WHITESPACE_RE, '-');
   return str.toLowerCase();
 };
+
+
+const SCRIPT_TAG = /<\//g;
+
+export const escapeScriptTags = str => {
+  return str.replace(SCRIPT_TAG, '<\\\/');
+};

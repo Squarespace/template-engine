@@ -2,11 +2,14 @@ import dateutil from './util.date';
 import { format } from './util.format';
 import { Formatter } from '../plugin';
 import types from '../types';
-import { isTruthy, splitVariable, executeTemplate } from '../util';
+import { executeTemplate, isTruthy, splitVariable } from '../util';
+import { escapeHtmlAttributes, escapeScriptTags, slugify } from './util.string';
 import utf8 from 'utf8';
 
 import moment from 'moment-timezone';
 
+
+import prettyJson from '../pretty';
 
 class ApplyFormatter extends Formatter {
   apply(args, vars, ctx) {
@@ -181,13 +184,7 @@ class HtmlFormatter extends Formatter {
 class HtmlAttrFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
-    const value = first.node.replace({
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;'
-    });
-    first.set(value);
+    first.set(escapeHtmlAttributes(first.node.asString()));
   }
 }
 
@@ -201,16 +198,16 @@ class IterFormatter extends Formatter {
 class JsonFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
-    const value = first.node.value;
-    first.set(JSON.stringify(value));
+    const value = JSON.stringify(first.node.value);
+    first.set(escapeScriptTags(value));
   }
 }
 
 class JsonPretty extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
-    const value = first.node.value;
-    first.set(JSON.stringify(value, null, '  '));
+    const value = JSON.stringify(first.node.value, null, '  ');
+    first.set(escapeScriptTags(value));
   }
 }
 
@@ -275,16 +272,11 @@ class SafeFormatter extends Formatter {
   }
 }
 
-const RE_SLUGIFY_KILL = /[^a-zA-Z0-9\s-]+/g;
-const RE_SLUGIFY_WS = /\s+/g;
-
 class SlugifyFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
-    let value = first.node.asString();
-    value = value.replace(RE_SLUGIFY_KILL, '');
-    value = value.replace(RE_SLUGIFY_WS, '-');
-    first.set(value.toLowerCase());
+    const value = first.node.asString();
+    first.set(slugify(value));
   }
 }
 

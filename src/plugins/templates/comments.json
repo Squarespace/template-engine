@@ -1,11 +1,11 @@
 [17, 1, [
-  [8, [], ["websiteSettings.disqusShortname"], [
+  [8, [], [["websiteSettings", "disqusShortname"]], [
       [0, "\n  <div class=\"squarespace-comments\" id=\"disqus_thread\"></div>\n"]
     ], [7, 0, 0, [
       [0, "\n  <div class=\"squarespace-comments\" id=\"comments-"],
       [1, [["id"]], 0],
       [0, "\""],
-      [8, [], ["item"], [
+      [8, [], [["item"]], [
           [0, " data-item-id=\""],
           [1, [["item", "id"]], 0],
           [0, "\" data-public-comment-count=\""],
@@ -14,7 +14,7 @@
           [1, [["item", "commentState"]], 0],
           [0, "\""]
         ], [7, 0, 0, [
-          [8, [], ["collection"], [
+          [8, [], [["collection"]], [
               [0, " data-collection-id=\""],
               [1, [["collection", "id"]], 0],
               [0, "\" data-public-comment-count=\""],

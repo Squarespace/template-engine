@@ -1,3 +1,4 @@
+import { join } from 'path';
 import Context from '../src/context';
 import Engine from '../src/engine';
 
@@ -21,6 +22,10 @@ import {
   TEXT,
   VARIABLE,
 } from '../src/opcodes';
+import { TemplateTestLoader } from './loader';
+
+
+const loader = new TemplateTestLoader(join(__dirname, 'resources'));
 
 
 test('literals', () => {
@@ -295,11 +300,11 @@ test('inject', () => {
     [INJECT, '@foo', 'file.html', 0],
     [VARIABLE, [['@foo']], [['html']]]
   ], EOF];
-  const inject = {
+  const injects = {
     'file.html': '<b>file contents</b>'
   };
 
-  const ctx = new Context({}, { injectables: inject });
+  const ctx = new Context({}, { injects: injects });
   engine.execute(inst, ctx);
   expect(ctx.render()).toEqual('&lt;b&gt;file contents&lt;/b&gt;');
 });
@@ -315,7 +320,7 @@ test('inject missing', () => {
     'file.html': 'file contents',
   };
 
-  const ctx = new Context({}, { injectables: inject });
+  const ctx = new Context({}, { injects: inject });
   engine.execute(inst, ctx);
   expect(ctx.render()).toEqual('');
 });
@@ -330,6 +335,12 @@ test('inject mapping empty', () => {
   const ctx = new Context({});
   engine.execute(inst, ctx);
   expect(ctx.render()).toEqual('');
+});
+
+
+test('inject test cases', () => {
+  loader.execute('inject-1.html');
+  loader.execute('inject-2.html');
 });
 
 

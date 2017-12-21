@@ -2,7 +2,7 @@ import Node from './node';
 import { ROOT } from './opcodes';
 import types from './types';
 
-const ALL_DIGITS = /\d+/;
+const ALL_DIGITS = /^\d+$/;
 
 
 /**

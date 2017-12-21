@@ -1,5 +1,5 @@
 [17, 1, [
-  [8, [], ["websiteSettings.disqusShortname"], [
+  [8, [], [["websiteSettings", "disqusShortname"]], [
       [0, "\n  <a href=\""],
       [1, [["fullUrl"]], 0],
       [0, "\" class=\"sqs-comment-link sqs-disqus-comment-link\" data-id=\""],

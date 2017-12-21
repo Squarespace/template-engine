@@ -93,10 +93,11 @@ test('file path', () => {
 test('if expression', () => {
   const impl = 'matchIfExpression';
 
-  expect(match(impl, ' a', 1)).toEqual([[], ['a']]);
-  expect(match(impl, 'a')).toEqual([[], ['a']]);
-  expect(match(impl, 'a || b')).toEqual([[0], ['a', 'b']]);
-  expect(match(impl, 'a && b || c')).toEqual([[1, 0], ['a', 'b', 'c']]);
+  expect(match(impl, ' a', 1)).toEqual([[], [['a']]]);
+  expect(match(impl, 'a')).toEqual([[], [['a']]]);
+  expect(match(impl, 'a || b')).toEqual([[0], [['a'], ['b']]]);
+  expect(match(impl, 'a && b || c')).toEqual([[1, 0], [['a'], ['b'], ['c']]]);
+  expect(match(impl, 'a.b && b.c || c.d')).toEqual([[1, 0], [['a', 'b'], ['b', 'c'], ['c', 'd']]]);
 
   expect(match(impl, 'a & b')).toEqual(null);
   expect(match(impl, 'a &&& b')).toEqual(null);

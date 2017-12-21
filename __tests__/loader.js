@@ -2,17 +2,18 @@ import fs from 'fs';
 import { join, sep } from 'path';
 
 import Assembler from '../src/assembler';
+import Compiler from '../src';
 import Parser from '../src/parser';
 
 
-const SECTION = /^:([A-Z]+)\s*$/;
+const SECTION = /^:([a-zA-Z\d_-]+)\s*$/;
 
 /**
  * Loads test case files relative to the __tests__ directory.
  */
 export class TestLoader {
 
-  constructor(directory, decoders) {
+  constructor(directory, decoders = {}) {
     this.directory = directory;
     this.decoders = decoders;
   }
@@ -22,7 +23,7 @@ export class TestLoader {
       throw new Error(`Path must be relative. Got ${path}`);
     }
     const fullPath = join(this.directory, path);
-    const data = fs.readFileSync(fullPath).toString('utf-8');
+    const data = fs.readFileSync(fullPath, { encoding: 'utf-8' });
     return this.parse(data);
   }
 
@@ -40,7 +41,7 @@ export class TestLoader {
       }
 
       if (key !== null) {
-        const decoder = this.decoders[key];
+        const decoder = this.decoders[key] || this.decoders['*'];
         const data = curr.join('\n');
         sections[key] = decoder ? decoder(data) : data;
         curr = [];
@@ -48,7 +49,7 @@ export class TestLoader {
       key = match[1];
     }
     if (!sections[key]) {
-      const decoder = this.decoders[key];
+      const decoder = this.decoders[key] || this.decoders['*'];
       const data = curr.join('\n');
       sections[key] = decoder ? decoder(data) : data;
     }
@@ -83,6 +84,10 @@ export const parseMap = (str, func) => {
   return obj;
 };
 
+
+const compiler = new Compiler();
+
+
 /**
  * Helper to load template compilation test cases.
  */
@@ -91,11 +96,22 @@ export class TemplateTestLoader extends TestLoader {
   constructor(directory) {
     super(directory, {
       JSON: JSON.parse,
-      INJECT: JSON.parse,
+      INJECT: s => parseMap(s, JSON.parse),
       PARTIALS: s => parseMap(s, parseTemplate),
       TEMPLATE: parseTemplate,
       OUTPUT: s => s.trim()
     });
   }
 
+  execute(path) {
+    const spec = this.load(path);
+    const { ctx } = compiler.execute({
+      code: spec.TEMPLATE,
+      json: spec.JSON,
+      partials: spec.PARTIALS,
+      injects: spec.INJECT
+    });
+    const output = ctx.render();
+    expect(output.trim()).toEqual(spec.OUTPUT);
+  }
 }

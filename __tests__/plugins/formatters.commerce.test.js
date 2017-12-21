@@ -1,37 +1,68 @@
-import Commerce from '../../src/plugins/formatters.commerce';
-import Context from '../../src/context';
-import Engine from '../../src/engine';
-import Variable from '../../src/variable';
+import { join } from 'path';
+import { TemplateTestLoader } from '../loader';
 
 
-const variables = (...n) => n.map((v, i) => new Variable('var' + i, v));
+const loader = new TemplateTestLoader(join(__dirname, 'resources'));
 
-// TODO: move entire test case to a file once test runner is complete
 
 test('add-to-cart-btn', () => {
-  const node = {
-    item: {
-      id: '560c37c1a7c8465c4a71d99a',
-      collectionId: '560c37c1a7c8465c4a71d99b',
-      structuredContent: {
-        additionalFieldsFormId: '560c37c1a7c8465c4a71d99c',
-        additionalFieldsForm: { name: 'TestForm', fields: [] },
-        useCustomAddButtonText: true,
-        customAddButtonText: 'Add This',
-        productType: '1'
-      }
-    }
-  };
-  const engine = new Engine();
-  const ctx = new Context(node);
-  ctx.engine = engine;
-  const impl = Commerce['add-to-cart-btn'];
-  const vars = variables(node);
-  impl.apply([], vars, ctx);
+  loader.execute('f-add-to-cart-btn-1.html');
+  loader.execute('f-add-to-cart-btn-2.html');
+  loader.execute('f-add-to-cart-btn-3.html');
+});
 
-  expect(vars[0].get().trim()).toEqual(`<div class="sqs-add-to-cart-button-wrapper">
-  <div class="sqs-add-to-cart-button sqs-suppress-edit-mode sqs-editable-button " data-collection-id="" data-item-id="" data-product-type="" data-use-custom-label="" data-original-label="Add To Cart" >
-    <div class="sqs-add-to-cart-button-inner">Add To Cart</div>
-  </div>
-</div>`);
+
+test('cart-quantity', () => {
+  loader.execute('f-cart-quantity-1.html');
+  loader.execute('f-cart-quantity-2.html');
+});
+
+
+test('cart-url', () => {
+  loader.execute('f-cart-url-1.html');
+});
+
+
+test('from-price', () => {
+  // TODO: these return double in Java and get formatted with trailing zero,
+  // e.g. '100.0'. Javascript formats as '100'.
+  loader.execute('f-from-price-1.html');
+  loader.execute('f-from-price-2.html');
+  loader.execute('f-from-price-3.html');
+  loader.execute('f-from-price-4.html');
+  loader.execute('f-from-price-5.html');
+  loader.execute('f-from-price-6.html');
+  loader.execute('f-from-price-7.html');
+});
+
+
+test('normal-price', () => {
+  // TODO: these return double in Java and get formatted with trailing zero,
+  // e.g. '100.0'. Javascript formats as '100'.
+  loader.execute('f-normal-price-1.html');
+  loader.execute('f-normal-price-2.html');
+  loader.execute('f-normal-price-3.html');
+  loader.execute('f-normal-price-4.html');
+  loader.execute('f-normal-price-5.html');
+  loader.execute('f-normal-price-6.html');
+  loader.execute('f-normal-price-7.html');
+});
+
+
+test('product-checkout', () => {
+  // TODO:
+  // loader.execute('f-product-checkout-1.html');
+});
+
+
+test('sale-price', () => {
+  // TODO: these return double in Java and get formatted with trailing zero,
+  // e.g. '100.0'. Javascript formats as '100'.
+  loader.execute('f-sale-price-1.html');
+  loader.execute('f-sale-price-2.html');
+  loader.execute('f-sale-price-3.html');
+  loader.execute('f-sale-price-4.html');
+  loader.execute('f-sale-price-5.html');
+  loader.execute('f-sale-price-6.html');
+  loader.execute('f-sale-price-7.html');
 });

@@ -13,7 +13,7 @@
   [0, "\n"],
   [6, "@addToCartText", [["localizedStrings", "productAddToCartText"]], 0],
   [0, "\n\n<div class=\"sqs-add-to-cart-button-wrapper\">\n  <div class=\"sqs-add-to-cart-button sqs-suppress-edit-mode sqs-editable-button "],
-  [8, [1], ["@fieldsFormId", "@fieldsForm"], [
+  [8, [1], [["@fieldsFormId"], ["@fieldsForm"]], [
       [0, "use-form"]
     ], 3],
   [0, "\" data-collection-id=\""],
@@ -25,22 +25,22 @@
   [0, "\" data-use-custom-label=\""],
   [1, [["@useCustom"]], 0],
   [0, "\" data-original-label=\""],
-  [8, [1], ["@useCustom", "@customButton"], [
+  [8, [1], [["@useCustom"], ["@customButton"]], [
       [1, [["@customButton"]], 0]
     ], [7, 0, 0, [
       [0, "Add To Cart"]
     ], 3]],
   [0, "\" "],
-  [8, [1], ["@fieldsFormId", "@fieldsForm"], [
+  [8, [1], [["@fieldsFormId"], ["@fieldsForm"]], [
       [0, "data-form=\""],
       [1, [["@fieldsForm"]], [["json"], ["htmlattr"]]],
       [0, "\""]
     ], 3],
   [0, ">\n    <div class=\"sqs-add-to-cart-button-inner\">"],
-  [8, [1], ["@useCustom", "@customButton"], [
+  [8, [1], [["@useCustom"], ["@customButton"]], [
       [1, [["@customButton"]], 0]
     ], [7, 0, 0, [
-      [8, [], ["@addToCartText"], [
+      [8, [], [["@addToCartText"]], [
           [1, [["@addToCartText"]], 0]
         ], [7, 0, 0, [
           [0, "Add To Cart"]

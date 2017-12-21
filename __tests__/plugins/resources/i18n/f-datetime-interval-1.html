@@ -1,0 +1,22 @@
+:JSON
+{
+	"website": {"timeZone": "America/Los_Angeles"},
+	"dates": [
+		{"start": 1509647217000, "end": 1510641417000},
+		{"start": 1502298000000, "end": 1502305200000}
+	]
+}
+
+
+:TEMPLATE
+{.repeated section dates}
+{start, end|datetime-interval}{.end}
+{.repeated section dates}
+{start, end|datetime-interval yMMMd}{.end}
+
+:OUTPUT
+Nov 2 – 13, 2017
+10:00 AM – 12:00 PM PT
+
+Nov 2 – 13, 2017
+Aug 9, 2017 – Aug 9, 2017

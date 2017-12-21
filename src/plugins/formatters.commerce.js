@@ -3,14 +3,16 @@ import { executeTemplate } from '../util';
 import * as commerceutil from './util.commerce';
 import types from '../types';
 
-import addToCartBtn from './templates/add-to-cart-btn.json';
-import productCheckout from './templates/product-checkout.json';
+// Template imports
+import addToCartBtnTemplate from './templates/add-to-cart-btn.json';
+import productCheckoutTemplate from './templates/product-checkout.json';
+import variantsSelectTemplate from './templates/variants-select.json';
 
 
 class AddToCartButtonFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
-    const text = executeTemplate(ctx, addToCartBtn, first.node, false);
+    const text = executeTemplate(ctx, addToCartBtnTemplate, first.node, false);
     first.set(text);
   }
 }
@@ -72,7 +74,7 @@ class NormalPriceFormatter extends Formatter {
 class ProductCheckoutFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
-    const text = executeTemplate(ctx, productCheckout, first.node, false);
+    const text = executeTemplate(ctx, productCheckoutTemplate, first.node, false);
     first.set(text);
   }
 }
@@ -91,7 +93,15 @@ class SalePriceFormatter extends Formatter {
 }
 
 // TODO: variant-descriptor
-// TODO: variant-select
+
+class VariantsSelectFormatter extends Formatter {
+  apply(args, vars, ctx) {
+    const first = vars[0];
+    const node = first.node;
+    // TODO: finish variants-select
+  }
+}
+
 // TODO: SummaryFormField class
 
 
@@ -106,4 +116,6 @@ export default {
   'product-checkout': new ProductCheckoutFormatter(),
 
   'sale-price': new SalePriceFormatter(),
+
+  'variants-select': new VariantsSelectFormatter(),
 };

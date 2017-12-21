@@ -2,7 +2,7 @@
   [0, "<div style=\"padding-left:5px;\">\n  <div>"],
   [1, [["values", null]], 0],
   [0, "</div>"],
-  [8, [], ["values.Line2"], [
+  [8, [], [["values", null]], [
       [0, "\n  <div>"],
       [1, [["values", null]], 0],
       [0, "</div>"]

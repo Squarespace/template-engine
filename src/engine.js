@@ -229,11 +229,12 @@ class Engine {
   executeBindvar(inst, ctx) {
     const name = inst[1];
     const vars = resolveVariables(inst[2], ctx);
+
     applyFormatters(this.formatters, inst[3], vars, ctx);
     if (ctx.visitor) {
       ctx.visitor.onBindvar(name, vars, ctx);
     }
-    ctx.setVar(inst[1], vars[0].node);
+    ctx.setVar(name, vars[0].node);
   }
 
   /**
@@ -287,7 +288,7 @@ class Engine {
   executeInject(inst, ctx) {
     const name = inst[1];
     const path = inst[2];
-    // const args = inst[3] - ignored for now
+    // const args = inst[3] - arguments ignored for now
     const node = ctx.getInjectable(path);
     ctx.setVar(name, node);
   }

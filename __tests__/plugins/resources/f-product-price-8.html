@@ -1,0 +1,20 @@
+
+:JSON
+{
+  "structuredContent": {
+    "productType": 1,
+    "variants": [
+      {"price": 10000},
+      {"price": 20000}
+    ]
+  },
+  "localizedStrings": {
+    "productPriceStartingFromText": "hello {0}"
+  }
+}
+
+:TEMPLATE
+{@|product-price}
+
+:OUTPUT
+<div class="product-price">hello <span class="sqs-money-native">100.00</span></div>

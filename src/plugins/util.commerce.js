@@ -66,6 +66,7 @@ export const getFromPrice = item => {
   }
 };
 
+
 export const getNormalPrice = item => {
   const type = getProductType(item);
   const content = item.get('structuredContent');
@@ -128,7 +129,7 @@ export const getSalePrice = item => {
 
   case ProductType.DIGITAL:
   {
-    const cents = content.get('priceCents');
+    const cents = content.get('salePriceCents');
     return cents.isMissing() ? 0 : cents.asNumber();
   }
 
@@ -262,7 +263,81 @@ export const isSoldOut = item => {
 
 // TODO: writeVariantFormat
 
-// TODO: getItemVariantOptions
+const getUserDefinedOptions = content => {
+  const ordering = content.get('variantOptionOrdering');
+  const options = [];
+  const size = ordering.size();
+  for (let i = 0; i < size; i++) {
+    const name = ordering.get(i).asString();
+    options.push({ name, values: [] });
+  }
+  return options;
+};
 
-// TODO: isMultipleQuantityAllowedForServices
 
+export const getItemVariantOptions = item => {
+  const content = item.get('structuredContent');
+  const variants = content.get('variants');
+  const variantsSize = variants.size();
+  if (variantsSize <= 1) {
+    return [];
+  }
+
+  const userDefinedOptions = getUserDefinedOptions(content);
+
+  for (let i = 0; i < variantsSize; i++) {
+    const variant = variants.get(i);
+    const attrs = variant.get('attributes');
+    if (attrs.type !== types.OBJECT) {
+      continue;
+    }
+
+    const fields = Object.keys(attrs.value);
+    for (let j = 0; j < fields.length; j++) {
+      const field = fields[j];
+      const variantOptionValue = attrs.get(field).asString();
+
+      let option = null;
+      for (let k = 0; k < userDefinedOptions.length; k++) {
+        const current = userDefinedOptions[k];
+        if (current.name === field) {
+          option = current;
+          break;
+        }
+      }
+
+      if (option === null) {
+        continue;
+      }
+
+      let hasValue = false;
+      const optionValues = option.values;
+      for (let k = 0; k < optionValues.length; k++) {
+        const value = optionValues[k];
+        if (value === variantOptionValue) {
+          hasValue = true;
+          break;
+        }
+      }
+
+      if (!hasValue) {
+        optionValues.push(variantOptionValue);
+      }
+    }
+  }
+  return userDefinedOptions;
+};
+
+
+const MULTIPLE_QTY_ALLOWED_FIELD = 'multipleQuantityAllowedForServices';
+
+export const isMultipleQuantityAllowedForServices = websiteSettings => {
+  const storeSettings = websiteSettings.get('storeSettings');
+  if (storeSettings.type === types.OBJECT) {
+    const value = storeSettings.get(MULTIPLE_QTY_ALLOWED_FIELD);
+    if (value.type !== types.NULL && value.type !== types.MISSING) {
+      return value.asBoolean();
+    }
+  }
+  return true;
+};

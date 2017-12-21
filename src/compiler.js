@@ -34,7 +34,7 @@ class Compiler {
   /**
    * Execute a template against the given node.
    */
-  execute({ code = EMPTY_CODE, json = {} } = {}) {
+  execute({ code = EMPTY_CODE, json = {}, partials = {}, injects = {} } = {}) {
     let errors = [];
 
     // TODO: unify parse, assembly and execution error arrays
@@ -43,7 +43,7 @@ class Compiler {
       ({ code, errors } = this.parse(code));
     }
 
-    const ctx = new Context(json);
+    const ctx = new Context(json, { partials, injects });
     this.engine.execute(code, ctx);
 
     // TODO: splice execution errors to the end of the errors array

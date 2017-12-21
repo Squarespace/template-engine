@@ -122,9 +122,9 @@ test('comments', () => {
 
 
 test('if', () => {
-  let { code } = parse('{.if a}A{.end}');
+  let { code } = parse('{.if a.b}A{.end}');
   expect(code).toEqual([ROOT, 1, [
-    [IF, [], ['a'], [
+    [IF, [], [['a', 'b']], [
       [TEXT, 'A']
     ], END]
   ], EOF]);

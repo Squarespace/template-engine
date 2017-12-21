@@ -8,7 +8,7 @@ import Visitor from './visitor';
  */
 class Context {
 
-  constructor(node, { locale, partials = {}, injectables = {}, visitor } = {}) {
+  constructor(node, { locale, partials = {}, injects = {}, visitor } = {}) {
     if (!(node instanceof Node)) {
       node = new Node(node);
     }
@@ -26,7 +26,7 @@ class Context {
     this.version = 1;
     this.locale = locale;
     this.partials = partials;
-    this.injectables = injectables;
+    this.injects = injects;
     this.visitor = visitor instanceof Visitor ? visitor : null;
   }
 
@@ -115,7 +115,7 @@ class Context {
    * values.
    */
   getInjectable(name) {
-    const node = this.injectables[name] || null;
+    const node = this.injects[name] || null;
     if (node !== null) {
       return node instanceof Node ? node : new Node(node);
     }

@@ -25,6 +25,13 @@ export class Struct {
   }
 
   /**
+   * Return the real object wrapped in a Node.
+   */
+  node() {
+    return new Node(this.obj);
+  }
+
+  /**
    * Merge the given objects together and return a copy.
    */
   merge(...src) {
@@ -71,10 +78,6 @@ export class Product extends Struct {
     super(obj);
   }
 
-  get() {
-    return new Node(this.obj);
-  }
-
   build(obj) {
     return new Product(obj);
   }
@@ -85,5 +88,38 @@ export class Product extends Struct {
 
   variants(variants) {
     return this.set(variants, 'structuredContent', 'variants');
+  }
+}
+
+const blankImage = {
+  originalSize: '',
+  assetUrl: '',
+  title: '',
+  mediaFocalPoint: {}
+};
+
+export class Image extends Struct {
+  constructor(obj = blankImage) {
+    super(obj);
+  }
+
+  build(obj) {
+    return new Image(obj);
+  }
+
+  focalPoint(x, y) {
+    return this.set({ x, y }, 'mediaFocalPoint');
+  }
+
+  originalSize(size) {
+    return this.set(size, 'originalSize');
+  }
+
+  assetUrl(url) {
+    return this.set(url, 'assetUrl');
+  }
+
+  title(text) {
+    return this.set(text, 'title');
   }
 }

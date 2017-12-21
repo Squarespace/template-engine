@@ -1,0 +1,10 @@
+:JSON
+{
+  "var": {"title": "<script x=\"y\"> </script >"}
+}
+
+:TEMPLATE
+{var.title|json}
+
+:OUTPUT
+"<script x=\"y\"> <\/script >"

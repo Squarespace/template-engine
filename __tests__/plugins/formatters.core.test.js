@@ -1,8 +1,13 @@
+import { join } from 'path';
 import Core from '../../src/plugins/formatters.core';
 import Context from '../../src/context';
 import Engine from '../../src/engine';
+import { TemplateTestLoader } from '../loader';
 import { EOF, ROOT, TEXT, VARIABLE } from '../../src/opcodes';
 import Variable from '../../src/variable';
+
+
+const loader = new TemplateTestLoader(join(__dirname, 'resources'));
 
 
 const variables = (...n) => {
@@ -79,6 +84,11 @@ test('apply no arguments', () => {
   const ctx = new Context(node, { partials: { 'person.html': partial } });
   engine.execute(inst, ctx);
   expect(ctx.render()).toEqual('Hi, ');
+});
+
+
+test('apply external', () => {
+  loader.execute('f-apply-1.html');
 });
 
 
@@ -216,6 +226,13 @@ test('format', () => {
 });
 
 
+test('format external', () => {
+  loader.execute('f-format-1.html');
+  loader.execute('f-format-2.html');
+  loader.execute('f-format-3.html');
+});
+
+
 test('html', () => {
   const vars = variables('"<foo & bar>"');
   Core.html.apply([], vars, null);
@@ -266,10 +283,25 @@ test('json', () => {
 });
 
 
+test('json external', () => {
+  loader.execute('f-json-1.html');
+  loader.execute('f-json-2.html');
+  loader.execute('f-json-3.html');
+  loader.execute('f-json-4.html');
+  loader.execute('f-json-5.html');
+});
+
+
 test('json-pretty', () => {
   const vars = variables({ a: [1, 2] });
   Core['json-pretty'].apply([], vars, null);
   expect(vars[0].get()).toEqual('{\n  "a": [\n    1,\n    2\n  ]\n}');
+});
+
+
+test('json-pretty external', () => {
+  loader.execute('f-json-pretty-1.html');
+  loader.execute('f-json-pretty-2.html');
 });
 
 

@@ -9,8 +9,8 @@ test('node constructor', () => {
 });
 
 
-test('injectables', () => {
-  const ctx = new Context(123, { injectables: { foo: new Node(123) } });
+test('injects', () => {
+  const ctx = new Context(123, { injects: { foo: new Node(123) } });
   expect(ctx.getInjectable('foo')).toEqual(new Node(123));
 });
 
