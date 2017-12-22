@@ -123,3 +123,44 @@ export class Image extends Struct {
     return this.set(text, 'title');
   }
 }
+
+
+/**
+ * Generate a sequence of numbered paths.
+ */
+export const pathseq = (pattern, end) => {
+  const res = [];
+  for (let i = 1; i <= end; i++) {
+    const path = pattern.replace('%N', i);
+    res.push(path);
+  }
+  return res;
+};
+
+
+/**
+ * Helper to build JSON test cases that compare K to K-expected.
+ */
+export const expectedTests = (name, spec) => {
+  const cases = [];
+  Object.keys(spec).filter(k => !k.endsWith('-expected')).forEach(k => {
+    const input = spec[k];
+    const expected = spec[k + '-expected'];
+    cases.push({ name: `${name} - ${k}`, input, expected });
+  });
+  return cases;
+};
+
+/**
+ * Helper to build true / false test cases.
+ */
+export const predicateTests = (name, spec) => {
+  const cases = [];
+  Object.keys(spec).forEach(k => {
+    const input = spec[k];
+    const expected = k.endsWith('-true');
+    cases.push({ name: `${name} - ${k}`, input, expected });
+  });
+  return cases;
+};
+

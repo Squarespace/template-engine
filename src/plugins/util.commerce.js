@@ -251,8 +251,10 @@ export const isSoldOut = item => {
 
   case ProductType.DIGITAL:
   case ProductType.GIFT_CARD:
-  default:
     return false;
+
+  default:
+    return true;
   }
 };
 
@@ -341,3 +343,42 @@ export const isMultipleQuantityAllowedForServices = websiteSettings => {
   }
   return true;
 };
+
+export const getVariantFormat = variant => {
+  const options = variant.get('optionValues');
+  const size = options.size();
+  let res = '';
+  for (let i = 0; i < size; i++) {
+    if (i > 0) {
+      res += ' / ';
+    }
+    const value = options.get(i).get('value').asString();
+    res += value;
+  }
+  return res;
+};
+
+/*
+public static void writeVariantFormat(JsonNode variant, StringBuilder buf) {
+  ArrayNode optionValues = (ArrayNode) variant.get("optionValues");
+  if (optionValues == null) {
+    return;
+  }
+
+  Iterator<JsonNode> iterator = optionValues.elements();
+  List<String> values = new ArrayList<>();
+
+  while (iterator.hasNext()) {
+    JsonNode option = iterator.next();
+    values.add(option.get("value").asText());
+  }
+
+  int size = values.size();
+  for (int i = 0; i < size; i++) {
+    if (i > 0) {
+      buf.append(" / ");
+    }
+    buf.append(values.get(i));
+  }
+}
+*/

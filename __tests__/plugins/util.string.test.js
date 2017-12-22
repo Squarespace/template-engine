@@ -2,8 +2,14 @@ import { removeTags, slugify, escapeHtmlAttributes } from '../../src/plugins/uti
 
 
 test('remove tags', () => {
-  const s = 'foo <bar> baz';
+  let s = 'foo <bar> baz';
   expect(removeTags(s)).toEqual('foo   baz');
+
+  s = 'abc def ghi';
+  expect(removeTags(s)).toEqual('abc def ghi');
+
+  s = '<           >';
+  expect(removeTags(s)).toEqual(' ');
 });
 
 

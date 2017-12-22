@@ -4,6 +4,8 @@ import { removeTags } from './util.string';
 import types from '../types';
 import { isTruthy } from '../util';
 
+import moment from 'moment-timezone';
+
 
 class BackgroundSourcePredicate extends Predicate {
   constructor(type) {
@@ -80,16 +82,16 @@ class CollectionTemplatePagePredicate extends Predicate {
 
 class CollectionTypeNameEqualsPredicate extends Predicate {
   apply(args, ctx) {
-    return args.length === 0 ? false : ctx.resolve(['typeName']).asString().equals(args[0]);
+    return args.length === 0 ? false : ctx.resolve(['typeName']).asString() === args[0];
   }
 }
 
-const WHITESPACE_NBSP = /[\s\u200b\u00a0]+]/g;
+const WHITESPACE_NBSP = /[\s\u200b\u00a0]+/g;
 
 class ExcerptPredicate extends Predicate {
   apply(args, ctx) {
     const excerpt = ctx.node().get('excerpt');
-    const html = excerpt.path('html');
+    const html = excerpt.get('html');
     let text = '';
     if (html.type === types.STRING) {
       text = html.asString();
@@ -128,7 +130,7 @@ class GalleryBooleanPredicate extends Predicate {
 
 class GalleryMetaPredicate extends Predicate {
   apply(args, ctx) {
-    const options = ctx.resolve('options');
+    const options = ctx.resolve(['options']);
     return isTruthy(options.get('controls')) || isTruthy(options.get('indicators'));
   }
 }
@@ -159,7 +161,7 @@ class IndexPredicate extends Predicate {
       return false;
     }
     const folder = collection.get('folder');
-    const behavior = folder.get('folderBehavior');
+    const behavior = collection.get('folderBehavior');
     return isTruthy(folder) &&
       behavior.type === types.NUMBER &&
       behavior.asNumber() === FolderBehavior.INDEX.code;
@@ -198,7 +200,7 @@ class PromotedBlockTypePredicate extends Predicate {
   }
 
   apply(args, ctx) {
-    ctx.node().get('promotedBlockType').asString().equals(this.promotedBlockType);
+    return ctx.node().get('promotedBlockType').asString() === this.promotedBlockType;
   }
 }
 
@@ -233,11 +235,14 @@ class RedirectPredicate extends Predicate {
   }
 }
 
-// TODO: same-day?
-
 class SameDayPredicate extends Predicate {
   apply(args, ctx) {
-    return false;
+    const node = ctx.node();
+    const startDate = node.get('startDate').asNumber();
+    const endDate = node.get('endDate').asNumber();
+    const m1 = moment.tz(startDate, 'UTC');
+    const m2 = moment.tz(endDate, 'UTC');
+    return m1.year() === m2.year() && m1.month() === m2.month() && m1.date() === m2.date();
   }
 }
 

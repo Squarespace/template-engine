@@ -1,16 +1,14 @@
-import Compiler from '../../src';
+import { join } from 'path';
 import Content from '../../src/plugins/formatters.content';
 import Context from '../../src/context';
 import { MISSING_NODE } from '../../src/node';
-import { Image } from '../helpers';
+import { Image, pathseq } from '../helpers';
 import { TemplateTestLoader } from '../loader';
 import Variable from '../../src/variable';
 
 
 const IMAGE = new Image();
-
-const loader = new TemplateTestLoader(__dirname);
-
+const loader = new TemplateTestLoader(join(__dirname, 'resources'));
 const variables = (...n) => n.map((v, i) => new Variable('var' + i, v));
 
 
@@ -23,8 +21,8 @@ test('AbsUrl', () => {
 });
 
 
-test('audio-player', () => {
-  loader.execute('./resources/f-audio-player-1.html');
+pathseq('f-audio-player-%N.html', 1).forEach(path => {
+  test(`audio-player - ${path}`, () => loader.execute(path));
 });
 
 
@@ -155,16 +153,73 @@ test('height', () => {
 });
 
 
-test('image', () => {
-  loader.execute('./resources/f-image-1.html');
-  loader.execute('./resources/f-image-2.html');
+pathseq('f-image-%N.html', 2).forEach(path => {
+  test(`image - ${path}`, () => loader.execute(path));
 });
 
 
-test('image color', () => {
-  loader.execute('./resources/f-image-color-1.html');
-  loader.execute('./resources/f-image-color-2.html');
-  loader.execute('./resources/f-image-color-3.html');
-  loader.execute('./resources/f-image-color-4.html');
-  loader.execute('./resources/f-image-color-5.html');
+pathseq('f-image-color-%N.html', 5).forEach(path => {
+  test(`image color - ${path}`, () => loader.execute(path));
+});
+
+
+pathseq('f-video-%N.html', 3).forEach(path => {
+  test(`video - ${path}`, () => loader.execute(path));
+});
+
+
+test('resize', () => {
+  const heightForWidth = Content.resizedHeightForWidth;
+  const widthForHeight = Content.resizedWidthForHeight;
+
+  let vars = variables('100x200');
+  heightForWidth.apply(['50'], vars, null);
+  expect(vars[0].get()).toEqual(100);
+
+  vars = variables('100x200');
+  widthForHeight.apply(['50'], vars, null);
+  expect(vars[0].get()).toEqual(25);
+
+  vars = variables('1200x2400');
+  heightForWidth.apply(['600'], vars, null);
+  expect(vars[0].get()).toEqual(1200);
+
+  vars = variables('1200x2400');
+  widthForHeight.apply(['600'], vars, null);
+  expect(vars[0].get()).toEqual(300);
+});
+
+
+test('squarespace thumbnail', () => {
+  const thumbForWidth = Content.squarespaceThumbnailForWidth;
+  const thumbForHeight = Content.squarespaceThumbnailForHeight;
+
+  let vars = variables('100x200');
+  thumbForWidth.apply(['50'], vars, null);
+  expect(vars[0].get()).toEqual('100w');
+
+  vars = variables('100x200');
+  thumbForHeight.apply(['50'], vars, null);
+  expect(vars[0].get()).toEqual('100w');
+
+  vars = variables('1200x2400');
+  thumbForWidth.apply(['600'], vars, null);
+  expect(vars[0].get()).toEqual('750w');
+
+  vars = variables('1200x2400');
+  thumbForHeight.apply(['600'], vars, null);
+  expect(vars[0].get()).toEqual('300w');
+});
+
+
+test('width', () => {
+  const impl = Content.width;
+
+  let vars = variables('800x400');
+  impl.apply([], vars, null);
+  expect(vars[0].get()).toEqual(800);
+
+  vars = variables(undefined);
+  impl.apply([], vars, null);
+  expect(vars[0].node).toBe(MISSING_NODE);
 });

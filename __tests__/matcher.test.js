@@ -135,6 +135,7 @@ test('predicate', () => {
 
   expect(match(impl, 'equal?')).toEqual('equal?');
   expect(match(impl, 'greaterThanOrEqual?')).toEqual('greaterThanOrEqual?');
+  expect(match(impl, 'varied-prices?')).toEqual('varied-prices?');
 
   expect(match(impl, 'greaterThanOrEqual')).toEqual(null);
 });
@@ -181,6 +182,7 @@ test('variable', () => {
 
   expect(match(impl, 'foo.bar')).toEqual(['foo', 'bar']);
   expect(match(impl, '0.a.2.c')).toEqual([0, 'a', 2, 'c']);
+  expect(match(impl, 'values.Line1')).toEqual(['values', 'Line1']);
 
   expect(match(impl, 'foo.bar,')).toEqual(null);
   expect(match(impl, 'foo,bar,baz')).toEqual(null);

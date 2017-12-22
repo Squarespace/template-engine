@@ -142,7 +142,7 @@ class OddPredicate extends Predicate {
       node = ctx.resolve(names);
     }
     if (node.type === types.NUMBER) {
-      return node.value % 2 !== 1;
+      return node.value % 2 === 1;
     }
     return false;
   }

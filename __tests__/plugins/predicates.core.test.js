@@ -209,3 +209,46 @@ test('nth?', () => {
   expect(impl.apply(['0', '3'], ctx)).toEqual(true);
   expect(impl.apply(['3', '0'], ctx)).toEqual(false);
 });
+
+
+test('odd?', () => {
+  const impl = Core['odd?'];
+  let ctx = new Context(1);
+  expect(impl.apply([], ctx)).toEqual(true);
+
+  ctx = new Context(4);
+  expect(impl.apply([], ctx)).toEqual(false);
+
+  ctx = new Context({ a: 7, b: 10 });
+  expect(impl.apply(['a'], ctx)).toEqual(true);
+  expect(impl.apply(['b'], ctx)).toEqual(false);
+
+  ctx = new Context({ a: 'foo' });
+  expect(impl.apply(['a'], ctx)).toEqual(false);
+});
+
+
+test('plural?', () => {
+  const impl = Core['plural?'];
+  let ctx = new Context('1');
+  expect(impl.apply([], ctx)).toEqual(false);
+
+  ctx = new Context('3');
+  expect(impl.apply([], ctx)).toEqual(true);
+
+  ctx = new Context({ a: 'foo' });
+  expect(impl.apply([], ctx)).toEqual(false);
+});
+
+
+test('singular?', () => {
+  const impl = Core['singular?'];
+  let ctx = new Context('1');
+  expect(impl.apply([], ctx)).toEqual(true);
+
+  ctx = new Context('3');
+  expect(impl.apply([], ctx)).toEqual(false);
+
+  ctx = new Context({ a: 'foo' });
+  expect(impl.apply([], ctx)).toEqual(false);
+});

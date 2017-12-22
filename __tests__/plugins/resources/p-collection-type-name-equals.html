@@ -1,13 +1,19 @@
 :JSON
 {
-  "typeName": "foo"
+  "one": { "typeName": "foo" },
+  "two": { "name": "foo" }
 }
 
 :TEMPLATE
-{.collectionTypeNameEquals? foo}0{.end}
-{.collectionTypeNameEquals? bar}x{.or}1{.end}
+{.section one}{.collectionTypeNameEquals? foo}0{.end}{.end}
+{.section one}{.collectionTypeNameEquals? bar}x{.or}1{.end}{.end}
+{.section one}{.collectionTypeNameEquals?}x{.or}2{.end}{.end}
+{.section two}{.collectionTypeNameEquals? foo}x{.or}3{.end}{.end}
+{.section two}{.collectionTypeNameEquals?}x{.or}4{.end}{.end}
 
 :OUTPUT
 0
 1
-
+2
+3
+4

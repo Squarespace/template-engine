@@ -38,7 +38,7 @@ files.forEach(src => {
 
   // Rebuild the destination.
   const source = fs.readFileSync(src, { encoding: 'utf-8' });
-  const { code } = compiler.parse(source);
+  const { code } = compiler.parse(source.trim());
   const output = prettyJson(code);
   console.log('[generating]', dst);
   fs.writeFileSync(dst, output);

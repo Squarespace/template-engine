@@ -104,9 +104,13 @@ class Parser {
     m.set(start, end);
 
     // If not the start of an instruction, it can only be a predicate.
+    if (this.parsePredicate(PREDICATE)) {
+      return true;
+    }
+
     const op = m.matchInstruction();
     if (op === NOOP) {
-      return this.parsePredicate(PREDICATE);
+      return false;
     }
 
     // Move past the instruction string.

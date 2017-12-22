@@ -260,38 +260,84 @@ class ItemClassesFormatter extends Formatter {
   }
 }
 
+const resize = (ctx, node, resizeWidth, requested) => {
+  const parts = splitDimensions(node);
+  if (parts === null || parts.length !== 2) {
+    return "Invalid source parameter. Pass in 'originalSize'";
+  }
+  const width = parseInt(parts[0], 10);
+  const height = parseInt(parts[1], 10);
+  let value = 0;
+  if (resizeWidth) {
+    value = width * (requested / height);
+  } else {
+    value = height * (requested / width);
+  }
+  return parseInt(value, 0);
+};
+
 class ResizedHeightForWidthFormatter extends Formatter {
-  apply(vars, args, ctx) {
-    // TODO: implement
+  apply(args, vars, ctx) {
+    const requested = parseInt(args[0], 10);
+    const first = vars[0];
+    const text = resize(ctx, first.node, false, requested);
+    first.set(text);
   }
 }
 
 class ResizedWidthForHeightFormatter extends Formatter {
-  apply(vars, args, ctx) {
-    // TODO: implement
+  apply(args, vars, ctx) {
+    const requested = parseInt(args[0], 10);
+    const first = vars[0];
+    const text = resize(ctx, first.node, true, requested);
+    first.set(text);
+  }
+}
+
+const getSquarespaceSizeForWidth = width => {
+  if (width > 1000) {
+    return '1500w';
+  } else if (width > 750) {
+    return '1000w';
+  } else if (width > 500) {
+    return '750w';
+  } else if (width > 300) {
+    return '500w';
+  } else if (width > 100) {
+    return '300w';
+  }
+  return '100w';
+};
+
+class SquarespaceThumbnailForWidthFormatter extends Formatter {
+  apply(args, vars, ctx) {
+    const width = parseInt(args[0], 10);
+    const first = vars[0];
+    first.set(getSquarespaceSizeForWidth(width));
   }
 }
 
 class SquarespaceThumbnailForHeightFormatter extends Formatter {
-  apply(vars, args, ctx) {
-    // TODO: implement
-  }
-}
-
-class SquarespaceThumbnailForWidthFormatter extends Formatter {
-  apply(vars, args, ctx) {
-    // TODO: implement
+  apply(args, vars, ctx) {
+    const height = parseInt(args[0], 10);
+    const first = vars[0];
+    const resized = resize(ctx, first.node, true, height);
+    if (typeof resized === 'number') {
+      first.set(getSquarespaceSizeForWidth(resized));
+    } else {
+      first.set(resized);
+    }
   }
 }
 
 class TimeSinceFormatter extends Formatter {
-  apply(vars, args, ctx) {
+  apply(args, vars, ctx) {
     // TODO: implement
   }
 }
 
 class WidthFormatter extends Formatter {
-  apply(vars, args, ctx) {
+  apply(args, vars, ctx) {
     const first = vars[0];
     const parts = splitDimensions(first.node);
     if (parts === null) {
@@ -303,9 +349,69 @@ class WidthFormatter extends Formatter {
   }
 }
 
+const COLOR_LOCATIONS = [
+  { attr: 'topleft', key: 'topLeftAverage' },
+  { attr: 'topright', key: 'topRightAverage' },
+  { attr: 'bottomleft', key: 'bottomLeftAverage' },
+  { attr: 'bottomright', key: 'bottomRightAverage' },
+  { attr: 'center', key: 'centerAverage' },
+];
+
 class VideoFormatter extends Formatter {
-  apply(vars, args, ctx) {
-    // TODO: implement
+  apply(args, vars, ctx) {
+    const first = vars[0];
+    const node = first.node;
+
+    const oEmbed = node.get('oembed');
+    const colorData = node.get('colorData');
+    const assetUrl = node.get('assetUrl').asString();
+    const focalPoint = getFocalPoint(node);
+    const originalSize = node.get('originalSize').asString();
+    const html = escapeHtmlAttributes(oEmbed.get('html').asString());
+    const providerName = oEmbed.get('providerName').asString();
+
+    let loadFalse = false;
+    let useColorData = false;
+
+    for (let i = 0; i < args.length; i++) {
+      const arg = args[i];
+      if (arg === 'load-false') {
+        loadFalse = true;
+      } else if (arg === 'color-data') {
+        useColorData = true;
+      }
+    }
+
+    let res = '<div class="sqs-video-wrapper" ';
+    if (loadFalse) {
+      res += ' data-load="false" ';
+    }
+    res += `data-html="${html}" data-provider-name="${providerName}">`;
+
+    if (isTruthy(node.get('overlay'))) {
+      res += '<div class="sqs-video-overlay';
+      if (isTruthy(node.get('mainImageId')) || isTruthy(node.get('systemDataId'))) {
+        res += '" style="opacity: 0;">';
+        res += `<img data-load="false" data-src="${assetUrl}" `;
+        res += `data-image-dimensions="${originalSize}" `;
+        res += `data-image-focal-point="${focalPoint}" `;
+
+        if (useColorData && isTruthy(colorData)) {
+          for (let j = 0; j < COLOR_LOCATIONS.length; j++) {
+            const loc = COLOR_LOCATIONS[j];
+            const value = colorData.get(loc.key).asString();
+            res += `data-color-${loc.attr}="#${value}" `;
+          }
+        }
+        res += '/>';
+      } else {
+        res += ' no-thumb" style="opacity: 0;">';
+      }
+      res += '<div class="sqs-video-opaque"> </div><div class="sqs-video-icon"></div>';
+      res += '</div>';
+    }
+    res += '</div>';
+    first.set(res);
   }
 }
 

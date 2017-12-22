@@ -2,17 +2,14 @@ import { join } from 'path';
 import Core from '../../src/plugins/formatters.core';
 import Context from '../../src/context';
 import Engine from '../../src/engine';
+import { pathseq } from '../helpers';
 import { TemplateTestLoader } from '../loader';
 import { EOF, ROOT, TEXT, VARIABLE } from '../../src/opcodes';
 import Variable from '../../src/variable';
 
 
 const loader = new TemplateTestLoader(join(__dirname, 'resources'));
-
-
-const variables = (...n) => {
-  return n.map((v, i) => new Variable('var' + i, v));
-};
+const variables = (...n) => n.map((v, i) => new Variable('var' + i, v));
 
 
 test('apply', () => {
@@ -226,10 +223,8 @@ test('format', () => {
 });
 
 
-test('format external', () => {
-  loader.execute('f-format-1.html');
-  loader.execute('f-format-2.html');
-  loader.execute('f-format-3.html');
+pathseq('f-format-%N.html', 3).forEach(path => {
+  test(`format - ${path}`, () => loader.execute(path));
 });
 
 
@@ -240,17 +235,17 @@ test('html', () => {
 });
 
 
-const htmlattr = () => {
+const htmlattr = (name) => {
   const vars = variables('"<foo & bar>"');
-  Core.htmlattr.apply([], vars, null);
+  Core[name].apply([], vars, null);
   expect(vars[0].get()).toEqual('&quot;&lt;foo &amp; bar&gt;&quot;');
 };
 
 
-test('htmlattr', htmlattr);
+test('htmlattr', () => htmlattr('htmlattr'));
 
 
-test('htmltag', htmlattr);
+test('htmltag', () => htmlattr('htmltag'));
 
 
 test('iter', () => {
@@ -283,12 +278,8 @@ test('json', () => {
 });
 
 
-test('json external', () => {
-  loader.execute('f-json-1.html');
-  loader.execute('f-json-2.html');
-  loader.execute('f-json-3.html');
-  loader.execute('f-json-4.html');
-  loader.execute('f-json-5.html');
+pathseq('f-json-%N.html', 5).forEach(path => {
+  test(`json - ${path}`, () => loader.execute(path));
 });
 
 
@@ -299,9 +290,8 @@ test('json-pretty', () => {
 });
 
 
-test('json-pretty external', () => {
-  loader.execute('f-json-pretty-1.html');
-  loader.execute('f-json-pretty-2.html');
+pathseq('f-json-pretty-%N.html', 2).forEach(path => {
+  test(`json pretty - ${path}`, () => loader.execute(path));
 });
 
 

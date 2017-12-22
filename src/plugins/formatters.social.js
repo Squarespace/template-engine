@@ -1,17 +1,20 @@
 import { Formatter } from '../../src/plugin';
 import { executeTemplate } from '../util';
 
+import moment from 'moment-timezone';
+
 // Template imports
 import commentLinkTemplate from './templates/comment-link.json';
 import commentsTemplate from './templates/comments.json';
 import likeButtonTemplate from './templates/like-button.json';
+import { makeSocialButton } from './util.social';
 
 
 const TWITTER_LINKS_REGEX = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\\/%=~_|])/ig;
 const TWITTER_LINKS_REPLACEMENT = '<a target="new" href="$1">$1</a>';
-const TWITTER_TWEETS_REGEX = /(^| )@([a-zA-Z0-9_]+)/ig;
+const TWITTER_TWEETS_REGEX = /(^| )@([a-z0-9_]+)/ig;
 const TWITTER_TWEETS_REPLACEMENT = '$1<a target="new" href="http://www.twitter.com/$2/">@$2</a>';
-const TWITTER_HASHTAG_REGEX = /(^| )#([a-zA-Z0-9_]+)/ig;
+const TWITTER_HASHTAG_REGEX = /(^| )#([a-z0-9_]+)/ig;
 
 
 class ActivateTwitterLinksFormatter extends Formatter {
@@ -67,17 +70,39 @@ class CommentsFormatter extends Formatter {
   }
 }
 
+const CALENDAR_DATE_FORMAT = 'YYYYMMDD[T]HHmmss[Z]';
+
+const getLocationString = node => {
+  const address1 = node.get('addressLine1').asString().trim();
+  const address2 = node.get('addressLine2').asString().trim();
+  const country = node.get('addressCountry').asString().trim();
+
+  return [address1, address2, country].filter(s => s.length > 0).join(', ');
+};
+
 class GoogleCalendarUrlFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const node = first.node;
 
-    const start = node.get('startDate').asNumber();
-    const end = node.get('endDate').asNumber();
+    const startInstant = node.get('startDate').asNumber();
+    const endInstant = node.get('endDate').asNumber();
     const title = escape(node.get('title').asString());
 
-    // let res = `http://www.google.com/calendar/event?action=TEMPLATE&text=${title}&dates=`
-    // TODO: complete when date formatting ready
+    const start = moment.tz(startInstant, 'UTC').format(CALENDAR_DATE_FORMAT);
+    const end = moment.tz(endInstant, 'UTC').format(CALENDAR_DATE_FORMAT);
+
+    let buf = `http://www.google.com/calendar/event?action=TEMPLATE&text=${title}`;
+    buf += `&dates=${start}/${end}`;
+
+    const location = node.get('location');
+    if (!location.isMissing()) {
+      const text = getLocationString(location);
+      if (text !== '') {
+        buf += `&location=${encodeURIComponent(text)}`;
+      }
+    }
+    first.set(buf);
   }
 }
 
@@ -91,13 +116,19 @@ class LikeButtonFormatter extends Formatter {
 
 class SocialButtonFormatter extends Formatter {
   apply(args, vars, ctx) {
-    // TODO: implement
+    const first = vars[0];
+    const website = ctx.resolve(['website']);
+    const text = makeSocialButton(website, first.node, false);
+    first.set(text);
   }
 }
 
 class SocialButtonInlineFormatter extends Formatter {
   apply(args, vars, ctx) {
-    // TODO: implement
+    const first = vars[0];
+    const website = ctx.resolve(['website']);
+    const text = makeSocialButton(website, first.node, true);
+    first.set(text);
   }
 }
 
@@ -106,7 +137,7 @@ class TwitterFollowButtonFormatter extends Formatter {
     const first = vars[0];
     const account = first.node;
     let userName = account.get('userName').asString();
-    if (userName !== '') {
+    if (userName === '') {
       const profileUrl = account.get('profileUrl').asString();
       const parts = profileUrl.split('/');
       userName = parts[parts.length - 1];

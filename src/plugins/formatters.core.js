@@ -1,4 +1,4 @@
-import dateutil from './util.date';
+import { getMomentDateFormat } from './util.date';
 import { format } from './util.format';
 import { Formatter } from '../plugin';
 import types from '../types';
@@ -8,8 +8,6 @@ import utf8 from 'utf8';
 
 import moment from 'moment-timezone';
 
-
-import prettyJson from '../pretty';
 
 class ApplyFormatter extends Formatter {
   apply(args, vars, ctx) {
@@ -81,30 +79,6 @@ const getTimeZone = (ctx) => {
   return node.isMissing() ? 'America/New_York' : node.asString();
 };
 
-/**
- * Some YUI format characters can't be translated into MomentJS fields.
- * We need to calculate the field's value on the fly and replace it
- * into the pattern.
- */
-const getMomentFormat = (m, raw) => {
-  const parts = dateutil.translate(raw);
-  const len = parts.length;
-  for (let i = 0; i < len; i++) {
-    const part = parts[i];
-    if (part.calc) {
-      switch (part.calc) {
-      case 'century':
-        parts[i] = '[' + parseInt(m.year() / 100, 10) + ']';
-        break;
-
-      case 'epoch-seconds':
-        parts[i] = '[' + parseInt(m.valueOf() / 1000, 10) + ']';
-        break;
-      }
-    }
-  }
-  return parts.join('');
-};
 
 class DateFormatter extends Formatter {
   apply(args, vars, ctx) {
@@ -125,7 +99,7 @@ class DateFormatter extends Formatter {
     const m = moment.tz(instant, 'UTC').tz(timezone);
 
     // Build format and apply
-    const fmt = getMomentFormat(m, args[0]);
+    const fmt = getMomentDateFormat(m, args[0]);
     const value = m.format(fmt);
     first.set(value);
   }

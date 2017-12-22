@@ -266,6 +266,8 @@ test('predicate', () => {
     [TEXT, 'bar'],
   ], EOF]);
 
+  ({ code } = parse('{.section}{.varied-prices?}A{.end}{.end}'));
+
   ({ code } = parse('{.equal?|}'));
   expect(code).toEqual([ROOT, 1, [[TEXT, '{.equal?|}']], EOF]);
 
@@ -326,6 +328,11 @@ test('variables', () => {
   let { code } = parse('{a, b, c|foo d e|bar}');
   expect(code).toEqual([ROOT, 1, [
     [VARIABLE, [['a'], ['b'], ['c']], [['foo', ['d', 'e']], ['bar']]]
+  ], EOF]);
+
+  ({ code } = parse('{values.Line1}'));
+  expect(code).toEqual([ROOT, 1, [
+    [VARIABLE, [['values', 'Line1']], 0]
   ], EOF]);
 
   ({ code } = parse('{a**}'));

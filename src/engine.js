@@ -209,7 +209,8 @@ class Engine {
       const impl = this.predicates[name];
       let result = false;
       if (impl instanceof Predicate) {
-        result = impl.apply(inst[2], ctx);
+        const args = inst[2];
+        result = impl.apply(args === 0 ? [] : args, ctx);
       }
       if (result) {
         this.executeBlock(consequent, ctx);

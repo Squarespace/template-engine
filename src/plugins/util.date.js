@@ -1,5 +1,5 @@
 
-const formats = {
+const UNIX_TO_MOMENT_FORMATS = {
   a: 'ddd',
   A: 'dddd',
   b: 'MMM',
@@ -46,7 +46,7 @@ const formats = {
 /**
  * Translate a YUI / UNIX date format to MomentJS format.
  */
-const translate = (fmt) => {
+export const translateUnixToMoment = (fmt) => {
   let esc = '';
   const parts = [];
   const len = fmt.length;
@@ -92,7 +92,7 @@ const translate = (fmt) => {
       esc = '';
     }
 
-    const replacement = formats[ch];
+    const replacement = UNIX_TO_MOMENT_FORMATS[ch];
     if (replacement) {
       if (parts.length > 0 && !hasEscape) {
         // Detect when two MomentJS formats will be concatenated and
@@ -114,6 +114,28 @@ const translate = (fmt) => {
   return parts;
 };
 
-export default {
-  translate,
+
+/**
+ * Some YUI format characters can't be translated into MomentJS fields.
+ * We need to calculate the field's value on the fly and replace it
+ * into the pattern.
+ */
+export const getMomentDateFormat = (m, raw) => {
+  const parts = translateUnixToMoment(raw);
+  const len = parts.length;
+  for (let i = 0; i < len; i++) {
+    const part = parts[i];
+    if (part.calc) {
+      switch (part.calc) {
+      case 'century':
+        parts[i] = '[' + parseInt(m.year() / 100, 10) + ']';
+        break;
+
+      case 'epoch-seconds':
+        parts[i] = '[' + parseInt(m.valueOf() / 1000, 10) + ']';
+        break;
+      }
+    }
+  }
+  return parts.join('');
 };

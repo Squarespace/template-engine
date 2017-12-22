@@ -2,43 +2,13 @@ import { join } from 'path';
 import * as commerceutil from '../../src/plugins/util.commerce';
 import Node from '../../src/node';
 import { ProductType } from '../../src/plugins/enums';
-import { Product } from '../helpers';
+import { expectedTests, predicateTests, Product } from '../helpers';
 import { TestLoader } from '../loader';
 
 
 const PRODUCT = new Product();
 
 const jsonLoader = new TestLoader(join(__dirname, 'resources'), { '*': JSON.parse });
-
-
-/**
- * Helper to build JSON test cases that compare K to K-expected.
- */
-const expectedTests = (name, path) => {
-  const cases = [];
-  const spec = jsonLoader.load(path);
-  Object.keys(spec).filter(k => !k.endsWith('-expected')).forEach(k => {
-    const input = spec[k];
-    const expected = spec[k + '-expected'];
-    cases.push({ name: `${name} - ${k}`, input, expected });
-  });
-  return cases;
-};
-
-/**
- * Helper to build true / false test cases.
- */
-const predicateTests = (name, path) => {
-  const cases = [];
-  const spec = jsonLoader.load(path);
-  Object.keys(spec).forEach(k => {
-    const input = spec[k];
-    const expected = k.endsWith('-true');
-    cases.push({ name: `${name} - ${k}`, input, expected });
-  });
-  return cases;
-};
-
 
 
 test('from price', () => {
@@ -70,8 +40,9 @@ test('from price', () => {
 });
 
 
+const GET_ITEM_VARIANT_OPTIONS_SPEC = jsonLoader.load('get-item-variant-options.json');
 
-expectedTests('get item variant options', 'get-item-variant-options.json').forEach(t => {
+expectedTests('get item variant options', GET_ITEM_VARIANT_OPTIONS_SPEC).forEach(t => {
   test(t.name, () => {
     const actual = commerceutil.getItemVariantOptions(new Node(t.input));
     expect(actual).toEqual(t.expected);
@@ -96,7 +67,9 @@ test('has variants', () => {
 });
 
 
-predicateTests('has variants external', 'has-variants.json').forEach(t => {
+const HAS_VARIANTS_SPEC = jsonLoader.load('has-variants.json');
+
+predicateTests('has variants', HAS_VARIANTS_SPEC).forEach(t => {
   test(t.name, () => {
     const actual = commerceutil.hasVariants(new Node(t.input));
     expect(actual).toEqual(t.expected);
@@ -131,7 +104,9 @@ test('has varied prices', () => {
 });
 
 
-predicateTests('has varied prices external', 'has-varied-prices.json').forEach(t => {
+const HAS_VARIED_PRICES_SPEC = jsonLoader.load('has-varied-prices.json');
+
+predicateTests('has varied prices external', HAS_VARIED_PRICES_SPEC).forEach(t => {
   test(t.name, () => {
     const actual = commerceutil.hasVariedPrices(new Node(t.input));
     expect(actual).toEqual(t.expected);
@@ -194,12 +169,15 @@ test('is sold out', () => {
   result = commerceutil.isSoldOut(item);
   expect(result).toEqual(true);
 
-  [ProductType.DIGITAL, ProductType.GIFT_CARD, ProductType.UNDEFINED].forEach(type => {
+  [ProductType.DIGITAL, ProductType.GIFT_CARD].forEach(type => {
     item = PRODUCT.type(type).node();
     result = commerceutil.isSoldOut(item);
     expect(result).toEqual(false);
   });
 
+  item = PRODUCT.type(ProductType.UNDEFINED).node();
+  result = commerceutil.isSoldOut(item);
+  expect(result).toEqual(true);
 });
 
 
@@ -279,4 +257,13 @@ test('total stock remaining', () => {
   expect(total).toEqual(Number.MAX_SAFE_INTEGER);
 });
 
+
+const MULTIPLE_QUANTITY_ALLOWED_SPEC = jsonLoader.load('is-multi-quantity-allowed-for-services.json');
+
+predicateTests('multiple quantity allowed for services', MULTIPLE_QUANTITY_ALLOWED_SPEC).forEach(t => {
+  test(t.name, () => {
+    const actual = commerceutil.isMultipleQuantityAllowedForServices(new Node(t.input));
+    expect(actual).toEqual(t.expected);
+  });
+});
 
