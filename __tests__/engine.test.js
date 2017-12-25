@@ -94,7 +94,7 @@ test('variables with formatters', () => {
     baz: { a: 1 }
   });
   engine.execute(inst, ctx);
-  expect(ctx.render()).toEqual('&lt;tag&gt; &amp; tag\n"abcde"\n{\n  "a": 1\n}');
+  expect(ctx.render()).toEqual('&lt;tag&gt; &amp; tag\n"abcde..."\n{\n  "a": 1\n}');
 });
 
 

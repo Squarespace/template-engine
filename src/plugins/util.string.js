@@ -53,3 +53,21 @@ const SCRIPT_TAG = /<\//g;
 export const escapeScriptTags = str => {
   return str.replace(SCRIPT_TAG, '<\\\/');
 };
+
+const ELLIPSIS = '...';
+
+export const truncate = (str, maxLen) => {
+  if (str.length <= maxLen) {
+    return str;
+  }
+
+  let end = maxLen;
+  for (let i = maxLen - 1; i >= 0; i--) {
+    const ch = str[i];
+    if (ch === ' ' || ch === '\n' || ch === '\t' || ch === '\u000b' || ch === '\r' || ch === '\f') {
+      end = i + 1;
+      break;
+    }
+  }
+  return str.substring(0, end) + ELLIPSIS;
+};

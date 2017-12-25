@@ -409,14 +409,14 @@ test('str', () => {
 
 
 test('truncate', () => {
-  const str = 'abcdefg';
+  let str = 'abcdefg';
   let vars = variables(str);
   Core.truncate.apply(['5'], vars, null);
-  expect(vars[0].get()).toEqual('abcde');
+  expect(vars[0].get()).toEqual('abcde...');
 
   vars = variables(str);
   Core.truncate.apply([5], vars, null);
-  expect(vars[0].get()).toEqual('abcde');
+  expect(vars[0].get()).toEqual('abcde...');
 
   vars = variables(str);
   Core.truncate.apply([], vars, null);
@@ -433,6 +433,11 @@ test('truncate', () => {
   vars = variables(str);
   Core.truncate.apply([-10], vars, null);
   expect(vars[0].get()).toEqual(str);
+
+  str = 'abc def ghi jkl';
+  vars = variables(str);
+  Core.truncate.apply([10], vars, null);
+  expect(vars[0].get()).toEqual('abc def ...');
 });
 
 

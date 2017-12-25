@@ -3,7 +3,7 @@ import { format } from './util.format';
 import { Formatter } from '../plugin';
 import types from '../types';
 import { executeTemplate, isTruthy, splitVariable } from '../util';
-import { escapeHtmlAttributes, escapeScriptTags, slugify } from './util.string';
+import { escapeHtmlAttributes, escapeScriptTags, slugify, truncate } from './util.string';
 import utf8 from 'utf8';
 
 import moment from 'moment-timezone';
@@ -283,7 +283,7 @@ class TruncateFormatter extends Formatter {
     if (isFinite(limit) && limit > 0) {
       const first = vars[0];
       let value = first.node.asString();
-      value = value.substring(0, limit);
+      value = truncate(value, limit);
       first.set(value);
     }
   }
