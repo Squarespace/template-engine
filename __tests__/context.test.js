@@ -25,7 +25,7 @@ test('buffer append', () => {
 
 test('invalid push', () => {
   const ctx = new Context( { a: { b: 1 } });
-  ctx.pushNames([]);
+  ctx.pushSection([]);
   expect(ctx.frame().node).toBe(MISSING_NODE);
 });
 
@@ -35,21 +35,21 @@ test('push / pop', () => {
   const ctx = new Context(o1);
   expect(ctx.node().value).toEqual(o1);
   expect(ctx.frame().node.value).toEqual(o1);
-  ctx.pushNames(['a']);
+  ctx.pushSection(['a']);
   expect(ctx.frame().node.value).toEqual({ b: [1, 2, 3] });
   ctx.pop();
   expect(ctx.frame().node.value).toEqual(o1);
 
-  ctx.pushNames(['a', 'b']);
+  ctx.pushSection(['a', 'b']);
   expect(ctx.frame().node.value).toEqual([1, 2, 3]);
-  ctx.pushNames([1]);
+  ctx.pushSection([1]);
   expect(ctx.frame().node.value).toEqual(2);
   ctx.pop();
   expect(ctx.frame().node.value).toEqual([1, 2, 3]);
   ctx.pop();
   expect(ctx.frame().node.value).toEqual(o1);
 
-  ctx.pushNames(['@']);
+  ctx.pushSection(['@']);
   expect(ctx.frame().node.value).toEqual(o1);
   ctx.pop();
   expect(ctx.frame().node.value).toEqual(o1);
@@ -61,9 +61,9 @@ test('variable resolution', () => {
   const ctx = new Context(o1);
 
   expect(ctx.resolve(['a', 'b']).value).toEqual([1, 2, { c: 4 }]);
-  ctx.pushNames(['a']);
+  ctx.pushSection(['a']);
   expect(ctx.resolve(['a', 'b']).value).toEqual([1, 2, { c: 4 }]);
-  ctx.pushNames(['b']);
+  ctx.pushSection(['b']);
   expect(ctx.resolve(['a', 'b']).value).toEqual([1, 2, { c: 4 }]);
   ctx.pop();
   ctx.pop();
@@ -73,7 +73,7 @@ test('variable resolution', () => {
 test('lookup stack', () => {
   const o1 = { a: { b: [1, 2, { c: [4, 5] }] }, d: [6, 7] };
   const ctx = new Context(o1);
-  ctx.pushNames(['a', 'b', 2]);
+  ctx.pushSection(['a', 'b', 2]);
 
   expect(ctx.lookupStack('a').value).toEqual({ b: [1, 2, { c: [4, 5] }] });
   expect(ctx.lookupStack('b')).toBe(MISSING_NODE);
@@ -84,8 +84,8 @@ test('lookup stack', () => {
   ctx.pop();
   expect(ctx.lookupStack('a').value).toEqual({ b: [1, 2, { c: [4, 5] }] });
 
-  ctx.pushNames(['a']);
-  ctx.pushNames(['b']);
+  ctx.pushSection(['a']);
+  ctx.pushSection(['b']);
   expect(ctx.lookupStack('a').value).toEqual({ b: [1, 2, { c: [4, 5] }] });
   expect(ctx.lookupStack('b').value).toEqual([1, 2, { c: [4, 5] }]);
   ctx.pop();
@@ -99,16 +99,16 @@ test('frame stop resolution', () => {
   const o1 = { a: { b: { c: 1 } } };
   const ctx = new Context(o1);
 
-  ctx.pushNames(['a']);
-  ctx.pushNames(['b']);
+  ctx.pushSection(['a']);
+  ctx.pushSection(['b']);
   expect(ctx.lookupStack('a').value).toEqual({ b: { c: 1 } });
   expect(ctx.lookupStack('b').value).toEqual({ c: 1 });
   ctx.pop();
   ctx.pop();
 
-  ctx.pushNames(['a']);
+  ctx.pushSection(['a']);
   ctx.stopResolution(true);
-  ctx.pushNames(['b']);
+  ctx.pushSection(['b']);
   expect(ctx.lookupStack('a')).toBe(MISSING_NODE);
   expect(ctx.lookupStack('b').value).toEqual({ c: 1 });
   ctx.pop();
@@ -118,11 +118,11 @@ test('frame stop resolution', () => {
 
 test('set variable', () => {
   const ctx = new Context({ a: { b: { c: 1 } } });
-  ctx.pushNames(['a']);
+  ctx.pushSection(['a']);
   ctx.setVar('@foo', new Node(5));
   expect(ctx.lookupStack('@foo').value).toEqual(5);
 
-  ctx.pushNames(['b']);
+  ctx.pushSection(['b']);
   expect(ctx.lookupStack('@foo').value).toEqual(5);
 
   ctx.pop();
@@ -145,7 +145,7 @@ test('set macro', () => {
 
 test('too many pops', () => {
   const ctx = new Context({ a: 1 });
-  ctx.pushNames(['a']);
+  ctx.pushSection(['a']);
   ctx.pop();
   expect(() => ctx.pop()).toThrowError(Error);
 });

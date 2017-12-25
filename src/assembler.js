@@ -11,6 +11,7 @@ import {
   OR_PREDICATE,
   PREDICATE,
   SECTION,
+  STRUCT,
   REPEATED,
   ROOT,
 } from './opcodes';
@@ -41,6 +42,7 @@ class Assembler extends Sink {
     case PREDICATE:
     case REPEATED:
     case SECTION:
+    case STRUCT:
       this.state = this.state.call(this, type, inst, true);
       break;
 
@@ -118,7 +120,8 @@ class Assembler extends Sink {
     case IF:
       return this.stateIf;
     case MACRO:
-      return this.stateMacro;
+    case STRUCT:
+      return this.stateBlock;
     case OR_PREDICATE:
       return this.stateOrPredicate;
     case PREDICATE:
@@ -181,6 +184,34 @@ class Assembler extends Sink {
   }
 
   /**
+   * Block state handles MACRO and STRUCT.
+   */
+  stateBlock(type, inst, push) {
+    if (push) {
+      return this.pushConsequent(type, inst);
+    }
+    switch (type) {
+    case EOF:
+      this.error(errors.eofInBlock(this.current));
+      break;
+
+    case ALTERNATES_WITH:
+    case OR_PREDICATE:
+      this.error(errors.notAllowedInBlock(inst, this.current));
+      break;
+
+    case END:
+      // Note: block instructions only have a consequent, no alternate.
+      return this.pop();
+
+    default:
+      this.addConsequent(inst);
+      break;
+    }
+    return this.stateBlock;
+  }
+
+  /**
    * Dead state.
    */
   stateDead(type, inst, push) {
@@ -226,34 +257,6 @@ class Assembler extends Sink {
       break;
     }
     return this.stateIf;
-  }
-
-  /**
-   * MACRO state.
-   */
-  stateMacro(type, inst, push) {
-    if (push) {
-      return this.pushConsequent(type, inst);
-    }
-    switch (type) {
-    case EOF:
-      this.error(errors.eofInBlock(this.current));
-      break;
-
-    case ALTERNATES_WITH:
-    case OR_PREDICATE:
-      this.error(errors.notAllowedInBlock(inst, this.current));
-      break;
-
-    case END:
-      // Note: macros only have a consequent block, no alternate.
-      return this.pop();
-
-    default:
-      this.addConsequent(inst);
-      break;
-    }
-    return this.stateMacro;
   }
 
   /**

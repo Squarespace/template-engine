@@ -8,4 +8,3 @@ test('focal point', () => {
 
   expect(contentutil.getFocalPoint(new Node({}))).toEqual('0.5,0.5');
 });
-

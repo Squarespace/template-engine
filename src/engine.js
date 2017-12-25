@@ -74,7 +74,10 @@ class Engine {
       (inst, ctx) => ctx.append(' '), // SPACE
       (inst, ctx) => ctx.append('\t'), // TAB
       this.executeRoot, // ROOT
-      // Rest are undefined.
+      null, // EOF
+      null, // ALTERNATES_WITH
+      (inst, ctx) => this.executeBlock(inst[2], ctx), // STRUCT
+      null, // ATOM
     ];
   }
 
@@ -144,7 +147,7 @@ class Engine {
    */
   executeSection(inst, ctx) {
     const names = inst[1];
-    ctx.pushNames(names);
+    ctx.pushSection(names);
     const node = ctx.node();
     if (ctx.visitor) {
       ctx.visitor.onSection(names, ctx);
@@ -167,7 +170,7 @@ class Engine {
    */
   executeRepeated(inst, ctx) {
     const names = inst[1];
-    ctx.pushNames(names);
+    ctx.pushSection(names);
     const alternatesWith = inst[4];
     if (ctx.initIteration()) {
       const frame = ctx.frame();

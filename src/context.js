@@ -76,7 +76,7 @@ class Context {
     case types.STRING:
     case types.BOOLEAN:
     case types.NULL:
-      this.buf += first.value;
+      this.append(first.value);
       break;
     }
   }
@@ -133,7 +133,7 @@ class Context {
   /**
    * Resolve the names to a node (or missing node) and push a frame onto the stack.
    */
-  pushNames(names) {
+  pushSection(names) {
     const node = this.resolve(names);
     this.stack.push(new Frame(node));
   }

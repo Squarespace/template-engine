@@ -9,11 +9,11 @@ test('debug?', () => {
   expect(impl.apply([], ctx)).toEqual(false);
 
   ctx = new Context({ debug: false, a: { b: 1 } });
-  ctx.pushNames(['a']);
+  ctx.pushSection(['a']);
   expect(impl.apply([], ctx)).toEqual(false);
 
   ctx = new Context({ debug: true, a: { b: 1 } });
-  ctx.pushNames(['a']);
+  ctx.pushSection(['a']);
   expect(impl.apply([], ctx)).toEqual(true);
 });
 

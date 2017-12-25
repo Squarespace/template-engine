@@ -11,6 +11,7 @@ import {
 
 import {
   ALTERNATES_WITH,
+  ATOM,
   BINDVAR,
   COMMENT,
   END,
@@ -27,6 +28,7 @@ import {
   ROOT,
   SECTION,
   SPACE,
+  STRUCT,
   TAB,
   TEXT,
   VARIABLE,
@@ -60,6 +62,18 @@ test('assembly complete', () => {
 
   expect(assembler.complete()).toEqual(true);
   expect(errors).toEqual([]);
+});
+
+
+test('atom', () => {
+  const { root, errors } = new CodeBuilder()
+    .text('A').atom({ mydata: 'foo' }).text('B').eof().get();
+  expect(errors).toEqual([]);
+  expect(root.code).toEqual([ROOT, 1, [
+    [TEXT, 'A'],
+    [ATOM, { mydata: 'foo' }],
+    [TEXT, 'B']
+  ], EOF]);
 });
 
 
@@ -499,5 +513,21 @@ test('sections nested', () => {
         ], END]
       ], END]
     ], END]
+  ], EOF]);
+});
+
+
+test('struct', () => {
+  const { root, errors } = new CodeBuilder()
+    .text('A')
+    .struct({ mydata: 'foo' }).text('B').end()
+    .text('C').eof().get();
+  expect(errors).toEqual([]);
+  expect(root.code).toEqual([ROOT, 1, [
+    [TEXT, 'A'],
+    [STRUCT, { mydata: 'foo' }, [
+      [TEXT, 'B']
+    ]],
+    [TEXT, 'C']
   ], EOF]);
 });

@@ -46,16 +46,10 @@ class Parser {
     }
 
     this.str = str;
+    this.sink = sink;
     this.idx = 0;
     this.len = str.length;
-    this.sink = sink;
     this.matcher = new Matcher(str);
-
-    // TODO: currently no parse errors are emitted. Invalid instructions are
-    // quietly emitted as text. May move error reporting to the sink class,
-    // which would ensure that parse errors and compile errors are appended
-    // to the same array.
-    this.errors = [];
   }
 
   /**

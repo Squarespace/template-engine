@@ -3,6 +3,7 @@ import Context from '../src/context';
 import Engine from '../src/engine';
 
 import {
+  ATOM,
   BINDVAR,
   END,
   EOF,
@@ -18,6 +19,7 @@ import {
   ROOT,
   SECTION,
   SPACE,
+  STRUCT,
   TAB,
   TEXT,
   VARIABLE,
@@ -378,4 +380,56 @@ test('macro not defined', () => {
   const ctx = new Context({ person: { name: 'Betty', status: 'offline' } });
   engine.execute(inst, ctx);
   expect(ctx.render()).toEqual('');
+});
+
+
+test('struct', () => {
+  const engine = new Engine();
+  const inst = [ROOT, 1, [
+    [STRUCT, { custom: 'data' }, [
+      [TEXT, 'hello']
+    ]],
+  ], EOF];
+  const ctx = new Context({});
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('hello');
+});
+
+
+class CustomEngine extends Engine {
+
+  constructor(props) {
+    super(props);
+    this.impls[ATOM] = this.executeAtom;
+    this.impls[STRUCT] = this.executeStruct;
+  }
+
+  executeAtom(inst, ctx) {
+    const opaque = inst[1];
+    ctx.append(`<!-- ${opaque.meta} -->`);
+  }
+
+  executeStruct(inst, ctx) {
+    const opaque = inst[1];
+    const buf = ctx.swapBuffer();
+    super.executeBlock(inst[2], ctx);
+    const text = ctx.render();
+    ctx.restoreBuffer(buf);
+    ctx.append(opaque.lowercase ? text.toLowerCase() : text);
+  }
+}
+
+test('struct custom execution', () => {
+  const inst = [ROOT, 1, [
+    [TEXT, 'A'],
+    [ATOM, { meta: 'some metadata' }],
+    [STRUCT, { lowercase: true }, [
+      [TEXT, 'BCD'],
+    ]],
+    [TEXT, 'E']
+  ], EOF];
+  const engine = new CustomEngine();
+  const ctx = new Context({});
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('A<!-- some metadata -->bcdE');
 });

@@ -16,7 +16,6 @@ export const removeTags = str => {
       break;
     case '>':
       intag = false;
-      res += ' ';
       break;
     default:
       if (!intag) {

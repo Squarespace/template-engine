@@ -24,6 +24,10 @@ export const EOF = 18;
 // may be referenced in code.
 export const ALTERNATES_WITH = 19;
 
+// Propsed instructions to allow extension of the runtime syntax
+export const STRUCT = 20;
+export const ATOM = 21;
+
 const NAMES = {
   [NOOP]: 'NOOP',
   [TEXT]: 'TEXT',
@@ -45,7 +49,9 @@ const NAMES = {
   [TAB]: 'TAB',
   [ROOT]: 'ROOT',
   [EOF]: 'EOF',
-  [ALTERNATES_WITH]: 'ALTERNATES_WITH'
+  [ALTERNATES_WITH]: 'ALTERNATES_WITH',
+  [STRUCT]: 'STRUCT',
+  [ATOM]: 'ATOM',
 };
 
 export const nameOf = (opcode) => {

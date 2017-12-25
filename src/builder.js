@@ -12,6 +12,7 @@ import {
 } from './opcodes';
 
 import {
+  Atom,
   Bindvar,
   Comment,
   If,
@@ -21,6 +22,7 @@ import {
   Predicate,
   Repeated,
   Section,
+  Struct,
   Text,
   Variable,
 } from './instructions';
@@ -44,6 +46,11 @@ class CodeBuilder {
 
   alternatesWith() {
     this.assembler.accept(ALTERNATES_WITH);
+    return this;
+  }
+
+  atom(opaque) {
+    this.assembler.accept(new Atom(opaque));
     return this;
   }
 
@@ -119,6 +126,11 @@ class CodeBuilder {
 
   space() {
     this.assembler.accept(SPACE);
+    return this;
+  }
+
+  struct(opaque) {
+    this.assembler.accept(new Struct(opaque));
     return this;
   }
 

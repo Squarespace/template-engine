@@ -25,6 +25,9 @@ const STRUCTURE = [
   null, // TAB
   [0, 0, BLOCK, INST], // ROOT
   null, // EOF
+  null, // ALTERNATES_WITH
+  [0, 0, BLOCK], // STRUCT
+  null, // ATOM
 ];
 
 

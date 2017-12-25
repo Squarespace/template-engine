@@ -153,7 +153,7 @@ test('height', () => {
 });
 
 
-pathseq('f-image-%N.html', 2).forEach(path => {
+pathseq('f-image-%N.html', 3).forEach(path => {
   test(`image - ${path}`, () => loader.execute(path));
 });
 

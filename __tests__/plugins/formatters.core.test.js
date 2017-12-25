@@ -251,7 +251,7 @@ test('htmltag', () => htmlattr('htmltag'));
 test('iter', () => {
   const vars = variables(' ');
   const ctx = new Context({ a: [1, 2, 3] });
-  ctx.pushNames(['a']);
+  ctx.pushSection(['a']);
   ctx.initIteration();
 
   Core.iter.apply([], vars, ctx);
@@ -297,7 +297,7 @@ pathseq('f-json-pretty-%N.html', 2).forEach(path => {
 
 test('lookup', () => {
   const ctx = new Context({ key: 'a.b.c', a: { b: { c: 123 } } });
-  ctx.pushNames(['a']);
+  ctx.pushSection(['a']);
   const vars = variables('key');
   Core.lookup.apply([], vars, ctx);
   expect(vars[0].get()).toEqual(123);

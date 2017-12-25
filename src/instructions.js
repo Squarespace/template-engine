@@ -1,5 +1,6 @@
 
 import {
+  ATOM,
   BINDVAR,
   COMMENT,
   END,
@@ -10,6 +11,7 @@ import {
   PREDICATE,
   REPEATED,
   SECTION,
+  STRUCT,
   TEXT,
   ROOT,
   VARIABLE,
@@ -54,6 +56,16 @@ class Comment extends Instruction {
   constructor(text, multiline) {
     super(COMMENT);
     this.code = [this.type, text, multiline ? 1 : 0];
+  }
+}
+
+/**
+ * Holds a JSON-encodable, opaque value.
+ */
+class Atom extends Instruction {
+  constructor(opaque) {
+    super(ATOM);
+    this.code = [ATOM, opaque];
   }
 }
 
@@ -173,6 +185,22 @@ class Section extends Instruction {
   }
 }
 
+/**
+ * Generic block that does nothing but hold a JSON-encodable, opaque value and an
+ * array of child nodes.
+ */
+class Struct extends Instruction {
+
+  constructor(opaque) {
+    super(STRUCT);
+    this.code = [STRUCT, opaque, []];
+  }
+
+  addConsequent(inst) {
+    this.code[2].push(getCode(inst));
+  }
+}
+
 class Text extends Instruction {
   constructor(text) {
     super(TEXT);
@@ -190,6 +218,7 @@ class Variable extends Instruction {
 export {
   getCode,
   getType,
+  Atom,
   Bindvar,
   Comment,
   If,
@@ -201,6 +230,7 @@ export {
   Repeated,
   Root,
   Section,
+  Struct,
   Text,
   Variable,
 };
