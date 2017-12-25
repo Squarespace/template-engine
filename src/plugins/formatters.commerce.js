@@ -25,6 +25,8 @@ class AddToCartButtonFormatter extends Formatter {
   }
 }
 
+// TODO: bookkeeper-money-format
+
 class CartQuantityFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
@@ -67,7 +69,6 @@ class FromPriceFormatter extends Formatter {
 // TODO: MoneyBaseFormatter base class
 // TODO: moneyFormat
 // TODO: money-format
-// TODO: bookkeeper-money-format
 // TODO: money-string
 // TODO: percentage-format
 
@@ -212,8 +213,6 @@ class SummaryFormFieldFormatter extends Formatter {
   }
 }
 
-
-
 const TABLE = {
   'add-to-cart-btn': new AddToCartButtonFormatter(),
   'cart-quantity': new CartQuantityFormatter(),
@@ -227,6 +226,5 @@ const TABLE = {
   'variant-descriptor': new VariantDescriptorFormatter(),
   'variants-select': new VariantsSelectFormatter(),
 };
-
 
 export default TABLE;
