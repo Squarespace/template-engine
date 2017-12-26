@@ -28,7 +28,6 @@
     "url": "https://github.com/Squarespace/template-engine.git"
   },
   "devDependencies": {
-    "@sqs/eslint-config-squarespace": "^4.3.0",
     "babel-cli": "^6.26.0",
     "babel-eslint": "^8.0.3",
     "babel-jest": "^22.0.4",
