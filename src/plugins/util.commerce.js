@@ -1,5 +1,5 @@
 import { ProductType } from './enums';
-import types from '../../src/types';
+import types from '../types';
 import { isTruthy } from '../util';
 
 

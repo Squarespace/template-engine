@@ -1,4 +1,4 @@
-import { Formatter } from '../../src/plugin';
+import { Formatter } from '../plugin';
 import { executeTemplate } from '../util';
 
 import moment from 'moment-timezone';

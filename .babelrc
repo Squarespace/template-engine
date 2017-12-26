@@ -1,45 +1,41 @@
 {
-  "presets": [
-    "es2015",
-    "stage-3"
-  ],
-  "plugins": [
-    ["inline-json-import", {}],
-    "minify-constant-folding",
-    "transform-runtime",
-    ["transform-es2015-computed-properties", {
-      "loose": true
-    }],
-    "transform-class-properties"
-  ],
-
   "env": {
-    "production": {
-      "comments": false,
-      "plugins": [
-        ["minify-replace", {
-          "replacements": [{
-            "identifierName": "__DEV__",
-            "replacement": {
-              "type": "booleanLiteral",
-              "value": false
-            }
-          }]
+
+    "test": {
+      "presets": [
+        "env",
+        "jest"
+      ]
+    },
+
+    "esm": {
+      "presets": [
+        ["env", {
+          "modules": false
         }]
       ]
     },
-    "development": {
-      "plugins": [
-        ["minify-replace", {
-          "replacements": [{
-            "identifierName": "__DEV__",
-            "replacement": {
-              "type": "booleanLiteral",
-              "value": true
-            }
-          }]
+
+    "cjs": {
+      "presets": [
+        ["env", {
+          "targets": {
+            "browsers": [
+              "last 2 versions"
+            ]
+          }
         }]
       ]
     }
-  }
+
+  },
+
+  "plugins": [
+    "inline-json-import"
+  ],
+
+  "presets": [
+    "stage-3"
+  ]
+
 }

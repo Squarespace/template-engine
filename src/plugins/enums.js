@@ -1,4 +1,4 @@
-import makeEnum from '../../src/enum';
+import makeEnum from '../enum';
 
 
 // Helper to build an enum value
