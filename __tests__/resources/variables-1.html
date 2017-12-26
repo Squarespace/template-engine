@@ -1,0 +1,17 @@
+:TEMPLATE
+{.var @foo $foo}
+{$foo.$bar}
+{@foo.$bar}
+{@foo.$bar , $foo.$bar}
+
+:JSON
+{
+  "$foo": {
+    "$bar": "hello"
+  }
+}
+
+:OUTPUT
+hello
+hello
+hello

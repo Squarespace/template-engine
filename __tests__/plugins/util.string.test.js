@@ -24,7 +24,7 @@ test('slugify', () => {
 
 
 test('truncate', () => {
-  let str = 'abc def ghi jkl';
+  const str = 'abc def ghi jkl';
   expect(truncate(str, -1)).toEqual('...');
   expect(truncate(str, 4)).toEqual('abc ...');
   expect(truncate(str, 10)).toEqual('abc def ...');

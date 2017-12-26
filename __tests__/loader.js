@@ -87,7 +87,6 @@ export const parseMap = (str, func) => {
 
 const compiler = new Compiler();
 
-
 /**
  * Helper to load template compilation test cases.
  */

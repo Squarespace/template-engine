@@ -1,4 +1,5 @@
 import { join } from 'path';
+import { pathseq } from './helpers';
 import Context from '../src/context';
 import Engine from '../src/engine';
 
@@ -71,7 +72,7 @@ test('variables missing', () => {
   const engine = new Engine();
   const inst = [ROOT, 1, [
     [TEXT, 'a'],
-    [VARIABLE, ['b'], 0],
+    [VARIABLE, [['b']], 0],
     [TEXT, 'c']
   ], EOF];
   const ctx = new Context({});
@@ -100,10 +101,27 @@ test('variables with formatters', () => {
 });
 
 
+test('variables missing formatters', () => {
+  const engine = new Engine();
+  const inst = [ROOT, 1, [
+    [VARIABLE, [['foo']], [['missing'], ['not-defined']]],
+  ], EOF];
+
+  const ctx = new Context({ foo: 'hello' });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('hello');
+});
+
+
+pathseq('variables-%N.html', 1).forEach(path => {
+  test(`variables - ${path}`, () => loader.execute(path));
+});
+
+
 test('section', () => {
   const engine = new Engine();
   const inst = [ROOT, 1, [
-    [SECTION, 'a', [[VARIABLE, ['b'], 0]], END]
+    [SECTION, 'a', [[VARIABLE, [['b']], 0]], END]
   ], EOF];
 
   let ctx = new Context({ a: { b: 123 } });
@@ -140,7 +158,9 @@ test('repeated 1', () => {
 test('repeated 2', () => {
   const engine = new Engine();
   const inst = [ROOT, 1, [
-    [REPEATED, 'a', [[VARIABLE, ['@'], ['iter']]], END]
+    [REPEATED, 'a', [
+      [VARIABLE, [['@']], [['iter']]]
+    ], END]
   ], EOF];
 
   const ctx = new Context({ a: [1, 2, 3] });
@@ -152,7 +172,8 @@ test('repeated 2', () => {
 test('repeated 3', () => {
   const engine = new Engine();
   const inst = [ROOT, 1, [
-    [REPEATED, 'a', [[VARIABLE, ['@'], 0]]]
+    [REPEATED, 'a', [
+      [VARIABLE, [['@']], 0]]]
   ], EOF];
 
   const ctx = new Context({ a: [1, null, 2, null, 3] });
@@ -181,6 +202,21 @@ test('repeated 4', () => {
   ctx = new Context({ a: {}, b: 1 });
   engine.execute(inst, ctx);
   expect(ctx.render()).toEqual('B');
+});
+
+
+test('repeated 5', () => {
+  const engine = new Engine();
+  const inst = [ROOT, 1, [
+    [REPEATED, 'a', [
+      [VARIABLE, [['@index']], 0],
+      [VARIABLE, [['@']], 0],
+    ], END]
+  ], EOF];
+
+  const ctx = new Context({ a: ['a', 'b', 'c'] });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('1a2b3c');
 });
 
 
@@ -247,16 +283,21 @@ test('bindvar', () => {
 });
 
 
+pathseq('bindvar-%N.html', 2).forEach(path => {
+  test(`bindvar - ${path}`, () => loader.execute(path));
+});
+
+
 test('if', () => {
   const engine = new Engine();
   const inst = [ROOT, 1, [
     [IF, [1, 0], ['a', 'b', 'c'], [
-      [VARIABLE, ['a'], 0],
+      [VARIABLE, [['a']], 0],
       [TEXT, ' and '],
-      [VARIABLE, ['b'], 0]
+      [VARIABLE, [['b']], 0]
     ], [OR_PREDICATE, 0, 0, [
       [TEXT, 'or '],
-      [VARIABLE, ['c'], 0],
+      [VARIABLE, [['c']], 0],
     ], END]]
   ], EOF];
 
@@ -316,7 +357,7 @@ test('inject missing', () => {
   const engine = new Engine();
   const inst = [ROOT, 1, [
     [INJECT, '@foo', 'missing.html', 0],
-    [VARIABLE, ['@foo'], 0]
+    [VARIABLE, [['@foo']], 0]
   ], EOF];
   const inject = {
     'file.html': 'file contents',
@@ -332,7 +373,7 @@ test('inject mapping empty', () => {
   const engine = new Engine();
   const inst = [ROOT, 1, [
     [INJECT, '@foo', 'file.html', 0],
-    [VARIABLE, ['@foo'], [['html']]]
+    [VARIABLE, [['@foo']], [['html']]]
   ], EOF];
   const ctx = new Context({});
   engine.execute(inst, ctx);
@@ -340,9 +381,8 @@ test('inject mapping empty', () => {
 });
 
 
-test('inject test cases', () => {
-  loader.execute('inject-1.html');
-  loader.execute('inject-2.html');
+pathseq('inject-%N.html', 2).forEach(path => {
+  test(`inject - ${path}`, () => loader.execute(path));
 });
 
 

@@ -81,7 +81,7 @@ test('atomic instructions', () => {
   const { root, errors } = new CodeBuilder()
     .bindvar('@foo', ['a', 'b'], [['html'], ['json-pretty']])
     .inject('@bar', 'messages.json')
-    .variable('@baz', [['json'], ['capitalize']])
+    .variable([['@baz']], [['json'], ['capitalize']])
     .eof()
     .get();
 
@@ -89,7 +89,7 @@ test('atomic instructions', () => {
   expect(root.code).toEqual([ROOT, 1, [
     [BINDVAR, '@foo', ['a', 'b'], [['html'], ['json-pretty']]],
     [INJECT, '@bar', 'messages.json', 0],
-    [VARIABLE, '@baz', [['json'], ['capitalize']]]
+    [VARIABLE, [['@baz']], [['json'], ['capitalize']]]
   ], EOF]);
 });
 

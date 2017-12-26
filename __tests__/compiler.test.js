@@ -29,7 +29,7 @@ test('compiler custom formatter', () => {
   };
 
   let code = [ROOT, 1, [
-    [VARIABLE, ['a'], [['dummy']]]
+    [VARIABLE, [['a']], [['dummy']]]
   ], EOF];
 
   const json = { a: 'world' };

@@ -52,11 +52,11 @@ test('apply missing partial', () => {
   const engine = new Engine();
   const inst = [ROOT, 1, [
     [TEXT, 'Hi, '],
-    [VARIABLE, ['person'], [['apply', ['missing.html']]]],
+    [VARIABLE, [['person']], [['apply', ['missing.html']]]],
   ], EOF];
   const partial = [ROOT, 1, [
-    [VARIABLE, ['name'], 0],
-    [VARIABLE, ['sym'], 0]
+    [VARIABLE, [['name']], 0],
+    [VARIABLE, [['sym']], 0]
   ], EOF];
 
   const node = { person: { name: 'User Name' } };
@@ -70,11 +70,11 @@ test('apply no arguments', () => {
   const engine = new Engine();
   const inst = [ROOT, 1, [
     [TEXT, 'Hi, '],
-    [VARIABLE, ['person'], [['apply']]],
+    [VARIABLE, [['person']], [['apply']]],
   ], EOF];
   const partial = [ROOT, 1, [
-    [VARIABLE, ['name'], 0],
-    [VARIABLE, ['sym'], 0]
+    [VARIABLE, [['name']], 0],
+    [VARIABLE, [['sym']], 0]
   ], EOF];
 
   const node = { person: { name: 'User Name' } };
@@ -84,8 +84,8 @@ test('apply no arguments', () => {
 });
 
 
-test('apply external', () => {
-  loader.execute('f-apply-1.html');
+pathseq('f-apply-%N.html', 1).forEach(path => {
+  test(`apply - ${path}`, () => loader.execute(path));
 });
 
 
