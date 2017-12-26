@@ -31,3 +31,9 @@ test('types', () => {
 
   expect(types.of(null)).toBe(types.NULL);
 });
+
+
+test('type names', () => {
+  expect(types.nameOf(types.MISSING)).toEqual('MISSING');
+  expect(types.nameOf(-5)).toEqual(undefined);
+});

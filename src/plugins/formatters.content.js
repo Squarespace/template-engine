@@ -241,7 +241,7 @@ class ItemClassesFormatter extends Formatter {
       res += ` article-index-${node.asNumber()}`;
     }
 
-    node = ctx.resolve('starred');
+    node = ctx.resolve(['starred']);
     if (isTruthy(node)) {
       res += ' featured';
     }

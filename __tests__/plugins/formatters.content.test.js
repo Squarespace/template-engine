@@ -163,52 +163,78 @@ pathseq('f-image-color-%N.html', 5).forEach(path => {
 });
 
 
+pathseq('f-item-classes-%N.html', 3).forEach(path => {
+  test(`item classes - ${path}`, () => loader.execute(path));
+});
+
+
+test('resize height for width', () => {
+  const impl = Content.resizedHeightForWidth;
+  const cases = [
+    { input: '100x200', arg: '50', expected: 100 },
+    { input: '1200x2400', arg: '600', expected: 1200 },
+  ];
+
+  cases.forEach(c => {
+    const vars = variables(c.input);
+    impl.apply([c.arg], vars, null);
+    expect(vars[0].get()).toEqual(c.expected);
+  });
+});
+
+
+test('resize width for height', () => {
+  const impl = Content.resizedWidthForHeight;
+  const cases = [
+    { input: '100x200', arg: '50', expected: 25 },
+    { input: '1200x2400', arg: '600', expected: 300 },
+  ];
+
+  cases.forEach(c => {
+    const vars = variables(c.input);
+    impl.apply([c.arg], vars, null);
+    expect(vars[0].get()).toEqual(c.expected);
+  });
+});
+
+
+test('squarespace thumbnail for width', () => {
+  const impl = Content.squarespaceThumbnailForWidth;
+  const cases = [
+    { arg: 50, expected: '100w'},
+    { arg: 200, expected: '300w'},
+    { arg: 400, expected: '500w'},
+    { arg: 600, expected: '750w'},
+    { arg: 800, expected: '1000w'},
+    { arg: 1100, expected: '1500w'},
+  ];
+
+  cases.forEach(c => {
+    const vars = variables('100x200');
+    impl.apply([c.arg], vars, null);
+    expect(vars[0].get()).toEqual(c.expected);
+  });
+});
+
+
+test('squarespace thumbnail for height', () => {
+  const impl = Content.squarespaceThumbnailForHeight;
+  const cases = [
+    { input: '100x200', arg: 50, expected: '100w' },
+    { input: '1200x2400', arg: 600, expected: '300w' },
+    { input: '1200', arg: '600', expected: "Invalid source parameter. Pass in 'originalSize'"},
+  ];
+
+  cases.forEach(c => {
+    const vars = variables(c.input);
+    impl.apply([c.arg], vars, null);
+    expect(vars[0].get()).toEqual(c.expected);
+  });
+});
+
+
 pathseq('f-video-%N.html', 3).forEach(path => {
   test(`video - ${path}`, () => loader.execute(path));
-});
-
-
-test('resize', () => {
-  const heightForWidth = Content.resizedHeightForWidth;
-  const widthForHeight = Content.resizedWidthForHeight;
-
-  let vars = variables('100x200');
-  heightForWidth.apply(['50'], vars, null);
-  expect(vars[0].get()).toEqual(100);
-
-  vars = variables('100x200');
-  widthForHeight.apply(['50'], vars, null);
-  expect(vars[0].get()).toEqual(25);
-
-  vars = variables('1200x2400');
-  heightForWidth.apply(['600'], vars, null);
-  expect(vars[0].get()).toEqual(1200);
-
-  vars = variables('1200x2400');
-  widthForHeight.apply(['600'], vars, null);
-  expect(vars[0].get()).toEqual(300);
-});
-
-
-test('squarespace thumbnail', () => {
-  const thumbForWidth = Content.squarespaceThumbnailForWidth;
-  const thumbForHeight = Content.squarespaceThumbnailForHeight;
-
-  let vars = variables('100x200');
-  thumbForWidth.apply(['50'], vars, null);
-  expect(vars[0].get()).toEqual('100w');
-
-  vars = variables('100x200');
-  thumbForHeight.apply(['50'], vars, null);
-  expect(vars[0].get()).toEqual('100w');
-
-  vars = variables('1200x2400');
-  thumbForWidth.apply(['600'], vars, null);
-  expect(vars[0].get()).toEqual('750w');
-
-  vars = variables('1200x2400');
-  thumbForHeight.apply(['600'], vars, null);
-  expect(vars[0].get()).toEqual('300w');
 });
 
 
