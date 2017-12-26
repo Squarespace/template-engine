@@ -201,12 +201,12 @@ test('resize width for height', () => {
 test('squarespace thumbnail for width', () => {
   const impl = Content.squarespaceThumbnailForWidth;
   const cases = [
-    { arg: 50, expected: '100w'},
-    { arg: 200, expected: '300w'},
-    { arg: 400, expected: '500w'},
-    { arg: 600, expected: '750w'},
-    { arg: 800, expected: '1000w'},
-    { arg: 1100, expected: '1500w'},
+    { arg: 50, expected: '100w' },
+    { arg: 200, expected: '300w' },
+    { arg: 400, expected: '500w' },
+    { arg: 600, expected: '750w' },
+    { arg: 800, expected: '1000w' },
+    { arg: 1100, expected: '1500w' },
   ];
 
   cases.forEach(c => {
@@ -222,7 +222,7 @@ test('squarespace thumbnail for height', () => {
   const cases = [
     { input: '100x200', arg: 50, expected: '100w' },
     { input: '1200x2400', arg: 600, expected: '300w' },
-    { input: '1200', arg: '600', expected: "Invalid source parameter. Pass in 'originalSize'"},
+    { input: '1200', arg: '600', expected: "Invalid source parameter. Pass in 'originalSize'" },
   ];
 
   cases.forEach(c => {
