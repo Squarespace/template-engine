@@ -1,14 +1,13 @@
 import Frame from './frame';
 import Node, { MISSING_NODE } from './node';
 import types from './types';
-import Visitor from './visitor';
 
 /**
  * Context for a single template execution.
  */
 class Context {
 
-  constructor(node, { locale, partials = {}, injects = {}, visitor } = {}) {
+  constructor(node, { locale, partials = {}, injects = {} } = {}) {
     if (!(node instanceof Node)) {
       node = new Node(node);
     }
@@ -27,7 +26,6 @@ class Context {
     this.locale = locale;
     this.partials = partials;
     this.injects = injects;
-    this.visitor = visitor instanceof Visitor ? visitor : null;
   }
 
   /**

@@ -132,9 +132,6 @@ class Engine {
   executeVariable(inst, ctx) {
     const vars = resolveVariables(inst[1], ctx);
     applyFormatters(this.formatters, inst[2], vars, ctx);
-    if (ctx.visitor) {
-      ctx.visitor.onVariable(vars, ctx);
-    }
     ctx.emit(vars);
   }
 
@@ -149,9 +146,6 @@ class Engine {
     const names = inst[1];
     ctx.pushSection(names);
     const node = ctx.node();
-    if (ctx.visitor) {
-      ctx.visitor.onSection(names, ctx);
-    }
     if (isTruthy(node)) {
       this.executeBlock(inst[2], ctx);
     } else {
@@ -235,9 +229,6 @@ class Engine {
     const vars = resolveVariables(inst[2], ctx);
 
     applyFormatters(this.formatters, inst[3], vars, ctx);
-    if (ctx.visitor) {
-      ctx.visitor.onBindvar(name, vars, ctx);
-    }
     ctx.setVar(name, vars[0].node);
   }
 
