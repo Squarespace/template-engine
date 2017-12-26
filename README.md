@@ -3,6 +3,8 @@
 
 This is a port of the Squarespace Java [template-compiler](https://github.com/squarespace/template-compiler) project to JavaScript.
 
+[![Build Status](https://travis-ci.org/Squarespace/template-engine.svg?branch=master)](https://travis-ci.org/Squarespace/template-engine)
+
 ### Rationale
 
 The need for compilation of Squarespace templates in the browser has grown over time. The existing projects that enable browser compilation of Squarespace templates are incomplete, incompatible and have maintenance issues.
