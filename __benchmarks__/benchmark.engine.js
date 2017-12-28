@@ -29,7 +29,7 @@ iterations.forEach(n => {
   const source = repeat(n, base);
   const desc = `- text + var ${n} (${source.length} chars)`;
   const { code } = compiler.parse(source);
-  const json = {};
+  const json = { a: 'hello' };
 
   executeSuite.add(`execute ${desc}`, () => {
     compiler.execute({ code, json });
