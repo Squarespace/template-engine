@@ -4,7 +4,7 @@
 This is a port of the Squarespace Java [template-compiler](https://github.com/squarespace/template-compiler) project to JavaScript.
 
 [![Build Status](https://travis-ci.org/Squarespace/template-engine.svg?branch=master)](https://travis-ci.org/Squarespace/template-engine)
-[![Coverage Status](https://coveralls.io/repos/github/Squarespace/template-engine/badge.svg?branch=master)](https://coveralls.io/github/Squarespace/template-engine?branch=master)
+[![Coverage Status](https://img.shields.io/coveralls/Squarespace/template-engine.svg)](https://coveralls.io/github/Squarespace/template-engine?branch=master)
 
 ### Rationale
 
