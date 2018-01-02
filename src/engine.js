@@ -29,7 +29,7 @@ const applyFormatters = (formatters, calls, vars, ctx) => {
     const call = calls[i];
     const name = call[0];
     const formatter = formatters[name];
-    // Undefined formatters currently do not raise an error.
+    // TODO: Undefined formatters currently do not raise an error.
     if (!formatter || !(formatter instanceof Formatter)) {
       continue;
     }
@@ -42,7 +42,8 @@ const applyFormatters = (formatters, calls, vars, ctx) => {
 /**
  * Engine that evaluates a tree of instructions and appends output to
  * the given context. All state for a single execution is maintained
- * in the Context, so a single instance can be reused globally.
+ * in the Context, so a single Engine instance can be reused for
+ * multiple concurrent compiles.
  */
 class Engine {
 
@@ -52,9 +53,6 @@ class Engine {
 
     // Instruction implementations are at linear offsets corresponding
     // to their opcode number, e.g. TEXT == 0, VARIABLE == 1, ...
-    //
-    // TODO: these don't need to be instance methods. move them out to support
-    // versioned instructions
     this.impls = [
       (inst, ctx) => ctx.append(inst[1]), // TEXT
       this.executeVariable,
@@ -94,8 +92,6 @@ class Engine {
 
   /**
    * Executes the root instruction.
-   *
-   * TODO: instead of setting version on context, use it to switch vN's impls array.
    */
   executeRoot(inst, ctx) {
     ctx.version = inst[1];
