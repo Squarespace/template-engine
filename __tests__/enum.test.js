@@ -36,6 +36,19 @@ test('distinct', () => {
 });
 
 
+test('is-a', () => {
+  const Other = makeEnum('Other', {
+    CAT: { code: 1, string: 'Cat' }
+  });
+
+  expect(Animal.is(Animal.CAT)).toEqual(true);
+
+  expect(Animal.is(Animal)).toEqual(false);
+  expect(Animal.is('cat')).toEqual(false);
+  expect(Animal.is(Other.CAT)).toEqual(false);
+});
+
+
 test('unique codes', () => {
   expect(() => makeEnum('Other', {
     FOO: { code: 1 },

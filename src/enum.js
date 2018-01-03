@@ -30,6 +30,7 @@ const makeEnum = (typeName, mapping) => {
   const stringMap = {};
   const codeMap = {};
   const values = [];
+  const members = new Set();
   return new (class {
     constructor() {
       Object.keys(mapping).forEach(k => {
@@ -41,6 +42,7 @@ const makeEnum = (typeName, mapping) => {
         const string = entry.string ? entry.string : k;
         const value = makeEnumValue({ valueTypeName, symbol: k, string, code });
         this[k] = value;
+        members.add(value);
         stringMap[string] = value;
         if (codeMap[code]) {
           throw new Error(`Enum codes must be unique! ${code} is already defined.`);
@@ -52,6 +54,10 @@ const makeEnum = (typeName, mapping) => {
       // uniqueness precondition enforced above.
       values.sort((a, b) => a.code < b.code ? -1 : 1);
       Object.freeze(this);
+    }
+
+    is(value) {
+      return members.has(value);
     }
 
     type() {
