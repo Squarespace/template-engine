@@ -2,7 +2,7 @@
   "name": "example-es6-usage",
   "private": true,
   "dependencies": {
-    "@squarespace/template-engine": "1.0.2"
+    "@squarespace/template-engine": "1.0.3"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
