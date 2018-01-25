@@ -35,21 +35,27 @@ const makeEnum = (typeName, mapping) => {
     constructor() {
       Object.keys(mapping).forEach(k => {
         const entry = mapping[k];
+
+        // Ensure every entry has a numeric code.
         const code = entry.code;
-        if (typeof code === 'undefined') {
-          throw new Error('Enum values must have "code" property defined');
+        if (typeof code !== 'number') {
+          throw new Error('Enum values must have numeric "code" property defined');
         }
+
+        // Ensure codes are unique.
+        if (codeMap[code]) {
+          throw new Error(`Enum codes must be unique! ${code} is already defined.`);
+        }
+
         const string = entry.string ? entry.string : k;
         const value = makeEnumValue({ valueTypeName, symbol: k, string, code });
         this[k] = value;
         members.add(value);
         stringMap[string] = value;
-        if (codeMap[code]) {
-          throw new Error(`Enum codes must be unique! ${code} is already defined.`);
-        }
         codeMap[code] = value;
         values.push(value);
       });
+
       // Values sorted by code increasing. Note: codes will never be equal due to
       // uniqueness precondition enforced above.
       values.sort((a, b) => a.code < b.code ? -1 : 1);

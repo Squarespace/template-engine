@@ -2,7 +2,7 @@
 import fs from 'fs';
 
 import { join, normalize } from 'path';
-import Compiler from '../src';
+import { Compiler } from '../src';
 import prettyJson from '../src/pretty';
 
 
@@ -16,7 +16,6 @@ const mtime = f => fs.statSync(f).mtimeMs;
 const newerThan = (a, b) => mtime(a) > mtime(b);
 
 const compiler = new Compiler();
-
 
 // Reduce the template directories to the list of templates.
 const files = dirs.reduce((list, d) => {

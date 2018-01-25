@@ -49,15 +49,6 @@ test('is-a', () => {
 });
 
 
-test('unique codes', () => {
-  expect(() => makeEnum('Other', {
-    FOO: { code: 1 },
-    BAR: { code: 2 },
-    BAZ: { code: 1 },
-  })).toThrow(Error);
-});
-
-
 test('missing string', () => {
   const Other = makeEnum('Other', {
     FOO: { code: 1 },
@@ -71,6 +62,22 @@ test('missing string', () => {
 test('missing code', () => {
   expect(() => makeEnum('Other', {
     FOO: { string: 'foo' }
+  })).toThrow(Error);
+});
+
+
+test('non-numeric code', () => {
+  expect(() => makeEnum('Other', {
+    FOO: { code: 'abc' }
+  })).toThrow(Error);
+});
+
+
+test('unique codes', () => {
+  expect(() => makeEnum('Other', {
+    FOO: { code: 1 },
+    BAR: { code: 2 },
+    BAZ: { code: 1 },
   })).toThrow(Error);
 });
 

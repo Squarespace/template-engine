@@ -1,6 +1,6 @@
 {
   "name": "@squarespace/template-engine",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Squarespace template engine",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -12,7 +12,7 @@
     "clean": "npm run clean:dist && npm run clean:test",
     "clean:dist": "rimraf dist coverage",
     "clean:test": "jest --clearCache",
-    "generate": "babel-node --presets es2015,stage-3 bin/generate.js",
+    "generate": "babel-node --presets es2015,stage-3 scripts/generate.js",
     "lint": "npm run lint:src && npm run lint:bench && npm run lint:test",
     "lint:bench": "eslint __benchmarks__/**/*.js",
     "lint:src": "eslint src/**/*.js",
@@ -70,5 +70,7 @@
     "moment-timezone": "^0.5.14",
     "utf8": "^3.0.0"
   },
-  "files": [ "dist" ]
+  "files": [
+    "dist"
+  ]
 }
