@@ -210,13 +210,14 @@ test('repeated 5', () => {
   const inst = [ROOT, 1, [
     [REPEATED, 'a', [
       [VARIABLE, [['@index']], 0],
+      [VARIABLE, [['@index0']], 0],
       [VARIABLE, [['@']], 0],
     ], END]
   ], EOF];
 
   const ctx = new Context({ a: ['a', 'b', 'c'] });
   engine.execute(inst, ctx);
-  expect(ctx.render()).toEqual('1a2b3c');
+  expect(ctx.render()).toEqual('10a21b32c');
 });
 
 

@@ -24,6 +24,7 @@ test('references', () => {
   expect(match(p, 'foo.bar.baz')).toEqual('foo.bar.baz');
   expect(match(p, '@')).toEqual('@');
   expect(match(p, '@index')).toEqual('@index');
+  expect(match(p, '@index0')).toEqual('@index0');
   expect(match(p, '0')).toEqual('0');
   expect(match(p, '0.1')).toEqual('0.1');
   expect(match(p, '0.1.2.name')).toEqual('0.1.2.name');

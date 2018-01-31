@@ -1,7 +1,7 @@
 :TEMPLATE
 {.repeated section managers}{.var @boss name}{.var @boss-idx @index}
 {.repeated section employees}
-{@boss-idx}.{@index} {name} is managed by {@boss}{.end}
+{@boss-idx}.{@index}({@index0}) {name} is managed by {@boss}{.end}
 {.alternates with}---{.end}
 
 :JSON
@@ -19,8 +19,8 @@
 
 :OUTPUT
 
-1.1 Peter is managed by Bill
-1.2 Michael is managed by Bill
+1.1(0) Peter is managed by Bill
+1.2(1) Michael is managed by Bill
 ---
 
-2.1 Samir is managed by Bob
+2.1(0) Samir is managed by Bob

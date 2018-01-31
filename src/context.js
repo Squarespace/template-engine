@@ -235,17 +235,17 @@ class Context {
 
   /**
    * Resolve a single name against a stack frame. If the name starts with '@'
-   * it resolves a special variable (@ for current node, @index for array index)
+   * it resolves a special variable (@ for current node, @index or @index0 for 1- and 0-based array indices)
    * or looks up a user-defined variable.
    */
   resolveName(name, frame) {
     if (typeof name === 'string' && name[0] === '@') {
       if (name === '@') {
         return frame.node;
-
-      } else if (name === '@index') {
+      } else if (name === '@index' || name === '@index0') {
         if (frame.currentIndex !== -1) {
-          return new Node(frame.currentIndex + 1);
+          const offset = name === '@index' ? 1 : 0;
+          return new Node(frame.currentIndex + offset);
         }
         return MISSING_NODE;
       }

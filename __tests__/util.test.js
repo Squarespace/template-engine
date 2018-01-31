@@ -14,6 +14,7 @@ import {
 test('variable splitting', () => {
   expect(splitVariable('@')).toEqual(['@']);
   expect(splitVariable('@index')).toEqual(['@index']);
+  expect(splitVariable('@index0')).toEqual(['@index0']);
   expect(splitVariable('a')).toEqual(['a']);
   expect(splitVariable('a.b.c')).toEqual(['a', 'b', 'c']);
   expect(splitVariable('a.1.b.2')).toEqual(['a', 1, 'b', 2]);
