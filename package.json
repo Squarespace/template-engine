@@ -1,6 +1,6 @@
 {
   "name": "@squarespace/template-engine",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Squarespace template engine",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
