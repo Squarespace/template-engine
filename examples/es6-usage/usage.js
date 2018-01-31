@@ -19,17 +19,16 @@ const compiler = new Compiler();
 const { code } = compiler.parse(source);
 
 // View the raw code.
-console.log(code);
+console.log(JSON.stringify(code));
 
 // Execute a compiled template
 const { ctx } = compiler.execute({ code: code, json: json });
 const output = ctx.render();
 console.log(output);
 
-
 // If everything worked you should see the following output:
 //
-//  [ 17, 1, [ [ 4, [Array], [Array], 3, [] ] ], 18 ]
+//  [17,1,[[4,["items"],[[1,[["name"]],0],[0,"\n"]],3,[]]],18]
 //  First
 //  Second
 //  Third

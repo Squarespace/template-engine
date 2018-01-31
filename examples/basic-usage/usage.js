@@ -20,7 +20,7 @@ const parsed = compiler.parse(source);
 
 // View the raw code.
 const code = parsed.code;
-console.log(code);
+console.log(JSON.stringify(code));
 
 // Execute a compiled template
 const result = compiler.execute({ code: code, json: json });
@@ -29,7 +29,7 @@ console.log(output);
 
 // If everything worked you should see the following output:
 //
-//  [ 17, 1, [ [ 4, [Array], [Array], 3, [] ] ], 18 ]
+//  [17,1,[[4,["items"],[[1,[["name"]],0],[0,"\n"]],3,[]]],18]
 //  First
 //  Second
 //  Third
