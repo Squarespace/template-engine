@@ -37,7 +37,11 @@ files.forEach(src => {
 
   // Rebuild the destination.
   const source = fs.readFileSync(src, { encoding: 'utf-8' });
-  const { code } = compiler.parse(source.trim());
+  const { code, errors } = compiler.parse(source.trim());
+  if (errors.length > 0) {
+    throw new Error('Error(s) parsing template\n:' +
+      errors.map(e => `[${e.type}] ${e.message}`).join('\n'));
+  }
   const output = prettyJson(code);
   console.log('[generating]', dst);
   fs.writeFileSync(dst, output);
