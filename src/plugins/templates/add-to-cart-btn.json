@@ -28,7 +28,11 @@
   [8, [1], [["@useCustom"], ["@customButton"]], [
       [1, [["@customButton"]], 0]
     ], [7, 0, 0, [
-      [0, "Add To Cart"]
+      [8, [], [["@addToCartText"]], [
+          [1, [["@addToCartText"]], 0]
+        ], [7, 0, 0, [
+          [0, "Add To Cart"]
+        ], 3]]
     ], 3]],
   [0, "\" "],
   [8, [1], [["@fieldsFormId"], ["@fieldsForm"]], [

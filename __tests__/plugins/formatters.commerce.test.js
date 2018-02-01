@@ -6,7 +6,7 @@ import { TemplateTestLoader } from '../loader';
 const loader = new TemplateTestLoader(join(__dirname, 'resources'));
 
 
-pathseq('f-add-to-cart-btn-%N.html', 3).forEach(path => {
+pathseq('f-add-to-cart-btn-%N.html', 4).forEach(path => {
   test(`add to cart btn - ${path}`, () => loader.execute(path));
 });
 
