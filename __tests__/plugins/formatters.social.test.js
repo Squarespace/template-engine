@@ -1,5 +1,5 @@
 import { join } from 'path';
-import Social from '../../src/plugins/formatters.social';
+import { TABLE as Social } from '../../src/plugins/formatters.social';
 import Node from '../../src/node';
 import { pathseq } from '../helpers';
 import { TemplateTestLoader } from '../loader';

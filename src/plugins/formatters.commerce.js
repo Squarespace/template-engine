@@ -17,7 +17,7 @@ import summaryFormFieldPhoneTemplate from './templates/summary-form-field-phone.
 import summaryFormFieldTimeTemplate from './templates/summary-form-field-time.json';
 
 
-class AddToCartButtonFormatter extends Formatter {
+export class AddToCartButtonFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const text = executeTemplate(ctx, addToCartBtnTemplate, first.node, false);
@@ -27,7 +27,7 @@ class AddToCartButtonFormatter extends Formatter {
 
 // TODO: bookkeeper-money-format
 
-class CartQuantityFormatter extends Formatter {
+export class CartQuantityFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     let count = 0;
@@ -42,7 +42,7 @@ class CartQuantityFormatter extends Formatter {
   }
 }
 
-class CartSubtotalFormatter extends Formatter {
+export class CartSubtotalFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const cents = first.node.get('subtotalCents').asNumber();
@@ -52,13 +52,13 @@ class CartSubtotalFormatter extends Formatter {
   }
 }
 
-class CartUrlFormatter extends Formatter {
+export class CartUrlFormatter extends Formatter {
   apply(args, vars, ctx) {
     vars[0].set('/cart');
   }
 }
 
-class FromPriceFormatter extends Formatter {
+export class FromPriceFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const price = commerceutil.getFromPrice(first.node);
@@ -72,7 +72,7 @@ class FromPriceFormatter extends Formatter {
 // TODO: money-string
 // TODO: percentage-format
 
-class NormalPriceFormatter extends Formatter {
+export class NormalPriceFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const price = commerceutil.getNormalPrice(first.node);
@@ -80,7 +80,7 @@ class NormalPriceFormatter extends Formatter {
   }
 }
 
-class ProductCheckoutFormatter extends Formatter {
+export class ProductCheckoutFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const text = executeTemplate(ctx, productCheckoutTemplate, first.node, false);
@@ -93,7 +93,7 @@ class ProductCheckoutFormatter extends Formatter {
 // TODO: product-status
 // TODO: quantity-input
 
-class SalePriceFormatter extends Formatter {
+export class SalePriceFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const price = commerceutil.getSalePrice(first.node);
@@ -101,7 +101,7 @@ class SalePriceFormatter extends Formatter {
   }
 }
 
-class VariantDescriptorFormatter extends Formatter {
+export class VariantDescriptorFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const text = commerceutil.getVariantFormat(first.node);
@@ -109,7 +109,7 @@ class VariantDescriptorFormatter extends Formatter {
   }
 }
 
-class VariantsSelectFormatter extends Formatter {
+export class VariantsSelectFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
 
@@ -175,7 +175,7 @@ const SUMMARY_FORM_FIELD_TEMPLATE_MAP = {
   time: summaryFormFieldTimeTemplate,
 };
 
-class SummaryFormFieldFormatter extends Formatter {
+export class SummaryFormFieldFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const field = first.node;
@@ -213,7 +213,7 @@ class SummaryFormFieldFormatter extends Formatter {
   }
 }
 
-const TABLE = {
+export const TABLE = {
   'add-to-cart-btn': new AddToCartButtonFormatter(),
   'cart-quantity': new CartQuantityFormatter(),
   'cart-subtotal': new CartSubtotalFormatter(),
@@ -226,5 +226,3 @@ const TABLE = {
   'variant-descriptor': new VariantDescriptorFormatter(),
   'variants-select': new VariantsSelectFormatter(),
 };
-
-export default TABLE;

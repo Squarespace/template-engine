@@ -1,7 +1,7 @@
 import { join } from 'path';
 import { pathseq } from '../helpers';
 import { TemplateTestLoader } from '../loader';
-import Content from '../../src/plugins/predicates.content';
+import { TABLE as Content } from '../../src/plugins/predicates.content';
 import Context from '../../src/context';
 
 

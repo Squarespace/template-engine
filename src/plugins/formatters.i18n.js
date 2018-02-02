@@ -10,8 +10,6 @@
 // TODO: unit
 
 
-const TABLE = {
+export const TABLE = {
 
 };
-
-export default TABLE;

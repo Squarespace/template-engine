@@ -7,7 +7,7 @@ import { isTruthy } from '../util';
 import moment from 'moment-timezone';
 
 
-class BackgroundSourcePredicate extends Predicate {
+export class BackgroundSourcePredicate extends Predicate {
   constructor(type) {
     super();
     this.code = type.code;
@@ -18,13 +18,13 @@ class BackgroundSourcePredicate extends Predicate {
   }
 }
 
-class CalendarViewPredicate extends Predicate {
+export class CalendarViewPredicate extends Predicate {
   apply(args, ctx) {
     return ctx.resolve(['calendarView']).asBoolean();
   }
 }
 
-class ChildImagesPredicate extends Predicate {
+export class ChildImagesPredicate extends Predicate {
   apply(args, ctx) {
     const items = ctx.node().get('items');
     if (items.type === types.ARRAY && items.size() > 0) {
@@ -35,7 +35,7 @@ class ChildImagesPredicate extends Predicate {
   }
 }
 
-class ClickablePredicate extends Predicate {
+export class ClickablePredicate extends Predicate {
   apply(args, ctx) {
     const node = ctx.resolve(['folderBehavior']);
     if (node.isMissing()) {
@@ -46,13 +46,13 @@ class ClickablePredicate extends Predicate {
   }
 }
 
-class CollectionPredicate extends Predicate {
+export class CollectionPredicate extends Predicate {
   apply(args, ctx) {
     return isTruthy(ctx.node().get('collection'));
   }
 }
 
-class CollectionPagePredicate extends Predicate {
+export class CollectionPagePredicate extends Predicate {
   apply(args, ctx) {
     const type = ctx.node().path(['collection', 'type']);
     if (!type.isMissing()) {
@@ -62,7 +62,7 @@ class CollectionPagePredicate extends Predicate {
   }
 }
 
-class CollectionTemplatePagePredicate extends Predicate {
+export class CollectionTemplatePagePredicate extends Predicate {
   apply(args, ctx) {
     const collection = ctx.node().get('collection');
     if (collection.isMissing()) {
@@ -80,7 +80,7 @@ class CollectionTemplatePagePredicate extends Predicate {
   }
 }
 
-class CollectionTypeNameEqualsPredicate extends Predicate {
+export class CollectionTypeNameEqualsPredicate extends Predicate {
   apply(args, ctx) {
     return args.length === 0 ? false : ctx.resolve(['typeName']).asString() === args[0];
   }
@@ -88,7 +88,7 @@ class CollectionTypeNameEqualsPredicate extends Predicate {
 
 const WHITESPACE_NBSP = /[\s\u200b\u00a0]+/g;
 
-class ExcerptPredicate extends Predicate {
+export class ExcerptPredicate extends Predicate {
   apply(args, ctx) {
     const excerpt = ctx.node().get('excerpt');
     const html = excerpt.get('html');
@@ -104,19 +104,19 @@ class ExcerptPredicate extends Predicate {
   }
 }
 
-class ExternalLinkPredicate extends Predicate {
+export class ExternalLinkPredicate extends Predicate {
   apply(args, ctx) {
     return isTruthy(ctx.node().get('externalLink'));
   }
 }
 
-class FolderPredicate extends Predicate {
+export class FolderPredicate extends Predicate {
   apply(args, ctx) {
     return isTruthy(ctx.node().path(['collection', 'folder']));
   }
 }
 
-class GalleryBooleanPredicate extends Predicate {
+export class GalleryBooleanPredicate extends Predicate {
   constructor(option) {
     super();
     this.option = option;
@@ -128,14 +128,14 @@ class GalleryBooleanPredicate extends Predicate {
   }
 }
 
-class GalleryMetaPredicate extends Predicate {
+export class GalleryMetaPredicate extends Predicate {
   apply(args, ctx) {
     const options = ctx.resolve(['options']);
     return isTruthy(options.get('controls')) || isTruthy(options.get('indicators'));
   }
 }
 
-class GallerySelectPredicate extends Predicate {
+export class GallerySelectPredicate extends Predicate {
   constructor(option, name) {
     super();
     this.option = option;
@@ -148,13 +148,13 @@ class GallerySelectPredicate extends Predicate {
   }
 }
 
-class HasMultiplePredicate extends Predicate {
+export class HasMultiplePredicate extends Predicate {
   apply(args, ctx) {
     return ctx.node().size() > 1;
   }
 }
 
-class IndexPredicate extends Predicate {
+export class IndexPredicate extends Predicate {
   apply(args, ctx) {
     const collection = ctx.node().get('collection');
     if (collection.type !== types.OBJECT) {
@@ -168,7 +168,7 @@ class IndexPredicate extends Predicate {
   }
 }
 
-class LocationPredicate extends Predicate {
+export class LocationPredicate extends Predicate {
   apply(args, ctx) {
     const location = ctx.node().get('location');
     if (location.get('mapLat').isMissing() || location.get('mapLng').isMissing()) {
@@ -178,14 +178,14 @@ class LocationPredicate extends Predicate {
   }
 }
 
-class MainImagePredicate extends Predicate {
+export class MainImagePredicate extends Predicate {
   apply(args, ctx) {
     const node = ctx.node();
     return isTruthy(node.get('mainImageId')) || isTruthy(node.get('systemDataId'));
   }
 }
 
-class PassThroughPredicate extends Predicate {
+export class PassThroughPredicate extends Predicate {
   apply(args, ctx) {
     const pass = ctx.node().get('passthrough');
     const url = ctx.node().get('sourceUrl').asString();
@@ -193,7 +193,7 @@ class PassThroughPredicate extends Predicate {
   }
 }
 
-class PromotedBlockTypePredicate extends Predicate {
+export class PromotedBlockTypePredicate extends Predicate {
   constructor(promotedBlockType) {
     super();
     this.promotedBlockType = promotedBlockType;
@@ -204,7 +204,7 @@ class PromotedBlockTypePredicate extends Predicate {
   }
 }
 
-class PromotedRecordTypePredicate extends Predicate {
+export class PromotedRecordTypePredicate extends Predicate {
   constructor(recordType, promotedBlockType) {
     super();
     this.code = recordType.code;
@@ -218,7 +218,7 @@ class PromotedRecordTypePredicate extends Predicate {
   }
 }
 
-class RecordTypePredicate extends Predicate {
+export class RecordTypePredicate extends Predicate {
   constructor(recordType) {
     super();
     this.code = recordType.code;
@@ -229,13 +229,13 @@ class RecordTypePredicate extends Predicate {
   }
 }
 
-class RedirectPredicate extends Predicate {
+export class RedirectPredicate extends Predicate {
   apply(args, ctx) {
     return ctx.node().get('folderBehavior').asNumber() === FolderBehavior.REDIRECT.code;
   }
 }
 
-class SameDayPredicate extends Predicate {
+export class SameDayPredicate extends Predicate {
   apply(args, ctx) {
     const node = ctx.node();
     const startDate = node.get('startDate').asNumber();
@@ -246,13 +246,13 @@ class SameDayPredicate extends Predicate {
   }
 }
 
-class ServiceNameEmailPredicate extends Predicate {
+export class ServiceNameEmailPredicate extends Predicate {
   apply(args, ctx) {
     return ctx.node().get('serviceName').asString() === 'email';
   }
 }
 
-class ShowPastEventsPredicate extends Predicate {
+export class ShowPastEventsPredicate extends Predicate {
   apply(args, ctx) {
     return ctx.node().get('showPastOrUpcomingEvents').asString() === 'past';
   }
@@ -260,7 +260,7 @@ class ShowPastEventsPredicate extends Predicate {
 
 // BUILD TABLE AND EXPORT
 
-const TABLE = {
+export const TABLE = {
   'calendar-view?': new CalendarViewPredicate(),
   'child-images?': new ChildImagesPredicate(),
   'clickable?': new ClickablePredicate(),
@@ -353,5 +353,3 @@ BackgroundSource.values().forEach(type => {
   const identifier = `background-source-${type.string}?`;
   TABLE[identifier] = new BackgroundSourcePredicate(type);
 });
-
-export default TABLE;

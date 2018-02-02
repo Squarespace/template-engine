@@ -2,7 +2,7 @@ import { Predicate } from '../plugin';
 import { isTruthy } from '../util';
 
 
-class CommentsPredicate extends Predicate {
+export class CommentsPredicate extends Predicate {
   apply(args, ctx) {
     const settings = ctx.resolve(['websiteSettings']);
     const node = ctx.node();
@@ -17,13 +17,13 @@ class CommentsPredicate extends Predicate {
   }
 }
 
-class DisqusPredicate extends Predicate {
+export class DisqusPredicate extends Predicate {
   apply(args, ctx) {
     return isTruthy(ctx.resolve(['websiteSettings', 'disqusShortName']));
   }
 }
 
-export default {
+export const TABLE = {
   'comments?': new CommentsPredicate(),
   'disqus?': new DisqusPredicate(),
 };

@@ -17,7 +17,7 @@ const TWITTER_TWEETS_REPLACEMENT = '$1<a target="new" href="http://www.twitter.c
 const TWITTER_HASHTAG_REGEX = /(^| )#([a-z0-9_]+)/ig;
 
 
-class ActivateTwitterLinksFormatter extends Formatter {
+export class ActivateTwitterLinksFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     let text = first.node.asString();
@@ -47,14 +47,14 @@ const getCommentCount = item => {
   return res;
 };
 
-class CommentCountFormatter extends Formatter {
+export class CommentCountFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     first.set(getCommentCount(first.node));
   }
 }
 
-class CommentLinkFormatter extends Formatter {
+export class CommentLinkFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const text = executeTemplate(ctx, commentLinkTemplate, first.node, false);
@@ -62,7 +62,7 @@ class CommentLinkFormatter extends Formatter {
   }
 }
 
-class CommentsFormatter extends Formatter {
+export class CommentsFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const text = executeTemplate(ctx, commentsTemplate, first.node, false);
@@ -80,7 +80,7 @@ const getLocationString = node => {
   return [address1, address2, country].filter(s => s.length > 0).join(', ');
 };
 
-class GoogleCalendarUrlFormatter extends Formatter {
+export class GoogleCalendarUrlFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const node = first.node;
@@ -106,7 +106,7 @@ class GoogleCalendarUrlFormatter extends Formatter {
   }
 }
 
-class LikeButtonFormatter extends Formatter {
+export class LikeButtonFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const text = executeTemplate(ctx, likeButtonTemplate, first.node, false);
@@ -114,7 +114,7 @@ class LikeButtonFormatter extends Formatter {
   }
 }
 
-class SocialButtonFormatter extends Formatter {
+export class SocialButtonFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const website = ctx.resolve(['website']);
@@ -123,7 +123,7 @@ class SocialButtonFormatter extends Formatter {
   }
 }
 
-class SocialButtonInlineFormatter extends Formatter {
+export class SocialButtonInlineFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const website = ctx.resolve(['website']);
@@ -132,7 +132,7 @@ class SocialButtonInlineFormatter extends Formatter {
   }
 }
 
-class TwitterFollowButtonFormatter extends Formatter {
+export class TwitterFollowButtonFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const account = first.node;
@@ -150,7 +150,7 @@ class TwitterFollowButtonFormatter extends Formatter {
   }
 }
 
-export default {
+export const TABLE = {
   'activate-twitter-links': new ActivateTwitterLinksFormatter(),
   'comment-count': new CommentCountFormatter(),
   'comment-link': new CommentLinkFormatter(),

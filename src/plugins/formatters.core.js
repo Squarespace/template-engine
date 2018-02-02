@@ -9,7 +9,7 @@ import utf8 from 'utf8';
 import moment from 'moment-timezone';
 
 
-class ApplyFormatter extends Formatter {
+export class ApplyFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
 
@@ -43,7 +43,7 @@ class ApplyFormatter extends Formatter {
   }
 }
 
-class CountFormatter extends Formatter {
+export class CountFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const node = first.node;
@@ -57,7 +57,7 @@ class CountFormatter extends Formatter {
   }
 }
 
-class CycleFormatter extends Formatter {
+export class CycleFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const value = first.node.asNumber();
@@ -80,7 +80,7 @@ const getTimeZone = (ctx) => {
 };
 
 
-class DateFormatter extends Formatter {
+export class DateFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
 
@@ -105,7 +105,7 @@ class DateFormatter extends Formatter {
   }
 }
 
-class EncodeSpaceFormatter extends Formatter {
+export class EncodeSpaceFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const value = first.node.asString();
@@ -113,7 +113,7 @@ class EncodeSpaceFormatter extends Formatter {
   }
 }
 
-class EncodeUriFormatter extends Formatter {
+export class EncodeUriFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const value = first.node.asString();
@@ -121,7 +121,7 @@ class EncodeUriFormatter extends Formatter {
   }
 }
 
-class EncodeUriComponentFormatter extends Formatter {
+export class EncodeUriComponentFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const value = first.node.asString();
@@ -129,7 +129,7 @@ class EncodeUriComponentFormatter extends Formatter {
   }
 }
 
-class FormatFormatter extends Formatter {
+export class FormatFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const values = args.map(arg => {
@@ -143,7 +143,7 @@ class FormatFormatter extends Formatter {
   }
 }
 
-class HtmlFormatter extends Formatter {
+export class HtmlFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const value = first.node.replace({
@@ -155,21 +155,21 @@ class HtmlFormatter extends Formatter {
   }
 }
 
-class HtmlAttrFormatter extends Formatter {
+export class HtmlAttrFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     first.set(escapeHtmlAttributes(first.node.asString()));
   }
 }
 
-class IterFormatter extends Formatter {
+export class IterFormatter extends Formatter {
   apply(args, vars, ctx) {
     const value = ctx.lookupStack('@index');
     vars[0].set(value.asString());
   }
 }
 
-class JsonFormatter extends Formatter {
+export class JsonFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const value = JSON.stringify(first.node.value);
@@ -177,7 +177,7 @@ class JsonFormatter extends Formatter {
   }
 }
 
-class JsonPretty extends Formatter {
+export class JsonPretty extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const value = JSON.stringify(first.node.value, null, '  ');
@@ -185,7 +185,7 @@ class JsonPretty extends Formatter {
   }
 }
 
-class LookupFormatter extends Formatter {
+export class LookupFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const key = first.node.asString();
@@ -195,14 +195,14 @@ class LookupFormatter extends Formatter {
   }
 }
 
-class OutputFormatter extends Formatter {
+export class OutputFormatter extends Formatter {
   apply(args, vars, ctx) {
     const value = args.join(' ');
     vars[0].set(value);
   }
 }
 
-class PluralizeFormatter extends Formatter {
+export class PluralizeFormatter extends Formatter {
   apply(args, vars, ctx) {
     let singular = '';
     let plural = 's';
@@ -219,14 +219,14 @@ class PluralizeFormatter extends Formatter {
   }
 }
 
-class RawFormatter extends Formatter {
+export class RawFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     first.set(first.node.asString());
   }
 }
 
-class RoundFormatter extends Formatter {
+export class RoundFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const value = first.node.asNumber();
@@ -236,7 +236,7 @@ class RoundFormatter extends Formatter {
 
 const RE_SAFE = /<[^>]*?>/g;
 
-class SafeFormatter extends Formatter {
+export class SafeFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     if (isTruthy(first.node)) {
@@ -246,7 +246,7 @@ class SafeFormatter extends Formatter {
   }
 }
 
-class SlugifyFormatter extends Formatter {
+export class SlugifyFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const value = first.node.asString();
@@ -257,7 +257,7 @@ class SlugifyFormatter extends Formatter {
 const RE_SMARTY_1 = /(^|[-\u2014\\s(\["])'/g;
 const RE_SMARTY_2 = /(^|[-\u2014/\[(\u2018\s])"/g;
 
-class SmartyPantsFormatter extends Formatter {
+export class SmartyPantsFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     let value = first.node.asString();
@@ -270,14 +270,14 @@ class SmartyPantsFormatter extends Formatter {
   }
 }
 
-class StrFormatter extends Formatter {
+export class StrFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     first.set(first.node.asString());
   }
 }
 
-class TruncateFormatter extends Formatter {
+export class TruncateFormatter extends Formatter {
   apply(args, vars, ctx) {
     const limit = args.length === 0 ? 0 : parseInt(args[0], 10);
     if (isFinite(limit) && limit > 0) {
@@ -289,7 +289,7 @@ class TruncateFormatter extends Formatter {
   }
 }
 
-class UrlEncodeFormatter extends Formatter {
+export class UrlEncodeFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const value = first.node.asString();
@@ -298,7 +298,7 @@ class UrlEncodeFormatter extends Formatter {
   }
 }
 
-export default {
+export const TABLE = {
   'apply': new ApplyFormatter(),
   'count': new CountFormatter(),
   'cycle': new CycleFormatter(),

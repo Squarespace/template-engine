@@ -35,7 +35,7 @@ const compute = (args, ctx, f) => {
   return len === 1 ? f(ctx.node(), nodes[0]) : f(nodes[0], nodes[1]);
 };
 
-class DebugPredicate extends Predicate {
+export class DebugPredicate extends Predicate {
   apply(args, ctx) {
     const node = ctx.resolve(['debug'], ctx);
     return isTruthy(node);
@@ -44,13 +44,13 @@ class DebugPredicate extends Predicate {
 
 const equals = (a, b) => a.equals(b);
 
-class EqualPredicate extends Predicate {
+export class EqualPredicate extends Predicate {
   apply(args, ctx) {
     return compute(args, ctx, equals);
   }
 }
 
-class EvenPredicate extends Predicate {
+export class EvenPredicate extends Predicate {
   apply(args, ctx) {
     let node = ctx.node();
     if (args.length >= 1) {
@@ -66,7 +66,7 @@ class EvenPredicate extends Predicate {
 
 const greaterThan = (a, b) => a.compare(b) > 0;
 
-class GreaterThanPredicate extends Predicate {
+export class GreaterThanPredicate extends Predicate {
   apply(args, ctx) {
     return compute(args, ctx, greaterThan);
   }
@@ -74,7 +74,7 @@ class GreaterThanPredicate extends Predicate {
 
 const greaterThanOrEqual = (a, b) => a.compare(b) >= 0;
 
-class GreaterThanOrEqualPredicate extends Predicate {
+export class GreaterThanOrEqualPredicate extends Predicate {
   apply(args, ctx) {
     return compute(args, ctx, greaterThanOrEqual);
   }
@@ -82,7 +82,7 @@ class GreaterThanOrEqualPredicate extends Predicate {
 
 const lessThan = (a, b) => a.compare(b) < 0;
 
-class LessThanPredicate extends Predicate {
+export class LessThanPredicate extends Predicate {
   apply(args, ctx) {
     return compute(args, ctx, lessThan);
   }
@@ -90,7 +90,7 @@ class LessThanPredicate extends Predicate {
 
 const lessThanOrEqual = (a, b) => a.compare(b) <= 0;
 
-class LessThanOrEqualPredicate extends Predicate {
+export class LessThanOrEqualPredicate extends Predicate {
   apply(args, ctx) {
     return compute(args, ctx, lessThanOrEqual);
   }
@@ -98,7 +98,7 @@ class LessThanOrEqualPredicate extends Predicate {
 
 const notEqual = (a, b) => !a.equals(b);
 
-class NotEqualPredicate extends Predicate {
+export class NotEqualPredicate extends Predicate {
   apply(args, ctx) {
     return compute(args, ctx, notEqual);
   }
@@ -108,7 +108,7 @@ const isInteger = (n) => {
   return typeof n === 'number' && parseInt(n) === n;
 };
 
-class NthPredicate extends Predicate {
+export class NthPredicate extends Predicate {
   apply(args, ctx) {
     const len = args.length;
     if (len === 0) {
@@ -134,7 +134,7 @@ class NthPredicate extends Predicate {
   }
 }
 
-class OddPredicate extends Predicate {
+export class OddPredicate extends Predicate {
   apply(args, ctx) {
     let node = ctx.node();
     if (args.length >= 1) {
@@ -148,19 +148,19 @@ class OddPredicate extends Predicate {
   }
 }
 
-class PluralPredicate extends Predicate {
+export class PluralPredicate extends Predicate {
   apply(args, ctx) {
     return ctx.node().asNumber() > 1;
   }
 }
 
-class SingularPredicate extends Predicate {
+export class SingularPredicate extends Predicate {
   apply(args, ctx) {
     return ctx.node().asNumber() === 1;
   }
 }
 
-export default {
+export const TABLE = {
   'debug?': new DebugPredicate(),
   'equal?': new EqualPredicate(),
   'even?': new EvenPredicate(),

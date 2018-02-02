@@ -2,8 +2,6 @@
 // TODO: units-metric?
 
 
-const TABLE = {
+export const TABLE = {
 
 };
-
-export default TABLE;

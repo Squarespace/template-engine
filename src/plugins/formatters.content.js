@@ -17,7 +17,7 @@ import { hexColorToInt } from './util.color';
 import audioPlayerTemplate from './templates/audio-player.json';
 
 
-class AbsUrlFormatter extends Formatter {
+export class AbsUrlFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const url = ctx.resolve(['base-url']).asString();
@@ -26,7 +26,7 @@ class AbsUrlFormatter extends Formatter {
   }
 }
 
-class AudioPlayerFormatter extends Formatter {
+export class AudioPlayerFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const text = executeTemplate(ctx, audioPlayerTemplate, first.node, true);
@@ -34,7 +34,7 @@ class AudioPlayerFormatter extends Formatter {
   }
 }
 
-class CapitalizeFormatter extends Formatter {
+export class CapitalizeFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const value = first.node.asString();
@@ -42,7 +42,7 @@ class CapitalizeFormatter extends Formatter {
   }
 }
 
-class ChildImageMetaFormatter extends Formatter {
+export class ChildImageMetaFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const index = args.length === 0 ? 0 : parseInt(args[0], 10);
@@ -51,7 +51,7 @@ class ChildImageMetaFormatter extends Formatter {
   }
 }
 
-class CoverImageMetaFormatter extends Formatter {
+export class CoverImageMetaFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const image = first.node.get('coverImage');
@@ -61,7 +61,7 @@ class CoverImageMetaFormatter extends Formatter {
 
 const HALFBRIGHT = 0xFFFFFF / 2;
 
-class ColorWeightFormatter extends Formatter {
+export class ColorWeightFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const hex = first.node.asString();
@@ -75,7 +75,7 @@ class ColorWeightFormatter extends Formatter {
   }
 }
 
-class HeightFormatter extends Formatter {
+export class HeightFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const parts = splitDimensions(first.node);
@@ -88,13 +88,13 @@ class HeightFormatter extends Formatter {
   }
 }
 
-class HumanizeDurationFormatter extends Formatter {
+export class HumanizeDurationFormatter extends Formatter {
   apply(args, vars, ctx) {
     // TODO: implement
   }
 }
 
-class ImageFormatter extends Formatter {
+export class ImageFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const node = first.node;
@@ -152,7 +152,7 @@ const IMAGE_COLOR_POSITIONS = [
   'topLeft', 'topRight', 'bottomLeft', 'bottomRight', 'center'
 ];
 
-class ImageColorFormatter extends Formatter {
+export class ImageColorFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const colorData = first.node.get('colorData');
@@ -186,7 +186,7 @@ class ImageColorFormatter extends Formatter {
   }
 }
 
-class ImageMetaFormatter extends Formatter {
+export class ImageMetaFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const image = first.node;
@@ -204,7 +204,7 @@ const slugifyClasses = (prefix, node) => {
   return res;
 };
 
-class ItemClassesFormatter extends Formatter {
+export class ItemClassesFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const value = first.node;
@@ -276,7 +276,7 @@ const resize = (ctx, node, resizeWidth, requested) => {
   return parseInt(value, 0);
 };
 
-class ResizedHeightForWidthFormatter extends Formatter {
+export class ResizedHeightForWidthFormatter extends Formatter {
   apply(args, vars, ctx) {
     const requested = parseInt(args[0], 10);
     const first = vars[0];
@@ -285,7 +285,7 @@ class ResizedHeightForWidthFormatter extends Formatter {
   }
 }
 
-class ResizedWidthForHeightFormatter extends Formatter {
+export class ResizedWidthForHeightFormatter extends Formatter {
   apply(args, vars, ctx) {
     const requested = parseInt(args[0], 10);
     const first = vars[0];
@@ -309,7 +309,7 @@ const getSquarespaceSizeForWidth = width => {
   return '100w';
 };
 
-class SquarespaceThumbnailForWidthFormatter extends Formatter {
+export class SquarespaceThumbnailForWidthFormatter extends Formatter {
   apply(args, vars, ctx) {
     const width = parseInt(args[0], 10);
     const first = vars[0];
@@ -317,7 +317,7 @@ class SquarespaceThumbnailForWidthFormatter extends Formatter {
   }
 }
 
-class SquarespaceThumbnailForHeightFormatter extends Formatter {
+export class SquarespaceThumbnailForHeightFormatter extends Formatter {
   apply(args, vars, ctx) {
     const height = parseInt(args[0], 10);
     const first = vars[0];
@@ -330,13 +330,13 @@ class SquarespaceThumbnailForHeightFormatter extends Formatter {
   }
 }
 
-class TimeSinceFormatter extends Formatter {
+export class TimeSinceFormatter extends Formatter {
   apply(args, vars, ctx) {
     // TODO: implement
   }
 }
 
-class WidthFormatter extends Formatter {
+export class WidthFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const parts = splitDimensions(first.node);
@@ -357,7 +357,7 @@ const COLOR_LOCATIONS = [
   { attr: 'center', key: 'centerAverage' },
 ];
 
-class VideoFormatter extends Formatter {
+export class VideoFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
     const node = first.node;
@@ -416,7 +416,7 @@ class VideoFormatter extends Formatter {
 }
 
 
-export default {
+export const TABLE = {
   'AbsUrl': new AbsUrlFormatter(),
   'audio-player': new AudioPlayerFormatter(),
   'capitalize': new CapitalizeFormatter(),

@@ -1,5 +1,5 @@
 import Context from '../../src/context';
-import Core from '../../src/plugins/predicates.core';
+import { TABLE as Core } from '../../src/plugins/predicates.core';
 
 
 test('debug?', () => {
