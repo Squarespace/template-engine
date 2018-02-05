@@ -121,7 +121,7 @@ pathseq('variables-%N.html', 1).forEach(path => {
 test('section', () => {
   const engine = new Engine();
   const inst = [ROOT, 1, [
-    [SECTION, 'a', [[VARIABLE, [['b']], 0]], END]
+    [SECTION, ['a'], [[VARIABLE, [['b']], 0]], END]
   ], EOF];
 
   let ctx = new Context({ a: { b: 123 } });
@@ -129,6 +129,37 @@ test('section', () => {
   expect(ctx.render()).toEqual('123');
 
   ctx = new Context({ x: { b: 123 } });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('');
+});
+
+
+test('section resolution', () => {
+  const engine = new Engine();
+  const inst = [ROOT, 1, [
+    [SECTION, ['a'], [
+      [SECTION, ['x'], [
+        [TEXT, 'foo']
+      ], END],
+      [TEXT, 'bar']
+    ], END]
+  ], EOF];
+
+  const ctx = new Context({ a: 1, b: 2 });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('bar');
+});
+
+
+test('section empty', () => {
+  const engine = new Engine();
+  const inst = [ROOT, 1, [
+    [SECTION, ['x'], [
+      [TEXT, 'hi']
+    ], END]
+  ], EOF];
+
+  const ctx = new Context({ a: { b: 123 } });
   engine.execute(inst, ctx);
   expect(ctx.render()).toEqual('');
 });
@@ -158,7 +189,7 @@ test('repeated 1', () => {
 test('repeated 2', () => {
   const engine = new Engine();
   const inst = [ROOT, 1, [
-    [REPEATED, 'a', [
+    [REPEATED, ['a'], [
       [VARIABLE, [['@']], [['iter']]]
     ], END]
   ], EOF];
@@ -172,7 +203,7 @@ test('repeated 2', () => {
 test('repeated 3', () => {
   const engine = new Engine();
   const inst = [ROOT, 1, [
-    [REPEATED, 'a', [
+    [REPEATED, ['a'], [
       [VARIABLE, [['@']], 0]]]
   ], EOF];
 
@@ -185,9 +216,9 @@ test('repeated 3', () => {
 test('repeated 4', () => {
   const engine = new Engine();
   const inst = [ROOT, 1, [
-    [REPEATED, 'a', [
+    [REPEATED, ['a'], [
       [TEXT, 'A'],
-      [SECTION, 'b', [
+      [SECTION, ['b'], [
         [TEXT, '---']
       ], END]],
     [OR_PREDICATE, 0, 0, [
@@ -195,7 +226,7 @@ test('repeated 4', () => {
     ], END], []]
   ], EOF];
 
-  let ctx = new Context({ a: [1, 2, 3], b: 1 });
+  let ctx = new Context({ a: [{ b: 1 }, { b: 2 }, { b: 3 }] });
   engine.execute(inst, ctx);
   expect(ctx.render()).toEqual('A---A---A---');
 
@@ -208,7 +239,7 @@ test('repeated 4', () => {
 test('repeated 5', () => {
   const engine = new Engine();
   const inst = [ROOT, 1, [
-    [REPEATED, 'a', [
+    [REPEATED, ['a'], [
       [VARIABLE, [['@index']], 0],
       [VARIABLE, [['@index0']], 0],
       [VARIABLE, [['@']], 0],

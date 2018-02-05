@@ -149,3 +149,10 @@ test('too many pops', () => {
   ctx.pop();
   expect(() => ctx.pop()).toThrowError(Error);
 });
+
+
+test('resolve missing', () => {
+  const ctx = new Context({ a: 1 });
+  expect(ctx.resolve([])).toBe(MISSING_NODE);
+  expect(ctx.resolve(['x'])).toBe(MISSING_NODE);
+});

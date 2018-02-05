@@ -357,28 +357,3 @@ export const getVariantFormat = variant => {
   }
   return res;
 };
-
-/*
-public static void writeVariantFormat(JsonNode variant, StringBuilder buf) {
-  ArrayNode optionValues = (ArrayNode) variant.get("optionValues");
-  if (optionValues == null) {
-    return;
-  }
-
-  Iterator<JsonNode> iterator = optionValues.elements();
-  List<String> values = new ArrayList<>();
-
-  while (iterator.hasNext()) {
-    JsonNode option = iterator.next();
-    values.add(option.get("value").asText());
-  }
-
-  int size = values.size();
-  for (int i = 0; i < size; i++) {
-    if (i > 0) {
-      buf.append(" / ");
-    }
-    buf.append(values.get(i));
-  }
-}
-*/

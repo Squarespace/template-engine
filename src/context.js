@@ -132,7 +132,14 @@ class Context {
    * Resolve the names to a node (or missing node) and push a frame onto the stack.
    */
   pushSection(names) {
-    const node = this.resolve(names);
+    const len = names.length;
+    let node = MISSING_NODE;
+    if (len > 0) {
+      node = this.resolveName(names[0], this.frame());
+    }
+    if (len > 1) {
+      node = node.path(names.slice(1));
+    }
     this.stack.push(new Frame(node));
   }
 
@@ -235,8 +242,8 @@ class Context {
 
   /**
    * Resolve a single name against a stack frame. If the name starts with '@'
-   * it resolves a special variable (@ for current node, @index or @index0 for 1- and 0-based array indices)
-   * or looks up a user-defined variable.
+   * it resolves a special variable (@ for current node, @index or
+   * @index0 for 1- and 0-based array indices) or looks up a user-defined variable.
    */
   resolveName(name, frame) {
     if (typeof name === 'string' && name[0] === '@') {
