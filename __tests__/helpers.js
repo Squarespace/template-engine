@@ -1,5 +1,5 @@
 import { deepCopy, deepMerge } from '../src/util';
-import Node from '../src/node';
+import { Node } from '../src/node';
 import types from '../src/types';
 
 /**

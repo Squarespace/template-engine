@@ -1,5 +1,5 @@
 import { Formatter } from '../plugin';
-import Node, { MISSING_NODE } from '../node';
+import { MISSING_NODE } from '../node';
 import { executeTemplate, isTruthy } from '../util';
 import * as commerceutil from './util.commerce';
 import types from '../types';
@@ -119,7 +119,7 @@ export class VariantsSelectFormatter extends Formatter {
       return;
     }
 
-    const node = new Node({
+    const node = ctx.newNode({
       item: first.node.value,
       options,
     });
@@ -132,7 +132,7 @@ export class VariantsSelectFormatter extends Formatter {
 const KEY_PREFIX = 'productAnswerMap';
 const KEY_STRONGLY_DISAGREE = KEY_PREFIX + 'StronglyDisagree';
 const KEY_DISAGREE = KEY_PREFIX + 'Disagree';
-const KEY_NEUTRAL = KEY_PREFIX +  'Neutral';
+const KEY_NEUTRAL = KEY_PREFIX + 'Neutral';
 const KEY_AGREE = KEY_PREFIX + 'Agree';
 const KEY_STRONGLY_AGREE = KEY_PREFIX + 'StronglyAgree';
 
@@ -162,7 +162,7 @@ const convertLikert = (values, answerMap) => {
     const value = answerMap[answerKey];
     result.push({ question: key, answer: value || defaultValue });
   }
-  return new Node(result);
+  return result;
 };
 
 const SUMMARY_FORM_FIELD_TEMPLATE_MAP = {
@@ -191,7 +191,8 @@ export class SummaryFormFieldFormatter extends Formatter {
       let node = field;
       if (type === 'likert') {
         const answerMap = buildAnswerMap(localizedStrings);
-        node = convertLikert(field.get('values').value, answerMap);
+        const likert = convertLikert(field.get('values').value, answerMap);
+        node = ctx.newNode(likert);
       }
       value = executeTemplate(ctx, code, node, true);
     }

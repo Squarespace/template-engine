@@ -1,4 +1,4 @@
-import Node from './node';
+import { Node } from './node';
 
 /**
  * Wrapper for passing variables to formatters, simplifying passing
@@ -11,8 +11,12 @@ class Variable {
     this.set(node);
   }
 
+  newNode(value) {
+    return new Node(value);
+  }
+
   set(node) {
-    this.node = node instanceof Node ? node : new Node(node);
+    this.node = node instanceof Node ? node : this.newNode(node);
   }
 
   get() {

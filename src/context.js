@@ -1,6 +1,7 @@
 import Frame from './frame';
-import Node, { MISSING_NODE } from './node';
+import { Node, MISSING_NODE } from './node';
 import types from './types';
+import Variable from './variable';
 
 /**
  * Context for a single template execution.
@@ -9,7 +10,7 @@ class Context {
 
   constructor(node, { locale, partials = {}, injects = {} } = {}) {
     if (!(node instanceof Node)) {
-      node = new Node(node);
+      node = this.newNode(node);
     }
 
     // TODO: REMOVE version, add temporary state to engine.
@@ -26,6 +27,14 @@ class Context {
     this.locale = locale;
     this.partials = partials;
     this.injects = injects;
+  }
+
+  newNode(value) {
+    return new Node(value);
+  }
+
+  newVariable(name, node) {
+    return new Variable(name, node);
   }
 
   /**
@@ -115,7 +124,7 @@ class Context {
   getInjectable(name) {
     const node = this.injects[name] || null;
     if (node !== null) {
-      return node instanceof Node ? node : new Node(node);
+      return node instanceof Node ? node : this.newNode(node);
     }
     return MISSING_NODE;
   }
@@ -166,8 +175,8 @@ class Context {
   /**
    * Defines an @-prefixed variable on the current stack frame.
    */
-  setVar(name, node) {
-    this.frame().setVar(name, node);
+  setVar(name, variable) {
+    this.frame().setVar(name, variable.node);
   }
 
   /**
@@ -252,7 +261,7 @@ class Context {
       } else if (name === '@index' || name === '@index0') {
         if (frame.currentIndex !== -1) {
           const offset = name === '@index' ? 1 : 0;
-          return new Node(frame.currentIndex + offset);
+          return this.newNode(frame.currentIndex + offset);
         }
         return MISSING_NODE;
       }

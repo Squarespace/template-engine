@@ -1,5 +1,5 @@
 import { makeSuite, pad } from './util';
-import Compiler from '../src';
+import { Compiler } from '../src';
 import { repeat } from '../src/util';
 
 

@@ -1,4 +1,4 @@
-import Node, { MISSING_NODE } from '../../src/node';
+import { Node, MISSING_NODE } from '../../src/node';
 import { getFirstMatchingNode, makeSocialButton } from '../../src/plugins/util.social';
 
 

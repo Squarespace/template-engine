@@ -1,5 +1,5 @@
 import * as contentutil from '../../src/plugins/util.content';
-import Node from '../../src/node';
+import { Node } from '../../src/node';
 
 
 test('focal point', () => {

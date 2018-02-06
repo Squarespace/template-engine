@@ -1,5 +1,6 @@
 import Context from '../src/context';
-import Node, { MISSING_NODE } from '../src/node';
+import { Node, MISSING_NODE } from '../src/node';
+import Variable from '../src/variable';
 import { EOF, ROOT, TEXT } from '../src/opcodes';
 
 
@@ -119,7 +120,7 @@ test('frame stop resolution', () => {
 test('set variable', () => {
   const ctx = new Context({ a: { b: { c: 1 } } });
   ctx.pushSection(['a']);
-  ctx.setVar('@foo', new Node(5));
+  ctx.setVar('@foo', new Variable('@foo', new Node(5)));
   expect(ctx.lookupStack('@foo').value).toEqual(5);
 
   ctx.pushSection(['b']);

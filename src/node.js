@@ -28,7 +28,7 @@ class Node {
   }
 
   compare(other) {
-    const node = other instanceof Node ? other : new Node(other);
+    const node = other instanceof Node ? other : this.newNode(other);
     switch (this.type) {
     case types.NUMBER:
     {
@@ -133,6 +133,10 @@ class Node {
     return replaceMappedChars(this.asString(), mapping);
   }
 
+  newNode(value, type) {
+    return new Node(value, type);
+  }
+
   path(path) {
     let value = this.value;
     let type = this.type;
@@ -150,7 +154,7 @@ class Node {
     if (type === types.MISSING) {
       return MISSING_NODE;
     }
-    return new Node(value, type);
+    return this.newNode(value, type);
   }
 
   get(key) {
@@ -158,7 +162,7 @@ class Node {
       const value = this.value[key];
       const type = types.of(value);
       if (type !== types.MISSING) {
-        return new Node(value, type);
+        return this.newNode(value, type);
       }
     }
     return MISSING_NODE;
@@ -168,8 +172,7 @@ class Node {
 // Singleton, used any time we need to return a missing node
 MISSING_NODE = new Node(null, types.MISSING);
 
-export default Node;
-
 export {
+  Node,
   MISSING_NODE,
 };

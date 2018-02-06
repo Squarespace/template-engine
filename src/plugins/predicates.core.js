@@ -1,5 +1,4 @@
 import { Predicate } from '../plugin';
-import Node from '../node';
 import { isJsonStart, isTruthy, splitVariable } from '../util';
 import types from '../types';
 
@@ -13,7 +12,7 @@ const resolve = (args, ctx) => {
     if (typeof arg === 'string' && isJsonStart(arg)) {
       try {
         const value = JSON.parse(arg);
-        return new Node(value);
+        return ctx.newNode(value);
       } catch (e) {
         // Fall through..
       }

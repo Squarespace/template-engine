@@ -1,4 +1,4 @@
-import Node from './node';
+import { Node } from './node';
 import { ROOT } from './opcodes';
 import types from './types';
 
@@ -73,7 +73,7 @@ export const isJsonStart = (s) => {
  * Note: this is not general-purpose. It is intended to deeply-compare
  * valid JSON types. For example it cannot determine equality of Date objects.
  */
- /*eslint complexity: ["error", 30]*/
+/*eslint complexity: ["error", 30]*/
 export const deepEquals = (o1, o2) => {
   const seen = new Map();
   const visit = (a, b) => {

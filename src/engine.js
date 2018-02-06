@@ -1,7 +1,6 @@
 import { Formatter, Predicate } from './plugin';
 import { Formatters, Predicates } from './plugins';
 import { isTruthy } from './util';
-import Variable from './variable';
 
 /**
  * Resolve one or more variables against the context. Accepts a raw list of
@@ -14,7 +13,7 @@ const resolveVariables = (rawlist, ctx) => {
   const size = rawlist.length;
   for (let i = 0; i < size; i++) {
     const names = rawlist[i];
-    result[i] = new Variable(names, ctx.resolve(names, ctx.frame));
+    result[i] = ctx.newVariable(names, ctx.resolve(names, ctx.frame));
   }
   return result;
 };
@@ -225,7 +224,7 @@ class Engine {
     const vars = resolveVariables(inst[2], ctx);
 
     applyFormatters(this.formatters, inst[3], vars, ctx);
-    ctx.setVar(name, vars[0].node);
+    ctx.setVar(name, vars[0]);
   }
 
   /**
@@ -281,7 +280,7 @@ class Engine {
     const path = inst[2];
     // const args = inst[3] - arguments ignored for now
     const node = ctx.getInjectable(path);
-    ctx.setVar(name, node);
+    ctx.setVar(name, ctx.newVariable(name, node));
   }
 
   /**

@@ -1,6 +1,6 @@
 import { join } from 'path';
 import * as commerceutil from '../../src/plugins/util.commerce';
-import Node from '../../src/node';
+import { Node } from '../../src/node';
 import { ProductType } from '../../src/plugins/enums';
 import { expectedTests, predicateTests, Product } from '../helpers';
 import { TestLoader } from '../loader';

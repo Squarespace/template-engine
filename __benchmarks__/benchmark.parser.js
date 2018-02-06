@@ -1,5 +1,5 @@
 import { makeSuite, pad } from './util';
-import Compiler, { Parser } from '../src';
+import { Compiler, Parser } from '../src';
 import Sink from '../src/sink';
 import { repeat } from '../src/util';
 
