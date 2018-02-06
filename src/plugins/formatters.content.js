@@ -194,6 +194,27 @@ export class ImageMetaFormatter extends Formatter {
   }
 }
 
+export class ImageMetaSrcSetFormatter extends Formatter {
+  apply(args, vars, ctx) {
+    const first = vars[0];
+    const image = first.node;
+    if (image.isMissing()) {
+      return;
+    }
+
+    const assetUrl = image.get('assetUrl').asString();
+    let variants = image.get('systemDataVariants').asString().split(',');
+    variants = variants.filter(v => v[v.length - 1] === 'w');
+    if (variants.length === 0) {
+      return;
+    }
+
+    variants = variants.map(v => `${assetUrl}?format=${v} ${v}`).join(',');
+    const text = ` data-srcset="${variants}"`;
+    first.set(text);
+  }
+}
+
 const slugifyClasses = (prefix, node) => {
   let res = '';
   const size = node.size();
@@ -428,6 +449,7 @@ export const TABLE = {
   'image': new ImageFormatter(),
   'image-color': new ImageColorFormatter(),
   'image-meta': new ImageMetaFormatter(),
+  'image-srcset': new ImageMetaSrcSetFormatter(),
   'item-classes': new ItemClassesFormatter(),
   'resizedHeightForWidth': new ResizedHeightForWidthFormatter(),
   'resizedWidthForHeight': new ResizedWidthForHeightFormatter(),

@@ -158,6 +158,11 @@ pathseq('f-image-%N.html', 3).forEach(path => {
 });
 
 
+pathseq('f-image-srcset-%N.html', 1).forEach(path => {
+  test(`image srcset - ${path}`, () => loader.execute(path));
+});
+
+
 pathseq('f-image-color-%N.html', 5).forEach(path => {
   test(`image color - ${path}`, () => loader.execute(path));
 });
