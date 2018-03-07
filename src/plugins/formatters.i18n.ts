@@ -1,11 +1,54 @@
-import { Formatter, FormatterTable } from '../plugin';
-import { Context } from '../context';
-import { Variable } from '../variable';
+import { FormatterTable } from '../plugin';
+import { Decimal, ZonedDateTime } from '@phensley/cldr';
+import { Formatter } from '../plugin';
+import { getTimeZone } from './util.date';
+import {
+  setDecimalFormatOptions,
+  setCalendarFormatOptions
+} from './util.options';
 
-// TODO: datetime
+export class DatetimeFormatter extends Formatter {
+  apply(args, vars, ctx) {
+    const first = vars[0];
+    const cldr = ctx.cldr;
+    if (cldr === undefined) {
+      first.set('');
+      return;
+    }
+
+    const date = first.node.asNumber();
+    if (isNaN(date)) {
+      first.set('');
+      return;
+    }
+
+    const opts = setCalendarFormatOptions(args);
+    const zoneId = getTimeZone(ctx);
+    const res = cldr.Calendars.formatDate({ date, zoneId }, opts);
+    first.set(res);
+  }
+}
+
 // TODO: datetime-interval
 // TODO: datetimefield
-// TODO: decimal
+
+export class DecimalFormatter extends Formatter {
+  apply(args, vars, ctx) {
+    const first = vars[0];
+    const cldr = ctx.cldr;
+    if (cldr === undefined) {
+      first.set('');
+      return;
+    }
+
+    const node = first.node.asString();
+    const opts = setDecimalFormatOptions(args);
+    const num = new Decimal(node);
+    const res = cldr.Numbers.formatDecimal(num, opts);
+    first.set(res);
+  }
+}
+
 // TODO: i18n-money-format  (Legacy)
 
 export class MessageFormatter extends Formatter {
@@ -18,7 +61,8 @@ export class MessageFormatter extends Formatter {
 // TODO: plural (Legacy, deprecate)
 // TODO: unit
 
-
 export const TABLE: FormatterTable = {
-  message: new MessageFormatter()
+  message: new MessageFormatter(),
+  datetime: new DatetimeFormatter(),
+  decimal: new DecimalFormatter()
 };

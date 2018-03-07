@@ -70,6 +70,12 @@ export class Context {
     this.version = 1;
     this.errors = [];
 
+    // Instance of @phensley/cldr interface CLDR providing cldr-based formatting for
+    // a given locale. It is the caller's responsibility to set this. If not
+    // set you will experience partial functionality. All @phensley/cldr-based
+    // formatters will return '' and predicates will evaluate to false.
+    this.cldr = cldr;
+
     this.partialsDepth = 0;
     this.maxPartialDepth = DEFAULT_MAX_PARTIAL_DEPTH;
     this.partialsExecuting = new Set();
