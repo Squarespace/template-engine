@@ -68,6 +68,30 @@ test('variables', () => {
 });
 
 
+test('variable mixed array', () => {
+  const engine = new Engine();
+  const inst = [ROOT, 1, [
+    [VARIABLE, [['a']], 0]
+  ], EOF];
+
+  const ctx = new Context({ a: [1, null, 2, null, 3] });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('1,null,2,null,3');
+});
+
+
+test('variable mixed object', () => {
+  const engine = new Engine();
+  const inst = [ROOT, 1, [
+    [VARIABLE, [['a']], 0]
+  ], EOF];
+
+  const ctx = new Context({ a: { b: 1, c: null, d: false, e: 'foo' } });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('');
+});
+
+
 test('variables missing', () => {
   const engine = new Engine();
   const inst = [ROOT, 1, [

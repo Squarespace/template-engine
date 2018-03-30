@@ -82,10 +82,26 @@ class Context {
     case types.NUMBER:
     case types.STRING:
     case types.BOOLEAN:
-    case types.NULL:
       this.append(first.value);
       break;
+
+    case types.NULL:
+      this.append('');
+      break;
+
+    case types.ARRAY:
+    {
+      const arr = first.value;
+      for (let i = 0; i < arr.length; i++) {
+        if (i > 0) {
+          this.append(',');
+        }
+        this.append(arr[i]);
+      }
+      break;
     }
+    }
+
   }
 
   /**
@@ -206,7 +222,7 @@ class Context {
   pushNext() {
     const frame = this.frame();
     const node = frame.node.path([frame.currentIndex]);
-    if (node.isNull()) {
+    if (node.type === types.MISSING) {
       this.pushNode(MISSING_NODE);
     } else {
       this.pushNode(node);
