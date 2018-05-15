@@ -171,8 +171,8 @@ export const executeTemplate = (ctx, inst, node, privateContext) => {
     // Macros are inline blocks.
     ctx.engine.executeBlock(inst, ctx);
   }
-
   const text = ctx.render();
+
   ctx.pop();
   ctx.restoreBuffer(buf);
   return text;

@@ -63,6 +63,9 @@ test('apply missing partial', () => {
   const ctx = new Context(node, { partials: { 'person.html': partial } });
   engine.execute(inst, ctx);
   expect(ctx.render()).toEqual('Hi, ');
+  expect(ctx.errors.length).toEqual(1);
+  expect(ctx.errors[0].type).toEqual('engine');
+  expect(ctx.errors[0].message).toContain('apply partial');
 });
 
 
@@ -81,6 +84,46 @@ test('apply no arguments', () => {
   const ctx = new Context(node, { partials: { 'person.html': partial } });
   engine.execute(inst, ctx);
   expect(ctx.render()).toEqual('Hi, ');
+});
+
+
+test('apply self recursion', () => {
+  const engine = new Engine();
+  const inst = [ROOT, 1, [
+    [VARIABLE, [['person']], [['apply', ['foo.html']]]]
+  ], EOF];
+  const partial = [ROOT, 1, [
+    [VARIABLE, [['@']], [['apply', ['foo.html']]]]
+  ], EOF];
+
+  const node = { person: { name: 'User Name' } };
+  const ctx = new Context(node, { partials: { 'foo.html': partial } });
+  engine.execute(inst, ctx);
+  expect(ctx.errors.length).toEqual(1);
+  expect(ctx.errors[0].type).toEqual('engine');
+  expect(ctx.errors[0].message).toContain('Recursion into self');
+});
+
+
+test('apply max recursion depth', () => {
+  const engine = new Engine();
+  const inst = [ROOT, 1, [
+    [VARIABLE, [['person']], [['apply', ['partial-0.html']]]]
+  ], EOF];
+
+  const partials = {};
+  for (let i = 0; i < 20; i++) {
+    partials[`partial-${i}.html`] = [ROOT, 1, [
+      [VARIABLE, [['@']], [['apply', [`partial-${i + 1}.html`]]]]
+    ], EOF];
+  }
+
+  const node = { person: { name: 'User Name' } };
+  const ctx = new Context(node, { partials });
+  engine.execute(inst, ctx);
+  expect(ctx.errors.length).toEqual(1);
+  expect(ctx.errors[0].type).toEqual('engine');
+  expect(ctx.errors[0].message).toContain('recursion depth');
 });
 
 

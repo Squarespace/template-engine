@@ -37,8 +37,6 @@ class Compiler {
   execute({ code = EMPTY_CODE, json = {}, partials = {}, injects = {} } = {}) {
     let errors = [];
 
-    // TODO: unify parse, assembly and execution error arrays
-
     if (typeof code === 'string') {
       ({ code, errors } = this.parse(code));
     }
@@ -46,7 +44,7 @@ class Compiler {
     const ctx = new Context(json, { partials, injects });
     this.engine.execute(code, ctx);
 
-    // TODO: splice execution errors to the end of the errors array
+    errors.splice(errors.length, 0, ...ctx.errors);
 
     return { ctx, errors };
   }

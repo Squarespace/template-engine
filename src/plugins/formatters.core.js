@@ -1,3 +1,5 @@
+
+import * as errors from '../errors';
 import { getMomentDateFormat } from './util.date';
 import { format } from './util.format';
 import { Formatter } from '../plugin';
@@ -33,13 +35,20 @@ export class ApplyFormatter extends Formatter {
     // Retrieve the partial / macro by name, If none defined, bail.
     const inst = ctx.getPartial(name);
     if (inst === null) {
+      ctx.error(errors.partialMissing(name));
       first.set('');
       return;
     }
 
-    // Execute the template and set the variable to the result.
-    const text = executeTemplate(ctx, inst, first.node, privateContext);
-    first.set(text);
+    if (ctx.enterPartial(name)) {
+      // Execute the template and set the variable to the result.
+      const text = executeTemplate(ctx, inst, first.node, privateContext);
+      first.set(text);
+      ctx.exitPartial(name);
+    } else {
+      // Executing the partial failed, so set empty.
+      first.set('');
+    }
   }
 }
 
@@ -172,16 +181,24 @@ export class IterFormatter extends Formatter {
 export class JsonFormatter extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
-    const value = JSON.stringify(first.node.value);
-    first.set(escapeScriptTags(value));
+    try {
+      const value = JSON.stringify(first.node.value);
+      first.set(escapeScriptTags(value));
+    } catch (e) {
+      ctx.error(errors.generalError('json-pretty', e.message));
+    }
   }
 }
 
 export class JsonPretty extends Formatter {
   apply(args, vars, ctx) {
     const first = vars[0];
-    const value = JSON.stringify(first.node.value, null, '  ');
-    first.set(escapeScriptTags(value));
+    try {
+      const value = JSON.stringify(first.node.value, null, '  ');
+      first.set(escapeScriptTags(value));
+    } catch (e) {
+      ctx.error(errors.generalError('json-pretty', e.message));
+    }
   }
 }
 

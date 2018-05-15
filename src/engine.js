@@ -1,3 +1,5 @@
+import * as errors from './errors';
+import { nameOf } from './opcodes';
 import { Formatter, Predicate } from './plugin';
 import { Formatters, Predicates } from './plugins';
 import { isTruthy } from './util';
@@ -30,6 +32,7 @@ const applyFormatters = (formatters, calls, vars, ctx) => {
     const formatter = formatters[name];
     // TODO: Undefined formatters currently do not raise an error.
     if (!formatter || !(formatter instanceof Formatter)) {
+      ctx.error();
       continue;
     }
     const args = call.length === 1 ? [] : call[1];
@@ -83,9 +86,13 @@ class Engine {
    */
   execute(inst, ctx) {
     const opcode = typeof inst === 'number' ? inst : inst[0];
-    const impl = this.impls[opcode];
-    if (impl) {
-      impl.call(this, inst, ctx);
+    try {
+      const impl = this.impls[opcode];
+      if (impl) {
+        impl.call(this, inst, ctx);
+      }
+    } catch (e) {
+      ctx.error(errors.unexpectedError(e.name, nameOf(opcode), e.message));
     }
   }
 

@@ -1,7 +1,10 @@
+import * as errors from './errors';
 import Frame from './frame';
 import { Node, MISSING_NODE } from './node';
 import types from './types';
 import Variable from './variable';
+
+const DEFAULT_MAX_PARTIAL_DEPTH = 16;
 
 /**
  * Context for a single template execution.
@@ -27,6 +30,34 @@ class Context {
     this.locale = locale;
     this.partials = partials;
     this.injects = injects;
+    this.errors = [];
+
+    this.partialsDepth = 0;
+    this.partialsExecuting = new Set();
+    this.maxPartialDepth = DEFAULT_MAX_PARTIAL_DEPTH;
+  }
+
+  enterPartial(name) {
+    if (this.partialsExecuting.has(name)) {
+      this.error(errors.partialSelfRecursion(name));
+      return false;
+    }
+    this.partialsExecuting.add(name);
+    this.partialsDepth++;
+    if (this.partialsDepth > this.maxPartialDepth) {
+      this.error(errors.partialRecursion(name, this.maxPartialDepth));
+      return false;
+    }
+    return true;
+  }
+
+  exitPartial(name) {
+    this.partialsExecuting.delete(name);
+    this.partialsDepth--;
+  }
+
+  error(msg) {
+    this.errors.push(msg);
   }
 
   newNode(value) {
