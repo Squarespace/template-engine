@@ -10,10 +10,10 @@ import Variable from '../../src/variable';
 
 const loader = new TemplateTestLoader(join(__dirname, 'resources'));
 const variables = (...n) => n.map((v, i) => new Variable('var' + i, v));
-
+const newEngine = () => new Engine({ formatters: Core });
 
 test('apply', () => {
-  const engine = new Engine();
+  const engine = newEngine();
   const inst = [ROOT, 1, [
     [TEXT, 'Hi, '],
     [VARIABLE, [['person']], [['apply', ['person.html']]]]
@@ -31,7 +31,7 @@ test('apply', () => {
 
 
 test('apply private scope', () => {
-  const engine = new Engine();
+  const engine = newEngine();
   const inst = [ROOT, 1, [
     [TEXT, 'Hi, '],
     [VARIABLE, [['person']], [['apply', ['person.html', 'private']]]],
@@ -49,7 +49,7 @@ test('apply private scope', () => {
 
 
 test('apply missing partial', () => {
-  const engine = new Engine();
+  const engine = newEngine();
   const inst = [ROOT, 1, [
     [TEXT, 'Hi, '],
     [VARIABLE, [['person']], [['apply', ['missing.html']]]],
@@ -70,7 +70,7 @@ test('apply missing partial', () => {
 
 
 test('apply no arguments', () => {
-  const engine = new Engine();
+  const engine = newEngine();
   const inst = [ROOT, 1, [
     [TEXT, 'Hi, '],
     [VARIABLE, [['person']], [['apply']]],
@@ -88,7 +88,7 @@ test('apply no arguments', () => {
 
 
 test('apply self recursion', () => {
-  const engine = new Engine();
+  const engine = newEngine();
   const inst = [ROOT, 1, [
     [VARIABLE, [['person']], [['apply', ['foo.html']]]]
   ], EOF];
@@ -106,7 +106,7 @@ test('apply self recursion', () => {
 
 
 test('apply max recursion depth', () => {
-  const engine = new Engine();
+  const engine = newEngine();
   const inst = [ROOT, 1, [
     [VARIABLE, [['person']], [['apply', ['partial-0.html']]]]
   ], EOF];

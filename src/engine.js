@@ -48,7 +48,7 @@ const applyFormatters = (formatters, calls, vars, ctx) => {
  */
 class Engine {
 
-  constructor({ formatters = {}, predicates = {}} = {}) {
+  constructor({ formatters = {}, predicates = {} } = {}) {
     this.formatters = formatters;
     this.predicates = predicates;
 

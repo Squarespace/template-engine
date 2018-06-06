@@ -2,6 +2,7 @@ import { join } from 'path';
 import { pathseq } from './helpers';
 import Context from '../src/context';
 import Engine from '../src/engine';
+import { Formatters, Predicates } from '../src/plugins';
 
 import {
   ATOM,
@@ -29,10 +30,10 @@ import { TemplateTestLoader } from './loader';
 
 
 const loader = new TemplateTestLoader(join(__dirname, 'resources'));
-
+const newEngine = () => new Engine({ formatters: Formatters, predicates: Predicates });
 
 test('literals', () => {
-  const engine = new Engine();
+  const engine = newEngine();
   const inst = [ROOT, 1, [
     NEWLINE,
     [TEXT, '\n'],
@@ -52,7 +53,7 @@ test('literals', () => {
 
 
 test('variables', () => {
-  const engine = new Engine();
+  const engine = newEngine();
   const inst = [ROOT, 1, [
     [TEXT, 'a'],
     [VARIABLE, [['bbb']], 0],
@@ -69,7 +70,7 @@ test('variables', () => {
 
 
 test('variable mixed array', () => {
-  const engine = new Engine();
+  const engine = newEngine();
   const inst = [ROOT, 1, [
     [VARIABLE, [['a']], 0]
   ], EOF];
@@ -81,7 +82,7 @@ test('variable mixed array', () => {
 
 
 test('variable mixed object', () => {
-  const engine = new Engine();
+  const engine = newEngine();
   const inst = [ROOT, 1, [
     [VARIABLE, [['a']], 0]
   ], EOF];
@@ -93,7 +94,7 @@ test('variable mixed object', () => {
 
 
 test('variables missing', () => {
-  const engine = new Engine();
+  const engine = newEngine();
   const inst = [ROOT, 1, [
     [TEXT, 'a'],
     [VARIABLE, [['b']], 0],
@@ -106,7 +107,7 @@ test('variables missing', () => {
 
 
 test('variables with formatters', () => {
-  const engine = new Engine();
+  const engine = newEngine();
   const inst = [ROOT, 1, [
     [VARIABLE, [['foo']], [['html']]],
     [TEXT, '\n'],
@@ -126,7 +127,7 @@ test('variables with formatters', () => {
 
 
 test('variables missing formatters', () => {
-  const engine = new Engine();
+  const engine = newEngine();
   const inst = [ROOT, 1, [
     [VARIABLE, [['foo']], [['missing'], ['not-defined']]],
   ], EOF];
@@ -143,7 +144,7 @@ pathseq('variables-%N.html', 1).forEach(path => {
 
 
 test('section', () => {
-  const engine = new Engine();
+  const engine = newEngine();
   const inst = [ROOT, 1, [
     [SECTION, ['a'], [[VARIABLE, [['b']], 0]], END]
   ], EOF];
@@ -159,7 +160,7 @@ test('section', () => {
 
 
 test('section resolution', () => {
-  const engine = new Engine();
+  const engine = newEngine();
   const inst = [ROOT, 1, [
     [SECTION, ['a'], [
       [SECTION, ['x'], [
@@ -176,7 +177,7 @@ test('section resolution', () => {
 
 
 test('section empty', () => {
-  const engine = new Engine();
+  const engine = newEngine();
   const inst = [ROOT, 1, [
     [SECTION, ['x'], [
       [TEXT, 'hi']
@@ -190,7 +191,7 @@ test('section empty', () => {
 
 
 test('repeated 1', () => {
-  const engine = new Engine();
+  const engine = newEngine();
   const inst = [ROOT, 1, [
     [REPEATED, ['items'],
       [[TEXT, 'a']],
@@ -211,7 +212,7 @@ test('repeated 1', () => {
 
 
 test('repeated 2', () => {
-  const engine = new Engine();
+  const engine = newEngine();
   const inst = [ROOT, 1, [
     [REPEATED, ['a'], [
       [VARIABLE, [['@']], [['iter']]]
@@ -225,7 +226,7 @@ test('repeated 2', () => {
 
 
 test('repeated 3', () => {
-  const engine = new Engine();
+  const engine = newEngine();
   const inst = [ROOT, 1, [
     [REPEATED, ['a'], [
       [VARIABLE, [['@']], 0]]]
@@ -238,7 +239,7 @@ test('repeated 3', () => {
 
 
 test('repeated 4', () => {
-  const engine = new Engine();
+  const engine = newEngine();
   const inst = [ROOT, 1, [
     [REPEATED, ['a'], [
       [TEXT, 'A'],
@@ -261,7 +262,7 @@ test('repeated 4', () => {
 
 
 test('repeated 5', () => {
-  const engine = new Engine();
+  const engine = newEngine();
   const inst = [ROOT, 1, [
     [REPEATED, ['a'], [
       [VARIABLE, [['@index']], 0],
@@ -277,7 +278,7 @@ test('repeated 5', () => {
 
 
 test('predicates', () => {
-  const engine = new Engine();
+  const engine = newEngine();
   const inst = [ROOT, 1, [
     [PREDICATE, 'equal?', ['foo', 'bar'],
       [[TEXT, 'equal']],
@@ -308,7 +309,7 @@ test('predicates', () => {
 
 
 test('predicates missing', () => {
-  const engine = new Engine();
+  const engine = newEngine();
   const inst = [ROOT, 1, [
     [TEXT, 'A'],
     [PREDICATE, 'missing?', ['foo'], [
@@ -324,7 +325,7 @@ test('predicates missing', () => {
 
 
 test('bindvar', () => {
-  const engine = new Engine();
+  const engine = newEngine();
   const inst = [ROOT, 1, [
     [BINDVAR, '@foo', [['bar']], [['html']]],
     [BINDVAR, '@baz', [['quux']], 0],
@@ -345,7 +346,7 @@ pathseq('bindvar-%N.html', 2).forEach(path => {
 
 
 test('if', () => {
-  const engine = new Engine();
+  const engine = newEngine();
   const inst = [ROOT, 1, [
     [IF, [1, 0], ['a', 'b', 'c'], [
       [VARIABLE, [['a']], 0],
@@ -372,7 +373,7 @@ test('if', () => {
 
 
 test('if or', () => {
-  const engine = new Engine();
+  const engine = newEngine();
   const inst = [ROOT, 1, [
     [IF, [0], ['a', 'b'], [[TEXT, 'A']],
       [OR_PREDICATE, 0, 0, [[TEXT, 'B']], END],
@@ -394,7 +395,7 @@ test('if or', () => {
 
 
 test('inject', () => {
-  const engine = new Engine();
+  const engine = newEngine();
   const inst = [ROOT, 1, [
     [INJECT, '@foo', 'file.html', 0],
     [VARIABLE, [['@foo']], [['html']]]
@@ -410,7 +411,7 @@ test('inject', () => {
 
 
 test('inject missing', () => {
-  const engine = new Engine();
+  const engine = newEngine();
   const inst = [ROOT, 1, [
     [INJECT, '@foo', 'missing.html', 0],
     [VARIABLE, [['@foo']], 0]
@@ -426,7 +427,7 @@ test('inject missing', () => {
 
 
 test('inject mapping empty', () => {
-  const engine = new Engine();
+  const engine = newEngine();
   const inst = [ROOT, 1, [
     [INJECT, '@foo', 'file.html', 0],
     [VARIABLE, [['@foo']], [['html']]]
@@ -443,7 +444,7 @@ pathseq('inject-%N.html', 2).forEach(path => {
 
 
 test('macro', () => {
-  const engine = new Engine();
+  const engine = newEngine();
   const inst = [ROOT, 1, [
     [MACRO, 'person.html', [
       [VARIABLE, [['name']], 0],
@@ -466,7 +467,7 @@ test('macro', () => {
 
 
 test('macro not defined', () => {
-  const engine = new Engine();
+  const engine = newEngine();
   const inst = [ROOT, 1, [
     [SECTION, 'person', [
       [VARIABLE, [['@']], [[ 'apply', ['person.html']]]],
@@ -480,7 +481,7 @@ test('macro not defined', () => {
 
 
 test('struct', () => {
-  const engine = new Engine();
+  const engine = newEngine();
   const inst = [ROOT, 1, [
     [STRUCT, { custom: 'data' }, [
       [TEXT, 'hello']
