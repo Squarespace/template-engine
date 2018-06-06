@@ -1,7 +1,6 @@
 import * as errors from './errors';
 import { nameOf } from './opcodes';
 import { Formatter, Predicate } from './plugin';
-import { Formatters, Predicates } from './plugins';
 import { isTruthy } from './util';
 
 /**
@@ -49,7 +48,7 @@ const applyFormatters = (formatters, calls, vars, ctx) => {
  */
 class Engine {
 
-  constructor({ formatters = Formatters, predicates = Predicates } = {}) {
+  constructor({ formatters = {}, predicates = {}} = {}) {
     this.formatters = formatters;
     this.predicates = predicates;
 
