@@ -1,6 +1,7 @@
 import * as commerceFormatters from './formatters.commerce';
 import * as contentFormatters from './formatters.content';
 import * as coreFormatters from './formatters.core';
+import * as dateFormatters from './formatters.date';
 import * as i18nFormatters from './formatters.i18n';
 import * as socialFormatters from './formatters.social';
 
@@ -16,6 +17,7 @@ export const Formatters = {
   ...commerceFormatters.TABLE,
   ...contentFormatters.TABLE,
   ...coreFormatters.TABLE,
+  ...dateFormatters.TABLE,
   ...i18nFormatters.TABLE,
   ...socialFormatters.TABLE,
 };
