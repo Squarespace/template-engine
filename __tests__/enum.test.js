@@ -9,8 +9,9 @@ const Animal = makeEnum('Animal', {
 
 
 test('basics', () => {
-  expect(Animal.constructor.name).toEqual('Animal');
-  expect(Animal.CAT.constructor.name).toEqual('AnimalValue');
+  // We don't create dynamic classes any more so ignore these tests.
+  // expect(Animal.constructor.name).toEqual('Animal');
+  // expect(Animal.CAT.constructor.name).toEqual('AnimalValue');
 
   expect(Animal.type()).toEqual('Animal');
   expect(Animal.CAT.type()).toEqual('AnimalValue');

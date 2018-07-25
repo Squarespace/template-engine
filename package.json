@@ -19,7 +19,7 @@
     "lint:test": "eslint __tests__/**/*.js",
     "prepare": "npm run build",
     "test": "NODE_ENV=test jest",
-    "test:watch": "NODE_ENV=test jest --watch",
+    "test:watch": "NODE_ENV=test jest --watch --coverage=false",
     "test:coveralls": "npm run test && cat ./coverage/lcov.info | ./node_modules/.bin/coveralls"
   },
   "keywords": [],

@@ -1,92 +1,71 @@
+class EnumValue {
+  constructor(typeName, string, code) {
+    this.typeName = `${typeName}Value`;
+    this.string = string;
+    this.code = code;
+  }
 
-/**
- * Dynamically create an enum value.
- */
-const makeEnumValue = (props) => {
-  return new (class {
-    constructor({ symbol, code, string }) {
-      this.symbol = symbol;
-      this.code = code;
-      this.string = string;
-      Object.freeze(this);
-    }
+  type() {
+    return this.typeName;
+  }
+}
+class Enum {
 
-    type() {
-      return props.valueTypeName;
-    }
+  constructor(typeName, mapping) {
+    this.typeName = typeName;
+    this._members = new Set();
+    this._codeMap = {};
+    this._stringMap = {};
+    this._values = [];
 
-    static get name() {
-      return props.valueTypeName;
-    }
-  })(props);
-};
+    Object.keys(mapping).forEach(k => {
+      const entry = mapping[k];
 
-/**
- * Creates an enumeration with a reverse mapping to a name, to support
- * some of the use cases for Java enums.
- */
-const makeEnum = (typeName, mapping) => {
-  const valueTypeName = typeName + 'Value';
-  const stringMap = {};
-  const codeMap = {};
-  const values = [];
-  const members = new Set();
-  return new (class {
-    constructor() {
-      Object.keys(mapping).forEach(k => {
-        const entry = mapping[k];
+      // Ensure every entry has a numeric code.
+      const code = entry.code;
+      if (typeof code !== 'number') {
+        throw new Error('Enum values must have numeric "code" property defined');
+      }
 
-        // Ensure every entry has a numeric code.
-        const code = entry.code;
-        if (typeof code !== 'number') {
-          throw new Error('Enum values must have numeric "code" property defined');
-        }
+      // Ensure codes are unique.
+      if (this._codeMap[code]) {
+        throw new Error(`Enum codes must be unique! ${code} is already defined.`);
+      }
 
-        // Ensure codes are unique.
-        if (codeMap[code]) {
-          throw new Error(`Enum codes must be unique! ${code} is already defined.`);
-        }
+      const string = entry.string ? entry.string : k;
+      const value = new EnumValue(typeName, string, code);
+      // const value = makeEnumValue({ valueTypeName, symbol: k, string, code });
+      this[k] = value;
+      this._members.add(value);
+      this._stringMap[string] = value;
+      this._codeMap[code] = value;
+      this._values.push(value);
+    });
 
-        const string = entry.string ? entry.string : k;
-        const value = makeEnumValue({ valueTypeName, symbol: k, string, code });
-        this[k] = value;
-        members.add(value);
-        stringMap[string] = value;
-        codeMap[code] = value;
-        values.push(value);
-      });
+    this._values.sort((a, b) => a.code < b.code ? -1 : 1);
+  }
 
-      // Values sorted by code increasing. Note: codes will never be equal due to
-      // uniqueness precondition enforced above.
-      values.sort((a, b) => a.code < b.code ? -1 : 1);
-      Object.freeze(this);
-    }
+  is(v) {
+    return this._members.has(v);
+  }
 
-    is(value) {
-      return members.has(value);
-    }
+  type() {
+    return this.typeName;
+  }
 
-    type() {
-      return typeName;
-    }
+  fromString(s) {
+    return this._stringMap[s];
+  }
 
-    fromCode(c) {
-      return codeMap[c];
-    }
+  fromCode(code) {
+    return this._codeMap[code];
+  }
 
-    fromString(s) {
-      return stringMap[s];
-    }
+  values() {
+    return this._values;
+  }
+}
 
-    values() {
-      return values.slice(0);
-    }
-
-    static get name() {
-      return typeName;
-    }
-
-  })();
-};
+const makeEnum = (typeName, mapping) => new Enum(typeName, mapping);
 
 export default makeEnum;
