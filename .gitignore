@@ -3,6 +3,7 @@
 coverage/
 dist/
 node_modules/
+scratch/
 
 .DS_Store
 package-lock.json

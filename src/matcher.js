@@ -41,7 +41,7 @@ const INSTRUCTIONS = {
  * Compile a regular expression with the sticky 'y' flag, which only
  * matches from the position indicated by RegExp.lastIndex.
  */
-const compile = s => new RegExp(s, 'y');
+const compileSticky = s => new RegExp(s, 'y');
 
 
 /**
@@ -49,7 +49,7 @@ const compile = s => new RegExp(s, 'y');
  */
 class Matcher {
 
-  constructor(str) {
+  constructor(str, compile = compileSticky) {
     this.str = str;
     this.start = 0;
     this.end = 0;
@@ -170,6 +170,7 @@ class Matcher {
 
       // Skip any optional whitespace.
       start = this.matchEnd;
+
       this.test(this.whitespace, start);
       start = this.matchEnd;
 

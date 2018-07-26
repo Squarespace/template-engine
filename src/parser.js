@@ -1,4 +1,5 @@
 import Matcher from './matcher';
+import SlowMatcher from './slowmatcher';
 import Sink from './sink';
 
 import {
@@ -35,12 +36,26 @@ import {
   TAB,
 } from './opcodes';
 
+/* Check if the current JS runtime supports sticky RegExp flag. */
+const hasStickyRegexp = (() => {
+  try {
+    const r = new RegExp('.', 'y');
+    return r && true;
+  } catch (e) {
+    return false;
+  }
+})();
+
+
+/** Switch our matcher implementation */
+const matcherImpl = hasStickyRegexp ? Matcher : SlowMatcher;
+
 /**
  * Parse a template and send instructions to the given sink.
  */
 class Parser {
 
-  constructor(str, sink) {
+  constructor(str, sink, matcher = matcherImpl) {
     if (!(sink instanceof Sink)) {
       throw new Error('Argument "sink" must be a Sink instance.');
     }
@@ -49,7 +64,7 @@ class Parser {
     this.sink = sink;
     this.idx = 0;
     this.len = str.length;
-    this.matcher = new Matcher(str);
+    this.matcher = new matcher(str);
   }
 
   /**

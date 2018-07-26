@@ -1,71 +1,138 @@
 import * as patterns from '../src/patterns';
 
-const match = (raw, str, start) => {
-  const pattern = new RegExp(raw, 'y');
-  pattern.lastIndex = start ? start : 0;
-  const value = pattern.exec(str);
-  return value === null || pattern.lastIndex !== str.length ? null : value[0];
-};
+/* eslint-disable no-loop-func */
 
-test('references', () => {
-  const p = patterns.variableReference;
+/**
+ * Pattern matching by RegExp sticky.
+ */
+class FastPatterns {
 
-  expect(match(p, '   e', 3)).toEqual('e');
+  constructor(raw) {
+    this.raw = raw;
+  }
 
-  // Matches starting at a particular offset.
-  expect(match(p, '   foo.bar', 0)).toEqual(null);
-  expect(match(p, '   foo.bar', -1)).toEqual(null);
-  expect(match(p, '   foo.bar', 10)).toEqual(null);
-  expect(match(p, '   foo.bar', 3)).toEqual('foo.bar');
+  match(str, start = 0) {
+    const pattern = new RegExp(this.raw, 'y');
+    pattern.lastIndex = start;
+    const value = pattern.exec(str);
+    return value === null || pattern.lastIndex !== str.length ? null : value[0];
+  }
+}
 
-  // Matches at the start of the string.
-  expect(match(p, 'a')).toEqual('a');
-  expect(match(p, 'a.b.c')).toEqual('a.b.c');
-  expect(match(p, 'foo.bar.baz')).toEqual('foo.bar.baz');
-  expect(match(p, '@')).toEqual('@');
-  expect(match(p, '@index')).toEqual('@index');
-  expect(match(p, '@index0')).toEqual('@index0');
-  expect(match(p, '0')).toEqual('0');
-  expect(match(p, '0.1')).toEqual('0.1');
-  expect(match(p, '0.1.2.name')).toEqual('0.1.2.name');
-  expect(match(p, '@foo.bar')).toEqual('@foo.bar');
-  expect(match(p, '$foo.bar')).toEqual('$foo.bar');
-  expect(match(p, '$foo.bar.$baz.$quux')).toEqual('$foo.bar.$baz.$quux');
-  expect(match(p, 'foo.123.bar')).toEqual('foo.123.bar');
+/**
+ * Pattern matching by RegExp global + anchor-to-start + substring.
+ */
+class SlowPatterns {
 
-  // Invalid sequences
-  expect(match(p, '.foo.bar')).toEqual(null);
-  expect(match(p, '#foo.bar')).toEqual(null);
-  expect(match(p, '!!')).toEqual(null);
-  expect(match(p, '123foo')).toEqual(null);
-  expect(match(p, '0 .foo')).toEqual(null);
-  expect(match(p, '.0')).toEqual(null);
-  expect(match(p, '0.')).toEqual(null);
-  expect(match(p, 'abc.')).toEqual(null);
-});
+  constructor(raw) {
+    this.raw = raw;
+  }
 
-test('definitions', () => {
-  const p = patterns.variableDefinition;
+  match(str, start = 0) {
 
-  expect(match(p, '   @foo', 0)).toEqual(null);
-  expect(match(p, '   @foo', 3)).toEqual('@foo');
+    const pattern = new RegExp('^' + this.raw, 'g');
+    if (this.test(pattern, str, start)) {
+      const end = start + pattern.lastIndex;
+      if (end === str.length) {
+        return str.substring(start, end);
+      }
+    }
+    return null;
+  }
 
-  expect(match(p, '@foo')).toEqual('@foo');
+  test(pattern, str, start = 0) {
+    const tmp = str.substring(start);
+    if (pattern.test(tmp)) {
+      return true;
+    }
+    return false;
+  }
+}
 
-  expect(match(p, '@foo.bar')).toEqual(null);
-  expect(match(p, '@foo.0')).toEqual(null);
-  expect(match(p, '$foo')).toEqual(null);
-  expect(match(p, 'foo')).toEqual(null);
-  expect(match(p, 'foo.bar')).toEqual(null);
-});
+const get = pattern => [
+  { name: 'fast', impl: new FastPatterns(pattern) },
+  { name: 'slow', impl: new SlowPatterns(pattern) }
+];
 
-test('predicates', () => {
-  const p = patterns.predicate;
+for (const o of get(patterns.operator)) {
+  test(`${o.name} operator`, () => {
+    const p = o.impl;
 
-  expect(match(p, 'equals?')).toEqual('equals?');
-  expect(match(p, 'greaterThanOrEqual?')).toEqual('greaterThanOrEqual?');
+    expect(p.match('||', 0)).toEqual('||');
+    expect(p.match('   ||', 3)).toEqual('||');
 
-  expect(match(p, '0?')).toEqual(null);
-  expect(match(p, 'equals')).toEqual(null);
-  expect(match(p, 'foo.bar')).toEqual(null);
-});
+    expect(p.match('&&', 0)).toEqual('&&');
+    expect(p.match('   &&', 3)).toEqual('&&');
+
+    expect(p.match('&^', 0)).toEqual(null);
+    expect(p.match(' ^&', 1)).toEqual(null);
+  });
+}
+
+for (const o of get(patterns.variableReference)) {
+  test(`${o.name} references`, () => {
+    const p = o.impl;
+
+    expect(p.match('   e', 3)).toEqual('e');
+
+    // Matches starting at a particular offset.
+    expect(p.match('   foo.bar', 0)).toEqual(null);
+    expect(p.match('   foo.bar', -1)).toEqual(null);
+    expect(p.match('   foo.bar', 10)).toEqual(null);
+    expect(p.match('   foo.bar', 3)).toEqual('foo.bar');
+
+    // Matches at the start of the string.
+    expect(p.match('a')).toEqual('a');
+    expect(p.match('a.b.c')).toEqual('a.b.c');
+    expect(p.match('foo.bar.baz')).toEqual('foo.bar.baz');
+    expect(p.match('@')).toEqual('@');
+    expect(p.match('@index')).toEqual('@index');
+    expect(p.match('@index0')).toEqual('@index0');
+    expect(p.match('0')).toEqual('0');
+    expect(p.match('0.1')).toEqual('0.1');
+    expect(p.match('0.1.2.name')).toEqual('0.1.2.name');
+    expect(p.match('@foo.bar')).toEqual('@foo.bar');
+    expect(p.match('$foo.bar')).toEqual('$foo.bar');
+    expect(p.match('$foo.bar.$baz.$quux')).toEqual('$foo.bar.$baz.$quux');
+    expect(p.match('foo.123.bar')).toEqual('foo.123.bar');
+
+    // Invalid sequences
+    expect(p.match('.foo.bar')).toEqual(null);
+    expect(p.match('#foo.bar')).toEqual(null);
+    expect(p.match('!!')).toEqual(null);
+    expect(p.match('123foo')).toEqual(null);
+    expect(p.match('0 .foo')).toEqual(null);
+    expect(p.match('.0')).toEqual(null);
+    expect(p.match('0.')).toEqual(null);
+    expect(p.match('abc.')).toEqual(null);
+
+  });
+}
+
+for (const o of get(patterns.variableDefinition)) {
+  test(`${o.name} definitions`, () => {
+    const p = o.impl;
+
+    expect(p.match('   @foo', 0)).toEqual(null);
+    expect(p.match('   @foo', 3)).toEqual('@foo');
+    expect(p.match('@foo')).toEqual('@foo');
+    expect(p.match('@foo.bar')).toEqual(null);
+    expect(p.match('@foo.0')).toEqual(null);
+    expect(p.match('$foo')).toEqual(null);
+    expect(p.match('foo')).toEqual(null);
+    expect(p.match('foo.bar')).toEqual(null);
+  });
+}
+
+for (const o of get(patterns.predicate)) {
+  test(`${o.name} predicates`, () => {
+    const p = o.impl;
+
+    expect(p.match('equals?')).toEqual('equals?');
+    expect(p.match('greaterThanOrEqual?')).toEqual('greaterThanOrEqual?');
+    expect(p.match('0?')).toEqual(null);
+    expect(p.match('equals')).toEqual(null);
+    expect(p.match('foo.bar')).toEqual(null);
+
+  });
+}
