@@ -45,3 +45,47 @@ test('compiler custom formatter', () => {
   ({ ctx } = compiler.execute({ code, json }));
   expect(ctx.render()).toEqual('Hello, world.');
 });
+
+test('compiler mixed partials raw/parsed recursion error', () => {
+  const partials = {
+    foo: [ROOT, 1, [
+      [VARIABLE, [['@']], [['apply', ['bar']]]]
+    ], EOF],
+    bar: '{@|apply foo}'
+  };
+  const code = '{num|apply foo}';
+  const json = { num: 123 };
+  const compiler = new Compiler();
+  const { ctx, errors } = compiler.execute({ code, json, partials });
+  expect(errors.length).toEqual(1);
+  expect(errors[0].type).toEqual('engine');
+  expect(errors[0].message).toContain('Recursion into self');
+});
+
+test('compiler raw partials', () => {
+  const partials = {
+    foo: '{@|apply bar}',
+    bar: '{@|apply baz}',
+    baz: '{@} baz'
+  };
+  const code = '{num|apply foo}';
+  const json = { num: 123 };
+  const compiler = new Compiler();
+  const { ctx, errors } = compiler.execute({ code, json, partials });
+  expect(errors).toEqual([]);
+  expect(ctx.render()).toEqual('123 baz');
+});
+
+test('compiler partials error reporting', () => {
+  const partials = {
+    foo: '{.end}'
+  };
+  const code = '{num|apply foo}';
+  const json = { num: 123 };
+  const compiler = new Compiler();
+  const { ctx, errors } = compiler.execute({ code, json, partials });
+  expect(errors.length).toEqual(1);
+  expect(errors[0].type).toEqual('engine');
+  expect(errors[0].message).toContain('Parse of partial "foo"');
+  expect(ctx.render()).toEqual('');
+});

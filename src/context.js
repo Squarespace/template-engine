@@ -1,6 +1,7 @@
 import * as errors from './errors';
 import Frame from './frame';
 import { Node, MISSING_NODE } from './node';
+import { NULL_TEMPLATE } from './opcodes';
 import types from './types';
 import Variable from './variable';
 
@@ -23,6 +24,11 @@ class Context {
     // Once execution starts, the engine will set this reference. Otherwise
     // the 'apply' formatter will fail to work, since it executes templates.
     this.engine = null;
+
+    // Partials may need to be parsed and cached on the fly. Need an instance
+    // of a parser to accomplish this.
+    this.parsefunc = null;
+    this.parsedPartials = {};
 
     this.buf = '';
     this.stack = [new Frame(node)];
@@ -146,8 +152,41 @@ class Context {
    * Return the partial template for the given name.
    */
   getPartial(name) {
-    const inst = this.getMacro(name);
-    return inst === null ? (this.partials[name] || null) : inst;
+    // See if a named inline macro is defined
+    let inst = this.getMacro(name);
+    if (inst) {
+      return inst;
+    }
+
+    // Check for a parsed partial
+    inst = this.parsedPartials[name];
+    if (inst !== undefined) {
+      return inst;
+    }
+
+    // Check for a raw partial, which may be in string form.
+    inst = this.partials[name] || null;
+    if (typeof inst === 'string' && this.parsefunc) {
+      // Parse the partial
+      const res = this.parsefunc(inst);
+
+      // If errors occurred, append them to this context's errors
+      if (res.errors && res.errors.length > 0) {
+        for (var i = 0; i < res.errors.length; i++) {
+          this.error(errors.partialParseFail(name, res.errors[i].message));
+        }
+
+        // Set empty template
+        inst = NULL_TEMPLATE;
+      } else {
+        // No errors, get the code.
+        inst = res.code;
+      }
+    }
+
+    // Cache it and return
+    this.parsedPartials[name] = inst;
+    return inst;
   }
 
   /**

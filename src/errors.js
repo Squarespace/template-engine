@@ -59,6 +59,9 @@ export const rootPop = () =>
 export const partialMissing = (name) =>
   engine(`Attempt to apply partial '${name}' which could not be found.`);
 
+export const partialParseFail = (name, msg) =>
+  engine(`Parse of partial "${name}" failed: ${msg}`);
+
 export const partialRecursion = (name, limit) =>
   engine(`Attempt to apply partial '${name}' exceeded maximum recursion depth of ${limit}`);
 

@@ -42,6 +42,7 @@ class Compiler {
     }
 
     const ctx = new Context(json, { partials, injects });
+    ctx.parsefunc = (raw) => this.parse(raw);
     this.engine.execute(code, ctx);
 
     errors.splice(errors.length, 0, ...ctx.errors);

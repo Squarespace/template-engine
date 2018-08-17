@@ -58,3 +58,5 @@ export const nameOf = (opcode) => {
   const name = NAMES[opcode];
   return typeof name === 'undefined' ? 'UNKNOWN' : name;
 };
+
+export const NULL_TEMPLATE = [ROOT, 1, [], EOF];
