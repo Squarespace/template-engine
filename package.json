@@ -6,7 +6,7 @@
   "module": "dist/esm/index.js",
   "scripts": {
     "bench": "babel-node __benchmarks__/",
-    "build": "run-s clean generate build:**",
+    "build": "npm run clean && npm run generate && npm run build:esm && npm run build:cjs",
     "build:esm": "BABEL_ENV=esm babel src --out-dir dist/esm --source-maps",
     "build:cjs": "BABEL_ENV=cjs babel src --out-dir dist/cjs --source-maps",
     "clean": "npm run clean:dist && npm run clean:test",
@@ -52,12 +52,11 @@
     "eslint-plugin-jest": "^21.5.0",
     "jest": "^22.0.4",
     "microtime": "^2.1.6",
-    "npm-run-all": "^4.1.2",
     "rimraf": "^2.6.2"
   },
   "jest": {
     "verbose": true,
-		"testURL": "http://localhost/",
+    "testURL": "http://localhost/",
     "collectCoverage": true,
     "collectCoverageFrom": [
       "src/**/*.js"
