@@ -17,6 +17,7 @@ export interface ContextProps {
   locale?: any;
   partials?: Partials;
   injects?: any;
+  cldr?: any;
 }
 
 type ParseFunc = (s: string) => { code: Code, errors: TemplateError[] };

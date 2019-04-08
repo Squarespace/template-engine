@@ -1,16 +1,19 @@
-import { TABLE } from '../../src/plugins/formatters.date';
-import { Context } from '../../src/context';
-import { Variable } from '../../src/variable';
+import { TABLE as Formatters } from '../../src/plugins/formatters.date';
+import Context from '../../src/context';
+import Variable from '../../src/variable';
+import { framework } from '../cldr';
 
 const variables = (...n: any[]) => n.map((v, i) => new Variable('var' + i, v));
 
 test('date', () => {
+  const en = framework.get('en');
+
   const tz = (s: string) => { return { website: { timeZone: s } }; };
   const losAngeles = tz('America/Los_Angeles');
   const paris = tz('Europe/Paris');
   const may2013 = 1368406800000;
 
-  let ctx = new Context({});
+  let ctx = new Context({}, { cldr: en });
   let vars = variables(may2013);
   TABLE.date.apply(['%c'], vars, ctx);
   expect(vars[0].get()).toEqual('Sun, May 12, 2013 9:00:00 PM EDT');
@@ -19,7 +22,7 @@ test('date', () => {
   TABLE.date.apply(['%Y %q %'], vars, ctx);
   expect(vars[0].get()).toEqual('2013  %');
 
-  ctx = new Context(losAngeles);
+  ctx = new Context(losAngeles, { cldr: en });
   vars = variables(may2013);
   TABLE.date.apply(['%c'], vars, ctx);
   expect(vars[0].get()).toEqual('Sun, May 12, 2013 6:00:00 PM PDT');
@@ -40,8 +43,184 @@ test('date', () => {
   TABLE.date.apply([], vars, ctx);
   expect(vars[0].get()).toEqual('');
 
-  ctx = new Context(paris);
+  ctx = new Context(paris, { cldr: en });
   vars = variables(may2013);
+  Formatters.date.apply(['%c'], vars, ctx);
+  expect(vars[0].get()).toEqual('Mon, May 13, 2013 3:00:00 AM GMT+2');
+
+  const fr = framework.get('fr');
+  ctx = new Context(paris, { cldr: fr });
+  vars = variables(may2013);
+  //TABLE.date.apply(['%c'], vars, ctx);
+  //expect(vars[0].get()).toEqual('Mon, May 13, 2013 3:00:00 AM CEST');
   TABLE.date.apply(['%c'], vars, ctx);
-  expect(vars[0].get()).toEqual('Mon, May 13, 2013 3:00:00 AM CEST');
+  expect(vars[0].get()).toEqual('lun., mai 13, 2013 3:00:00 AM UTC+2');
+});
+
+test('all fields', () => {
+  const en = framework.get('en');
+  const nov2019 = 1573241320123;
+
+  let ctx = new Context({}, { cldr: en });
+  let vars = variables(nov2019);
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%a'], vars, ctx);
+  expect(vars[0].get()).toEqual('Fri');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%A'], vars, ctx);
+  expect(vars[0].get()).toEqual('Friday');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%b'], vars, ctx);
+  expect(vars[0].get()).toEqual('Nov');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%B'], vars, ctx);
+  expect(vars[0].get()).toEqual('November');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%c'], vars, ctx);
+  expect(vars[0].get()).toEqual('Fri, Nov 8, 2019 2:28:40 PM EST');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%D'], vars, ctx);
+  expect(vars[0].get()).toEqual('11/08/19');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%d'], vars, ctx);
+  expect(vars[0].get()).toEqual('08');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%d'], vars, ctx);
+  expect(vars[0].get()).toEqual('08');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%e'], vars, ctx);
+  expect(vars[0].get()).toEqual(' 8');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%F'], vars, ctx);
+  expect(vars[0].get()).toEqual('2019-11-08');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%g'], vars, ctx);
+  expect(vars[0].get()).toEqual('AD');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%G'], vars, ctx);
+  expect(vars[0].get()).toEqual('Anno Domini');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%H'], vars, ctx);
+  expect(vars[0].get()).toEqual('14');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%h'], vars, ctx);
+  expect(vars[0].get()).toEqual('Nov');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%I'], vars, ctx);
+  expect(vars[0].get()).toEqual('02');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%j'], vars, ctx);
+  expect(vars[0].get()).toEqual('312');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%j'], vars, ctx);
+  expect(vars[0].get()).toEqual('312');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%k'], vars, ctx);
+  expect(vars[0].get()).toEqual('14');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%l'], vars, ctx);
+  expect(vars[0].get()).toEqual(' 2');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%m'], vars, ctx);
+  expect(vars[0].get()).toEqual('11');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%M'], vars, ctx);
+  expect(vars[0].get()).toEqual('28');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%n'], vars, ctx);
+  expect(vars[0].get()).toEqual('\n');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%N'], vars, ctx);
+  expect(vars[0].get()).toEqual('123000000');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%p'], vars, ctx);
+  expect(vars[0].get()).toEqual('PM');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%p'], vars, ctx);
+  expect(vars[0].get()).toEqual('PM');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%q'], vars, ctx);
+  expect(vars[0].get()).toEqual('4');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%r'], vars, ctx);
+  expect(vars[0].get()).toEqual('2:28:40 PM');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%s'], vars, ctx);
+  expect(vars[0].get()).toEqual('1573241320');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%S'], vars, ctx);
+  expect(vars[0].get()).toEqual('40');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%t'], vars, ctx);
+  expect(vars[0].get()).toEqual('\t');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%T'], vars, ctx);
+  expect(vars[0].get()).toEqual('14:28:40');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%u'], vars, ctx);
+  expect(vars[0].get()).toEqual('5');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%w'], vars, ctx);
+  expect(vars[0].get()).toEqual('5');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%W'], vars, ctx);
+  expect(vars[0].get()).toEqual('45');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%x'], vars, ctx);
+  expect(vars[0].get()).toEqual('11/08/19');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%X'], vars, ctx);
+  expect(vars[0].get()).toEqual('2:28:40 PM');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%y'], vars, ctx);
+  expect(vars[0].get()).toEqual('19');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%Y'], vars, ctx);
+  expect(vars[0].get()).toEqual('2019');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%z'], vars, ctx);
+  expect(vars[0].get()).toEqual('-0500');
+
+  vars = variables(nov2019);
+  Formatters.date.apply(['%Z'], vars, ctx);
+  expect(vars[0].get()).toEqual('EST');
 });

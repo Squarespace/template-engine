@@ -2,8 +2,7 @@ import { Context } from '../context';
 import { Formatter, FormatterTable } from '../plugin';
 import { Variable } from '../variable';
 import { getMomentDateFormat } from './util.date';
-
-import * as moment from 'moment-timezone';
+import { getDatePattern } from './util.date';
 
 /**
  * Retrieves the Website's timeZone from the context, falling
@@ -26,16 +25,23 @@ export class DateFormatter extends Formatter {
       return;
     }
 
-    // TODO: support locale
+    const { cldr } = ctx;
+    if (cldr === undefined) {
+      first.set('');
+      return;
+    }
 
-    // Compute the moment object
     const instant = vars[0].node.asNumber();
     const timezone = getTimeZone(ctx);
-    const m = moment.tz(instant, 'UTC').tz(timezone);
 
-    // Build format and apply
-    const fmt = getMomentDateFormat(m, args[0]);
-    const value = m.format(fmt);
+    let value = '';
+    if (isFinite(instant)) {
+      const date = cldr.Calendars.toGregorianDate({ date: instant, zoneId: timezone });
+
+      // Build date pattern and apply
+      const pattern = getDatePattern(date, args[0]);
+      value = cldr.Calendars.formatDateRaw(date, { pattern });
+    }
     first.set(value);
   }
 }

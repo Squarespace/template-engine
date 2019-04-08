@@ -5,8 +5,6 @@ import { executeTemplate } from '../exec';
 import { RootCode } from '../instructions';
 import { Variable } from '../variable';
 
-import * as moment from 'moment-timezone';
-
 // Template imports
 import commentLinkTemplate from './templates/comment-link.json';
 import commentsTemplate from './templates/comments.json';
@@ -74,7 +72,7 @@ export class CommentsFormatter extends Formatter {
   }
 }
 
-const CALENDAR_DATE_FORMAT = 'YYYYMMDD[T]HHmmss[Z]';
+const CALENDAR_DATE_FORMAT = 'yMMdd\'T\'hhmmss\'Z\'';
 
 const getLocationString = (node: Node) => {
   const address1 = node.get('addressLine1').asString().trim();
@@ -89,12 +87,19 @@ export class GoogleCalendarUrlFormatter extends Formatter {
     const first = vars[0];
     const node = first.node;
 
+    const { cldr } = ctx;
+    if (cldr === undefined) {
+      first.set('');
+      return;
+    }
+
     const startInstant = node.get('startDate').asNumber();
     const endInstant = node.get('endDate').asNumber();
     const title = escape(node.get('title').asString());
 
-    const start = moment.tz(startInstant, 'UTC').format(CALENDAR_DATE_FORMAT);
-    const end = moment.tz(endInstant, 'UTC').format(CALENDAR_DATE_FORMAT);
+    const pattern = CALENDAR_DATE_FORMAT;
+    const start = cldr.Calendars.formatDateRaw({ date: startInstant }, { pattern: pattern });
+    const end = cldr.Calendars.formatDateRaw({ date: endInstant }, { pattern });
 
     let buf = `http://www.google.com/calendar/event?action=TEMPLATE&text=${title}`;
     buf += `&dates=${start}/${end}`;

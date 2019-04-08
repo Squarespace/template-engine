@@ -1,5 +1,6 @@
 import { join } from 'path';
 import { pathseq } from '../helpers';
+import { framework } from '../cldr';
 import { TemplateTestLoader } from '../loader';
 import { TABLE as Content } from '../../src/plugins/predicates.content';
 import { Context } from '../../src/context';
@@ -114,9 +115,10 @@ test('redirect', () => {
 
 
 test('same day', () => {
+  const cldr = framework.get('en');
   const impl = Content['same-day?'];
   const make = (startDate: number, endDate: number) =>
-    new Context({ startDate, endDate });
+    new Context({ startDate, endDate }, { cldr });
 
   // Nov 15 2013 - 123030 UTC
   const instant = 1384518630000;

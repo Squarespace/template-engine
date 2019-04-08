@@ -1,12 +1,12 @@
-import { cldr } from '../cldr';
+import { framework } from '../cldr';
 import Context from '../../src/context';
 import { TABLE as I18N } from '../../src/plugins/formatters.i18n';
 import Variable from '../../src/variable';
 
 const variables = (...n) => n.map((v, i) => new Variable('var' + i, v));
 
-const EN = cldr.get('en');
-const DE = cldr.get('de');
+const EN = framework.get('en');
+const DE = framework.get('de');
 
 const ZONE_NY = 'America/New_York';
 const ZONE_LA = 'America/Los_Angeles';

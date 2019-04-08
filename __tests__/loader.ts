@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import { join, sep } from 'path';
+import { framework } from './cldr';
 
 import { Assembler } from '../src/assembler';
 import { Compiler } from '../src/compiler';
@@ -105,6 +106,7 @@ export class TemplateTestLoader extends TestLoader {
   constructor(directory: string) {
     super(directory, {
       JSON: JSON.parse,
+      PARAMS: JSON.parse,
       INJECT: (s: string) => parseMap(s, JSON.parse),
       PARTIALS: (s: string) => parseMap(s, parseTemplate),
       TEMPLATE: parseTemplate,
@@ -115,7 +117,17 @@ export class TemplateTestLoader extends TestLoader {
 
   execute(path: string) {
     const spec = this.load(path);
+
+    // i18n-enable the execution context
+    let locale = 'en';
+    if (spec.PARAMS) {
+      ({ locale } = spec.PARAMS);
+    }
+    const cldr = framework.get(locale);
+
+    // execute the test case
     const { ctx } = compiler.execute({
+      cldr,
       code: spec.TEMPLATE,
       json: spec.JSON,
       partials: spec.PARTIALS,

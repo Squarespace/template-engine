@@ -5,9 +5,6 @@ import { removeTags } from './util.string';
 import { Type } from '../types';
 import { isTruthy } from '../util';
 
-import * as moment from 'moment-timezone';
-
-
 export class BackgroundSourcePredicate extends Predicate {
   private code: number;
   constructor(type: BackgroundSource) {
@@ -239,9 +236,15 @@ export class SameDayPredicate extends Predicate {
     const node = ctx.node();
     const startDate = node.get('startDate').asNumber();
     const endDate = node.get('endDate').asNumber();
-    const m1 = moment.tz(startDate, 'UTC');
-    const m2 = moment.tz(endDate, 'UTC');
-    return m1.year() === m2.year() && m1.month() === m2.month() && m1.date() === m2.date();
+    const { cldr } = ctx;
+    if (!cldr) {
+      return false;
+    }
+
+    const d1 = cldr.Calendars.toGregorianDate({ date: startDate });
+    const d2 = cldr.Calendars.toGregorianDate({ date: endDate });
+    const field = d1.fieldOfGreatestDifference(d2);
+    return field !== 'y' && field !== 'M' && field !== 'd';
   }
 }
 

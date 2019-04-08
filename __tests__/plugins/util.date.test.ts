@@ -1,24 +1,13 @@
-import { getMomentDateFormat, translateUnixToMoment } from '../../src/plugins/util.date';
-
-import * as moment from 'moment-timezone';
-
+import { getDatePattern, translateUnixToCLDR } from '../../src/plugins/util.date';
 
 test('translate unix to moment', () => {
-  expect(translateUnixToMoment('%Y')).toEqual(['YYYY']);
-  expect(translateUnixToMoment('%y')).toEqual(['YY']);
-  expect(translateUnixToMoment('%%')).toEqual(['[%]']);
-  expect(translateUnixToMoment('%Y foo [bar] baz %Y')).toEqual(['YYYY', '[ foo bar baz ]', 'YYYY']);
-  expect(translateUnixToMoment('%y%Y')).toEqual(['YY', '[]', 'YYYY']);
+  expect(translateUnixToCLDR('%Y')).toEqual(['y']);
+  expect(translateUnixToCLDR('%y')).toEqual(['yy']);
+  expect(translateUnixToCLDR('%%')).toEqual(["'%'"]);
+  expect(translateUnixToCLDR('%Y foo [bar] baz %Y')).toEqual(['y', "' foo [bar] baz '", 'y']);
+  expect(translateUnixToCLDR('%y%Y')).toEqual(['yy', 'y']);
 
   // Calculated fields. No direct format translation available.
-  expect(translateUnixToMoment('%C')).toEqual([{ calc: 'century' }]);
-  expect(translateUnixToMoment('%s')).toEqual([{ calc: 'epoch-seconds' }]);
-});
-
-
-test('get moment date format', () => {
-  const instant = 1384518716400;
-  const m = moment.tz(instant, 'UTC');
-  const format = getMomentDateFormat(m, '%Y %C %s');
-  expect(format).toEqual('YYYY[ ][20][ ][1384518716]');
+  expect(translateUnixToCLDR('%C')).toEqual([{ calc: 'century' }]);
+  expect(translateUnixToCLDR('%s')).toEqual([{ calc: 'epoch-seconds' }]);
 });
