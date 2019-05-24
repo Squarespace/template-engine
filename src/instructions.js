@@ -15,6 +15,7 @@ import {
   TEXT,
   ROOT,
   VARIABLE,
+  CTXVAR,
 } from './opcodes';
 
 // Wrappers to simplify wiring up a valid instruction tree.
@@ -56,6 +57,13 @@ class Comment extends Instruction {
   constructor(text, multiline) {
     super(COMMENT);
     this.code = [this.type, text, multiline ? 1 : 0];
+  }
+}
+
+class Ctxvar extends Instruction {
+  constructor(name, bindings) {
+    super(CTXVAR);
+    this.code = [this.type, name, bindings];
   }
 }
 
@@ -221,6 +229,7 @@ export {
   Atom,
   Bindvar,
   Comment,
+  Ctxvar,
   If,
   Inject,
   Instruction,

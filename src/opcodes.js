@@ -28,6 +28,9 @@ export const ALTERNATES_WITH = 19;
 export const STRUCT = 20;
 export const ATOM = 21;
 
+// Composite context variable instruction
+export const CTXVAR = 22;
+
 const NAMES = {
   [NOOP]: 'NOOP',
   [TEXT]: 'TEXT',
@@ -52,6 +55,7 @@ const NAMES = {
   [ALTERNATES_WITH]: 'ALTERNATES_WITH',
   [STRUCT]: 'STRUCT',
   [ATOM]: 'ATOM',
+  [CTXVAR]: 'CTXVAR'
 };
 
 export const nameOf = (opcode) => {

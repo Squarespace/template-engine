@@ -1,0 +1,31 @@
+:TEMPLATE
+{.macro mymacro}
+dims {dims.width} x {dims.height} and focus at ({pt.x}, {pt.y})
+missing -> {missing.baz}
+{.end}
+
+{.ctx @thing dims=item.image.dimensions pt=focal.point missing=foo.bar}
+{@thing|apply mymacro}
+
+:JSON
+{
+  "item": {
+    "image": {
+      "dimensions": {
+        "width": 800,
+        "height": 600
+      }
+    }
+  },
+  "focal": {
+    "point": {
+      "x": 100,
+      "y": 200
+    }
+  }
+}
+
+:OUTPUT
+
+dims 800 x 600 and focus at (100, 200)
+missing ->

@@ -6,6 +6,7 @@ import Parser from '../src/parser';
 import {
   BINDVAR,
   COMMENT,
+  CTXVAR,
   END,
   EOF,
   IF,
@@ -118,6 +119,58 @@ test('comments', () => {
     [COMMENT, 'comment 2', 0],
     [TEXT, 'def']
   ], EOF]);
+});
+
+
+test('ctxvar', () => {
+  let { code } = parse('{.ctx @foo key1=bar key2=baz.quux}');
+  expect(code).toEqual([ROOT, 1, [
+    [CTXVAR, '@foo', [['key1', ['bar']], ['key2', ['baz', 'quux']]]]
+  ], EOF]);
+
+  ({ code } = parse('{.ctx}'));
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.ctx}']], EOF]);
+
+  ({ code } = parse('{.ctx+}'));
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.ctx+}']], EOF]);
+
+  ({ code } = parse('{.ctx foo}'));
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.ctx foo}']], EOF]);
+
+  ({ code } = parse('{.ctx foo=}'));
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.ctx foo=}']], EOF]);
+
+  ({ code } = parse('{.ctx foo=a}'));
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.ctx foo=a}']], EOF]);
+
+  ({ code } = parse('{.ctx @foo}'));
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.ctx @foo}']], EOF]);
+
+  ({ code } = parse('{.ctx @foo a}'));
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.ctx @foo a}']], EOF]);
+
+  ({ code } = parse('{.ctx @foo a=}'));
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.ctx @foo a=}']], EOF]);
+
+  ({ code } = parse('{.ctx @foo a=b}'));
+  expect(code).toEqual([ROOT, 1, [[CTXVAR, '@foo', [['a', ['b']]]]], EOF]);
+
+  ({ code } = parse('{.ctx @foo a=b c}'));
+  expect(code).toEqual([ROOT, 1, [[CTXVAR, '@foo', [['a', ['b']]]]], EOF]);
+
+  ({ code } = parse('{.ctx @foo a=b c=}'));
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.ctx @foo a=b c=}']], EOF]);
+
+  ({ code } = parse('{.ctx @foo a=b c=d}'));
+  expect(code).toEqual([ROOT, 1, [
+    [CTXVAR, '@foo', [
+      ['a', ['b']],
+      ['c', ['d']]
+    ]]
+  ], EOF]);
+
+  ({ code } = parse('{.ctx @foo a=b c=d.}'));
+  expect(code).toEqual([ROOT, 1, [[TEXT, '{.ctx @foo a=b c=d.}']], EOF]);
 });
 
 

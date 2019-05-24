@@ -345,6 +345,11 @@ pathseq('bindvar-%N.html', 2).forEach(path => {
 });
 
 
+pathseq('ctxvar-%N.html', 1).forEach(path => {
+  test(`ctxvar - ${path}`, () => loader.execute(path));
+});
+
+
 test('if', () => {
   const engine = newEngine();
   const inst = [ROOT, 1, [

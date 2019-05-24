@@ -5,6 +5,7 @@ import Sink from './sink';
 import {
   Bindvar,
   Comment,
+  Ctxvar,
   If,
   Inject,
   Macro,
@@ -19,6 +20,7 @@ import {
 import {
   ALTERNATES_WITH,
   BINDVAR,
+  CTXVAR,
   END,
   EOF,
   IF,
@@ -147,6 +149,9 @@ class Parser {
     case BINDVAR:
       return this.parseBindvar();
 
+    case CTXVAR:
+      return this.parseCtxvar();
+
     case IF:
       return this.parseIf();
 
@@ -211,6 +216,40 @@ class Parser {
     this.push(new Bindvar(definition, variables, formatters === null ? 0 : formatters));
     return true;
   }
+
+  parseCtxvar() {
+    const m = this.matcher;
+
+    if (!m.matchSpace()) {
+      return false;
+    }
+    m.consume();
+
+    const definition = m.matchDefinition();
+    if (definition === null) {
+      return false;
+    }
+    m.consume();
+
+    if (!m.matchSpace()) {
+      return false;
+    }
+    m.consume();
+
+    const bindings = m.matchBindings();
+    if (bindings === null) {
+      return false;
+    }
+    m.consume();
+
+    if (!m.complete()) {
+      return false;
+    }
+
+    this.push(new Ctxvar(definition, bindings));
+    return true;
+  }
+
 
   /**
    * Parse an IF instruction. Example:

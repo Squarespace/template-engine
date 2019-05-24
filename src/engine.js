@@ -77,6 +77,7 @@ class Engine {
       null, // ALTERNATES_WITH
       (inst, ctx) => this.executeBlock(inst[2], ctx), // STRUCT
       null, // ATOM
+      this.executeCtxvar, // CTXVAR
     ];
   }
 
@@ -231,6 +232,25 @@ class Engine {
 
     applyFormatters(this.formatters, inst[3], vars, ctx);
     ctx.setVar(name, vars[0]);
+  }
+
+  /**
+   * Ctxvar instruction.
+   *
+   * inst[1]  - variable to define, e.g. '@foo'
+   * inst[2]  - list of context bindings, e.g. ['baz', ['foo', 'bar', 'baz']]
+   */
+  executeCtxvar(inst, ctx) {
+    const name = inst[1];
+    const len = inst[2].length;
+    const bindings = {};
+    for (let i = 0; i < len; i++) {
+      const [key, ref] = inst[2][i];
+      const val = ctx.resolve(ref, ctx.frame).value;
+      bindings[key] = val;
+    }
+    const variable = ctx.newVariable(name, ctx.newNode(bindings));
+    ctx.setVar(name, variable);
   }
 
   /**

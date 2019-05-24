@@ -2,6 +2,7 @@
 import {
   ALTERNATES_WITH,
   BINDVAR,
+  CTXVAR,
   END,
   EOF,
   IF,
@@ -25,6 +26,7 @@ import { splitVariable } from './util';
 // Table for fast mapping of instructions to their opcodes.
 const INSTRUCTIONS = {
   'a': ['lternates with', ALTERNATES_WITH],
+  'c': ['tx', CTXVAR],
   'e': ['nd', END, 'of', EOF],
   'i': ['f', IF, 'nject', INJECT],
   'm': ['acro', MACRO, 'eta-left', META_LEFT, 'eta-right', META_RIGHT],
@@ -133,6 +135,34 @@ class Matcher {
       return rawArgs.slice(1).split(delim);
     }
     return null;
+  }
+
+  /**
+   * Match one or more variable bindings.
+   */
+  matchBindings() {
+    const bindings = [];
+    let start = this.start;
+    for (;;) {
+      const key = this.match(this.word, start);
+      if (key === null) {
+        break;
+      }
+      start = this.matchEnd;
+      if (this.str[start++] !== '=') {
+        break;
+      }
+      const ref = this.match(this.variableReference, start);
+      if (ref === null) {
+        break;
+      }
+
+      bindings.push([key, splitVariable(ref)]);
+      start = this.matchEnd;
+      this.test(this.whitespace, start);
+      start = this.matchEnd;
+    }
+    return bindings.length ? bindings : null;
   }
 
   /**
