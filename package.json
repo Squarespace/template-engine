@@ -4,9 +4,13 @@
   "description": "Squarespace template engine",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
+  "bin": {
+    "templatec": "./bin/templatec.js"
+  },
   "scripts": {
     "bench": "babel-node __benchmarks__/",
     "build": "npm run clean && npm run generate && npm run build:esm && npm run build:cjs",
+		"build:watch": "BABEL_ENV=cjs babel src --out-dir dist/cjs --source-maps -w",
     "build:esm": "BABEL_ENV=esm babel src --out-dir dist/esm --source-maps",
     "build:cjs": "BABEL_ENV=cjs babel src --out-dir dist/cjs --source-maps",
     "clean": "npm run clean:dist && npm run clean:test",
