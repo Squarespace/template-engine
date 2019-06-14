@@ -27,7 +27,8 @@ const STRUCTURE = [
   null, // EOF
   null, // ALTERNATES_WITH
   [0, 0, BLOCK], // STRUCT
-  null, // ATOM
+  null, // ATOM,
+  null // CTXVAR
 ];
 
 

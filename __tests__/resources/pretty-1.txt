@@ -9,6 +9,7 @@ never called.
 {.section person}
 {@|apply person.html}
 {.end}
+{.ctx @foo a=bar.baz b=baz.biz}
 
 :PRETTY
 [17, 1, [
@@ -31,5 +32,7 @@ never called.
       [1, [["@"]], [["apply", ["person.html"]]]],
       [0, "\n"]
     ], 3],
+  [0, "\n"],
+  [22, "@foo", [["a", ["bar", "baz"]], ["b", ["baz", "biz"]]]],
   [0, "\n"]
 ], 18]
