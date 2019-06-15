@@ -9,18 +9,10 @@
   },
   "scripts": {
     "bench": "babel-node __benchmarks__/",
-    "build": "npm run clean && npm run generate && npm run build:esm && npm run build:cjs",
-    "build:watch": "BABEL_ENV=cjs babel src --out-dir dist/cjs --source-maps -w",
-    "build:esm": "BABEL_ENV=esm babel src --out-dir dist/esm --source-maps",
-    "build:cjs": "BABEL_ENV=cjs babel src --out-dir dist/cjs --source-maps",
-    "clean": "npm run clean:dist && npm run clean:test",
-    "clean:dist": "rimraf dist coverage",
-    "clean:test": "jest --clearCache",
+    "build": "tsc -p ./tsconfig.json",
+    "clean": "rimraf dist lib coverage && jest --clearCache",
     "generate": "babel-node --presets es2015,stage-3 scripts/generate.js",
-    "lint": "npm run lint:src && npm run lint:bench && npm run lint:test",
-    "lint:bench": "eslint __benchmarks__/**/*.js",
-    "lint:src": "eslint src/**/*.js",
-    "lint:test": "eslint __tests__/**/*.js",
+    "lint": "tslint -p ./tsconfig.json",
     "prepare": "npm run build",
     "test": "NODE_ENV=test jest",
     "test:watch": "NODE_ENV=test jest --watch --coverage=false",
@@ -34,40 +26,38 @@
     "url": "https://github.com/Squarespace/template-engine.git"
   },
   "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-eslint": "^8.1.2",
-    "babel-jest": "^22.0.4",
-    "babel-plugin-inline-json-import": "^0.2.1",
-    "babel-plugin-minify-constant-folding": "^0.2.0",
-    "babel-plugin-minify-replace": "^0.2.0",
-    "babel-plugin-transform-class-properties": "^6.24.1",
-    "babel-plugin-transform-runtime": "^6.23.0",
-    "babel-preset-env": "^1.6.1",
-    "babel-preset-es2015": "^6.24.1",
-    "babel-preset-stage-3": "^6.24.1",
+    "@types/jest": "^24.0.13",
+    "@types/moment": "^2.13.0",
+    "@types/moment-timezone": "^0.5.12",
+    "@types/node": "^12.0.8",
+    "@types/utf8": "^2.1.6",
     "beautify-benchmark": "^0.2.4",
     "benchmark": "^2.1.4",
     "chai": "^4.1.2",
     "chalk": "^2.3.0",
     "coveralls": "^3.0.0",
-    "eslint": "^4.14.0",
-    "eslint-config-recommended": "^2.0.0",
-    "eslint-plugin-import": "^2.8.0",
-    "eslint-plugin-jest": "^21.5.0",
-    "jest": "^22.0.4",
+    "jest": "^24.8.0",
     "microtime": "^2.1.6",
-    "rimraf": "^2.6.2"
+    "npm-run-all": "^4.1.2",
+    "rimraf": "^2.6.2",
+    "ts-jest": "^24.0.2",
+    "ts-node": "^8.2.0",
+    "tslint": "^5.11.0",
+    "typescript": "*"
   },
   "jest": {
     "verbose": true,
     "testURL": "http://localhost/",
-    "collectCoverage": true,
+    "collectCoverage": false,
     "collectCoverageFrom": [
-      "src/**/*.js"
+      "src/**/*.ts"
     ],
     "testMatch": [
-      "**/__tests__/**/*.test.js"
-    ]
+      "**/__tests__/**/*.test.ts"
+    ],
+    "transform": {
+      "^.+\\.(ts|tsx)$": "ts-jest"
+    }
   },
   "dependencies": {
     "moment": "^2.20.1",

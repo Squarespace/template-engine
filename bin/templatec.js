@@ -3,7 +3,7 @@
 /* eslint-disable import/unambiguous,no-process-exit */
 
 const fs = require('fs');
-const { Compiler } = require('../dist/cjs');
+const { Compiler } = require('../lib');
 
 const RE_1 = /^-(\w)$/;
 const RE_2 = /^--([\w-]+)$/;

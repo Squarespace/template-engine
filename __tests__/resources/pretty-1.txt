@@ -5,6 +5,7 @@
 {.macro unused.html}
 never called.
 {.end}
+{bar.0.baz.1.quux}
 {.section foo}{.end}
 {.section person}
 {@|apply person.html}
@@ -24,6 +25,8 @@ never called.
   [10, "unused.html", [
       [0, "\nnever called.\n"]
     ]],
+  [0, "\n"],
+  [1, [["bar", 0, "baz", 1, "quux"]], 0],
   [0, "\n"],
   [2, ["foo"], [], 3],
   [0, "\n"],

@@ -4,6 +4,7 @@ coverage/
 dist/
 node_modules/
 scratch/
+lib/
 
 .DS_Store
 package-lock.json

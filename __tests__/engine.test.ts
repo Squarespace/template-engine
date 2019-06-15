@@ -1,0 +1,515 @@
+import { join } from 'path';
+import { pathseq } from './helpers';
+import { Context } from '../src/context';
+import { Engine, EngineProps } from '../src/engine';
+import { Formatters, Predicates } from '../src/plugins';
+import { Opcode as O } from '../src/opcodes';
+import { TemplateTestLoader } from './loader';
+import { AtomCode, Code, StructCode } from '../src/instructions';
+
+const loader = new TemplateTestLoader(join(__dirname, 'resources'));
+const newEngine = () => new Engine({ formatters: Formatters, predicates: Predicates });
+
+test('literals', () => {
+  const engine = newEngine();
+  const inst: Code = [O.ROOT, 1, [
+    O.NEWLINE,
+    [O.TEXT, '\n'],
+    O.META_LEFT,
+    [O.TEXT, 'abc'],
+    O.META_RIGHT,
+    [O.TEXT, '\n'],
+    O.SPACE,
+    [O.TEXT, '\n'],
+    O.TAB
+  ], O.EOF];
+
+  const ctx = new Context({});
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('\n\n{abc}\n \n\t');
+});
+
+
+test('variables', () => {
+  const engine = newEngine();
+  const inst: Code = [O.ROOT, 1, [
+    [O.TEXT, 'a'],
+    [O.VARIABLE, [['bbb']], 0],
+    [O.TEXT, 'c\n'],
+    [O.VARIABLE, [['ddd']], 0],
+    [O.TEXT, 'e'],
+    [O.VARIABLE, [['fff']], 0]
+  ], O.EOF];
+
+  const ctx = new Context({ 'bbb': '*', 'ddd': '-', 'fff': '+' });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('a*c\n-e+');
+});
+
+
+test('variable mixed array', () => {
+  const engine = newEngine();
+  const inst: Code = [O.ROOT, 1, [
+    [O.VARIABLE, [['a']], 0]
+  ], O.EOF];
+
+  const ctx = new Context({ a: [1, null, 2, null, 3] });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('1,null,2,null,3');
+});
+
+
+test('variable mixed object', () => {
+  const engine = newEngine();
+  const inst: Code = [O.ROOT, 1, [
+    [O.VARIABLE, [['a']], 0]
+  ], O.EOF];
+
+  const ctx = new Context({ a: { b: 1, c: null, d: false, e: 'foo' } });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('');
+});
+
+
+test('variables missing', () => {
+  const engine = newEngine();
+  const inst: Code = [O.ROOT, 1, [
+    [O.TEXT, 'a'],
+    [O.VARIABLE, [['b']], 0],
+    [O.TEXT, 'c']
+  ], O.EOF];
+  const ctx = new Context({});
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('ac');
+});
+
+
+test('variables with formatters', () => {
+  const engine = newEngine();
+  const inst: Code = [O.ROOT, 1, [
+    [O.VARIABLE, [['foo']], [['html']]],
+    [O.TEXT, '\n'],
+    [O.VARIABLE, [['bar']], [['truncate', ['5']], ['json']]],
+    [O.TEXT, '\n'],
+    [O.VARIABLE, [['baz']], [['json-pretty']]]
+  ], O.EOF];
+
+  const ctx = new Context({
+    foo: '<tag> & tag',
+    bar: 'abcdefghijklmnopqrs',
+    baz: { a: 1 }
+  });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('&lt;tag&gt; &amp; tag\n"abcde..."\n{\n  "a": 1\n}');
+});
+
+
+test('variables missing formatters', () => {
+  const engine = newEngine();
+  const inst: Code = [O.ROOT, 1, [
+    [O.VARIABLE, [['foo']], [['missing'], ['not-defined']]],
+  ], O.EOF];
+
+  const ctx = new Context({ foo: 'hello' });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('hello');
+});
+
+
+pathseq('variables-%N.html', 1).forEach(path => {
+  test(`variables - ${path}`, () => loader.execute(path));
+});
+
+
+test('section', () => {
+  const engine = newEngine();
+  const inst: Code = [O.ROOT, 1, [
+    [O.SECTION, ['a'], [[O.VARIABLE, [['b']], 0]], O.END]
+  ], O.EOF];
+
+  let ctx = new Context({ a: { b: 123 } });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('123');
+
+  ctx = new Context({ x: { b: 123 } });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('');
+});
+
+
+test('section resolution', () => {
+  const engine = newEngine();
+  const inst: Code = [O.ROOT, 1, [
+    [O.SECTION, ['a'], [
+      [O.SECTION, ['x'], [
+        [O.TEXT, 'foo']
+      ], O.END],
+      [O.TEXT, 'bar']
+    ], O.END]
+  ], O.EOF];
+
+  const ctx = new Context({ a: 1, b: 2 });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('bar');
+});
+
+
+test('section empty', () => {
+  const engine = newEngine();
+  const inst: Code = [O.ROOT, 1, [
+    [O.SECTION, ['x'], [
+      [O.TEXT, 'hi']
+    ], O.END]
+  ], O.EOF];
+
+  const ctx = new Context({ a: { b: 123 } });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('');
+});
+
+
+test('repeated 1', () => {
+  const engine = newEngine();
+  const inst: Code = [O.ROOT, 1, [
+    [O.REPEATED, ['items'],
+      [[O.TEXT, 'a']],
+      [O.OR_PREDICATE, 0, 0, [[O.TEXT, 'b']], 3],
+      [[O.TEXT, '|']]
+    ]
+  ], O.EOF];
+
+  let ctx = new Context({ items: [0, 0, 0] });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('a|a|a');
+
+  // Non-array, execute the OR branch
+  ctx = new Context({ items: {} });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('b');
+});
+
+
+test('repeated 2', () => {
+  const engine = newEngine();
+  const inst: Code = [O.ROOT, 1, [
+    [O.REPEATED, ['a'], [
+      [O.VARIABLE, [['@']], [['iter']]]
+    ], O.END, []]
+  ], O.EOF];
+
+  const ctx = new Context({ a: [1, 2, 3] });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('123');
+});
+
+
+test('repeated 3', () => {
+  const engine = newEngine();
+  const inst: Code = [O.ROOT, 1, [
+    [O.REPEATED, ['a'], [
+      [O.VARIABLE, [['@']], 0]], O.END, []]
+  ], O.EOF];
+
+  const ctx = new Context({ a: [1, null, 2, null, 3] });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('123');
+});
+
+
+test('repeated 4', () => {
+  const engine = newEngine();
+  const inst: Code = [O.ROOT, 1, [
+    [O.REPEATED, ['a'], [
+      [O.TEXT, 'A'],
+      [O.SECTION, ['b'], [
+        [O.TEXT, '---']
+      ], O.END]],
+    [O.OR_PREDICATE, 0, 0, [
+      [O.TEXT, 'B']
+    ], O.END], []]
+  ], O.EOF];
+
+  let ctx = new Context({ a: [{ b: 1 }, { b: 2 }, { b: 3 }] });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('A---A---A---');
+
+  ctx = new Context({ a: {}, b: 1 });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('B');
+});
+
+
+test('repeated 5', () => {
+  const engine = newEngine();
+  const inst: Code = [O.ROOT, 1, [
+    [O.REPEATED, ['a'], [
+      [O.VARIABLE, [['@index']], 0],
+      [O.VARIABLE, [['@index0']], 0],
+      [O.VARIABLE, [['@']], 0],
+    ], O.END, []]
+  ], O.EOF];
+
+  const ctx = new Context({ a: ['a', 'b', 'c'] });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('10a21b32c');
+});
+
+
+test('predicates', () => {
+  const engine = newEngine();
+  const inst: Code = [O.ROOT, 1, [
+    [O.PREDICATE, 'equal?', ['foo', 'bar'],
+      [[O.TEXT, 'equal']],
+      [O.OR_PREDICATE, 0, 0, [
+        [O.TEXT, 'not equal']
+      ], O.END]
+    ]
+  ], O.EOF];
+
+  let ctx = new Context({ foo: 1, bar: 1 });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('equal');
+
+  ctx = new Context({
+    foo: { a: 1, b: [2, 3] },
+    bar: { a: 1, b: [2, 3] },
+  });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('equal');
+
+  ctx = new Context({
+    foo: { a: 1, b: [2, 3] },
+    bar: { a: 1, b: [2, 4] },
+  });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('not equal');
+});
+
+
+test('predicates missing', () => {
+  const engine = newEngine();
+  const inst: Code = [O.ROOT, 1, [
+    [O.TEXT, 'A'],
+    [O.PREDICATE, 'missing?', ['foo'], [
+      [O.TEXT, 'not executed'],
+    ], O.END],
+    [O.TEXT, 'B']
+  ], O.EOF];
+
+  const ctx = new Context({ foo: 1 });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('AB');
+});
+
+
+test('bindvar', () => {
+  const engine = newEngine();
+  const inst: Code = [O.ROOT, 1, [
+    [O.BINDVAR, '@foo', [['bar']], [['html']]],
+    [O.BINDVAR, '@baz', [['quux']], 0],
+    [O.VARIABLE, [['@foo']], 0],
+    [O.VARIABLE, [['@baz']], 0],
+    [O.VARIABLE, [['@missing']], 0]
+  ], O.EOF];
+
+  const ctx = new Context({ bar: '<hi>', quux: '<bye>' });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('&lt;hi&gt;<bye>');
+});
+
+
+pathseq('bindvar-%N.html', 2).forEach(path => {
+  test(`bindvar - ${path}`, () => loader.execute(path));
+});
+
+
+pathseq('ctxvar-%N.html', 1).forEach(path => {
+  test(`ctxvar - ${path}`, () => loader.execute(path));
+});
+
+
+test('if', () => {
+  const engine = newEngine();
+  const inst: Code = [O.ROOT, 1, [
+    [O.IF, [1, 0], [['a'], ['b'], ['c']], [
+      [O.VARIABLE, [['a']], 0],
+      [O.TEXT, ' and '],
+      [O.VARIABLE, [['b']], 0]
+    ], [O.OR_PREDICATE, 0, 0, [
+      [O.TEXT, 'or '],
+      [O.VARIABLE, [['c']], 0],
+    ], O.END]]
+  ], O.EOF];
+
+  let ctx = new Context({ a: 'a', b: 'b', c: 0 });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('a and b');
+
+  ctx = new Context({ a: 'a', b: 0, c: 'c' });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('or c');
+
+  ctx = new Context({ a: 'a', b: 0, c: 0 });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('or 0');
+});
+
+
+test('if or', () => {
+  const engine = newEngine();
+  const inst: Code = [O.ROOT, 1, [
+    [O.IF, [0], [['a'], ['b']], [[O.TEXT, 'A']],
+      [O.OR_PREDICATE, 0, 0, [[O.TEXT, 'B']], O.END],
+    ],
+  ], O.EOF];
+
+  let ctx = new Context({ a: 1, b: 1 });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('A');
+
+  ctx = new Context({ a: 0, b: 1 });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('A');
+
+  ctx = new Context({ a: 0, b: 0 });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('B');
+});
+
+
+test('inject', () => {
+  const engine = newEngine();
+  const inst: Code = [O.ROOT, 1, [
+    [O.INJECT, '@foo', 'file.html', 0],
+    [O.VARIABLE, [['@foo']], [['html']]]
+  ], O.EOF];
+  const injects = {
+    'file.html': '<b>file contents</b>'
+  };
+
+  const ctx = new Context({}, { injects: injects });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('&lt;b&gt;file contents&lt;/b&gt;');
+});
+
+
+test('inject missing', () => {
+  const engine = newEngine();
+  const inst: Code = [O.ROOT, 1, [
+    [O.INJECT, '@foo', 'missing.html', 0],
+    [O.VARIABLE, [['@foo']], 0]
+  ], O.EOF];
+  const inject = {
+    'file.html': 'file contents',
+  };
+
+  const ctx = new Context({}, { injects: inject });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('');
+});
+
+
+test('inject mapping empty', () => {
+  const engine = newEngine();
+  const inst: Code = [O.ROOT, 1, [
+    [O.INJECT, '@foo', 'file.html', 0],
+    [O.VARIABLE, [['@foo']], [['html']]]
+  ], O.EOF];
+  const ctx = new Context({});
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('');
+});
+
+
+pathseq('inject-%N.html', 2).forEach(path => {
+  test(`inject - ${path}`, () => loader.execute(path));
+});
+
+
+test('macro', () => {
+  const engine = newEngine();
+  const inst: Code = [O.ROOT, 1, [
+    [O.MACRO, 'person.html', [
+      [O.VARIABLE, [['name']], 0],
+      [O.TEXT, ' is ' ],
+      [O.VARIABLE, [['status']], 0],
+    ]],
+    [O.MACRO, 'unused.html', [
+      [O.TEXT, 'never called']
+    ]],
+    [O.SECTION, ['person'], [
+      [O.VARIABLE, [['@']], [[ 'apply', ['person.html']]]],
+    ], O.END]
+
+  ], O.EOF];
+
+  const ctx = new Context({ person: { name: 'Betty', status: 'offline' } });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('Betty is offline');
+});
+
+
+test('macro not defined', () => {
+  const engine = newEngine();
+  const inst: Code = [O.ROOT, 1, [
+    [O.SECTION, ['person'], [
+      [O.VARIABLE, [['@']], [[ 'apply', ['person.html']]]],
+    ], O.END]
+  ], O.EOF];
+
+  const ctx = new Context({ person: { name: 'Betty', status: 'offline' } });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('');
+});
+
+
+test('struct', () => {
+  const engine = newEngine();
+  const inst: Code = [O.ROOT, 1, [
+    [O.STRUCT, { custom: 'data' }, [
+      [O.TEXT, 'hello']
+    ]],
+  ], O.EOF];
+  const ctx = new Context({});
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('hello');
+});
+
+
+class CustomEngine extends Engine {
+
+  constructor(props: EngineProps) {
+    super(props);
+    this.impls[O.ATOM] = this.executeAtom;
+    this.impls[O.STRUCT] = this.executeStruct;
+  }
+
+  executeAtom(inst: Code, ctx: Context) {
+    const opaque = (inst as AtomCode)[1];
+    ctx.append(`<!-- ${opaque.meta} -->`);
+  }
+
+  executeStruct(inst: Code, ctx: Context) {
+    const opaque = (inst as StructCode)[1];
+    const buf = ctx.swapBuffer();
+    super.executeBlock((inst as StructCode)[2], ctx);
+    const text = ctx.render();
+    ctx.restoreBuffer(buf);
+    ctx.append(opaque.lowercase ? text.toLowerCase() : text);
+  }
+}
+
+test('struct custom execution', () => {
+  const inst: Code = [O.ROOT, 1, [
+    [O.TEXT, 'A'],
+    [O.ATOM, { meta: 'some metadata' }],
+    [O.STRUCT, { lowercase: true }, [
+      [O.TEXT, 'BCD'],
+    ]],
+    [O.TEXT, 'E']
+  ], O.EOF];
+  const engine = new CustomEngine({});
+  const ctx = new Context({});
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('A<!-- some metadata -->bcdE');
+});
