@@ -14,7 +14,7 @@
     "build:cj": "tsc",
     "build:es": "tsc --module esnext --outDir lib-es",
 		"build:watch": "tsc --watch",
-    "clean": "rimraf dist lib coverage && jest --clearCache",
+    "clean": "rimraf dist lib lib-es coverage && jest --clearCache",
     "generate": "ts-node scripts/generate.ts",
     "lint": "tslint -p ./tsconfig.json",
     "test": "NODE_ENV=test jest --coverage=true",

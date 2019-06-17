@@ -5,7 +5,7 @@
     "lib": ["es6", "dom"],
 		"allowJs": false,
 		"moduleResolution": "node",
-    "declaration": false,
+    "declaration": true,
     "downlevelIteration": false,
     "removeComments": false,
     "sourceMap": true,
