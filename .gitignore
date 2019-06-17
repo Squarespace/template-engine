@@ -5,6 +5,7 @@ dist/
 node_modules/
 scratch/
 lib/
+lib-es/
 
 .DS_Store
 package-lock.json
