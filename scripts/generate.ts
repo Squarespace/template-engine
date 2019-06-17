@@ -1,10 +1,7 @@
-
 import fs from 'fs';
-
 import { join, normalize } from 'path';
 import { Compiler } from '../src';
-import prettyJson from '../src/pretty';
-
+import { prettyJson } from '../src/pretty';
 
 const extension = '.html';
 const root = normalize(join(__dirname, '..'));
@@ -12,21 +9,21 @@ const dirs = [
   join(root, 'src/plugins/templates')
 ];
 
-const mtime = f => fs.statSync(f).mtimeMs;
-const newerThan = (a, b) => mtime(a) > mtime(b);
+const mtime = (f: string) => fs.statSync(f).mtimeMs;
+const newerThan = (a: string, b: string) => mtime(a) > mtime(b);
 
 const compiler = new Compiler();
 
 // Reduce the template directories to the list of templates.
-const files = dirs.reduce((list, d) => {
+const files = dirs.reduce((list: string[], d) => {
   var names = fs.readdirSync(d)
     .filter(n => n.endsWith(extension))
     .map(n => join(d, n));
-  return list.concat(...names);
+  return list.concat(names);
 }, []);
 
 // Generate if the source file is newer than the destination.
-files.forEach(src => {
+files.forEach((src: string) => {
   const dst = src.slice(0, -extension.length) + '.json';
 
   // Check if we need a rebuild.
