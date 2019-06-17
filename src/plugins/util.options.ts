@@ -1,6 +1,6 @@
-const toInt = s => parseInt(s, 10);
+const toInt = (s: string) => parseInt(s, 10);
 
-const calendarFormat = (key) => {
+const calendarFormat = (key: string) => {
   switch (key) {
     case 'short':
     case 'medium':
@@ -12,8 +12,8 @@ const calendarFormat = (key) => {
   }
 };
 
-export const setCalendarFormatOptions = (args) => {
-  const opts = {};
+export const setCalendarFormatOptions = (args: string[]) => {
+  const opts: any = {};
   // let format = undefined;
   for (const arg of args) {
     const i = arg.indexOf(':');
@@ -58,7 +58,7 @@ export const setCalendarFormatOptions = (args) => {
 };
 
 /*eslint complexity: ["error", 24]*/
-export const setNumberFormatOption = (opts, arg, val) => {
+export const setNumberFormatOption = (opts: any, arg: string, val: any) => {
   switch (arg) {
   case 'group':
   case 'grouping':
@@ -106,8 +106,8 @@ export const setNumberFormatOption = (opts, arg, val) => {
   }
 };
 
-export const setDecimalFormatOptions = (args) => {
-  const opts = {};
+export const setDecimalFormatOptions = (args: string[]) => {
+  const opts: any = {};
   for (let arg of args) {
     let val;
     const i = arg.indexOf(':');

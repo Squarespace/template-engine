@@ -1,3 +1,5 @@
+import { CLDR } from '@phensley/cldr';
+
 import { partialParseFail, partialRecursion, partialSelfRecursion, TemplateError } from './errors';
 import { Frame } from './frame';
 import { Node, MISSING_NODE } from './node';
@@ -17,7 +19,7 @@ export interface ContextProps {
   locale?: any;
   partials?: Partials;
   injects?: any;
-  cldr?: any;
+  cldr?: CLDR;
 }
 
 type ParseFunc = (s: string) => { code: Code, errors: TemplateError[] };
@@ -33,6 +35,7 @@ export class Context {
   public engine: Engine | null;
   public parsefunc: ParseFunc | null;
   public errors: any[];
+  public cldr?: CLDR;
 
   private locale?: any;
   private partials: Partials;
@@ -53,6 +56,12 @@ export class Context {
     this.partials = props.partials || {};
     this.injects = props.injects || {};
 
+    // Instance of @phensley/cldr interface CLDR providing cldr-based formatting for
+    // a given locale. It is the caller's responsibility to set this. If not
+    // set you will experience partial functionality. All @phensley/cldr-based
+    // formatters will return '' and predicates will evaluate to false.
+    this.cldr = props.cldr;
+
     // TODO: REMOVE version, add temporary state to engine.
     // version of the template syntax being processed
     this.version = 1;
@@ -70,12 +79,6 @@ export class Context {
     this.stack = [new Frame(node)];
     this.version = 1;
     this.errors = [];
-
-    // Instance of @phensley/cldr interface CLDR providing cldr-based formatting for
-    // a given locale. It is the caller's responsibility to set this. If not
-    // set you will experience partial functionality. All @phensley/cldr-based
-    // formatters will return '' and predicates will evaluate to false.
-    this.cldr = cldr;
 
     this.partialsDepth = 0;
     this.maxPartialDepth = DEFAULT_MAX_PARTIAL_DEPTH;

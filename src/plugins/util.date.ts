@@ -1,10 +1,16 @@
-import * as moment from 'moment-timezone';
+import { GregorianDate } from '@phensley/cldr';
+
+import { Context } from '../context';
+
+interface Calc {
+  calc: string;
+}
 
 /**
  * Maps Unix date pattern to CLDR form:
  * https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Format_Patterns
  */
- const UNIX_TO_CLDR_FORMATS = {
+const UNIX_TO_CLDR_FORMATS: { [field: string]: string | Calc } = {
 
   // %a     locale's abbreviated weekday name (e.g., Sun)
   a: 'E',
@@ -144,7 +150,7 @@ import * as moment from 'moment-timezone';
 /**
  * Translate a YUI / UNIX date format to CLDR format.
  */
-export const translateUnixToCLDR = (fmt) => {
+export const translateUnixToCLDR = (fmt: string) => {
   let esc = '';
   const parts = [];
   const len = fmt.length;
@@ -198,7 +204,7 @@ export const translateUnixToCLDR = (fmt) => {
   return parts;
 };
 
-const pad = (str) => str.length === 2 ? str : ` ${str}`;
+const pad = (str: string) => str.length === 2 ? str : ` ${str}`;
 
 /**
  * We translate the old YUI Unix datetime pattern into CLDR patterns that
@@ -206,15 +212,15 @@ const pad = (str) => str.length === 2 ? str : ` ${str}`;
  *
  * Argument 'd' is a GregorianDate instance.
  */
-export const getDatePattern = (d, unix) => {
-  const parts = translateUnixToCLDR(unix);
+export const getDatePattern = (d: GregorianDate, unixfmt: string) => {
+  const parts = translateUnixToCLDR(unixfmt);
   const len = parts.length;
   for (let i = 0; i < len; i++) {
     const part = parts[i];
     if (typeof part !== 'string') {
       switch (part.calc) {
       case 'century':
-        parts[i] = `'${parseInt(d.year() / 100, 10)}'`;
+        parts[i] = `'${(d.year() / 100) | 0}'`;
         break;
 
       case 'day-of-week-1':
@@ -235,7 +241,7 @@ export const getDatePattern = (d, unix) => {
         break;
 
       case 'epoch-seconds':
-        parts[i] = `'${parseInt(d.unixEpoch() / 1000, 10)}'`;
+        parts[i] = `'${(d.unixEpoch() / 1000) | 0}'`;
         break;
 
       case 'hour-12-space':
@@ -260,7 +266,7 @@ export const getDatePattern = (d, unix) => {
  * Retrieves the Website's timeZone from the context, falling
  * back to the default NY.
  */
-export const getTimeZone = (ctx) => {
+export const getTimeZone = (ctx: Context) => {
   const node = ctx.resolve(['website', 'timeZone']);
   return node.isMissing() ? 'America/New_York' : node.asString();
 };

@@ -1,9 +1,10 @@
+import { CLDR } from '@phensley/cldr';
 import { framework } from '../cldr';
-import Context from '../../src/context';
-import { TABLE as I18N } from '../../src/plugins/formatters.i18n';
-import Variable from '../../src/variable';
+import { Context } from '../../src/context';
+import { TABLE } from '../../src/plugins/formatters.i18n';
+import { Variable } from '../../src/variable';
 
-const variables = (...n) => n.map((v, i) => new Variable('var' + i, v));
+const variables = (...n: any[]) => n.map((v, i) => new Variable('var' + i, v));
 
 const EN = framework.get('en');
 const DE = framework.get('de');
@@ -12,16 +13,16 @@ const ZONE_NY = 'America/New_York';
 const ZONE_LA = 'America/Los_Angeles';
 const ZONE_LON = 'Europe/London';
 
-const formatDecimal = (engine, n, args) => {
-  const impl = I18N.decimal;
+const formatDecimal = (engine: CLDR, n: string, args: string[]) => {
+  const impl = TABLE.decimal;
   const ctx = new Context({}, { cldr: engine });
   const vars = variables(n);
   impl.apply(args, vars, ctx);
   return vars[0].get();
 };
 
-const formatGregorian = (engine, epoch, zoneId, args) => {
-  const impl = I18N.datetime;
+const formatGregorian = (engine: CLDR, epoch: string, zoneId: string, args: string[]) => {
+  const impl = TABLE.datetime;
   const ctx = new Context({ website: { timeZone: zoneId } }, { cldr: engine });
   const vars = variables(epoch);
   impl.apply(args, vars, ctx);
@@ -29,7 +30,7 @@ const formatGregorian = (engine, epoch, zoneId, args) => {
 };
 
 test('decimal', () => {
-  let args = ['group'];
+  let args: string[] = ['group'];
   expect(formatDecimal(EN, '12345.67811111', args)).toEqual('12,345.678');
   expect(formatDecimal(DE, '12345.67811111', args)).toEqual('12.345,678');
 
@@ -46,7 +47,7 @@ test('decimal', () => {
 test('datetime', () => {
   // March 12, 2018 5:48:54 PM UTC
   const d = '1520876934000';
-  let args = [];
+  let args: string[] = [];
   expect(formatGregorian(EN, d, ZONE_NY, args)).toEqual('March 12, 2018');
   expect(formatGregorian(DE, d, ZONE_NY, args)).toEqual('12. März 2018');
 

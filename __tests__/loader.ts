@@ -12,6 +12,7 @@ const SECTION = /^:([a-zA-Z\d_-]+)\s*$/;
 
 interface DecoderMap {
   TEMPLATE: (s: string) => Code;
+  PARAMS: (s: string) => any;
   JSON: (s: string) => any;
   PARTIALS: (s: string) => any;
   INJECT: (s: string) => any;

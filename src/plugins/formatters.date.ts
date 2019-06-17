@@ -1,7 +1,6 @@
 import { Context } from '../context';
 import { Formatter, FormatterTable } from '../plugin';
 import { Variable } from '../variable';
-import { getMomentDateFormat } from './util.date';
 import { getDatePattern } from './util.date';
 
 /**

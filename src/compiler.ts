@@ -1,3 +1,5 @@
+import { CLDR } from '@phensley/cldr';
+
 import { Assembler } from './assembler';
 import { Context, Partials } from './context';
 import { Engine, EngineProps } from './engine';
@@ -18,6 +20,7 @@ export interface ExecuteProps {
   json?: any;
   partials?: Partials;
   injects?: InjectsMap;
+  cldr?: CLDR;
 }
 
 const DefaultExecuteProps = {
@@ -58,14 +61,14 @@ export class Compiler {
    */
   execute(props: ExecuteProps = DefaultExecuteProps) {
     let code: string | Code = props.code;
-    const { json, partials, injects } = props;
+    const { cldr, json, partials, injects } = props;
     let errors: TemplateError[] = [];
 
     if (typeof code === 'string') {
       ({ code, errors } = this.parse(code));
     }
 
-    const ctx = new Context(json, { partials, injects });
+    const ctx = new Context(json, { cldr, partials, injects });
     ctx.parsefunc = (raw: string) => this.parse(raw);
     this.engine.execute(code, ctx);
 
