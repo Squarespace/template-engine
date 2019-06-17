@@ -10,6 +10,7 @@ import {
   unclosed,
   TemplateError
 } from './errors';
+import { Code } from './instructions';
 import { Opcode } from './opcodes';
 import { Sink } from './sink';
 import {
@@ -31,7 +32,7 @@ type State = (type: Opcode, inst: Instruction, push: boolean) => State;
 export class Assembler extends Sink {
 
   public errors: TemplateError[] = [];
-  public root = new Root();
+  public root: Root = new Root();
 
   private stack: Instruction[] = [];
   private state: State;
@@ -46,7 +47,7 @@ export class Assembler extends Sink {
   /**
    * Accept an instruction and weave it into the instruction tree.
    */
-  accept(inst: Instruction) {
+  accept(inst: Instruction): void {
     const type = getType(inst);
     switch (type) {
     case Opcode.IF:
@@ -67,7 +68,7 @@ export class Assembler extends Sink {
   /**
    * Accept an error and append to the errors array.
    */
-  error(err: TemplateError) {
+  error(err: TemplateError): void {
     this.errors.push(err);
   }
 
@@ -75,7 +76,7 @@ export class Assembler extends Sink {
    * Indicates that the last instruction has been fed to the assembler.
    * Performs a check and returns a flag indicating success.
    */
-  complete() {
+  complete(): boolean {
     const type = getType(this.current!);
     if (type !== Opcode.ROOT) {
       this.error(unclosed(this.current!));
@@ -89,7 +90,7 @@ export class Assembler extends Sink {
   /**
    * Return the raw code assembled.
    */
-  code() {
+  code(): Code {
     return this.root.code;
   }
 
@@ -152,14 +153,14 @@ export class Assembler extends Sink {
   /**
    * Append to the current instruction's consequent block.
    */
-  addConsequent(inst: Instruction) {
+  addConsequent(inst: Instruction): void {
     (this.current as unknown as CompositeInstruction).addConsequent(inst);
   }
 
   /**
    * Set the alternate branch instruction.
    */
-  setAlternate(inst: Instruction) {
+  setAlternate(inst: Instruction): void {
     (this.current as unknown as BlockInstruction).setAlternate(inst);
   }
 
@@ -226,14 +227,14 @@ export class Assembler extends Sink {
   /**
    * Dead state.
    */
-  stateDead(type: Opcode, inst: Instruction, push: boolean) {
+  stateDead(type: Opcode, inst: Instruction, push: boolean): State {
     return this.stateDead;
   }
 
   /**
    * EOF state.
    */
-  stateEOF(type: Opcode, inst: Instruction, push: boolean) {
+  stateEOF(type: Opcode, inst: Instruction, push: boolean): State {
     // Attempting to transition from this state is an error.
     this.error(transitionFromEOF(inst));
     return this.stateDead;
@@ -291,8 +292,7 @@ export class Assembler extends Sink {
       this.setAlternate(inst);
       return this.pop();
 
-    case Opcode.OR_PREDICATE:
-    {
+    case Opcode.OR_PREDICATE: {
       // Any OR following another OR that has no predicate is dead code.
       const parentType = getType(this.current!);
       if (parentType === Opcode.OR_PREDICATE && !(this.current as OrPredicate).hasPredicate()) {

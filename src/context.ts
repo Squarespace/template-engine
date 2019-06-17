@@ -2,7 +2,7 @@ import { CLDR } from '@phensley/cldr';
 
 import { partialParseFail, partialRecursion, partialSelfRecursion, TemplateError } from './errors';
 import { Frame } from './frame';
-import { Node, MISSING_NODE } from './node';
+import { MISSING_NODE, Node } from './node';
 import { Opcode } from './opcodes';
 import { Type } from './types';
 import { Variable } from './variable';
