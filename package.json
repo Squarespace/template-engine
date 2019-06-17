@@ -11,8 +11,9 @@
   "scripts": {
     "bench": "ts-node __benchmarks__/",
 		"build": "npm run build:cj && npm run build:es",
-    "build:cj": "tsc -p ./tsconfig.json",
-    "build:es": "tsc -p ./tsconfig.json --module esnext --outDir lib-es",
+    "build:cj": "tsc",
+    "build:es": "tsc --module esnext --outDir lib-es",
+		"build:watch": "tsc --watch",
     "clean": "rimraf dist lib coverage && jest --clearCache",
     "generate": "ts-node scripts/generate.ts",
     "lint": "tslint -p ./tsconfig.json",

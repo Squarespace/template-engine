@@ -1,25 +1,23 @@
 import { Context } from './context';
 import { Variable } from './variable';
 
-export class Formatter {
+export abstract class Formatter {
 
   // TODO: add validateArgs() when parser is implemented
 
-  apply(args: string[], vars: Variable[], ctx: Context) {
-  }
+  abstract apply(args: string[], vars: Variable[], ctx: Context): void;
+
 }
 
 export type FormatterTable = {
   [x: string]: Formatter;
 }
 
-export class Predicate {
+export abstract class Predicate {
 
   // TODO: add validateArgs() when parser is implemented
 
-  apply(args: String[], ctx: Context): boolean {
-    return false;
-  }
+  abstract apply(args: String[], ctx: Context): boolean;
 
 }
 
