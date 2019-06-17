@@ -8,14 +8,13 @@
     "templatec": "./bin/templatec.js"
   },
   "scripts": {
-    "bench": "babel-node __benchmarks__/",
+    "bench": "ts-node __benchmarks__/",
     "build": "tsc -p ./tsconfig.json",
     "clean": "rimraf dist lib coverage && jest --clearCache",
     "generate": "ts-node scripts/generate.ts",
     "lint": "tslint -p ./tsconfig.json",
-    "prepare": "npm run build",
-    "test": "NODE_ENV=test jest",
-    "test:watch": "NODE_ENV=test jest --watch --coverage=false",
+    "test": "NODE_ENV=test jest --coverage=true",
+    "test:watch": "NODE_ENV=test jest --watch",
     "test:coveralls": "npm run test && cat ./coverage/lcov.info | ./node_modules/.bin/coveralls"
   },
   "keywords": [],
@@ -25,6 +24,11 @@
     "type": "git",
     "url": "https://github.com/Squarespace/template-engine.git"
   },
+  "dependencies": {
+    "moment": "^2.20.1",
+    "moment-timezone": "^0.5.14",
+    "utf8": "^3.0.0"
+  },
   "devDependencies": {
     "@types/jest": "^24.0.13",
     "@types/moment": "^2.13.0",
@@ -33,8 +37,7 @@
     "@types/utf8": "^2.1.6",
     "beautify-benchmark": "^0.2.4",
     "benchmark": "^2.1.4",
-    "chai": "^4.1.2",
-    "chalk": "^2.3.0",
+    "chalk": "^2.3.2",
     "coveralls": "^3.0.0",
     "jest": "^24.8.0",
     "microtime": "^2.1.6",
@@ -58,11 +61,6 @@
     "transform": {
       "^.+\\.(ts|tsx)$": "ts-jest"
     }
-  },
-  "dependencies": {
-    "moment": "^2.20.1",
-    "moment-timezone": "^0.5.14",
-    "utf8": "^3.0.0"
   },
   "files": [
     "bin",

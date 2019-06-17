@@ -1,7 +1,5 @@
-
 import { assembleSuite, parseSuite } from './benchmark.parser';
 import { executeSuite } from './benchmark.engine';
-
 
 const options = { async: false, delay: 1 };
 

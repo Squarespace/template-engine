@@ -16,6 +16,7 @@
     "noFallthroughCasesInSwitch": false,
     "esModuleInterop": true,
     "resolveJsonModule": true,
+		"baseUrl": ".",
 		"outDir": "lib"
   },
 	"include": [

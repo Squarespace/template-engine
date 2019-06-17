@@ -1,14 +1,21 @@
 import { makeSuite, pad } from './util';
 import { Compiler, Parser } from '../src';
-import Sink from '../src/sink';
+import { Sink } from '../src/sink';
+import { Opcode } from '../src/opcodes';
+import { Instruction } from '../src/instructions';
 import { repeat } from '../src/util';
 
+class DummySink extends Sink {
+  accept(inst: Instruction | Opcode): void {}
+  complete(): void {}
+  error(err: any): void {}
+}
 
 const parseSuite = makeSuite('Parse');
 const assembleSuite = makeSuite('Parse + Assemble');
 
 const compiler = new Compiler();
-const nullSink = new Sink();
+const nullSink = new DummySink();
 
 const iterations = [1, 4, 16, 64, 256, 1024, 4096];
 const padding = 32;
