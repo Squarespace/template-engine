@@ -52,7 +52,7 @@ const applyFormatters = (formatters: FormatterMap, calls: FormatterCall[], vars:
     const call = calls[i];
     const name = call[0];
     const formatter = formatters[name];
-    // TODO: Undefined formatters currently do not raise an error.
+    // Undefined formatters will raise an error in the parse phase.
     if (!formatter || !(formatter instanceof Formatter)) {
       continue;
     }

@@ -18,6 +18,8 @@ import {
   Variable,
 } from './instructions';
 import { Opcode } from './opcodes';
+import { formatterUnknown, predicateUnknown } from './errors';
+import { FormatterTable, PredicateTable } from './plugin';
 
 type State = () => State | null;
 
@@ -49,7 +51,9 @@ export class Parser {
   constructor(
     private str: string,
     private sink: Sink,
-    matcher: MatcherCons = matcherImpl) {
+    matcher: MatcherCons = matcherImpl,
+    private formatters: FormatterTable = {},
+    private predicates: PredicateTable = {}) {
 
     if (!(sink instanceof Sink)) {
       throw new Error('Argument "sink" must be a Sink instance.');
@@ -206,6 +210,7 @@ export class Parser {
       return false;
     }
 
+    this.checkFormatters(formatters);
     this.push(new Bindvar(definition, variables, formatters === null ? undefined : formatters));
     return true;
   }
@@ -378,6 +383,9 @@ export class Parser {
       if (name === null) {
         return false;
       }
+      if (!this.predicates[name]) {
+        this.sink.error(predicateUnknown(name));
+      }
       m.consume();
 
       args = m.matchArguments();
@@ -459,6 +467,7 @@ export class Parser {
       return false;
     }
 
+    this.checkFormatters(formatters);
     this.push(new Variable(variables, (formatters === null ? 0 : formatters) as FormatterCall[]));
     return true;
   }
@@ -557,6 +566,16 @@ export class Parser {
     // If more characters, skip over '##}' and continue parsing.
     this.idx = end + 3;
     return this.stateMain;
+  }
+
+  checkFormatters(formatters: null | 0 | FormatterCall[]): void {
+    if (formatters) {
+      for (const fmt of formatters) {
+        if (!this.formatters[fmt[0]]) {
+          this.sink.error(formatterUnknown(fmt[0]));
+        }
+      }
+    }
   }
 
 }

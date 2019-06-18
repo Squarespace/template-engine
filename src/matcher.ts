@@ -2,7 +2,7 @@
 import { Opcode } from './opcodes';
 
 import * as patterns from './patterns';
-import { Operator } from './instructions';
+import { FormatterCall, Operator } from './instructions';
 import { splitVariable } from './util';
 
 
@@ -225,7 +225,7 @@ export class Matcher {
   /**
    * Match a chain of pipe-separated formatters and optional arguments.
    */
-  matchFormatters() {
+  matchFormatters(): FormatterCall[] | null {
     let start = this.start;
     if (this.str[start++] !== '|') {
       return null;
@@ -238,7 +238,7 @@ export class Matcher {
     }
 
     let haveSep = false;
-    let result = null;
+    let result: FormatterCall[] | null = null;
     for (;;) {
       const formatter = this.match(this.word, start);
       if (formatter === null) {

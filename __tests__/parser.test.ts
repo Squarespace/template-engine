@@ -2,11 +2,11 @@ import { Assembler } from '../src/assembler';
 import { Parser } from '../src/parser';
 import { Opcode as O } from '../src/opcodes';
 import { Sink } from '../src/sink';
-
+import { Formatters, Predicates } from '../src/plugins';
 
 const parse = (str: string) => {
   const assembler = new Assembler();
-  const parser = new Parser(str, assembler);
+  const parser = new Parser(str, assembler, undefined, Formatters, Predicates);
   parser.parse();
   return { assembler, parser, code: assembler.code() };
 };

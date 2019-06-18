@@ -5,7 +5,7 @@ import { Assembler } from '../src/assembler';
 import { Compiler } from '../src/compiler';
 import { Parser } from '../src/parser';
 import { Code } from '../src/instructions';
-import { Opcode } from '../src/opcodes';
+import { Formatters, Predicates } from '../src/plugins';
 
 const SECTION = /^:([a-zA-Z\d_-]+)\s*$/;
 
@@ -72,7 +72,7 @@ export class TestLoader {
  */
 export const parseTemplate = (str: string) => {
   const assembler = new Assembler();
-  const parser = new Parser(str, assembler);
+  const parser = new Parser(str, assembler, undefined, Formatters, Predicates);
   parser.parse();
   const errors = assembler.errors;
   if (errors.length > 0) {

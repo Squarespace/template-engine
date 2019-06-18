@@ -15,13 +15,22 @@ export interface TemplateError {
   message: string;
 }
 
-// const parser = (m: string): Error => ({ type: 'parser', message: m });
-const assembler = (m: string): TemplateError => ({ type: 'assembler', message: `SyntaxError: ${m}` });
-const engine = (m: string): TemplateError => ({ type: 'engine', message: `RuntimeError: ${m}` });
+const parser = (m: string): TemplateError =>
+  ({ type: 'parser', message: `SyntaxError: ${m}` });
+
+const assembler = (m: string): TemplateError =>
+  ({ type: 'assembler', message: `SyntaxError: ${m}` });
+
+const engine = (m: string): TemplateError =>
+  ({ type: 'engine', message: `RuntimeError: ${m}` });
 
 // PARSER
 
-// ...
+export const formatterUnknown = (name: string) =>
+    parser(`Formatter '${name}' is unknown`);
+
+export const predicateUnknown = (name: string) =>
+    parser(`Predicate '${name}' is unknown`);
 
 // ASSEMBLER
 

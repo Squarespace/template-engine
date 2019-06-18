@@ -34,7 +34,7 @@ export class Compiler {
 
   private engine: Engine;
 
-  constructor(props: CompilerProps = { formatters: Formatters, predicates: Predicates }) {
+  constructor(private props: CompilerProps = { formatters: Formatters, predicates: Predicates }) {
     this.engine = new Engine(props);
   }
 
@@ -42,8 +42,9 @@ export class Compiler {
    * Parse the template and return the instruction tree.
    */
   parse(source: string) {
+    const { formatters, predicates } = this.props;
     const assembler = new Assembler();
-    const parser = new Parser(source, assembler);
+    const parser = new Parser(source, assembler, undefined, formatters, predicates);
     parser.parse();
     return {
       code: assembler.code(),

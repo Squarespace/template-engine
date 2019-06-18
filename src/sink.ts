@@ -1,5 +1,6 @@
 import { Instruction } from './instructions';
 import { Opcode } from './opcodes';
+import { TemplateError } from './errors';
 
 export abstract class Sink {
   /**
@@ -15,5 +16,5 @@ export abstract class Sink {
   /**
    * Push an error to the sink.
    */
-  abstract error(err: any): void;
+  abstract error(err: TemplateError): void;
 }
