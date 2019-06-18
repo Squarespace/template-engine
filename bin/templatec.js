@@ -4,7 +4,7 @@
 
 const fs = require('fs');
 const { Compiler } = require('../lib');
-
+const { prettyJson } = require('../lib/pretty');
 const RE_1 = /^-(\w)$/;
 const RE_2 = /^--([\w-]+)$/;
 
@@ -50,6 +50,7 @@ const usage = (args) => {
   console.log('  -p, --partials PATH  - Path to JSON partials');
   console.log('  -t, --template PATH  - Path to HTML or JSON template');
   console.log('  -d, --dump           - Dump parsed template');
+  console.log('  -P, --pretty         - Pretty-format the dumped template');
   process.exit(1);
 };
 
@@ -58,7 +59,6 @@ const main = () => {
   const codepath = args.template || args.t;
   const jsonpath = args.json || args.j;
   const partpath = args.partials || args.p;
-
   if (!codepath) {
     usage();
   }
@@ -68,7 +68,11 @@ const main = () => {
   const coderaw = read(codepath);
   const code = codepath.endsWith('.json') ? JSON.parse(coderaw) : compiler.parse(coderaw).code;
   if (args.dump || args.d) {
-    console.log(JSON.stringify(code));
+    if (args.pretty || args.P) {
+      console.log(prettyJson(code, '  '));
+    } else {
+      console.log(JSON.stringify(code));
+    }
     return;
   }
 
