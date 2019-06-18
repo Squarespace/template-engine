@@ -23,9 +23,18 @@ class DummyPredicate extends Predicate {
   }
 }
 
+class BuggyFormatter extends Formatter {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
+    if (args.indexOf('blowup') !== -1) {
+      throw new Error('oops!');
+    }
+  }
+}
+
 const formatters: FormatterTable = {
   ...Formatters,
-  dummy: new DummyFormatter()
+  dummy: new DummyFormatter(),
+  buggy: new BuggyFormatter()
 };
 
 const predicates: PredicateTable = {
@@ -72,4 +81,15 @@ test('compiler api execute', () => {
   expect(ctx.render()).toEqual('');
   expect(errors.length).toEqual(1);
   expect(errors[0].message).toContain(`'missing?' is unknown`);
+});
+
+test('compiler buggy formatter', () => {
+  const c = new Compiler({ formatters, predicates });
+  const { ctx, errors } = c.execute({
+    code: '{@|buggy} A {@|buggy blowup} B',
+    json: 'foo'
+  });
+  expect(ctx.render()).toEqual('foo A  B');
+  expect(errors.length).toEqual(1);
+  expect(errors[0].message).toContain('oops!');
 });

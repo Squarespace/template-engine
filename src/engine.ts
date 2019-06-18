@@ -1,4 +1,3 @@
-import * as errors from './errors';
 import { Context } from './context';
 import { nameOf, Opcode } from './opcodes';
 import {
@@ -17,6 +16,7 @@ import {
   TextCode,
   VariableCode,
 } from './instructions';
+import { unexpectedError } from './errors';
 import { Variable } from './variable';
 import { Formatter, Predicate } from './plugin';
 import { isTruthy } from './util';
@@ -119,13 +119,9 @@ export class Engine {
    */
   execute(inst: Code, ctx: Context) {
     const opcode: Opcode = typeof inst === 'number' ? inst : inst[0];
-    try {
-      const impl = this.impls[opcode];
-      if (impl) {
-        impl.call(this, inst, ctx);
-      }
-    } catch (e) {
-      ctx.error(errors.unexpectedError(e.name, nameOf(opcode), e.message));
+    const impl = this.impls[opcode];
+    if (impl) {
+      impl.call(this, inst, ctx);
     }
   }
 
@@ -153,7 +149,11 @@ export class Engine {
       const opcode = typeof inst === 'number' ? inst : inst[0];
       const impl = this.impls[opcode];
       if (impl) {
-        impl.call(this, inst, ctx);
+        try {
+          impl.call(this, inst, ctx);
+        } catch (e) {
+          ctx.error(unexpectedError(e.name, nameOf(opcode), e.message));
+        }
       }
     }
   }
