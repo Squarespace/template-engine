@@ -7,7 +7,7 @@ import { CLDRFramework } from '@phensley/cldr';
 /**
  * Load a resource bundle for a given language.
  */
-const languageBundle = (framework: CLDRFramework, tag: string) => {
+const languageBundle = (tag: string) => {
   const root = join(__dirname, '../node_modules/@phensley/cldr/packs');
   if (!fs.existsSync(root)) {
     throw new Error('Peer dependency @phensley/cldr must be installed!');
@@ -20,5 +20,5 @@ const languageBundle = (framework: CLDRFramework, tag: string) => {
 };
 
 export const framework: CLDRFramework = new CLDRFramework({
-  loader: tag => languageBundle(framework, tag)
+  loader: tag => languageBundle(tag)
 });
