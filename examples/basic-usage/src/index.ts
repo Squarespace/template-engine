@@ -1,10 +1,4 @@
-/*
- * Run:
- *   npm install
- *   node usage.js
- */
-
-const engine = require('@squarespace/template-engine');
+import { Compiler } from '@squarespace/template-engine';
 
 const json = {
   items: [{name: 'First'}, {name: 'Second'}, {name: 'Third'}
@@ -13,7 +7,7 @@ const json = {
 const source = '{.repeated section items}{name}\n{.end}';
 
 // Create an instance of the compiler.
-const compiler = new engine.Compiler();
+const compiler = new Compiler();
 
 // Parse a template..
 const parsed = compiler.parse(source);
