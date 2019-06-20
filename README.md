@@ -1,7 +1,7 @@
 
 # template-engine
 
-This is a port of the Squarespace Java [template-compiler](https://github.com/squarespace/template-compiler) project to JavaScript.
+This is a port of the Squarespace Java [template-compiler](https://github.com/squarespace/template-compiler) project to TypeScript.
 
 [![Build Status](https://travis-ci.org/Squarespace/template-engine.svg?branch=master)](https://travis-ci.org/Squarespace/template-engine)
 [![Coverage Status](https://img.shields.io/coveralls/Squarespace/template-engine.svg)](https://coveralls.io/github/Squarespace/template-engine?branch=master)
