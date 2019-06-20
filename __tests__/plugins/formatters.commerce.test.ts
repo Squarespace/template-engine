@@ -43,6 +43,12 @@ pathseq('f-product-quick-view-%N.html', 5).forEach(path => {
   test(`product quick view - ${path}`, () => loader.execute(path));
 });
 
+// TODO product-scarcity (depends on 'message' formatter which requires i18n branch)
+
+pathseq('f-quantity-input-%N.html', 5).forEach(path => {
+  test(`quantity input - ${path}`, () => loader.execute(path));
+});
+
 // TODO: these return double in Java and get formatted with trailing zero,
 // e.g. '100.0'. Javascript formats as '100'.
 pathseq('f-sale-price-%N.html', 7).forEach(path => {

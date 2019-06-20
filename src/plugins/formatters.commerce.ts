@@ -12,7 +12,8 @@ import { Type } from '../types';
 // Template imports
 import addToCartBtnTemplate from './templates/add-to-cart-btn.json';
 import productCheckoutTemplate from './templates/product-checkout.json';
-import variantsSelectTemplate from './templates/variants-select.json';
+import productScarcityTemplate from './templates/product-scarcity.json';
+import quantityInputTemplate from './templates/quantity-input.json';
 import summaryFormFieldAddressTemplate from './templates/summary-form-field-address.json';
 import summaryFormFieldCheckboxTemplate from './templates/summary-form-field-checkbox.json';
 import summaryFormFieldDateTemplate from './templates/summary-form-field-date.json';
@@ -20,6 +21,8 @@ import summaryFormFieldLikertTemplate from './templates/summary-form-field-liker
 import summaryFormFieldNameTemplate from './templates/summary-form-field-name.json';
 import summaryFormFieldPhoneTemplate from './templates/summary-form-field-phone.json';
 import summaryFormFieldTimeTemplate from './templates/summary-form-field-time.json';
+import variantsSelectTemplate from './templates/variants-select.json';
+import { ProductType } from './enums';
 
 
 export class AddToCartButtonFormatter extends Formatter {
@@ -123,9 +126,51 @@ export class ProductQuickViewFormatter extends Formatter {
 
 }
 
+export class ProductScarcityFormatter extends Formatter {
+  apply(args: string[], vars: Variable[], ctx: Context) {
+    const merchCtx = ctx.resolve(['productMerchandisingContext']);
+    if (merchCtx.isMissing()) {
+      return;
+    }
+
+    const first = vars[0];
+    const product = first.node;
+    const id = product.get('id').asString();
+    const productCtx = merchCtx.get(id);
+
+    if (!productCtx.isMissing() && productCtx.get('scarcityEnabled').asBoolean()) {
+      const obj: any = {
+        scarcityTemplateViews: productCtx.get('scarcityTemplateViews'),
+        scarcityText: productCtx.get('scarcityText'),
+        scarcityShownByDefault: productCtx.get('scarcityShownByDefault')
+      };
+      const res = executeTemplate(ctx, productScarcityTemplate as unknown as RootCode, new Node(obj), false);
+      first.set(res);
+    }
+  }
+}
 
 // TODO: product-status
-// TODO: quantity-input
+
+export class QuantityInputFormatter extends Formatter {
+  apply(args: string[], vars: Variable[], ctx: Context) {
+    const first = vars[0];
+    const node = first.node;
+    const type = commerceutil.getProductType(node);
+    const settings = ctx.resolve(['websiteSettings']);
+    const multipleQuantityAllowed =
+      (type === ProductType.PHYSICAL ||
+        (type === ProductType.SERVICE && commerceutil.isMultipleQuantityAllowedForServices(settings)))
+      && !commerceutil.isSubscribable(node);
+    const hide = !multipleQuantityAllowed || commerceutil.getTotalStockRemaining(node) <= 1;
+    if (hide) {
+      first.set(MISSING_NODE);
+      return;
+    }
+    const res = executeTemplate(ctx, quantityInputTemplate as unknown as RootCode, node, false);
+    first.set(res);
+  }
+}
 
 export class SalePriceFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context) {
@@ -257,6 +302,7 @@ export const TABLE: FormatterTable = {
   'normal-price': new NormalPriceFormatter(),
   'product-checkout': new ProductCheckoutFormatter(),
   'product-quick-view': new ProductQuickViewFormatter(),
+  'quantity-input': new QuantityInputFormatter(),
   'sale-price': new SalePriceFormatter(),
   'summary-form-field': new SummaryFormFieldFormatter(),
   'variant-descriptor': new VariantDescriptorFormatter(),

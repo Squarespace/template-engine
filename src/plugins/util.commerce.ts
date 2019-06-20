@@ -256,6 +256,8 @@ export const isSoldOut = (item: Node) => {
   }
 };
 
+export const isSubscribable = (item: Node): boolean =>
+  item.path(['structuredContent', 'isSubscribable']).asBoolean();
 
 // TODO: writeMoneyString
 
