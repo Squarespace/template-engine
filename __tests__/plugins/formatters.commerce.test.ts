@@ -45,6 +45,10 @@ pathseq('f-product-quick-view-%N.html', 5).forEach(path => {
 
 // TODO product-scarcity (depends on 'message' formatter which requires i18n branch)
 
+pathseq('f-product-status-%N.html', 8).forEach(path => {
+  test(`product status - ${path}`, () => loader.execute(path));
+});
+
 pathseq('f-quantity-input-%N.html', 5).forEach(path => {
   test(`quantity input - ${path}`, () => loader.execute(path));
 });

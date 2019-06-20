@@ -150,7 +150,31 @@ export class ProductScarcityFormatter extends Formatter {
   }
 }
 
-// TODO: product-status
+export class ProductStatusFormatter extends Formatter {
+  apply(args: string[], vars: Variable[], ctx: Context) {
+    const first = vars[0];
+    const node = first.node;
+    if (commerceutil.isSoldOut(node)) {
+      const key = ['localizedStrings', 'productSoldOutText'];
+      const text = ctx.resolve(key).asString();
+      let buf = `<div class="product-mark sold-out">`;
+      buf += text || 'sold out';
+      buf += '</div>';
+      first.set(buf);
+
+    } else if (commerceutil.isOnSale(node)) {
+      const key = ['localizedStrings', 'productSaleText'];
+      const text = ctx.resolve(key).asString();
+      let buf = `<div class="product-mark sale">`;
+      buf += text || 'sale';
+      buf += '</div>';
+      first.set(buf);
+
+    } else {
+      first.set(MISSING_NODE);
+    }
+  }
+}
 
 export class QuantityInputFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context) {
@@ -302,6 +326,7 @@ export const TABLE: FormatterTable = {
   'normal-price': new NormalPriceFormatter(),
   'product-checkout': new ProductCheckoutFormatter(),
   'product-quick-view': new ProductQuickViewFormatter(),
+  'product-status': new ProductStatusFormatter(),
   'quantity-input': new QuantityInputFormatter(),
   'sale-price': new SalePriceFormatter(),
   'summary-form-field': new SummaryFormFieldFormatter(),
