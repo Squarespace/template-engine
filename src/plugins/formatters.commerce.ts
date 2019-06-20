@@ -94,7 +94,36 @@ export class ProductCheckoutFormatter extends Formatter {
 }
 
 // TODO: product-price
-// TODO: product-quick-view
+
+export class ProductQuickViewFormatter extends Formatter {
+  apply(args: string[], vars: Variable[], ctx: Context) {
+    const first = vars[0];
+    const node = first.node;
+    const id = node.get('id').asString();
+    let group = args[0] || '';
+    let groupNode = node.get(group);
+    if (!groupNode.isMissing()) {
+      group = groupNode.asString();
+    } else {
+      groupNode = ctx.resolve([group]);
+      if (!groupNode.isMissing()) {
+        group = groupNode.asString();
+      }
+    }
+
+    let buf = '';
+    buf += `<span class="sqs-product-quick-view-button" data-id="${id}"`;
+    buf += ` data-group="${group}">`;
+
+    const text = ctx.resolve(['localizedStrings', 'productQuickViewText']);
+    buf += text.isMissing() ? 'Quick View' : text.asString();
+    buf += '</span>';
+    first.set(buf);
+  }
+
+}
+
+
 // TODO: product-status
 // TODO: quantity-input
 
@@ -227,6 +256,7 @@ export const TABLE: FormatterTable = {
   'from-price': new FromPriceFormatter(),
   'normal-price': new NormalPriceFormatter(),
   'product-checkout': new ProductCheckoutFormatter(),
+  'product-quick-view': new ProductQuickViewFormatter(),
   'sale-price': new SalePriceFormatter(),
   'summary-form-field': new SummaryFormFieldFormatter(),
   'variant-descriptor': new VariantDescriptorFormatter(),

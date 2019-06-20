@@ -35,15 +35,13 @@ pathseq('f-normal-price-%N.html', 7).forEach(path => {
 });
 
 
-test('product-checkout', () => {
-  // TODO:
-  // loader.execute('f-product-checkout-1.html');
-});
-
 pathseq('f-product-checkout-%N.html', 1).forEach(path => {
   test(`product checkout - ${path}`, () => loader.execute(path));
 });
 
+pathseq('f-product-quick-view-%N.html', 5).forEach(path => {
+  test(`product quick view - ${path}`, () => loader.execute(path));
+});
 
 // TODO: these return double in Java and get formatted with trailing zero,
 // e.g. '100.0'. Javascript formats as '100'.
