@@ -80,8 +80,8 @@ export const partialRecursion = (name: string, limit: number) =>
 export const partialSelfRecursion = (name: string) =>
     engine(`Recursion into self while evaluating partial '${name}`);
 
-export const generalError = (name: string, msg: string) =>
-    engine(`Default error ${name}: ${msg}`);
+// export const generalError = (name: string, msg: string) =>
+//     engine(`Default error ${name}: ${msg}`);
 
 export const unexpectedError = (type: string, opcode: string, message: string) =>
     engine(`Unexpected ${type} error when executing ${opcode}: ${message}`);

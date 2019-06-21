@@ -34,6 +34,10 @@ export class AddToCartButtonFormatter extends Formatter {
 }
 
 // TODO: bookkeeper-money-format
+export class BookkeeperMoneyFormat extends Formatter {
+  apply(args: string[], vars: Variable[], ctx: Context) {
+  }
+}
 
 export class CartQuantityFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context) {

@@ -42,7 +42,8 @@ export const enum_ = <T extends string, R extends EnumMap>(kind: T, map: R): Enu
     return prev;
   }, {} as Enum<T, R>);
 
-  _values.sort((a, b) => a.code < b.code ? -1 : a.code > b.code ? 1 : 0);
+  // Sort returns -1 or 1 since codes cannot be equal
+  _values.sort((a, b) => a.code < b.code ? -1 : 1);
   const values = () => _values;
   const is = (value: EnumValue<any>) => value && value.kind === kind;
   const fromName = (name: string) => names[name];

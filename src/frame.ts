@@ -17,13 +17,11 @@ export class Frame {
   /**
    * Adds a variable to this frame.
    */
-  setVar(name: string, node?: Node) {
+  setVar(name: string, node: Node) {
     if (!this.variables) {
       this.variables = new Map<string, Node>();
     }
-    if (node) {
-      this.variables.set(name, node);
-    }
+    this.variables.set(name, node);
   }
 
   /**

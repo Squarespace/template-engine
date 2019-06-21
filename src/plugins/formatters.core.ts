@@ -1,5 +1,5 @@
 import { Context } from '../context';
-import { generalError, partialMissing } from '../errors';
+import { partialMissing } from '../errors';
 import { Formatter, FormatterTable } from '../plugin';
 import { MacroCode, RootCode } from '../instructions';
 import { Variable } from '../variable';
@@ -145,24 +145,16 @@ export class IterFormatter extends Formatter {
 export class JsonFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context) {
     const first = vars[0];
-    try {
-      const value = JSON.stringify(first.node.value);
-      first.set(escapeScriptTags(value));
-    } catch (e) {
-      ctx.error(generalError('json-pretty', e.message));
-    }
+    const value = JSON.stringify(first.node.value);
+    first.set(escapeScriptTags(value));
   }
 }
 
 export class JsonPretty extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context) {
     const first = vars[0];
-    try {
-      const value = JSON.stringify(first.node.value, null, '  ');
-      first.set(escapeScriptTags(value));
-    } catch (e) {
-      ctx.error(generalError('json-pretty', e.message));
-    }
+    const value = JSON.stringify(first.node.value, null, '  ');
+    first.set(escapeScriptTags(value));
   }
 }
 
