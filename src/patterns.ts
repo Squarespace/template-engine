@@ -68,15 +68,3 @@ export const variableDefinition = '@' + word;
  *   a , b , c
  */
 export const variableSeparator = ' *, *';
-
-// export {
-//   filePath,
-//   instructionArgs,
-//   operator,
-//   predicate,
-//   variableDefinition,
-//   variableReference,
-//   variableSeparator,
-//   word,
-//   whitespace
-// };

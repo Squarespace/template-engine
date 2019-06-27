@@ -20,11 +20,6 @@ export type Reference = (string | number)[];
 
 export type FormatterCall = [string] | [string, string[]];
 
-// export interface Binding {
-//   [0]: string;
-//   [1]: Reference;
-// }
-
 export type Binding = [string, Reference];
 
 export interface AtomCode {
