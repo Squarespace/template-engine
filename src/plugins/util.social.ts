@@ -1,7 +1,6 @@
 import { MISSING_NODE, Node } from '../node';
 import { escapeHtmlAttributes } from './util.string';
 
-
 export const getFirstMatchingNode = (parent: Node, ...names: string[]) => {
   for (let i = 0; i < names.length; i++) {
     const name = names[i];
@@ -12,7 +11,6 @@ export const getFirstMatchingNode = (parent: Node, ...names: string[]) => {
   }
   return MISSING_NODE;
 };
-
 
 export const makeSocialButton = (website: Node, item: Node, inline: boolean) => {
   const options = website.get('shareButtonOptions');

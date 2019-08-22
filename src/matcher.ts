@@ -1,10 +1,8 @@
-
 import { Opcode } from './opcodes';
 
 import * as patterns from './patterns';
 import { FormatterCall, Operator } from './instructions';
 import { splitVariable } from './util';
-
 
 // Table for fast mapping of instructions to their opcodes.
 const INSTRUCTIONS: { [x: string]: (string | Opcode)[] } = {
@@ -21,13 +19,13 @@ const INSTRUCTIONS: { [x: string]: (string | Opcode)[] } = {
   'v': ['ar', Opcode.BINDVAR]
 };
 
+export type RegExpCompiler = (s: string) => RegExp;
 
 /**
  * Compile a regular expression with the sticky 'y' flag, which only
  * matches from the position indicated by RegExp.lastIndex.
  */
 const compileSticky = (s: string) => new RegExp(s, 'y');
-
 
 /**
  * Helper for low-level pattern matching over a range of characters.
@@ -50,7 +48,7 @@ export class Matcher {
 
   constructor(
     protected str: string,
-    private compile = compileSticky) {
+    compile: RegExpCompiler = compileSticky) {
 
     // Private copies of patterns, since we set RegExp.lastIndex to match
     // at string offsets.
@@ -163,14 +161,14 @@ export class Matcher {
   /**
    * Match a variable definition.
    */
-  matchDefinition() {
+  matchDefinition(): string | null {
     return this.match(this.variableDefinition, this.start);
   }
 
   /**
    * Match a path for an INJECT or MACRO instruction.
    */
-  matchFilePath() {
+  matchFilePath(): string | null {
     return this.match(this.filePath, this.start);
   }
 
@@ -218,7 +216,7 @@ export class Matcher {
   /**
    * Match a predicate.
    */
-  matchPredicate() {
+  matchPredicate(): string | null {
     return this.match(this.predicate, this.start);
   }
 
@@ -254,7 +252,6 @@ export class Matcher {
         result = [];
       }
 
-
       // Check if this formatter has arguments.
       start = this.matchEnd;
       const rawArgs = this.match(this.instructionArgs, start);
@@ -282,7 +279,7 @@ export class Matcher {
   /**
    * Match a single variable reference.
    */
-  matchVariable() {
+  matchVariable(): (string | number)[] | null {
     const raw = this.match(this.variableReference, this.start);
     return raw === null ? null : splitVariable(raw);
   }
@@ -290,9 +287,9 @@ export class Matcher {
   /**
    * Match a list of variable references.
    */
-  matchVariables() {
+  matchVariables(): (string | number)[][] | null {
     let start = this.start;
-    let result = null;
+    let result: (string | number)[][] | null = null;
     for (;;) {
       // Attempt to match a single variable reference.
       const raw = this.match(this.variableReference, start);
@@ -345,7 +342,7 @@ export class Matcher {
    * Attempt to match a pattern. If the pattern matches, set the matchEnd
    * pointer and return the matched string. Otherwise return null.
    */
-  match(pattern: RegExp, start: number) {
+  match(pattern: RegExp, start: number): string | null {
     pattern.lastIndex = start;
     const raw = pattern.exec(this.str);
     if (raw !== null) {
@@ -355,7 +352,7 @@ export class Matcher {
     return null;
   }
 
-  test(pattern: RegExp, start: number) {
+  test(pattern: RegExp, start: number): boolean {
     pattern.lastIndex = start;
     if (pattern.test(this.str)) {
       this.matchEnd = pattern.lastIndex;

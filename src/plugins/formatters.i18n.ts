@@ -18,7 +18,6 @@ export class MessageFormatter extends Formatter {
 // TODO: plural (Legacy, deprecate)
 // TODO: unit
 
-
 export const TABLE: FormatterTable = {
   message: new MessageFormatter()
 };

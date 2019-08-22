@@ -1,10 +1,9 @@
 import { Context } from '../context';
 import { Predicate, PredicateTable } from '../plugin';
-import { isTruthy } from '../util';
-
+import { isTruthy } from '../node';
 
 export class CommentsPredicate extends Predicate {
-  apply(args: string[], ctx: Context) {
+  apply(args: string[], ctx: Context): boolean {
     const settings = ctx.resolve(['websiteSettings']);
     const node = ctx.node();
     let commentsOn = node.get('commentState').asNumber() === 1;
@@ -19,7 +18,7 @@ export class CommentsPredicate extends Predicate {
 }
 
 export class DisqusPredicate extends Predicate {
-  apply(args: string[], ctx: Context) {
+  apply(args: string[], ctx: Context): boolean {
     return isTruthy(ctx.resolve(['websiteSettings', 'disqusShortName']));
   }
 }

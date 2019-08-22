@@ -1,8 +1,6 @@
-import { Node } from '../node';
+import { isTruthy, Node } from '../node';
 import { ProductType } from './enums';
 import { Type } from '../types';
-import { isTruthy } from '../util';
-
 
 const productTypePath = ['structuredContent', 'productType'];
 const variantsPath = ['structuredContent', 'variants'];
@@ -14,11 +12,9 @@ export const getProductType = (item: Node) => {
 
 const getPrice = (v: Node) => isTruthy(v.get('onSale')) ? v.get('salePrice') : v.get('price');
 
-
 export const getVariants = (item: Node) => {
   return item.path(variantsPath);
 };
-
 
 export const hasVariants = (item: Node) => {
   const type = getProductType(item);
@@ -27,7 +23,6 @@ export const hasVariants = (item: Node) => {
   return type === ProductType.DIGITAL ? false : populated;
 };
 
-
 export const getFromPrice = (item: Node) => {
   const type = getProductType(item);
   const content = item.get('structuredContent');
@@ -35,8 +30,7 @@ export const getFromPrice = (item: Node) => {
   switch (type) {
   case ProductType.GIFT_CARD:
   case ProductType.PHYSICAL:
-  case ProductType.SERVICE:
-  {
+  case ProductType.SERVICE: {
     const variants = content.get('variants');
     const size = variants.size();
     if (variants.type !== Type.ARRAY || size === 0) {
@@ -53,8 +47,7 @@ export const getFromPrice = (item: Node) => {
     return price;
   }
 
-  case ProductType.DIGITAL:
-  {
+  case ProductType.DIGITAL: {
     const cents = content.get('priceCents');
     return cents.isMissing() ? 0 : cents.asNumber();
   }
@@ -64,15 +57,13 @@ export const getFromPrice = (item: Node) => {
   }
 };
 
-
 export const getNormalPrice = (item: Node) => {
   const type = getProductType(item);
   const content = item.get('structuredContent');
 
   switch (type) {
   case ProductType.PHYSICAL:
-  case ProductType.SERVICE:
-  {
+  case ProductType.SERVICE: {
     const variants = content.get('variants');
     const size = variants.size();
     if (variants.type !== Type.ARRAY || size === 0) {
@@ -88,8 +79,7 @@ export const getNormalPrice = (item: Node) => {
     return price;
   }
 
-  case ProductType.DIGITAL:
-  {
+  case ProductType.DIGITAL: {
     const cents = content.get('priceCents');
     return cents.isMissing() ? 0 : cents.asNumber();
   }
@@ -100,21 +90,19 @@ export const getNormalPrice = (item: Node) => {
   }
 };
 
-
 export const getSalePrice = (item: Node) => {
   const type = getProductType(item);
   const content = item.get('structuredContent');
 
   switch (type) {
   case ProductType.PHYSICAL:
-  case ProductType.SERVICE:
-  {
+  case ProductType.SERVICE: {
     const variants = content.get('variants');
     const size = variants.size();
     if (variants.type !== Type.ARRAY || size === 0) {
       return 0;
     }
-    let salePrice = null;
+    let salePrice: number | null = null;
     for (let i = 0; i < size; i++) {
       const variant = variants.get(i);
       const price = variant.get('salePrice').asNumber();
@@ -125,8 +113,7 @@ export const getSalePrice = (item: Node) => {
     return salePrice === null ? 0 : salePrice;
   }
 
-  case ProductType.DIGITAL:
-  {
+  case ProductType.DIGITAL: {
     const cents = content.get('salePriceCents');
     return cents.isMissing() ? 0 : cents.asNumber();
   }
@@ -136,7 +123,6 @@ export const getSalePrice = (item: Node) => {
     return 0;
   }
 };
-
 
 export const getTotalStockRemaining = (item: Node) => {
   const type = getProductType(item);
@@ -159,16 +145,13 @@ export const getTotalStockRemaining = (item: Node) => {
   return total;
 };
 
-
-
 export const hasVariedPrices = (item: Node) => {
   const type = getProductType(item);
 
   switch (type) {
   case ProductType.GIFT_CARD:
   case ProductType.PHYSICAL:
-  case ProductType.SERVICE:
-  {
+  case ProductType.SERVICE: {
     const variants = getVariants(item);
     const size = variants.size();
     if (variants.type === Type.ARRAY && size > 0) {
@@ -196,15 +179,13 @@ export const hasVariedPrices = (item: Node) => {
   }
 };
 
-
 export const isOnSale = (item: Node) => {
   const type = getProductType(item);
   const content = item.get('structuredContent');
 
   switch (type) {
   case ProductType.PHYSICAL:
-  case ProductType.SERVICE:
-  {
+  case ProductType.SERVICE: {
     const variants = content.get('variants');
     const size = variants.size();
     if (variants.type === Type.ARRAY && size > 0) {
@@ -228,13 +209,11 @@ export const isOnSale = (item: Node) => {
   return false;
 };
 
-
 export const isSoldOut = (item: Node) => {
   const type = getProductType(item);
   switch (type) {
   case ProductType.PHYSICAL:
-  case ProductType.SERVICE:
-  {
+  case ProductType.SERVICE: {
     const variants = getVariants(item);
     if (variants.type === Type.ARRAY) {
       for (let i = 0; i < variants.size(); i++) {
@@ -275,7 +254,6 @@ const getUserDefinedOptions = (content: Node) => {
   }
   return options;
 };
-
 
 export const getItemVariantOptions = (item: Node) => {
   const content = item.get('structuredContent');
@@ -329,7 +307,6 @@ export const getItemVariantOptions = (item: Node) => {
   }
   return userDefinedOptions;
 };
-
 
 const MULTIPLE_QTY_ALLOWED_FIELD = 'multipleQuantityAllowedForServices';
 

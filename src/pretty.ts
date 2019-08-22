@@ -1,7 +1,6 @@
 import { Code } from './instructions';
 import { repeat } from './util';
 
-
 const BLOCK = 1;
 const INST = 2;
 
@@ -32,7 +31,6 @@ const STRUCTURE = [
   null // CTXVAR
 ];
 
-
 /**
  * Produces a readable JSON representation of an instruction tree.
  */
@@ -41,14 +39,14 @@ class Pretty {
   constructor(private indent: string) {
   }
 
-  format(inst: Code) {
+  format(inst: Code): string {
     return this.formatInstruction(inst, 0);
   }
 
   /**
    * Formats an instruction according to its internal structure.
    */
-  formatInstruction(inst: Code, depth: number) {
+  formatInstruction(inst: Code, depth: number): string {
     const opcode = typeof inst === 'number' ? inst : inst[0];
     const structure = STRUCTURE[opcode];
 
@@ -89,7 +87,7 @@ class Pretty {
   /**
    * Formats a block of instructions.
    */
-  formatBlock(block: Code[], depth: number) {
+  formatBlock(block: Code[], depth: number): string {
     // Empty blocks are inlined.
     if (block.length === 0) {
       return '[]';

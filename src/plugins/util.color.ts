@@ -1,6 +1,6 @@
 const VALID_COLOR = /^[abcdef0-9]{3,6}$/i;
 
-export const hexColorToInt = (hex: string) => {
+export const hexColorToInt = (hex: string): number => {
   if (hex[0] === '#') {
     hex = hex.slice(1);
   }

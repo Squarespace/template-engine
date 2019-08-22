@@ -3,12 +3,13 @@ import { Compiler } from './compiler';
 import { Context, Partials } from './context';
 import { Engine } from './engine';
 import { Opcode } from './opcodes';
-import { Node, MISSING_NODE } from './node';
+import { MISSING_NODE, Node } from './node';
 import { Parser } from './parser';
 import { Variable } from './variable';
 import { Formatter, FormatterTable, Predicate, PredicateTable } from './plugin';
-import { Formatters, Predicates, plugins } from './plugins';
+import { plugins, Formatters, Predicates } from './plugins';
 
+// tslint:disable-next-line:no-default-export
 export default Compiler;
 
 export {

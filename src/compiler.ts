@@ -27,6 +27,16 @@ const DefaultExecuteProps = {
   injects: {}
 };
 
+export interface ParseResult {
+  code: Code;
+  errors: TemplateError[];
+}
+
+export interface ExecuteResult {
+  ctx: Context;
+  errors: TemplateError[];
+}
+
 /**
  * High level interface for parsing and executing templates.
  */
@@ -41,7 +51,7 @@ export class Compiler {
   /**
    * Parse the template and return the instruction tree.
    */
-  parse(source: string) {
+  parse(source: string): ParseResult {
     const { formatters, predicates } = this.props;
     const assembler = new Assembler();
     const parser = new Parser(source, assembler, undefined, formatters, predicates);
@@ -56,7 +66,7 @@ export class Compiler {
   /**
    * Execute a template against the given node.
    */
-  execute(props: ExecuteProps = DefaultExecuteProps) {
+  execute(props: ExecuteProps = DefaultExecuteProps): ExecuteResult {
     let code: string | Code = props.code;
     const { json, partials, injects } = props;
     let errors: TemplateError[] = [];

@@ -3,9 +3,8 @@ import { Node } from '../node';
 import { Variable } from '../variable';
 import { RootCode } from '../instructions';
 import { Formatter, FormatterTable } from '../plugin';
-import { MISSING_NODE } from '../node';
+import { isTruthy, MISSING_NODE } from '../node';
 import { executeTemplate } from '../exec';
-import { isTruthy } from '../util';
 import * as commerceutil from './util.commerce';
 import { Type } from '../types';
 
@@ -24,9 +23,8 @@ import summaryFormFieldTimeTemplate from './templates/summary-form-field-time.js
 import variantsSelectTemplate from './templates/variants-select.json';
 import { ProductType } from './enums';
 
-
 export class AddToCartButtonFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const text = executeTemplate(ctx, addToCartBtnTemplate as unknown as RootCode, first.node, false);
     first.set(text);
@@ -35,12 +33,13 @@ export class AddToCartButtonFormatter extends Formatter {
 
 // TODO: bookkeeper-money-format
 export class BookkeeperMoneyFormat extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
+    // TBD
   }
 }
 
 export class CartQuantityFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     let count = 0;
     const entries = first.node.get('entries');
@@ -55,7 +54,7 @@ export class CartQuantityFormatter extends Formatter {
 }
 
 export class CartSubtotalFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const cents = first.node.get('subtotalCents').asNumber();
     // const text = `<span class="sqs-cart-subtotal">`;
@@ -65,13 +64,13 @@ export class CartSubtotalFormatter extends Formatter {
 }
 
 export class CartUrlFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     vars[0].set('/cart');
   }
 }
 
 export class FromPriceFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const price = commerceutil.getFromPrice(first.node);
     first.set(price);
@@ -85,7 +84,7 @@ export class FromPriceFormatter extends Formatter {
 // TODO: percentage-format
 
 export class NormalPriceFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const price = commerceutil.getNormalPrice(first.node);
     first.set(price);
@@ -93,7 +92,7 @@ export class NormalPriceFormatter extends Formatter {
 }
 
 export class ProductCheckoutFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const text = executeTemplate(ctx, productCheckoutTemplate as unknown as RootCode, first.node, false);
     first.set(text);
@@ -103,7 +102,7 @@ export class ProductCheckoutFormatter extends Formatter {
 // TODO: product-price
 
 export class ProductQuickViewFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const node = first.node;
     const id = node.get('id').asString();
@@ -131,7 +130,7 @@ export class ProductQuickViewFormatter extends Formatter {
 }
 
 export class ProductScarcityFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const merchCtx = ctx.resolve(['productMerchandisingContext']);
     if (merchCtx.isMissing()) {
       return;
@@ -155,7 +154,7 @@ export class ProductScarcityFormatter extends Formatter {
 }
 
 export class ProductStatusFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const node = first.node;
     if (commerceutil.isSoldOut(node)) {
@@ -181,7 +180,7 @@ export class ProductStatusFormatter extends Formatter {
 }
 
 export class QuantityInputFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const node = first.node;
     const type = commerceutil.getProductType(node);
@@ -201,7 +200,7 @@ export class QuantityInputFormatter extends Formatter {
 }
 
 export class SalePriceFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], _ctx: Context): void {
     const first = vars[0];
     const price = commerceutil.getSalePrice(first.node);
     first.set(price);
@@ -209,7 +208,7 @@ export class SalePriceFormatter extends Formatter {
 }
 
 export class VariantDescriptorFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], _ctx: Context): void {
     const first = vars[0];
     const text = commerceutil.getVariantFormat(first.node);
     first.set(text);
@@ -217,7 +216,7 @@ export class VariantDescriptorFormatter extends Formatter {
 }
 
 export class VariantsSelectFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
 
     const options = commerceutil.getItemVariantOptions(first.node);
@@ -242,7 +241,6 @@ const KEY_DISAGREE = KEY_PREFIX + 'Disagree';
 const KEY_NEUTRAL = KEY_PREFIX + 'Neutral';
 const KEY_AGREE = KEY_PREFIX + 'Agree';
 const KEY_STRONGLY_AGREE = KEY_PREFIX + 'StronglyAgree';
-
 
 const localizeOrDefault = (strings: Node, key: string, defaultValue: string) => {
   const node = strings.get(key);
@@ -283,7 +281,7 @@ const SUMMARY_FORM_FIELD_TEMPLATE_MAP: { [x: string]: RootCode } = {
 };
 
 export class SummaryFormFieldFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const field = first.node;
 
@@ -291,7 +289,7 @@ export class SummaryFormFieldFormatter extends Formatter {
     const type = field.get('type').asString();
     const code = SUMMARY_FORM_FIELD_TEMPLATE_MAP[type];
 
-    let value = null;
+    let value: string | null = null;
     if (code === undefined) {
       value = field.get('value').asString();
     } else {
@@ -305,7 +303,6 @@ export class SummaryFormFieldFormatter extends Formatter {
     }
 
     let buf = '<div style="font-size:11px; margin-top:3px">\n';
-
 
     buf += '  <span style="font-weight:bold;">';
     buf += field.get('rawTitle').asString();

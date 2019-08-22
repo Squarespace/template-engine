@@ -25,16 +25,15 @@ class Node {
     return this.type === Type.MISSING;
   }
 
-  equals(other: any) {
+  equals(other: any): boolean {
     const value = other instanceof Node ? other.value : other;
     return deepEquals(this.value, value);
   }
 
-  compare(other: any) {
+  compare(other: any): number {
     const node = other instanceof Node ? other : new Node(other);
     switch (this.type) {
-    case Type.NUMBER:
-    {
+    case Type.NUMBER: {
       const n = node.asNumber();
       return this.value < n ? -1 : ((this.value === n) ? 0 : 1);
     }
@@ -42,8 +41,7 @@ class Node {
     case Type.STRING:
       return stringCompare(this.value, node.asString());
 
-    case Type.BOOLEAN:
-    {
+    case Type.BOOLEAN: {
       const n = node.asBoolean();
       return this.value === n ? 0 : (this.value ? 1 : -1);
     }
@@ -78,8 +76,7 @@ class Node {
       return this.value;
     case Type.STRING:
       return this.value === 'true' ? true : false;
-    case Type.NUMBER:
-    {
+    case Type.NUMBER: {
       // Only non-zero integers are true, floats are false.
       const value = this.value;
       return parseInt(value, 10) === value ? value !== 0 : false;
@@ -132,7 +129,7 @@ class Node {
   /**
    * Replace characters in the string with those in the mapping.
    */
-  replace(mapping: any) {
+  replace(mapping: any): string {
     return replaceMappedChars(this.asString(), mapping);
   }
 
@@ -140,7 +137,7 @@ class Node {
   //   return new Node(value, type);
   // }
 
-  path(path: (string | number)[]) {
+  path(path: (string | number)[]): Node {
     let value = this.value;
     let type = this.type;
     for (let i = 0, len = path.length; i < len; i++) {
@@ -160,7 +157,7 @@ class Node {
     return new Node(value, type);
   }
 
-  get(key: string | number) {
+  get(key: string | number): Node {
     if (this.type === Type.ARRAY || this.type === Type.OBJECT) {
       const value = this.value[key];
       const type = of(value);
@@ -171,6 +168,38 @@ class Node {
     return MISSING_NODE;
   }
 }
+
+/**
+ * Wrap a value in a Node if not already.
+ */
+export const toNode = (value: any) => {
+  return value instanceof Node ? value : new Node(value);
+};
+
+/**
+ * Returns true or false indicating the value is "truthy" per the
+ * template compiler's rules.
+ */
+export const isTruthy = (n: Node | any) => {
+  const node = toNode(n);
+  const value = node.value;
+  switch (node.type) {
+  case Type.STRING:
+    return value !== '';
+  case Type.NUMBER:
+    return value !== 0;
+  case Type.BOOLEAN:
+    return value;
+  case Type.OBJECT:
+    return Object.keys(value).length !== 0 || value.constructor !== Object;
+  case Type.ARRAY:
+    return value.length !== 0;
+  case Type.MISSING:
+  case Type.NULL:
+  default:
+    return false;
+  }
+};
 
 // Singleton, used any time we need to return a missing node
 MISSING_NODE = new Node(null, Type.MISSING);

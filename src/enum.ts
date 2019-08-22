@@ -9,20 +9,21 @@ export type EnumMethods<T> = {
   is(value: any): boolean;
   fromName(name: string): EnumValue<T> | undefined;
   fromCode(code: number): EnumValue<T> | undefined;
-}
+};
 
 export type Enum<T, R> = {
   [P in keyof R]: EnumValue<T>;
-}
+};
 
 export type EnumMap = {
   [id: string]: [number, string];
-}
+};
 
 /**
  * Generate a typed enum having the given kind and values, along
  * with some helper methods.
  */
+// tslint:disable-next-line:variable-name
 export const enum_ = <T extends string, R extends EnumMap>(kind: T, map: R): Enum<T, R> & EnumMethods<T> => {
   const _values: EnumValue<T>[] = [];
   const names: { [x: string]: EnumValue<T> } = {};

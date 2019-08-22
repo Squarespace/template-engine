@@ -16,7 +16,7 @@ const NAMES = {
   [Type.STRING]: 'STRING',
   [Type.BOOLEAN]: 'BOOLEAN',
   [Type.NULL]: 'NULL'
-}
+};
 
 export const nameOf = (type: Type) => NAMES[type];
 

@@ -119,7 +119,6 @@ export const translateUnixToMoment = (fmt: string) => {
   return parts;
 };
 
-
 /**
  * Some YUI format characters can't be translated into MomentJS fields.
  * We need to calculate the field's value on the fly and replace it

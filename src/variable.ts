@@ -10,7 +10,7 @@ export class Variable {
     this.set(node);
   }
 
-  set(node: Node | any) {
+  set(node: Node | any): void {
     this.node = node instanceof Node ? node : new Node(node);
   }
 

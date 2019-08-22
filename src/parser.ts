@@ -33,7 +33,6 @@ const hasStickyRegexp = (() => {
   }
 })();
 
-
 /** Switch our matcher implementation */
 const matcherImpl = hasStickyRegexp ? Matcher : SlowMatcher;
 
@@ -69,7 +68,7 @@ export class Parser {
   /**
    * Parse the input string, transitioning through the states.
    */
-  parse() {
+  parse(): void {
     this.idx = 0;
     let state: State | null = this.stateMain;
     while (state !== null) {
@@ -78,11 +77,11 @@ export class Parser {
     this.push(Opcode.EOF);
   }
 
-  push(inst: Instruction | Opcode) {
+  push(inst: Instruction | Opcode): void {
     this.sink.accept(inst);
   }
 
-  parseTag(start: number, end: number) {
+  parseTag(start: number, end: number): boolean {
     // TODO: support preprocessor scoped instructions, e.g. {^.section foo}..{^.end}
 
     // A leading '#' indicates the start of a comment.
@@ -104,7 +103,7 @@ export class Parser {
   }
 
   /*eslint complexity: ["error", 20]*/
-  parseInstruction(start: number, end: number) {
+  parseInstruction(start: number, end: number): boolean {
     const m = this.matcher;
 
     // Set bounds of our low-level pattern matcher.
@@ -133,8 +132,7 @@ export class Parser {
     case Opcode.META_RIGHT:
     case Opcode.NEWLINE:
     case Opcode.SPACE:
-    case Opcode.TAB:
-    {
+    case Opcode.TAB: {
       // Ensure there are no trailing characters.
       if (m.complete()) {
         this.push(op);
@@ -176,7 +174,7 @@ export class Parser {
    *
    *   {.var @foo bar,baz|foo arg1 arg2|bar arg1}
    */
-  parseBindvar() {
+  parseBindvar(): boolean {
     const m = this.matcher;
 
     if (!m.matchSpace()) {
@@ -215,7 +213,7 @@ export class Parser {
     return true;
   }
 
-  parseCtxvar() {
+  parseCtxvar(): boolean {
     const m = this.matcher;
 
     if (!m.matchSpace()) {
@@ -248,13 +246,12 @@ export class Parser {
     return true;
   }
 
-
   /**
    * Parse an IF instruction. Example:
    *
    *   {.if foo || bar}
    */
-  parseIf() {
+  parseIf(): boolean {
     const m = this.matcher;
 
     if (!m.matchWhitespace()) {
@@ -289,7 +286,7 @@ export class Parser {
    *
    *   {.inject @bar ./messages-en_US.json}
    */
-  parseInject() {
+  parseInject(): boolean {
     const m = this.matcher;
 
     if (!m.matchSpace()) {
@@ -335,7 +332,7 @@ export class Parser {
    *
    *   {.macro person-info}
    */
-  parseMacro() {
+  parseMacro(): boolean {
     const m = this.matcher;
 
     if (!m.matchSpace()) {
@@ -364,7 +361,7 @@ export class Parser {
    *   {.or}
    *   {.or greaterThan? year 2017}
    */
-  parsePredicate(op: Opcode) {
+  parsePredicate(op: Opcode): boolean {
     const m = this.matcher;
 
     let space = false;
@@ -412,7 +409,7 @@ export class Parser {
    *   {.section foo.bar}
    *   {.repeated section items}
    */
-  parseSection(op: Opcode) {
+  parseSection(op: Opcode): boolean {
     const m = this.matcher;
 
     if (!m.matchWhitespace()) {
@@ -449,7 +446,7 @@ export class Parser {
    *   {a, b, c|html|json-pretty}
    *   {timestamp|date %c}
    */
-  parseVariable() {
+  parseVariable(): boolean {
     const m = this.matcher;
 
     const variables = m.matchVariables();
@@ -476,7 +473,7 @@ export class Parser {
    * Flush characters between start and end as a text instruction and
    * set the stream pointer to the end.
    */
-  flushText(start: number, end: number) {
+  flushText(start: number, end: number): void {
     if (start < end) {
       const text = this.str.substring(start, end);
       this.push(new Text(text));
@@ -489,7 +486,7 @@ export class Parser {
   /**
    * Main parser state. Parses alternating text / code instructions.
    */
-  stateMain() {
+  stateMain(): State | null {
     const len = this.len;
     for (;;) {
       // Save the current position before we start scanning below.
@@ -548,7 +545,7 @@ export class Parser {
   /**
    * Multi-line comment parser state.
    */
-  stateMultiLineComment() {
+  stateMultiLineComment(): State | null {
     // Skip '{##'
     this.idx += 3;
     const start = this.idx;

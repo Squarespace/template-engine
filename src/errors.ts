@@ -1,5 +1,5 @@
-import { Instruction, getType } from './instructions';
-import { Opcode, nameOf } from './opcodes';
+import { getType, Instruction } from './instructions';
+import { nameOf, Opcode } from './opcodes';
 
 // TODO: add instruction parse position and type to error messages.
 
