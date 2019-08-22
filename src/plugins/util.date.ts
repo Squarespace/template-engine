@@ -223,15 +223,13 @@ export const getDatePattern = (d: GregorianDate, unixfmt: string) => {
         parts[i] = `'${(d.year() / 100) | 0}'`;
         break;
 
-      case 'day-of-week-1':
-      {
+      case 'day-of-week-1': {
         const wk = d.dayOfWeek() - 1;
         parts[i] = wk === 0 ? '7' : `${wk}`;
         break;
       }
 
-      case 'day-of-week-2':
-      {
+      case 'day-of-week-2': {
         parts[i] = `${d.dayOfWeek() - 1}`;
         break;
       }

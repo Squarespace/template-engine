@@ -21,7 +21,6 @@ import {
   Text,
   Variable,
 } from './instructions';
-import { TemplateError } from './errors';
 
 export interface CodeBuilderResult {
   assembler: Assembler;

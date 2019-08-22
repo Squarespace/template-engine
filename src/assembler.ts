@@ -10,7 +10,6 @@ import {
   unclosed,
   TemplateError
 } from './errors';
-import { Code } from './instructions';
 import { Opcode } from './opcodes';
 import { Sink } from './sink';
 import {

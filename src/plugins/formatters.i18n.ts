@@ -1,17 +1,17 @@
-import { Node } from '../node';
+import { Decimal } from '@phensley/cldr';
+
 import { Context } from '../context';
 import { Variable } from '../variable';
 import { FormatterTable } from '../plugin';
-import { Decimal, ZonedDateTime } from '@phensley/cldr';
 import { Formatter } from '../plugin';
 import { getTimeZone } from './util.date';
 import {
-  setDecimalFormatOptions,
-  setCalendarFormatOptions
+  setCalendarFormatOptions,
+  setDecimalFormatOptions
 } from './util.options';
 
 export class DatetimeFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const cldr = ctx.cldr;
     if (cldr === undefined) {
@@ -36,7 +36,7 @@ export class DatetimeFormatter extends Formatter {
 // TODO: datetimefield
 
 export class DecimalFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const cldr = ctx.cldr;
     if (cldr === undefined) {
