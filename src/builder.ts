@@ -1,6 +1,6 @@
 import { Assembler } from './assembler';
 import { Opcode as O } from './opcodes';
-
+import { TemplateError } from './errors';
 import {
   Atom,
   Bindvar,

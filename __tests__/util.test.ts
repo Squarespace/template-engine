@@ -1,15 +1,13 @@
-import { Node } from '../src/node';
+import { isTruthy, Node } from '../src/node';
 import {
   deepEquals,
   deepMerge,
   isJsonStart,
-  isTruthy,
   repeat,
   splitVariable,
   stringCompare,
   deepCopy,
 } from '../src/util';
-
 
 test('variable splitting', () => {
   expect(splitVariable('@')).toEqual(['@']);
@@ -20,7 +18,6 @@ test('variable splitting', () => {
   expect(splitVariable('a.1.b.2')).toEqual(['a', 1, 'b', 2]);
   expect(splitVariable('0.1.2')).toEqual([0, 1, 2]);
 });
-
 
 test('variable truthiness', () => {
   expect(isTruthy(null)).toEqual(false);
@@ -49,7 +46,6 @@ test('variable truthiness', () => {
   expect(isTruthy(new Node({}))).toEqual(false);
   expect(isTruthy(new Node({ a: 1 }))).toEqual(true);
 });
-
 
 test('json start', () => {
   expect(isJsonStart('abc')).toEqual(false);

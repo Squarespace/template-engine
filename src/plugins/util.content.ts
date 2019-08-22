@@ -1,8 +1,6 @@
-import { Node } from '../node';
-import { isTruthy } from '../util';
+import { isTruthy, Node } from '../node';
 import { escapeHtmlAttributes, removeTags } from './util.string';
 import { Type } from '../types';
-
 
 export const getFocalPoint = (media: Node) => {
   const node = media.get('mediaFocalPoint');

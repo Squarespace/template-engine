@@ -7,7 +7,6 @@ import { Opcode } from './opcodes';
 import { Type } from './types';
 import { Variable } from './variable';
 import { Code, RootCode } from './instructions';
-import { Engine } from './engine';
 
 const DEFAULT_MAX_PARTIAL_DEPTH = 16;
 
@@ -26,13 +25,18 @@ type ParseFunc = (s: string) => { code: Code, errors: TemplateError[] };
 
 const NULL_TEMPLATE: RootCode = [Opcode.ROOT, 1, [], Opcode.EOF];
 
+export interface ContextEngineRef {
+  execute(inst: Code, ctx: Context): void;
+  executeBlock(block: Code[], ctx: Context): void;
+}
+
 /**
  * Context for a single template execution.
  */
 export class Context {
 
   public version: number;
-  public engine: Engine | null;
+  public engine: ContextEngineRef | null;
   public parsefunc: ParseFunc | null;
   public errors: any[];
   public cldr?: CLDR;
@@ -85,7 +89,7 @@ export class Context {
     this.partialsExecuting = new Set();
   }
 
-  enterPartial(name: string) {
+  enterPartial(name: string): boolean {
     if (this.partialsExecuting.has(name)) {
       this.error(partialSelfRecursion(name));
       return false;
@@ -99,12 +103,12 @@ export class Context {
     return true;
   }
 
-  exitPartial(name: string) {
+  exitPartial(name: string): void {
     this.partialsExecuting.delete(name);
     this.partialsDepth--;
   }
 
-  error(msg: TemplateError) {
+  error(msg: TemplateError): void {
     this.errors.push(msg);
   }
 
@@ -112,7 +116,7 @@ export class Context {
     return new Node(value);
   }
 
-  newVariable(name: string, node: Node) {
+  newVariable(name: string, node: Node): Variable {
     return new Variable(name, node);
   }
 
@@ -128,7 +132,7 @@ export class Context {
   /**
    * Restore the old buffer.
    */
-  restoreBuffer(old: string) {
+  restoreBuffer(old: string): void {
     this.buf = old;
   }
 
@@ -141,7 +145,7 @@ export class Context {
    * each string fragment as it is appended. For instance, to append fragments to
    * an array instead of a string.
    */
-  append(s: string) {
+  append(s: string): void {
     this.buf += s;
   }
 
@@ -155,7 +159,7 @@ export class Context {
   /**
    * Emit a variable into the output.
    */
-  emit(vars: Variable[]) {
+  emit(vars: Variable[]): void {
     const first = vars[0].node!;
     switch (first.type) {
     case Type.NUMBER:
@@ -168,8 +172,7 @@ export class Context {
       this.append('');
       break;
 
-    case Type.ARRAY:
-    {
+    case Type.ARRAY: {
       const arr = first.value;
       for (let i = 0; i < arr.length; i++) {
         if (i > 0) {
@@ -218,7 +221,7 @@ export class Context {
 
       // If errors occurred, append them to this context's errors
       if (res.errors && res.errors.length > 0) {
-        for (var i = 0; i < res.errors.length; i++) {
+        for (let i = 0; i < res.errors.length; i++) {
           this.error(partialParseFail(name, res.errors[i].message));
         }
 
@@ -240,7 +243,7 @@ export class Context {
   /**
    * Returns a macro instruction, or null if none is defined.
    */
-  getMacro(name: string) {
+  getMacro(name: string): Code | null {
     const len = this.stack.length - 1;
     for (let i = len; i >= 0; i--) {
       const inst = this.stack[i]._getMacro(name);
@@ -274,7 +277,7 @@ export class Context {
   /**
    * Resolve the names to a node (or missing node) and push a frame onto the stack.
    */
-  pushSection(names: (string | number)[]) {
+  pushSection(names: (string | number)[]): void {
     const len = names.length;
     let node = MISSING_NODE;
     if (len > 0) {
@@ -309,14 +312,14 @@ export class Context {
   /**
    * Defines an @-prefixed variable on the current stack frame.
    */
-  setVar(name: string, variable: Variable) {
+  setVar(name: string, variable: Variable): void {
     this.frame().setVar(name, variable.node);
   }
 
   /**
    * Defines a macro on the current stack frame.
    */
-  setMacro(name: string, inst: Code) {
+  setMacro(name: string, inst: Code): void {
     this.frame().setMacro(name, inst);
   }
 
@@ -324,7 +327,7 @@ export class Context {
    * Initialize state needed to iterate over an array in a
    * repeated section instruction.
    */
-  initIteration() {
+  initIteration(): boolean {
     const frame = this.frame();
     const node = frame.node;
     if (node.type !== Type.ARRAY || node.value.length === 0) {
@@ -337,7 +340,7 @@ export class Context {
   /**
    * Push the next element of the current array onto the stack.
    */
-  pushNext() {
+  pushNext(): void {
     const frame = this.frame();
     const node = frame.node.path([frame.currentIndex]);
     if (node.type === Type.MISSING) {
@@ -351,7 +354,7 @@ export class Context {
    * Resolve the name array against the stack frame. If no frame is defined
    * it uses the current frame.
    */
-  resolve(names: (string | number)[]) {
+  resolve(names: (string | number)[]): Node {
     const len = names.length;
     if (len === 0) {
       return MISSING_NODE;
@@ -367,7 +370,7 @@ export class Context {
    * Look up the stack looking for the first name that resolves successfully.
    * If a frame is marked "stopResolution" we bail out at that point.
    */
-  lookupStack(name: string | number) {
+  lookupStack(name: string | number): Node {
     const len = this.stack.length - 1;
     for (let i = len; i >= 0; i--) {
       const frame = this.stack[i];
@@ -388,7 +391,7 @@ export class Context {
    * it resolves a special variable (@ for current node, @index or
    * @index0 for 1- and 0-based array indices) or looks up a user-defined variable.
    */
-  resolveName(name: string | number, frame: Frame) {
+  resolveName(name: string | number, frame: Frame): Node {
     if (typeof name === 'string' && name[0] === '@') {
       if (name === '@') {
         return frame.node;

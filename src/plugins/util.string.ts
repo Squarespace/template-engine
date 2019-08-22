@@ -1,6 +1,5 @@
 import { replaceMappedChars } from '../util';
 
-
 /**
  * Strip text between '<' and '>' from string.
  */
@@ -45,7 +44,6 @@ export const slugify = (str: string) => {
   str = str.replace(WHITESPACE_RE, '-');
   return str.toLowerCase();
 };
-
 
 const SCRIPT_TAG = /<\//g;
 

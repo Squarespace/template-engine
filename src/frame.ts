@@ -1,15 +1,14 @@
-import { Node, MISSING_NODE } from './node';
+import { MISSING_NODE, Node } from './node';
 import { Code } from './instructions';
 /**
  * Stack frame.
  */
 export class Frame {
 
-  private variables?: Map<string, Node>;
-  private macros?: Map<string, Code>;
-
   currentIndex: number = -1;
   stopResolution: boolean = false;
+  private variables?: Map<string, Node>;
+  private macros?: Map<string, Code>;
 
   constructor(readonly node: Node) {
   }
@@ -17,7 +16,7 @@ export class Frame {
   /**
    * Adds a variable to this frame.
    */
-  setVar(name: string, node: Node) {
+  setVar(name: string, node: Node): void {
     if (!this.variables) {
       this.variables = new Map<string, Node>();
     }
@@ -35,7 +34,7 @@ export class Frame {
   /**
    * Adds a macro to this frame.
    */
-  setMacro(name: string, inst: Code) {
+  setMacro(name: string, inst: Code): void {
     if (!this.macros) {
       this.macros = new Map<string, Code>();
     }

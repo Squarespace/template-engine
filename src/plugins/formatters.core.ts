@@ -1,17 +1,18 @@
 import { Context } from '../context';
 import { partialMissing } from '../errors';
+import { isTruthy } from '../node';
 import { Formatter, FormatterTable } from '../plugin';
 import { MacroCode, RootCode } from '../instructions';
 import { Variable } from '../variable';
 import { Type } from '../types';
 import { executeTemplate } from '../exec';
-import { isTruthy, splitVariable } from '../util';
+import { splitVariable } from '../util';
 import { format } from './util.format';
 import { escapeHtmlAttributes, escapeScriptTags, slugify, truncate } from './util.string';
 import utf8 from 'utf8';
 
 export class ApplyFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
 
     // Bail if we have no arguments or no engine defined.
@@ -52,7 +53,7 @@ export class ApplyFormatter extends Formatter {
 }
 
 export class CountFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const node = first.node;
     if (node.type === Type.OBJECT) {
@@ -66,7 +67,7 @@ export class CountFormatter extends Formatter {
 }
 
 export class CycleFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const value = first.node.asNumber();
     const count = args.length;
@@ -79,7 +80,7 @@ export class CycleFormatter extends Formatter {
 }
 
 export class EncodeSpaceFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const value = first.node.asString();
     first.set(value.replace(/\s/g, '&nbsp;'));
@@ -87,7 +88,7 @@ export class EncodeSpaceFormatter extends Formatter {
 }
 
 export class EncodeUriFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const value = first.node.asString();
     first.set(encodeURI(value));
@@ -95,7 +96,7 @@ export class EncodeUriFormatter extends Formatter {
 }
 
 export class EncodeUriComponentFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const value = first.node.asString();
     first.set(encodeURIComponent(value));
@@ -103,7 +104,7 @@ export class EncodeUriComponentFormatter extends Formatter {
 }
 
 export class FormatFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const values = args.map(arg => {
       const names = splitVariable(arg);
@@ -117,7 +118,7 @@ export class FormatFormatter extends Formatter {
 }
 
 export class HtmlFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const value = first.node.replace({
       '&': '&amp;',
@@ -129,21 +130,21 @@ export class HtmlFormatter extends Formatter {
 }
 
 export class HtmlAttrFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     first.set(escapeHtmlAttributes(first.node.asString()));
   }
 }
 
 export class IterFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const value = ctx.lookupStack('@index');
     vars[0].set(value.asString());
   }
 }
 
 export class JsonFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const value = JSON.stringify(first.node.value);
     first.set(escapeScriptTags(value));
@@ -151,15 +152,15 @@ export class JsonFormatter extends Formatter {
 }
 
 export class JsonPretty extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
-    const value = JSON.stringify(first.node.value, null, '  ');
+    const value = JSON.stringify(first.node.value, undefined, '  ');
     first.set(escapeScriptTags(value));
   }
 }
 
 export class LookupFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const key = first.node.asString();
     const ref = ctx.resolve(splitVariable(key));
@@ -169,14 +170,14 @@ export class LookupFormatter extends Formatter {
 }
 
 export class OutputFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const value = args.join(' ');
     vars[0].set(value);
   }
 }
 
 export class PluralizeFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     let singular = '';
     let plural = 's';
     if (args.length === 1) {
@@ -193,14 +194,14 @@ export class PluralizeFormatter extends Formatter {
 }
 
 export class RawFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     first.set(first.node.asString());
   }
 }
 
 export class RoundFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const value = first.node.asNumber();
     first.set(Math.round(value));
@@ -210,7 +211,7 @@ export class RoundFormatter extends Formatter {
 const RE_SAFE = /<[^>]*?>/g;
 
 export class SafeFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     if (isTruthy(first.node)) {
       const value = first.node.asString();
@@ -220,7 +221,7 @@ export class SafeFormatter extends Formatter {
 }
 
 export class SlugifyFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const value = first.node.asString();
     first.set(slugify(value));
@@ -231,7 +232,7 @@ const RE_SMARTY_1 = /(^|[-\u2014\\s(\["])'/g;
 const RE_SMARTY_2 = /(^|[-\u2014/\[(\u2018\s])"/g;
 
 export class SmartyPantsFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     let value = first.node.asString();
     value = value.replace(RE_SMARTY_1, '$1\u2018');
@@ -244,14 +245,14 @@ export class SmartyPantsFormatter extends Formatter {
 }
 
 export class StrFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     first.set(first.node.asString());
   }
 }
 
 export class TruncateFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const limit = args.length === 0 ? 0 : parseInt(args[0], 10);
     if (isFinite(limit) && limit > 0) {
       const first = vars[0];
@@ -263,7 +264,7 @@ export class TruncateFormatter extends Formatter {
 }
 
 export class UrlEncodeFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const value = first.node.asString();
     const utf = utf8.encode(value);

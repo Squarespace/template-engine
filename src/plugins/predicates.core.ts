@@ -1,7 +1,7 @@
 import { Context } from '../context';
-import { Node } from '../node';
+import { isTruthy, Node } from '../node';
 import { Predicate, PredicateTable } from '../plugin';
-import { isJsonStart, isTruthy, splitVariable } from '../util';
+import { isJsonStart, splitVariable } from '../util';
 import { Type } from '../types';
 
 /**
@@ -9,7 +9,7 @@ import { Type } from '../types';
  * or a variable reference. It attempts to parse the JSON values, and falls
  * through to resolving the variable references.
  */
-const resolve = (args: string[], ctx: Context) => {
+const resolve = (args: string[], ctx: Context): Node[] => {
   return args.map(arg => {
     if (typeof arg === 'string' && isJsonStart(arg)) {
       try {
@@ -37,7 +37,7 @@ const compute = (args: string[], ctx: Context, f: (a: Node, b: Node) => boolean)
 };
 
 export class DebugPredicate extends Predicate {
-  apply(args: string[], ctx: Context) {
+  apply(args: string[], ctx: Context): boolean {
     const node = ctx.resolve(['debug']);
     return isTruthy(node);
   }
@@ -46,13 +46,13 @@ export class DebugPredicate extends Predicate {
 const equals = (a: Node, b: Node) => a.equals(b);
 
 export class EqualPredicate extends Predicate {
-  apply(args: string[], ctx: Context) {
+  apply(args: string[], ctx: Context): boolean {
     return compute(args, ctx, equals);
   }
 }
 
 export class EvenPredicate extends Predicate {
-  apply(args: string[], ctx: Context) {
+  apply(args: string[], ctx: Context): boolean {
     let node = ctx.node();
     if (args.length >= 1) {
       const names = splitVariable(args[0]);
@@ -68,7 +68,7 @@ export class EvenPredicate extends Predicate {
 const greaterThan = (a: Node, b: Node) => a.compare(b) > 0;
 
 export class GreaterThanPredicate extends Predicate {
-  apply(args: string[], ctx: Context) {
+  apply(args: string[], ctx: Context): boolean {
     return compute(args, ctx, greaterThan);
   }
 }
@@ -76,7 +76,7 @@ export class GreaterThanPredicate extends Predicate {
 const greaterThanOrEqual = (a: Node, b: Node) => a.compare(b) >= 0;
 
 export class GreaterThanOrEqualPredicate extends Predicate {
-  apply(args: string[], ctx: Context) {
+  apply(args: string[], ctx: Context): boolean {
     return compute(args, ctx, greaterThanOrEqual);
   }
 }
@@ -84,7 +84,7 @@ export class GreaterThanOrEqualPredicate extends Predicate {
 const lessThan = (a: Node, b: Node) => a.compare(b) < 0;
 
 export class LessThanPredicate extends Predicate {
-  apply(args: string[], ctx: Context) {
+  apply(args: string[], ctx: Context): boolean {
     return compute(args, ctx, lessThan);
   }
 }
@@ -92,7 +92,7 @@ export class LessThanPredicate extends Predicate {
 const lessThanOrEqual = (a: Node, b: Node) => a.compare(b) <= 0;
 
 export class LessThanOrEqualPredicate extends Predicate {
-  apply(args: string[], ctx: Context) {
+  apply(args: string[], ctx: Context): boolean {
     return compute(args, ctx, lessThanOrEqual);
   }
 }
@@ -100,7 +100,7 @@ export class LessThanOrEqualPredicate extends Predicate {
 const notEqual = (a: Node, b: Node) => !a.equals(b);
 
 export class NotEqualPredicate extends Predicate {
-  apply(args: string[], ctx: Context) {
+  apply(args: string[], ctx: Context): boolean {
     return compute(args, ctx, notEqual);
   }
 }
@@ -108,7 +108,7 @@ export class NotEqualPredicate extends Predicate {
 const isInteger = (n: number) => typeof n === 'number' && Math.floor(n) === n;
 
 export class NthPredicate extends Predicate {
-  apply(args: string[], ctx: Context) {
+  apply(args: string[], ctx: Context): boolean {
     const len = args.length;
     if (len === 0) {
       return false;
@@ -134,7 +134,7 @@ export class NthPredicate extends Predicate {
 }
 
 export class OddPredicate extends Predicate {
-  apply(args: string[], ctx: Context) {
+  apply(args: string[], ctx: Context): boolean {
     let node = ctx.node();
     if (args.length >= 1) {
       const names = splitVariable(args[0]);
@@ -148,13 +148,13 @@ export class OddPredicate extends Predicate {
 }
 
 export class PluralPredicate extends Predicate {
-  apply(args: string[], ctx: Context) {
+  apply(args: string[], ctx: Context): boolean {
     return ctx.node().asNumber() > 1;
   }
 }
 
 export class SingularPredicate extends Predicate {
-  apply(args: string[], ctx: Context) {
+  apply(args: string[], ctx: Context): boolean {
     return ctx.node().asNumber() === 1;
   }
 }

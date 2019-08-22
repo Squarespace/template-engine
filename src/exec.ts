@@ -30,4 +30,3 @@ export const executeTemplate = (ctx: Context, inst: RootCode | MacroCode, node: 
   ctx.restoreBuffer(buf);
   return text;
 };
-

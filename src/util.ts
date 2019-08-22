@@ -1,8 +1,6 @@
-import { Node } from './node';
 import { of, Type } from './types';
 
 const ALL_DIGITS = /^\d+$/;
-
 
 /**
  * Split a variable reference into parts. This forms a path that
@@ -21,48 +19,12 @@ export const splitVariable = (name: string) => {
   return parts;
 };
 
-
-/**
- * Wrap a value in a Node if not already.
- */
-export const toNode = (value: any) => {
-  return value instanceof Node ? value : new Node(value);
-};
-
-
-/**
- * Returns true or false indicating the value is "truthy" per the
- * template compiler's rules.
- */
-export const isTruthy = (n: Node | any) => {
-  const node = toNode(n);
-  const value = node.value;
-  switch (node.type) {
-  case Type.STRING:
-    return value !== '';
-  case Type.NUMBER:
-    return value !== 0;
-  case Type.BOOLEAN:
-    return value;
-  case Type.OBJECT:
-    return Object.keys(value).length !== 0 || value.constructor !== Object;
-  case Type.ARRAY:
-    return value.length !== 0;
-  case Type.MISSING:
-  case Type.NULL:
-  default:
-    return false;
-  }
-};
-
-
 const RE_JSON_START = /^[\"\d\[\{]|^-\d|^(true|false|null)$/;
 
 /**
  * Return true if the string starts with a value JSON character or value.
  */
 export const isJsonStart = (s: string | number) => RE_JSON_START.test(s as string);
-
 
 /**
  * Deep compare of two objects for equality.
@@ -126,7 +88,6 @@ export const deepEquals = (o1: any, o2: any) => {
   return visit(o1, o2);
 };
 
-
 /**
  * Returns an integer indicating:
  *
@@ -150,8 +111,6 @@ export const stringCompare = (s1: string, s2: string) => {
   return len1 - len2;
 };
 
-
-
 /**
  * Repeat a string N times.
  */
@@ -165,7 +124,6 @@ export const repeat = (n: number, str: string) => {
   }
   return res;
 };
-
 
 const isObject = (o: any) => of(o) === Type.OBJECT;
 
@@ -194,7 +152,6 @@ export const deepMerge = (dst: any, ...sources: any[]): any => {
   return deepMerge(dst, ...sources);
 };
 
-
 /**
  * Create a deep copy of value, object or array.
  */
@@ -204,7 +161,7 @@ export const deepCopy = (obj: any): any => {
   case Type.ARRAY:
     return obj.map((e: any) => deepCopy(e));
   case Type.OBJECT:
-    return Object.keys(obj).reduce(function (o: any, k: string) {
+    return Object.keys(obj).reduce((o: any, k: string): any => {
       o[k] = deepCopy(obj[k]);
       return o;
     }, {});
@@ -212,7 +169,6 @@ export const deepCopy = (obj: any): any => {
     return obj;
   }
 };
-
 
 /**
  * For each character in the mapping, replace it in the output.

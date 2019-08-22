@@ -11,16 +11,14 @@ import commentsTemplate from './templates/comments.json';
 import likeButtonTemplate from './templates/like-button.json';
 import { makeSocialButton } from './util.social';
 
-
 const TWITTER_LINKS_REGEX = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\\/%=~_|])/ig;
 const TWITTER_LINKS_REPLACEMENT = '<a target="new" href="$1">$1</a>';
 const TWITTER_TWEETS_REGEX = /(^| )@([a-z0-9_]+)/ig;
 const TWITTER_TWEETS_REPLACEMENT = '$1<a target="new" href="http://www.twitter.com/$2/">@$2</a>';
 const TWITTER_HASHTAG_REGEX = /(^| )#([a-z0-9_]+)/ig;
 
-
 export class ActivateTwitterLinksFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     let text = first.node.asString();
     text = text.replace(TWITTER_LINKS_REGEX, TWITTER_LINKS_REPLACEMENT);
@@ -50,14 +48,14 @@ const getCommentCount = (item: Node) => {
 };
 
 export class CommentCountFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     first.set(getCommentCount(first.node));
   }
 }
 
 export class CommentLinkFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const text = executeTemplate(ctx, commentLinkTemplate as unknown as RootCode, first.node, false);
     first.set(text);
@@ -65,7 +63,7 @@ export class CommentLinkFormatter extends Formatter {
 }
 
 export class CommentsFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const text = executeTemplate(ctx, commentsTemplate as unknown as RootCode, first.node, false);
     first.set(text);
@@ -83,7 +81,7 @@ const getLocationString = (node: Node) => {
 };
 
 export class GoogleCalendarUrlFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const node = first.node;
 
@@ -116,7 +114,7 @@ export class GoogleCalendarUrlFormatter extends Formatter {
 }
 
 export class LikeButtonFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const text = executeTemplate(ctx, likeButtonTemplate as unknown as RootCode, first.node, false);
     first.set(text);
@@ -124,7 +122,7 @@ export class LikeButtonFormatter extends Formatter {
 }
 
 export class SocialButtonFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const website = ctx.resolve(['website']);
     const text = makeSocialButton(website, first.node, false);
@@ -133,7 +131,7 @@ export class SocialButtonFormatter extends Formatter {
 }
 
 export class SocialButtonInlineFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const website = ctx.resolve(['website']);
     const text = makeSocialButton(website, first.node, true);
@@ -142,7 +140,7 @@ export class SocialButtonInlineFormatter extends Formatter {
 }
 
 export class TwitterFollowButtonFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const account = first.node;
     let userName = account.get('userName').asString();

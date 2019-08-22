@@ -11,7 +11,7 @@ export abstract class Formatter {
 
 export type FormatterTable = {
   [x: string]: Formatter;
-}
+};
 
 export abstract class Predicate {
 
@@ -23,4 +23,4 @@ export abstract class Predicate {
 
 export type PredicateTable = {
   [x: string]: Predicate;
-}
+};

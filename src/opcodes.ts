@@ -31,8 +31,7 @@ export const enum Opcode {
 
   // Composite context variable instruction
   CTXVAR = 22
-
-};
+}
 
 const NAMES = {
   [Opcode.NOOP]: 'NOOP',
@@ -65,4 +64,3 @@ export const nameOf = (opcode: Opcode) => {
   const name = NAMES[opcode];
   return typeof name === 'undefined' ? 'UNKNOWN' : name;
 };
-

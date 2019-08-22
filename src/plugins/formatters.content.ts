@@ -1,8 +1,7 @@
 import { Context } from '../context';
-import { MISSING_NODE, Node } from '../node';
+import { isTruthy, MISSING_NODE, Node } from '../node';
 import { Formatter, FormatterTable } from '../plugin';
 import { executeTemplate } from '../exec';
-import { isTruthy } from '../util';
 import { Variable } from '../variable';
 import { RootCode } from '../instructions';
 
@@ -17,13 +16,11 @@ import {
 import { escapeHtmlAttributes, slugify } from './util.string';
 import { hexColorToInt } from './util.color';
 
-
 // Template imports
 import audioPlayerTemplate from './templates/audio-player.json';
 
-
 export class AbsUrlFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const url = ctx.resolve(['base-url']).asString();
     const value = first.node.asString();
@@ -32,7 +29,7 @@ export class AbsUrlFormatter extends Formatter {
 }
 
 export class AudioPlayerFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const text = executeTemplate(ctx, audioPlayerTemplate as unknown as RootCode, first.node, true);
     first.set(text);
@@ -40,7 +37,7 @@ export class AudioPlayerFormatter extends Formatter {
 }
 
 export class CapitalizeFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const value = first.node.asString();
     first.set(value.toUpperCase());
@@ -48,7 +45,7 @@ export class CapitalizeFormatter extends Formatter {
 }
 
 export class ChildImageMetaFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const index = args.length === 0 ? 0 : parseInt(args[0], 10);
     const child = first.node.path(['items', index]);
@@ -57,7 +54,7 @@ export class ChildImageMetaFormatter extends Formatter {
 }
 
 export class CoverImageMetaFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const image = first.node.get('coverImage');
     first.set(outputImageMeta(image));
@@ -67,7 +64,7 @@ export class CoverImageMetaFormatter extends Formatter {
 const HALFBRIGHT = 0xFFFFFF / 2;
 
 export class ColorWeightFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const hex = first.node.asString();
     const color = hexColorToInt(hex);
@@ -81,7 +78,7 @@ export class ColorWeightFormatter extends Formatter {
 }
 
 export class HeightFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const parts = splitDimensions(first.node);
     if (parts === null) {
@@ -94,13 +91,13 @@ export class HeightFormatter extends Formatter {
 }
 
 export class HumanizeDurationFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     // TODO: implement
   }
 }
 
 export class ImageFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const node = first.node;
     const cls = args.length === 1 ? args[0] : 'thumb-image';
@@ -137,7 +134,7 @@ export class ImageFormatter extends Formatter {
     first.set(res);
   }
 
-  getAltText(ctx: Context) {
+  getAltText(ctx: Context): string {
     // For image blocks, caption is stored on the block and not the item.
     // need to reach out via the context to see if it exist first,
     // before falling back on the data on the item
@@ -158,7 +155,7 @@ const IMAGE_COLOR_POSITIONS = [
 ];
 
 export class ImageColorFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const colorData = first.node.get('colorData');
 
@@ -192,7 +189,7 @@ export class ImageColorFormatter extends Formatter {
 }
 
 export class ImageMetaFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const image = first.node;
     first.set(outputImageMeta(image));
@@ -200,7 +197,7 @@ export class ImageMetaFormatter extends Formatter {
 }
 
 export class ImageMetaSrcSetFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const image = first.node;
     if (image.isMissing()) {
@@ -231,7 +228,7 @@ const slugifyClasses = (prefix: string, node: Node) => {
 };
 
 export class ItemClassesFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const value = first.node;
 
@@ -303,7 +300,7 @@ const resize = (ctx: Context, node: Node, resizeWidth: boolean, requested: numbe
 };
 
 export class ResizedHeightForWidthFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const requested = parseInt(args[0], 10);
     const first = vars[0];
     const text = resize(ctx, first.node, false, requested);
@@ -312,7 +309,7 @@ export class ResizedHeightForWidthFormatter extends Formatter {
 }
 
 export class ResizedWidthForHeightFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const requested = parseInt(args[0], 10);
     const first = vars[0];
     const text = resize(ctx, first.node, true, requested);
@@ -336,7 +333,7 @@ const getSquarespaceSizeForWidth = (width: number) => {
 };
 
 export class SquarespaceThumbnailForWidthFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const width = parseInt(args[0], 10);
     const first = vars[0];
     first.set(getSquarespaceSizeForWidth(width));
@@ -344,7 +341,7 @@ export class SquarespaceThumbnailForWidthFormatter extends Formatter {
 }
 
 export class SquarespaceThumbnailForHeightFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const height = parseInt(args[0], 10);
     const first = vars[0];
     const resized = resize(ctx, first.node, true, height);
@@ -357,13 +354,13 @@ export class SquarespaceThumbnailForHeightFormatter extends Formatter {
 }
 
 export class TimeSinceFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     // TODO: implement
   }
 }
 
 export class WidthFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const parts = splitDimensions(first.node);
     if (parts === null) {
@@ -384,7 +381,7 @@ const COLOR_LOCATIONS = [
 ];
 
 export class VideoFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const node = first.node;
 
@@ -440,7 +437,6 @@ export class VideoFormatter extends Formatter {
     first.set(res);
   }
 }
-
 
 export const TABLE: FormatterTable = {
   'AbsUrl': new AbsUrlFormatter(),

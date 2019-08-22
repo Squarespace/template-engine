@@ -12,9 +12,8 @@ const getTimeZone = (ctx: Context) => {
   return node.isMissing() ? 'America/New_York' : node.asString();
 };
 
-
 export class DateFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
 
     // No args, just return no output. On the server-side this would raise an

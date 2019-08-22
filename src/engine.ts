@@ -19,7 +19,7 @@ import {
 import { unexpectedError } from './errors';
 import { Variable } from './variable';
 import { Formatter, Predicate } from './plugin';
-import { isTruthy } from './util';
+import { isTruthy } from './node';
 
 export type FormatterMap = { [x: string]: Formatter };
 export type PredicateMap = { [x: string]: Predicate };
@@ -41,7 +41,6 @@ export const resolveVariables = (rawlist: (string | number)[][], ctx: Context) =
   }
   return result;
 };
-
 
 /**
  * Apply formatters to the list of vars.
@@ -77,9 +76,9 @@ export interface EngineProps {
  */
 export class Engine {
 
+  impls: Hook[];
   private formatters: FormatterMap;
   private predicates: PredicateMap;
-  impls: Hook[];
 
   constructor(props: EngineProps = {}) {
     this.formatters = props.formatters || {};
@@ -117,7 +116,7 @@ export class Engine {
   /**
    * Looks up an opcode and executes the corresponding instruction.
    */
-  execute(inst: Code, ctx: Context) {
+  execute(inst: Code, ctx: Context): void {
     const opcode: Opcode = typeof inst === 'number' ? inst : inst[0];
     const impl = this.impls[opcode];
     if (impl) {
@@ -128,7 +127,7 @@ export class Engine {
   /**
    * Executes the root instruction.
    */
-  executeRoot(inst: RootCode, ctx: Context) {
+  executeRoot(inst: RootCode, ctx: Context): void {
     ctx.version = inst[1];
     ctx.engine = this;
     this.executeBlock(inst[2], ctx);
@@ -137,7 +136,7 @@ export class Engine {
   /**
    * Execute a block of instructions.
    */
-  executeBlock(block: Code[], ctx: Context) {
+  executeBlock(block: Code[], ctx: Context): void {
     if (!Array.isArray(block)) {
       return;
     }
@@ -164,7 +163,7 @@ export class Engine {
    * inst[1]  - list of variable names ['foo.bar', 'baz.quux']
    * inst[2]  - list of formatters with optional arguments [["html"], ["truncate", "10"]]
    */
-  executeVariable(inst: Code, ctx: Context) {
+  executeVariable(inst: Code, ctx: Context): void {
     const vars = resolveVariables((inst as VariableCode)[1], ctx);
     applyFormatters(this.formatters, (inst as VariableCode)[2] || [], vars, ctx);
     ctx.emit(vars);
@@ -177,7 +176,7 @@ export class Engine {
    * inst[2]  - consequent block
    * inst[3]  - alternate instruction
    */
-  executeSection(inst: Code, ctx: Context) {
+  executeSection(inst: Code, ctx: Context): void {
     const names = (inst as SectionCode)[1];
     ctx.pushSection(names);
     const node = ctx.node();
@@ -197,7 +196,7 @@ export class Engine {
    * inst[3]  - alternate instruction
    * inst[4]  - alternates-with block
    */
-  executeRepeated(inst: RepeatedCode, ctx: Context) {
+  executeRepeated(inst: RepeatedCode, ctx: Context): void {
     const names = inst[1];
     ctx.pushSection(names);
     const alternatesWith = inst[4];
@@ -230,7 +229,7 @@ export class Engine {
    * inst[3]  - consequent block
    * inst[4]  - alternate instruction
    */
-  executePredicate(inst: PredicateCode, ctx: Context) {
+  executePredicate(inst: PredicateCode, ctx: Context): void {
     const name = inst[1];
     const consequent = inst[3];
     if (name === 0) {
@@ -259,7 +258,7 @@ export class Engine {
    * inst[2]  - list of variable(s) to resolve
    * inst[3]  - list of formatters with optional arguments
    */
-  executeBindvar(inst: BindvarCode, ctx: Context) {
+  executeBindvar(inst: BindvarCode, ctx: Context): void {
     const name = inst[1];
     const vars = resolveVariables(inst[2], ctx);
 
@@ -273,7 +272,7 @@ export class Engine {
    * inst[1]  - variable to define, e.g. '@foo'
    * inst[2]  - list of context bindings, e.g. ['baz', ['foo', 'bar', 'baz']]
    */
-  executeCtxvar(inst: CtxvarCode, ctx: Context) {
+  executeCtxvar(inst: CtxvarCode, ctx: Context): void {
     const name = inst[1];
     const len = inst[2].length;
     const bindings: Bindings = {};
@@ -294,7 +293,7 @@ export class Engine {
    * inst[3]  - consequent block
    * inst[4]  - alternate instruction
    */
-  executeIf(inst: IfCode, ctx: Context) {
+  executeIf(inst: IfCode, ctx: Context): void {
     const operators = inst[1];
     const vars = resolveVariables(inst[2], ctx);
     const len = vars.length;
@@ -334,7 +333,7 @@ export class Engine {
    * inst[2]  - file path to resolve (key in the injectables map)
    * inst[3]  - optional arguments (currently unused)
    */
-  executeInject(inst: InjectCode, ctx: Context) {
+  executeInject(inst: InjectCode, ctx: Context): void {
     const name = inst[1];
     const path = inst[2];
     // const args = inst[3] - arguments ignored for now
@@ -348,7 +347,7 @@ export class Engine {
    * inst[1]  - name of the macro
    * inst[2]  - block of instructions to execute
    */
-  executeMacro(inst: MacroCode, ctx: Context) {
+  executeMacro(inst: MacroCode, ctx: Context): void {
     const name = inst[1];
     ctx.setMacro(name, inst);
   }

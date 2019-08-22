@@ -40,6 +40,16 @@ const DefaultExecuteProps = {
   injects: {}
 };
 
+export interface ParseResult {
+  code: Code;
+  errors: TemplateError[];
+}
+
+export interface ExecuteResult {
+  ctx: Context;
+  errors: TemplateError[];
+}
+
 /**
  * High level interface for parsing and executing templates.
  */

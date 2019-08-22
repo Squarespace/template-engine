@@ -16,6 +16,7 @@ import { Sink } from './sink';
 import {
   getType,
   BlockInstruction,
+  Code,
   CompositeInstruction,
   Instruction,
   OrPredicate,

@@ -106,7 +106,7 @@ export interface SectionCode {
 
 export interface StructCode {
   [0]: Opcode.STRUCT;
-  [1]: any // opaque value
+  [1]: any; // opaque value
   [2]: Code[]; // children
 }
 
@@ -219,11 +219,11 @@ export class If extends BaseInstruction implements BlockInstruction {
     super(Opcode.IF, [Opcode.IF, operators, variables, [], undefined]);
   }
 
-  addConsequent(inst: Instruction) {
+  addConsequent(inst: Instruction): void {
     (this.code as IfCode)[3].push(getCode(inst));
   }
 
-  setAlternate(inst: Instruction) {
+  setAlternate(inst: Instruction): void {
     (this.code as IfCode)[4] = getCode(inst);
   }
 }
@@ -239,7 +239,7 @@ export class Macro extends BaseInstruction implements CompositeInstruction {
     super(Opcode.MACRO, [Opcode.MACRO, name, []]);
   }
 
-  addConsequent(inst: Instruction) {
+  addConsequent(inst: Instruction): void {
     (this.code as MacroCode)[2].push(getCode(inst));
   }
 }
@@ -250,15 +250,15 @@ export class OrPredicate extends BaseInstruction {
       [Opcode.OR_PREDICATE, name ? name : 0, args ? args : FAST_NULL, empty(), undefined]);
   }
 
-  hasPredicate() {
+  hasPredicate(): boolean {
     return (this.code as OrPredicateCode)[1] !== FAST_NULL;
   }
 
-  addConsequent(inst: Instruction) {
+  addConsequent(inst: Instruction): void {
     (this.code as OrPredicateCode)[3].push(getCode(inst));
   }
 
-  setAlternate(inst: Instruction) {
+  setAlternate(inst: Instruction): void {
     (this.code as OrPredicateCode)[4] = getCode(inst);
   }
 }
@@ -269,11 +269,11 @@ export class Predicate extends BaseInstruction implements BlockInstruction {
       [Opcode.PREDICATE, name, args, [], undefined]);
   }
 
-  addConsequent(inst: Instruction) {
+  addConsequent(inst: Instruction): void {
     (this.code as PredicateCode)[3].push(getCode(inst));
   }
 
-  setAlternate(inst: Instruction) {
+  setAlternate(inst: Instruction): void {
     (this.code as PredicateCode)[4] = getCode(inst);
   }
 }
@@ -283,15 +283,15 @@ export class Repeated extends BaseInstruction implements BlockInstruction {
     super(Opcode.REPEATED, [Opcode.REPEATED, name, [], Opcode.END, []]);
   }
 
-  addConsequent(inst: Instruction) {
+  addConsequent(inst: Instruction): void {
     (this.code as RepeatedCode)[2].push(getCode(inst));
   }
 
-  setAlternate(inst: Instruction) {
+  setAlternate(inst: Instruction): void {
     (this.code as RepeatedCode)[3] = getCode(inst);
   }
 
-  setAlternatesWith(inst: Instruction) {
+  setAlternatesWith(inst: Instruction): void {
     (this.code as RepeatedCode)[4].push(getCode(inst));
   }
 }
@@ -299,14 +299,13 @@ export class Repeated extends BaseInstruction implements BlockInstruction {
 export class Root extends BaseInstruction implements BlockInstruction {
   constructor() {
     super(Opcode.ROOT, [Opcode.ROOT, VERSION, [], Opcode.END]);
-    // this.code = [this.type, VERSION, [], END];
   }
 
-  addConsequent(inst: Instruction) {
+  addConsequent(inst: Instruction): void {
     (this.code as RootCode)[2].push(getCode(inst));
   }
 
-  setAlternate(inst: Instruction) {
+  setAlternate(inst: Instruction): void {
     (this.code as RootCode)[3] = getCode(inst);
   }
 }
@@ -316,11 +315,11 @@ export class Section extends BaseInstruction implements BlockInstruction {
     super(Opcode.SECTION, [Opcode.SECTION, name, [], Opcode.END]);
   }
 
-  addConsequent(inst: Instruction) {
+  addConsequent(inst: Instruction): void {
     (this.code as SectionCode)[2].push(getCode(inst));
   }
 
-  setAlternate(inst: Instruction) {
+  setAlternate(inst: Instruction): void {
     (this.code as SectionCode)[3] = getCode(inst);
   }
 }
@@ -335,7 +334,7 @@ export class Struct extends BaseInstruction implements CompositeInstruction {
     super(Opcode.STRUCT, [Opcode.STRUCT, opaque, []]);
   }
 
-  addConsequent(inst: Instruction) {
+  addConsequent(inst: Instruction): void {
     (this.code as StructCode)[2].push(getCode(inst));
   }
 }
