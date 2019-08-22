@@ -6,6 +6,13 @@ This is a port of the Squarespace Java [template-compiler](https://github.com/sq
 [![Build Status](https://travis-ci.org/Squarespace/template-engine.svg?branch=master)](https://travis-ci.org/Squarespace/template-engine)
 [![Coverage Status](https://img.shields.io/coveralls/Squarespace/template-engine.svg)](https://coveralls.io/github/Squarespace/template-engine?branch=master)
 
+### Versioning
+
+The following live branches exist:
+
+* `1.x` - for ongoing releases using [moment](https://www.npmjs.com/package/moment) and moment-timezone as direct dependencies
+* `master` - 2.x and future releases using [@phensley/cldr](https://www.npmjs.com/package/@phensley/cldr) for international formatting
+
 ### Rationale
 
 The need for compilation of Squarespace templates in the browser has grown over time. The existing projects that enable browser compilation of Squarespace templates are incomplete, incompatible and have maintenance issues.
