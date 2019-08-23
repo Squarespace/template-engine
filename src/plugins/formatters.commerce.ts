@@ -1,4 +1,7 @@
+import { Decimal } from '@phensley/cldr';
+
 import { Context } from '../context';
+import { ProductType } from './enums';
 import { Node } from '../node';
 import { Variable } from '../variable';
 import { RootCode } from '../instructions';
@@ -21,7 +24,6 @@ import summaryFormFieldNameTemplate from './templates/summary-form-field-name.js
 import summaryFormFieldPhoneTemplate from './templates/summary-form-field-phone.json';
 import summaryFormFieldTimeTemplate from './templates/summary-form-field-time.json';
 import variantsSelectTemplate from './templates/variants-select.json';
-import { ProductType } from './enums';
 
 export class AddToCartButtonFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
@@ -31,10 +33,21 @@ export class AddToCartButtonFormatter extends Formatter {
   }
 }
 
-// TODO: bookkeeper-money-format
 export class BookkeeperMoneyFormat extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
-    // TBD
+    const first = vars[0];
+    const { cldr } = ctx;
+    if (!cldr) {
+      first.set('');
+      return;
+    }
+
+    const region = cldr.General.locale().tag.region();
+    const node = first.node.asString();
+    const n = new Decimal(node).divide(100);
+    const currency = cldr.Numbers.getCurrencyForRegion(region);
+    const s = cldr.Numbers.formatCurrency(n, currency);
+    first.set(s);
   }
 }
 
@@ -320,6 +333,7 @@ export class SummaryFormFieldFormatter extends Formatter {
 
 export const TABLE: FormatterTable = {
   'add-to-cart-btn': new AddToCartButtonFormatter(),
+  'bookkeeper-money-format': new BookkeeperMoneyFormat(),
   'cart-quantity': new CartQuantityFormatter(),
   'cart-subtotal': new CartSubtotalFormatter(),
   'cart-url': new CartUrlFormatter(),
