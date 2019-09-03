@@ -3,7 +3,7 @@
 /* eslint-disable import/unambiguous,no-process-exit */
 
 const fs = require('fs');
-const { Compiler } = require('../lib');
+const { Compiler, ReferenceScanner } = require('../lib');
 const { prettyJson } = require('../lib/pretty');
 const RE_1 = /^-(\w)$/;
 const RE_2 = /^--([\w-]+)$/;
@@ -51,6 +51,7 @@ const usage = (args) => {
   console.log('  -t, --template PATH  - Path to HTML or JSON template');
   console.log('  -d, --dump           - Dump parsed template');
   console.log('  -P, --pretty         - Pretty-format the dumped template');
+  console.log('  -R, --references     - Dump template references');
   process.exit(1);
 };
 
@@ -73,6 +74,12 @@ const main = () => {
     } else {
       console.log(JSON.stringify(code));
     }
+    return;
+
+  } else if (args.references || args.R) {
+    const scanner = new ReferenceScanner();
+    scanner.extract(code);
+    console.log(JSON.stringify(scanner.collect(), undefined, args.pretty || args.P ? 2 : 0));
     return;
   }
 
