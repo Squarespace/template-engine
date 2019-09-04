@@ -1,5 +1,3 @@
-import { Decimal } from '@phensley/cldr';
-
 import { Context } from '../context';
 import { ProductType } from './enums';
 import { Node } from '../node';
@@ -10,6 +8,7 @@ import { isTruthy, MISSING_NODE } from '../node';
 import { executeTemplate } from '../exec';
 import * as commerceutil from './util.commerce';
 import { Type } from '../types';
+import { parseDecimal } from './util.i18n';
 
 // Template imports
 import addToCartBtnTemplate from './templates/add-to-cart-btn.json';
@@ -44,7 +43,7 @@ export class BookkeeperMoneyFormat extends Formatter {
 
     const region = cldr.General.locale().tag.region();
     const node = first.node.asString();
-    const n = new Decimal(node).divide(100);
+    const n = parseDecimal(node).divide(100);
     const currency = cldr.Numbers.getCurrencyForRegion(region);
     const s = cldr.Numbers.formatCurrency(n, currency);
     first.set(s);

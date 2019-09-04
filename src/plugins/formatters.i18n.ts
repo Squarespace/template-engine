@@ -1,10 +1,9 @@
-import { Decimal } from '@phensley/cldr';
-
 import { Context } from '../context';
 import { Variable } from '../variable';
 import { FormatterTable } from '../plugin';
 import { Formatter } from '../plugin';
 import { getTimeZone } from './util.date';
+import { parseDecimal } from './util.i18n';
 import {
   setCalendarFormatOptions,
   setDecimalFormatOptions
@@ -46,7 +45,7 @@ export class DecimalFormatter extends Formatter {
 
     const node = first.node.asString();
     const opts = setDecimalFormatOptions(args);
-    const num = new Decimal(node);
+    const num = parseDecimal(node);
     const res = cldr.Numbers.formatDecimal(num, opts);
     first.set(res);
   }
