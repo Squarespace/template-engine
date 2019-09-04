@@ -13,15 +13,24 @@ import {
 } from './instructions';
 import { nameOf, Opcode } from './opcodes';
 
-export class References {
+class Data {
 
-  variables: any[] = [{}];
+  readonly variables: any[] = [{}];
+  readonly instructions: Map<string, number> = new Map();
+  readonly formatters: Map<string, number> = new Map();
+  readonly predicates: Map<string, number> = new Map();
+
   currentNode: any = this.variables[0];
-  instructions: Map<string, number> = new Map();
-  formatters: Map<string, number> = new Map();
-  predicates: Map<string, number> = new Map();
   textBytes: number = 0;
 
+}
+
+export interface References {
+  instructions: { [name: string]: number };
+  formatters: { [name: string]: number };
+  predicates: { [name: string]: number };
+  textBytes: number;
+  variables: any;
 }
 
 const ref = (r: Reference) => r.join('.');
@@ -37,17 +46,16 @@ const convert = (map: Map<string, number>): any => {
 
 export class ReferenceScanner {
 
-  refs: References = new References();
+  private refs: Data = new Data();
 
-  collect(): any {
-    const r: any = {
+  collect(): References {
+    return {
       instructions: convert(this.refs.instructions),
       formatters: convert(this.refs.formatters),
       predicates: convert(this.refs.predicates),
       textBytes: this.refs.textBytes,
       variables: this.refs.variables
     };
-    return r;
   }
 
   extract(inst?: Code): void {

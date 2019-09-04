@@ -8,7 +8,7 @@ import { Parser } from './parser';
 import { Variable } from './variable';
 import { Formatter, FormatterTable, Predicate, PredicateTable } from './plugin';
 import { plugins, Formatters, Predicates } from './plugins';
-import { ReferenceScanner } from './scan';
+import { References, ReferenceScanner} from './scan';
 
 // tslint:disable-next-line:no-default-export
 export default Compiler;
@@ -30,6 +30,7 @@ export {
   Predicates,
   PredicateTable,
   plugins,
+  References,
   ReferenceScanner,
   Variable,
 };
