@@ -117,6 +117,25 @@ export class FormatFormatter extends Formatter {
   }
 }
 
+export class GetFormatter extends Formatter {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
+    const first = vars[0];
+    let tmp = first.node;
+    for (const arg of args) {
+      const path = splitVariable(arg);
+      const node = ctx.resolve(path);
+      const resolved: (number | string)[] =
+        node.type === Type.ARRAY ? (node.value as (number | string)[]) :
+        node.type === Type.NUMBER ? [node.asNumber()] : [node.asString()];
+      tmp = tmp.path(resolved);
+      if (tmp.type !== Type.ARRAY && tmp.type !== Type.OBJECT) {
+        break;
+      }
+    }
+    first.set(tmp);
+  }
+}
+
 export class HtmlFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
@@ -280,6 +299,7 @@ export const TABLE: FormatterTable = {
   'encode-uri': new EncodeUriFormatter(),
   'encode-uri-component': new EncodeUriComponentFormatter(),
   'format': new FormatFormatter(),
+  'get': new GetFormatter(),
   'html': new HtmlFormatter(),
   'htmlattr': new HtmlAttrFormatter(),
   'htmltag': new HtmlAttrFormatter(), // same as "htmlattr"
