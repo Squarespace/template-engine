@@ -306,6 +306,9 @@ test('lookup', () => {
   expect(vars[0].get()).toEqual(123);
 });
 
+pathseq(`f-get-%N.html`, 4).forEach(path => {
+  test(`get - ${path}`, () => loader.execute(path));
+});
 
 test('output', () => {
   const vars = variables(' ');
