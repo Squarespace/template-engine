@@ -1,4 +1,4 @@
-import { GregorianDate } from '@phensley/cldr';
+import { GregorianDate } from '@phensley/cldr-core';
 import { Context } from '../context';
 
 interface Calc {

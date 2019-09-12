@@ -1,4 +1,4 @@
-import { CLDR } from '@phensley/cldr';
+import { CLDR } from '@phensley/cldr-core';
 
 import { partialParseFail, partialRecursion, partialSelfRecursion, TemplateError } from './errors';
 import { Frame } from './frame';

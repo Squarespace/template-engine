@@ -1,4 +1,4 @@
-import { CLDR } from '@phensley/cldr';
+import { CLDR } from '@phensley/cldr-core';
 
 import { Assembler } from './assembler';
 import { Context, Partials } from './context';
