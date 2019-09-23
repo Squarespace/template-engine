@@ -14,9 +14,9 @@ const languageBundle = (tag: string) => {
   }
   const locale = CLDRFramework.resolveLocale(tag);
   const language = locale.tag.language();
-  const path = join(root, `${language}.json.gz`);
-  const compressed = fs.readFileSync(path);
-  return zlib.gunzipSync(compressed).toString('utf-8');
+  const path = join(root, `${language}.json`);
+  const raw = fs.readFileSync(path);
+  return raw.toString('utf-8');
 };
 
 export const framework: CLDRFramework = new CLDRFramework({

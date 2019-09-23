@@ -1,3 +1,5 @@
+import { RelativeTimeFormatOptions } from '@phensley/cldr-core';
+
 import { Context } from '../context';
 import { Variable } from '../variable';
 import { FormatterTable } from '../plugin';
@@ -61,10 +63,38 @@ export class MessageFormatter extends Formatter {
 
 // TODO: money
 // TODO: plural (Legacy, deprecate)
+
+export class TimeSinceFormatter extends Formatter {
+
+  // exposed only for testing
+  public NOW: Date | undefined = undefined;
+
+  apply(args: string[], vars: Variable[], ctx: Context): void {
+    const first = vars[0];
+    const { cldr } = ctx;
+    if (cldr === undefined) {
+      first.set('');
+      return;
+    }
+    const n = first.node.asNumber();
+    const now = cldr.Calendars.toGregorianDate(this.NOW || new Date());
+    const date = cldr.Calendars.toGregorianDate({ date: n });
+
+    // TODO: parse arguments
+    const opts: RelativeTimeFormatOptions = {
+      context: 'begin-sentence'
+    };
+
+    const s = cldr.Calendars.formatRelativeTime(now, date, opts);
+    first.set(s);
+  }
+}
+
 // TODO: unit
 
 export const TABLE: FormatterTable = {
   message: new MessageFormatter(),
   datetime: new DatetimeFormatter(),
-  decimal: new DecimalFormatter()
+  decimal: new DecimalFormatter(),
+  timesince: new TimeSinceFormatter()
 };

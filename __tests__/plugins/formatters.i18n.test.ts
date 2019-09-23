@@ -1,13 +1,14 @@
-import { CLDR } from '@phensley/cldr';
+import { CLDR, GregorianDate } from '@phensley/cldr';
 import { framework } from '../cldr';
 import { Context } from '../../src/context';
-import { TABLE } from '../../src/plugins/formatters.i18n';
+import { TimeSinceFormatter, TABLE } from '../../src/plugins/formatters.i18n';
 import { Variable } from '../../src/variable';
 
 const variables = (...n: any[]) => n.map((v, i) => new Variable('var' + i, v));
 
 const EN = framework.get('en');
 const DE = framework.get('de');
+const ES = framework.get('es');
 
 const ZONE_NY = 'America/New_York';
 const ZONE_LA = 'America/Los_Angeles';
@@ -25,6 +26,17 @@ const formatGregorian = (engine: CLDR, epoch: string, zoneId: string, args: stri
   const impl = TABLE.datetime;
   const ctx = new Context({ website: { timeZone: zoneId } }, { cldr: engine });
   const vars = variables(epoch);
+  impl.apply(args, vars, ctx);
+  return vars[0].get();
+};
+
+const formatTimeSince = (engine: CLDR, start: Date, end: number, args: string[]) => {
+  const impl = TABLE.timesince as TimeSinceFormatter;
+  // 'timesince' formatter computes relative to now, so use a special
+  // property on the formatter to set "now"
+  impl.NOW = start;
+  const ctx = new Context({ }, { cldr: engine });
+  const vars = variables(end);
   impl.apply(args, vars, ctx);
   return vars[0].get();
 };
@@ -65,4 +77,41 @@ test('datetime', () => {
   // TODO:
   // args = ['skeleton:EyMMMd']
   // expect(formatGregorian(EN, d, ZONE_NY, args)).toEqual('');
+});
+
+test('timesince', () => {
+  const base = new Date();
+  const start = EN.Calendars.toGregorianDate(base);
+  const args: string[] = [];
+  let e: number;
+
+  e = start.add({ millis: 100 }).unixEpoch();
+  expect(formatTimeSince(EN, base, e, args)).toEqual('Now');
+  expect(formatTimeSince(DE, base, e, args)).toEqual('Jetzt');
+  expect(formatTimeSince(ES, base, e, args)).toEqual('Ahora');
+
+  e = start.add({ year: -1.6 }).unixEpoch();
+  expect(formatTimeSince(EN, base, e, args)).toEqual('2 years ago');
+  expect(formatTimeSince(DE, base, e, args)).toEqual('Vor 2 Jahren');
+  expect(formatTimeSince(ES, base, e, args)).toEqual('Hace 2 años');
+
+  e = start.add({ month: -6 }).unixEpoch();
+  expect(formatTimeSince(EN, base, e, args)).toEqual('6 months ago');
+  expect(formatTimeSince(DE, base, e, args)).toEqual('Vor 6 Monaten');
+  expect(formatTimeSince(ES, base, e, args)).toEqual('Hace 6 meses');
+
+  e = start.add({ day: -27 }).unixEpoch();
+  expect(formatTimeSince(EN, base, e, args)).toEqual('4 weeks ago');
+  expect(formatTimeSince(DE, base, e, args)).toEqual('Vor 4 Wochen');
+  expect(formatTimeSince(ES, base, e, args)).toEqual('Hace 4 semanas');
+
+  e = start.add({ hour: -27 }).unixEpoch();
+  expect(formatTimeSince(EN, base, e, args)).toEqual('Yesterday');
+  expect(formatTimeSince(DE, base, e, args)).toEqual('Gestern');
+  expect(formatTimeSince(ES, base, e, args)).toEqual('Ayer');
+
+  e = start.add({ minute: -27 }).unixEpoch();
+  expect(formatTimeSince(EN, base, e, args)).toEqual('27 minutes ago');
+  expect(formatTimeSince(DE, base, e, args)).toEqual('Vor 27 Minuten');
+  expect(formatTimeSince(ES, base, e, args)).toEqual('Hace 27 minutos');
 });

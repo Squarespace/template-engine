@@ -243,7 +243,7 @@ export class SameDayPredicate extends Predicate {
 
     const d1 = cldr.Calendars.toGregorianDate({ date: startDate });
     const d2 = cldr.Calendars.toGregorianDate({ date: endDate });
-    const field = d1.fieldOfGreatestDifference(d2);
+    const field = d1.fieldOfVisualDifference(d2);
     return field !== 'y' && field !== 'M' && field !== 'd';
   }
 }
