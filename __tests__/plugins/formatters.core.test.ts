@@ -310,6 +310,14 @@ pathseq(`f-get-%N.html`, 4).forEach(path => {
   test(`get - ${path}`, () => loader.execute(path));
 });
 
+pathseq('f-macro-%N.html', 8).forEach(path => {
+  test(`apply macro - ${path}`, () => loader.execute(path));
+});
+
+pathseq('f-macro-ctx-%N.html', 1).forEach(path => {
+  test(`apply macro ctx - ${path}`, () => loader.execute(path));
+});
+
 test('output', () => {
   const vars = variables(' ');
   Core.output.apply(['a', 'b', 'c'], vars, CTX);

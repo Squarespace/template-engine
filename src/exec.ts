@@ -2,16 +2,23 @@ import { Context } from './context';
 import { Node } from './node';
 import { MacroCode, RootCode } from './instructions';
 import { Opcode } from './opcodes';
+import { Variable } from './variable';
 
 /**
  * Execute an instruction against the current context, capturing the output
  * and returning it. If privateContext is true variable resolution will be
  * blocked at the current stack frame.
  */
-export const executeTemplate = (ctx: Context, inst: RootCode | MacroCode, node: Node, privateContext: boolean) => {
+export const executeTemplate = (ctx: Context, inst: RootCode | MacroCode, node: Node, privateContext: boolean,
+    argvar?: Variable) => {
   const buf = ctx.swapBuffer();
   ctx.pushNode(node);
   ctx.stopResolution(privateContext);
+
+  // Arguments from the 'apply' formatter
+  if (argvar) {
+    ctx.setVar('@args', argvar);
+  }
 
   switch (inst[0]) {
     case Opcode.ROOT:
