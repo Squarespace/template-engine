@@ -3,6 +3,7 @@ import { partialMissing } from '../errors';
 import { isTruthy } from '../node';
 import { Formatter, FormatterTable } from '../plugin';
 import { MacroCode, RootCode } from '../instructions';
+import { Node } from '../node';
 import { Variable } from '../variable';
 import { Type } from '../types';
 import { executeTemplate } from '../exec';
@@ -24,12 +25,34 @@ export class ApplyFormatter extends Formatter {
     // Get the name of the partial / macro.
     const name = args[0];
 
+    let argvar: Variable | undefined;
+
     // Set whether the partial / macro's execution context should be private.
     // This will block variable resolution from proceeding past the current
     // stack frame.
     let privateContext = false;
-    if (args.length >= 2) {
-      privateContext = args[1] === 'private';
+    if (args.length > 1) {
+      const argmap: any = {};
+      for (let i = 1; i < args.length; i++) {
+        const arg = args[i];
+
+        // Mark the context as private
+        if (arg === 'private') {
+          privateContext = true;
+          continue;
+        }
+
+        // Parse the colon-delimited arguments into key-values
+        const j = arg.indexOf(':');
+        if (j !== -1) {
+          const k = arg.slice(0, j);
+          const v = arg.slice(j + 1);
+          argmap[k] = v;
+        }
+      }
+
+      // Pass formatter's argument to the macro / template
+      argvar = ctx.newVariable('@args', new Node(argmap));
     }
 
     // Retrieve the partial / macro by name, If none defined, bail.
@@ -42,7 +65,7 @@ export class ApplyFormatter extends Formatter {
 
     if (ctx.enterPartial(name)) {
       // Execute the template and set the variable to the result.
-      const text = executeTemplate(ctx, inst as RootCode | MacroCode, first.node, privateContext);
+      const text = executeTemplate(ctx, inst as RootCode | MacroCode, first.node, privateContext, argvar);
       first.set(text);
       ctx.exitPartial(name);
     } else {
