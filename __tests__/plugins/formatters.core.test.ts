@@ -310,7 +310,7 @@ pathseq(`f-get-%N.html`, 4).forEach(path => {
   test(`get - ${path}`, () => loader.execute(path));
 });
 
-pathseq('f-macro-%N.html', 8).forEach(path => {
+pathseq('f-macro-%N.html', 9).forEach(path => {
   test(`apply macro - ${path}`, () => loader.execute(path));
 });
 
