@@ -9,7 +9,9 @@ export const word = wordPrefix + wordSuffix;
 
 export const whitespace = '[ \\f\\n\\r\\t\u000b]+';
 
-export const instructionArgs = '[^|}]+';
+export const formatterArgs = '[^|}]+';
+
+export const instructionArgs = '[^}]+';
 
 export const operator = '&&|\\|\\|';
 
