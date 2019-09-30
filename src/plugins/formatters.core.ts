@@ -43,7 +43,7 @@ export class ApplyFormatter extends Formatter {
         }
 
         // Parse the colon-delimited arguments into key-values
-        const j = arg.indexOf(':');
+        const j = arg.indexOf('=');
         if (j !== -1) {
           const k = arg.slice(0, j);
           const v = arg.slice(j + 1);
