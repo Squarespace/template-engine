@@ -37,6 +37,7 @@ export class Matcher {
   protected matchEnd: number = 0;
 
   private filePath: RegExp;
+  private formatterArgs: RegExp;
   private instructionArgs: RegExp;
   private operator: RegExp;
   private predicate: RegExp;
@@ -53,6 +54,7 @@ export class Matcher {
     // Private copies of patterns, since we set RegExp.lastIndex to match
     // at string offsets.
     this.filePath = compile(patterns.filePath);
+    this.formatterArgs = compile(patterns.formatterArgs);
     this.instructionArgs = compile(patterns.instructionArgs);
     this.operator = compile(patterns.operator);
     this.predicate = compile(patterns.predicate);
@@ -254,7 +256,7 @@ export class Matcher {
 
       // Check if this formatter has arguments.
       start = this.matchEnd;
-      const rawArgs = this.match(this.instructionArgs, start);
+      const rawArgs = this.match(this.formatterArgs, start);
       if (rawArgs !== null) {
         // Parse and append formatter with arguments.
         const delim = rawArgs[0];

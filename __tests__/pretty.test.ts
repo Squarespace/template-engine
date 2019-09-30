@@ -17,7 +17,7 @@ test('basic', () => {
   expect(JSON.parse(actual)).toEqual(spec.TEMPLATE);
 });
 
-pathseq('ast-%N.html', 17).forEach(path => {
+pathseq('ast-%N.html', 18).forEach(path => {
   test(path, () => {
     const spec = loader.load(path);
     const actual = prettyJson(spec.TEMPLATE);

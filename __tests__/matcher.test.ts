@@ -45,7 +45,7 @@ for (const o of MATCHERS) {
     expect(match('0102030')).toEqual(['1', '2', '3', '']);
 
     expect(match('}foo}bar')).toEqual(null);
-    expect(match('|abc|def')).toEqual(null);
+    expect(match('|abc|def')).toEqual(['abc', 'def']);
 
   });
 }

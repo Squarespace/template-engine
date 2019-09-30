@@ -312,7 +312,7 @@ export class Parser {
     m.consume();
 
     // Optional arguments which are parsed but currently ignored.
-    // Note we do not skip spaces since the first space indicates
+    // Note we do not skip spaces since the first char indicates
     // the delimiter.
     const args = m.matchArguments();
     if (args !== null) {

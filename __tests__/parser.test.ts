@@ -11,11 +11,9 @@ const parse = (str: string) => {
   return { assembler, parser, code: assembler.code() };
 };
 
-
 test('initialization failures', () => {
   expect(() => new Parser('hello', {} as Sink)).toThrowError();
 });
-
 
 test('degenerate cases', () => {
   let { code } = parse('a{b');
@@ -70,7 +68,6 @@ test('bindvar', () => {
   expect(code).toEqual([O.ROOT, 1, [[O.TEXT, '{.var @foo bar }']], O.EOF]);
 });
 
-
 test('comments', () => {
   const { code } = parse('abc{# comment 1} {#comment 2}def');
   expect(code).toEqual([O.ROOT, 1, [
@@ -81,7 +78,6 @@ test('comments', () => {
     [O.TEXT, 'def']
   ], O.EOF]);
 });
-
 
 test('ctxvar', () => {
   let { code } = parse('{.ctx @foo key1=bar key2=baz.quux}');
@@ -134,7 +130,6 @@ test('ctxvar', () => {
   expect(code).toEqual([O.ROOT, 1, [[O.TEXT, '{.ctx @foo a=b c=d.}']], O.EOF]);
 });
 
-
 test('if', () => {
   let { code } = parse('{.if a.b}A{.end}');
   expect(code).toEqual([O.ROOT, 1, [
@@ -158,7 +153,6 @@ test('if', () => {
   ({ code } = parse('{.if a || **}'));
   expect(code).toEqual([O.ROOT, 1, [[O.TEXT, '{.if a || **}']], O.EOF]);
 });
-
 
 test('inject', () => {
   let { code } = parse('abc{.inject @foo ./messages-en_US.json a b c}def');
@@ -193,9 +187,10 @@ test('inject', () => {
   expect(code).toEqual([O.ROOT, 1, [[O.TEXT, '{.inject @foo **}']], O.EOF]);
 
   ({ code } = parse('{.inject @foo a b c|}'));
-  expect(code).toEqual([O.ROOT, 1, [[O.TEXT, '{.inject @foo a b c|}']], O.EOF]);
+  expect(code).toEqual([O.ROOT, 1, [
+    [O.INJECT, '@foo', 'a', 0]
+  ], O.EOF]);
 });
-
 
 test('macro', () => {
   let { code } = parse('abc\n\t{.macro foo.html}{a.b.c}{.end}\ndef');
@@ -220,7 +215,6 @@ test('macro', () => {
   expect(code).toEqual([O.ROOT, 1, [[O.TEXT, '{.macro ./foo.json**}']], O.EOF]);
 });
 
-
 test('multiline comments', () => {
   let { code } = parse('abc{##\ncomment ## comment\n##}def');
   expect(code).toEqual([O.ROOT, 1, [
@@ -234,7 +228,6 @@ test('multiline comments', () => {
     [O.COMMENT, ' foo bar ##', 1]
   ], O.EOF]);
 });
-
 
 test('or predicate', () => {
   let { code } = parse('foo{.section a}{.or}A{.end}bar');
@@ -255,7 +248,6 @@ test('or predicate', () => {
     [O.TEXT, 'bar']
   ], O.EOF]);
 });
-
 
 test('predicate', () => {
   let { code } = parse('foo{.equal? a b}A{.or greaterThan? c d}B{.end}bar');
@@ -281,14 +273,21 @@ test('predicate', () => {
   ], O.EOF]);
 
   ({ code } = parse('{.section}{.varied-prices?}A{.end}{.end}'));
+  expect(code).toEqual([O.ROOT, 1, [
+    [O.TEXT, '{.section}'],
+    [O.PREDICATE, 'varied-prices?', 0, [
+      [O.TEXT, 'A']
+    ], O.END],
+  ], O.EOF]);
 
   ({ code } = parse('{.equal?|}'));
-  expect(code).toEqual([O.ROOT, 1, [[O.TEXT, '{.equal?|}']], O.EOF]);
+  expect(code).toEqual([O.ROOT, 1, [
+    [O.PREDICATE, 'equal?', [''], [], undefined]
+  ], O.END]);
 
   ({ code } = parse('{.**?}'));
   expect(code).toEqual([O.ROOT, 1, [[O.TEXT, '{.**?}']], O.EOF]);
 });
-
 
 test('repeated section', () => {
   let { code } = parse('{.repeated section a.b.c}A{.end}');
@@ -314,7 +313,6 @@ test('repeated section', () => {
   expect(code).toEqual([O.ROOT, 1, [[O.TEXT, '{.repeated section a.b**}']], O.EOF]);
 });
 
-
 test('section', () => {
   let { code } = parse('{.section a.b.c}A{.end}');
   expect(code).toEqual([O.ROOT, 1, [
@@ -336,7 +334,6 @@ test('section', () => {
   expect(code).toEqual([O.ROOT, 1, [[O.TEXT, '{.section a.b**}']], O.EOF]);
 
 });
-
 
 test('variables', () => {
   let { code } = parse('{a, b, c|foo d e|bar}');
