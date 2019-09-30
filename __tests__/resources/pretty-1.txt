@@ -12,7 +12,7 @@ never called.
 {.end}
 {.ctx @foo a=bar.baz b=baz.biz}
 
-:PRETTY
+:JSON
 [17, 1, [
   [10, "person.html", [
       [0, "\n'"],
@@ -36,6 +36,5 @@ never called.
       [0, "\n"]
     ], 3],
   [0, "\n"],
-  [22, "@foo", [["a", ["bar", "baz"]], ["b", ["baz", "biz"]]]],
-  [0, "\n"]
+  [22, "@foo", [["a", ["bar", "baz"]], ["b", ["baz", "biz"]]]]
 ], 18]
