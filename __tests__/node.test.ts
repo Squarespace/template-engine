@@ -1,6 +1,5 @@
-import { Node, MISSING_NODE } from '../src/node';
+import { MISSING_NODE, Node } from '../src/node';
 import { Type } from '../src/types';
-
 
 test('node is null', () => {
   const n1 = new Node(null);
@@ -18,7 +17,6 @@ test('node is null', () => {
   expect(MISSING_NODE.isNull()).toEqual(false);
 });
 
-
 test('node is missing', () => {
   const n1 = new Node(undefined);
   expect(n1.isMissing()).toEqual(true);
@@ -34,7 +32,6 @@ test('node is missing', () => {
 
   expect(MISSING_NODE.isMissing()).toEqual(true);
 });
-
 
 test('node size', () => {
   const n1 = new Node(false);
@@ -55,7 +52,6 @@ test('node size', () => {
   const n6 = new Node('hello, world');
   expect(n6.size()).toEqual(0);
 });
-
 
 test('node path resolution', () => {
   const o1 = { a: { b: { c: 123 } } };
@@ -114,7 +110,6 @@ test('node path resolution', () => {
   expect(n4.path(['a'])).toBe(MISSING_NODE);
 });
 
-
 test('node get by key', () => {
   const n1 = new Node({ a: 1 });
   expect(n1.get('a').value).toEqual(1);
@@ -122,7 +117,6 @@ test('node get by key', () => {
 
   expect(MISSING_NODE.get('a')).toBe(MISSING_NODE);
 });
-
 
 test('as string', () => {
   let n = new Node({ a: 1 });
@@ -146,7 +140,6 @@ test('as string', () => {
   n = MISSING_NODE;
   expect(n.asString()).toEqual('');
 });
-
 
 test('as number', () => {
   let n = new Node(123);
@@ -180,14 +173,12 @@ test('as number', () => {
   expect(n.asNumber()).toEqual(0);
 });
 
-
 test('equals', () => {
-  let n = new Node(123);
+  const n = new Node(123);
   expect(n.equals(123)).toEqual(true);
   expect(n.equals(124)).toEqual(false);
   expect(n.equals({})).toEqual(false);
 });
-
 
 test('comparisons', () => {
   const compare = (v1: any, v2: any) => new Node(v1).compare(v2);

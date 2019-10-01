@@ -10,7 +10,6 @@ import {
   unclosed,
 } from '../src/errors';
 
-
 test('assembler sanity check', () => {
   const assembler = new Assembler();
 
@@ -29,7 +28,6 @@ test('assembler sanity check', () => {
   expect(errors[1]).toEqual(stateEOFNotReached());
 });
 
-
 test('assembly complete', () => {
   const { assembler, errors } = new CodeBuilder()
     .section(['a']).text('A').end()
@@ -39,7 +37,6 @@ test('assembly complete', () => {
   expect(assembler.complete()).toEqual(true);
   expect(errors).toEqual([]);
 });
-
 
 test('atom', () => {
   const { root, errors } = new CodeBuilder()
@@ -51,7 +48,6 @@ test('atom', () => {
     [O.TEXT, 'B']
   ], O.EOF]);
 });
-
 
 test('atomic instructions', () => {
   const { root, errors } = new CodeBuilder()
@@ -75,7 +71,6 @@ test('empty', () => {
   expect(errors).toEqual([]);
   expect(root.code).toEqual([O.ROOT, 1, [], O.EOF]);
 });
-
 
 test('root invalid', () => {
   let assembler;
@@ -126,7 +121,6 @@ test('root invalid', () => {
   expect(errors[1]).toEqual(stateEOFNotReached());
 });
 
-
 test('comments and literals', () => {
   const { root, errors } = new CodeBuilder()
     .comment('single').comment('multiline', true)
@@ -141,7 +135,6 @@ test('comments and literals', () => {
     O.META_LEFT, O.META_RIGHT, O.NEWLINE, O.SPACE, O.TAB
   ], O.EOF]);
 });
-
 
 test('if invalid', () => {
   let errors;
@@ -167,13 +160,12 @@ test('if invalid', () => {
   expect(errors.length).toEqual(1);
 });
 
-
 test('if', () => {
   const { root, errors } = new CodeBuilder()
     .ifinst([1, 0], [['a'], ['b'], ['c']])
     .section(['a']).text('...').end()
     .text('A')
-    .or('odd?', ['a'])
+    .or('odd?', [['a'], ' '])
     .text('B')
     .end()
     .eof()
@@ -184,12 +176,11 @@ test('if', () => {
     [O.IF, [1, 0], [['a'], ['b'], ['c']], [
       [O.SECTION, ['a'], [[O.TEXT, '...']], O.END],
       [O.TEXT, 'A']
-    ], [O.OR_PREDICATE, 'odd?', ['a'], [
+    ], [O.OR_PREDICATE, 'odd?', [['a'], ' '], [
       [O.TEXT, 'B']
     ], O.END]]
   ], O.EOF]);
 });
-
 
 test('macro invalid', () => {
   let errors;
@@ -224,7 +215,6 @@ test('macro invalid', () => {
   expect(errors.length).toEqual(1);
 });
 
-
 test('macro', () => {
   const { root, errors } = new CodeBuilder()
     .macro('foo.html').text('A')
@@ -243,13 +233,12 @@ test('macro', () => {
   ], O.EOF]);
 });
 
-
 test('predicate invalid', () => {
   let errors;
 
   // eof inside predicate
   ({ errors } = new CodeBuilder()
-    .predicate('.even?', ['a', 'b']).text('A')
+    .predicate('.even?', [['a', 'b'], ' ']).text('A')
     .eof()
     .get());
 
@@ -257,7 +246,7 @@ test('predicate invalid', () => {
 
   // alternates-with inside predicate
   ({ errors } = new CodeBuilder()
-    .predicate('.odd?', ['a']).text('A')
+    .predicate('.odd?', [['a'], ' ']).text('A')
     .alternatesWith()
     .end()
     .eof()
@@ -288,9 +277,9 @@ test('predicate invalid', () => {
 
   // dead code
   ({ errors } = new CodeBuilder()
-    .predicate('.odd?', ['a']).text('A')
+    .predicate('.odd?', [['a'], ' ']).text('A')
     .or()
-    .or('.equal?', ['a'])
+    .or('.equal?', [['a'], ' '])
     .end()
     .eof()
     .get());
@@ -298,22 +287,21 @@ test('predicate invalid', () => {
   expect(errors.length).toEqual(1);
 });
 
-
 test('predicate with or branch', () => {
   const { root, errors } = new CodeBuilder()
-    .predicate('.even?', ['a']).section(['a']).text('A').end()
-    .or('.equal?', ['a', 'b']).section(['b']).text('B').end()
+    .predicate('.even?', [['a'], ' ']).section(['a']).text('A').end()
+    .or('.equal?', [['a', 'b'], ' ']).section(['b']).text('B').end()
     .or().text('C')
     .end().eof()
     .get();
 
   expect(errors).toEqual([]);
   expect(root.code).toEqual([O.ROOT, 1, [
-    [O.PREDICATE, '.even?', ['a'], [
+    [O.PREDICATE, '.even?', [['a'], ' '], [
       [O.SECTION, ['a'], [
         [O.TEXT, 'A']
       ], O.END]
-    ], [O.OR_PREDICATE, '.equal?', ['a', 'b'], [
+    ], [O.OR_PREDICATE, '.equal?', [['a', 'b'], ' '], [
       [O.SECTION, ['b'], [
         [O.TEXT, 'B']
       ], O.END]
@@ -322,7 +310,6 @@ test('predicate with or branch', () => {
     ], O.END]]]
   ], O.EOF]);
 });
-
 
 test('repeated invalid', () => {
   let errors;
@@ -355,7 +342,6 @@ test('repeated invalid', () => {
   expect(errors.length).toEqual(1);
 });
 
-
 test('repeated', () => {
   const { root, errors } = new CodeBuilder()
     .repeated(['a']).section(['b']).text('B').end()
@@ -371,7 +357,6 @@ test('repeated', () => {
     ], O.END, []]
   ], O.EOF]);
 });
-
 
 test('repeated with or branch', () => {
   const { root, errors } = new CodeBuilder()
@@ -389,7 +374,6 @@ test('repeated with or branch', () => {
     ], O.END], []]
   ], O.EOF]);
 });
-
 
 test('repeated with or branch and alternates block', () => {
   const { root, errors } = new CodeBuilder()
@@ -409,7 +393,6 @@ test('repeated with or branch and alternates block', () => {
     ], O.END], []]
   ], O.EOF]);
 });
-
 
 test('repeated with or branch and alternates block 2', () => {
   const { root, errors } = new CodeBuilder()
@@ -432,7 +415,6 @@ test('repeated with or branch and alternates block 2', () => {
   ], O.EOF]);
 });
 
-
 test('section invalid', () => {
   let errors;
 
@@ -449,7 +431,6 @@ test('section invalid', () => {
 
   expect(errors.length).toEqual(1);
 });
-
 
 test('section with or branch', () => {
   const { root, errors } = new CodeBuilder()
@@ -468,7 +449,6 @@ test('section with or branch', () => {
     ]
   ], O.EOF]);
 });
-
 
 test('sections nested', () => {
   const { root, errors } = new CodeBuilder()
@@ -491,7 +471,6 @@ test('sections nested', () => {
     ], O.END]
   ], O.EOF]);
 });
-
 
 test('struct', () => {
   const { root, errors } = new CodeBuilder()

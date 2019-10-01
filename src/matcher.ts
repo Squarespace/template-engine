@@ -1,7 +1,7 @@
 import { Opcode } from './opcodes';
 
 import * as patterns from './patterns';
-import { FormatterCall, Operator } from './instructions';
+import { Arguments, FormatterCall, Operator } from './instructions';
 import { splitVariable } from './util';
 
 // Table for fast mapping of instructions to their opcodes.
@@ -122,12 +122,12 @@ export class Matcher {
   /**
    * Match arguments to a predicate.
    */
-  matchArguments(): string[] | null {
+  matchArguments(): Arguments | null {
     const rawArgs = this.match(this.instructionArgs, this.start);
     if (rawArgs !== null) {
       // Parse and append formatter with arguments.
       const delim = rawArgs[0];
-      return rawArgs.slice(1).split(delim);
+      return [rawArgs.slice(1).split(delim), delim];
     }
     return null;
   }
@@ -260,7 +260,7 @@ export class Matcher {
       if (rawArgs !== null) {
         // Parse and append formatter with arguments.
         const delim = rawArgs[0];
-        const args = rawArgs.slice(1).split(delim);
+        const args: Arguments = [rawArgs.slice(1).split(delim), delim];
         result.push([formatter, args]);
         start = this.matchEnd;
 

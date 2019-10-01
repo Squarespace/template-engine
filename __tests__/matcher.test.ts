@@ -40,12 +40,12 @@ for (const o of MATCHERS) {
   test(`${o.name} arguments`, () => {
     const match = matcher(o.impl, 'matchArguments');
 
-    expect(match(' foo bar')).toEqual(['foo', 'bar']);
-    expect(match(':a b c:d e f')).toEqual(['a b c', 'd e f']);
-    expect(match('0102030')).toEqual(['1', '2', '3', '']);
+    expect(match(' foo bar')).toEqual([['foo', 'bar'], ' ']);
+    expect(match(':a b c:d e f')).toEqual([['a b c', 'd e f'], ':']);
+    expect(match('0102030')).toEqual([['1', '2', '3', ''], '0']);
 
     expect(match('}foo}bar')).toEqual(null);
-    expect(match('|abc|def')).toEqual(['abc', 'def']);
+    expect(match('|abc|def')).toEqual([['abc', 'def'], '|']);
 
   });
 }
@@ -82,7 +82,7 @@ for (const o of MATCHERS) {
     expect(m.matchVariables()).toEqual([['bar']]);
     m.consume();
 
-    expect(m.matchFormatters()).toEqual([['html'], ['baz', ['a', 'b', 'c']]]);
+    expect(m.matchFormatters()).toEqual([['html'], ['baz', [['a', 'b', 'c'], ' ']]]);
     m.consume();
 
     expect(m.complete()).toEqual(true);
@@ -230,8 +230,12 @@ for (const o of MATCHERS) {
     expect(match('|foo|bar|json-pretty')).toEqual([['foo'], ['bar'], ['json-pretty']]);
 
     // Arguments
-    expect(match('|foo a')).toEqual([['foo', ['a']]]);
-    expect(match('|foo a b|bar c|baz')).toEqual([['foo', ['a', 'b']], ['bar', ['c']], ['baz']]);
+    expect(match('|foo a')).toEqual([['foo', [['a'], ' ']]]);
+    expect(match('|foo a b|bar c|baz')).toEqual([
+      ['foo', [['a', 'b'], ' ']],
+      ['bar', [['c'], ' ']],
+      ['baz']
+    ]);
 
     expect(match('|')).toEqual(null);
     expect(match('html')).toEqual(null);

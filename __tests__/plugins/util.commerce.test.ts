@@ -5,16 +5,14 @@ import { ProductType } from '../../src/plugins/enums';
 import { expectedTests, predicateTests, Product } from '../helpers';
 import { TestLoader } from '../loader';
 
-
 const PRODUCT = new Product();
 
 const jsonLoader = new TestLoader(join(__dirname, 'resources'), { '*': JSON.parse });
 
-
 test('from price', () => {
   const product = PRODUCT.type(ProductType.SERVICE);
 
-  let item = product.variants([ { price: 100.0, }, { price: 200.0 } ]).node();
+  let item = product.variants([ { price: 100.0 }, { price: 200.0 } ]).node();
   let price = commerceutil.getFromPrice(item);
   expect(price).toEqual(100.0);
 
@@ -39,7 +37,6 @@ test('from price', () => {
   expect(price).toEqual(203);
 });
 
-
 const GET_ITEM_VARIANT_OPTIONS_SPEC = jsonLoader.load('get-item-variant-options.json');
 
 expectedTests('get item variant options', GET_ITEM_VARIANT_OPTIONS_SPEC).forEach(t => {
@@ -48,7 +45,6 @@ expectedTests('get item variant options', GET_ITEM_VARIANT_OPTIONS_SPEC).forEach
     expect(actual).toEqual(t.expected);
   });
 });
-
 
 test('has variants', () => {
   const product = PRODUCT.variants([]);
@@ -66,7 +62,6 @@ test('has variants', () => {
   expect(result).toEqual(true);
 });
 
-
 const HAS_VARIANTS_SPEC = jsonLoader.load('has-variants.json');
 
 predicateTests('has variants', HAS_VARIANTS_SPEC).forEach(t => {
@@ -75,7 +70,6 @@ predicateTests('has variants', HAS_VARIANTS_SPEC).forEach(t => {
     expect(actual).toEqual(t.expected);
   });
 });
-
 
 test('has varied prices', () => {
   const product = PRODUCT.type(ProductType.PHYSICAL);
@@ -98,11 +92,10 @@ test('has varied prices', () => {
     expect(result).toEqual(false);
   });
 
-  const item = product.type(ProductType.DIGITAL).node();
-  const result = commerceutil.hasVariedPrices(item);
-  expect(result).toEqual(false);
+  const it = product.type(ProductType.DIGITAL).node();
+  const res = commerceutil.hasVariedPrices(it);
+  expect(res).toEqual(false);
 });
-
 
 const HAS_VARIED_PRICES_SPEC = jsonLoader.load('has-varied-prices.json');
 
@@ -112,7 +105,6 @@ predicateTests('has varied prices external', HAS_VARIED_PRICES_SPEC).forEach(t =
     expect(actual).toEqual(t.expected);
   });
 });
-
 
 test('is on sale', () => {
   const product = PRODUCT.type(ProductType.PHYSICAL);
@@ -144,7 +136,6 @@ test('is on sale', () => {
     expect(result).toEqual(false);
   });
 });
-
 
 test('is sold out', () => {
   const product = PRODUCT.type(ProductType.PHYSICAL);
@@ -180,7 +171,6 @@ test('is sold out', () => {
   expect(result).toEqual(true);
 });
 
-
 test('normal price', () => {
   const product = PRODUCT.type(ProductType.SERVICE);
 
@@ -201,12 +191,10 @@ test('normal price', () => {
   expect(price).toEqual(0);
 });
 
-
 test('product type', () => {
   const item = new Node({ structuredContent: { productType: 3 } });
   expect(commerceutil.getProductType(item)).toBe(ProductType.SERVICE);
 });
-
 
 test('sale price', () => {
   const product = PRODUCT.type(ProductType.SERVICE);
@@ -232,7 +220,6 @@ test('sale price', () => {
   expect(price).toEqual(0);
 });
 
-
 test('total stock remaining', () => {
   const product = PRODUCT.type(ProductType.PHYSICAL);
 
@@ -257,7 +244,6 @@ test('total stock remaining', () => {
   expect(total).toEqual(Number.MAX_SAFE_INTEGER);
 });
 
-
 const MULTIPLE_QUANTITY_ALLOWED_SPEC = jsonLoader.load('is-multi-quantity-allowed-for-services.json');
 
 predicateTests('multiple quantity allowed for services', MULTIPLE_QUANTITY_ALLOWED_SPEC).forEach(t => {
@@ -266,4 +252,3 @@ predicateTests('multiple quantity allowed for services', MULTIPLE_QUANTITY_ALLOW
     expect(actual).toEqual(t.expected);
   });
 });
-

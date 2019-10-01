@@ -1,12 +1,12 @@
 import { isTruthy, Node } from '../src/node';
 import {
+  deepCopy,
   deepEquals,
   deepMerge,
   isJsonStart,
   repeat,
   splitVariable,
   stringCompare,
-  deepCopy,
 } from '../src/util';
 
 test('variable splitting', () => {
@@ -38,7 +38,7 @@ test('variable truthiness', () => {
   expect(isTruthy('abc')).toEqual(true);
 
   expect(isTruthy([])).toEqual(false);
-  expect(isTruthy([1, 2,3])).toEqual(true);
+  expect(isTruthy([1, 2, 3])).toEqual(true);
 
   expect(isTruthy({})).toEqual(false);
   expect(isTruthy({ a: 1 })).toEqual(true);
@@ -60,7 +60,6 @@ test('json start', () => {
   expect(isJsonStart('[]')).toEqual(true);
 });
 
-
 test('deep equals', () => {
   expect(deepEquals([], [])).toEqual(true);
   expect(deepEquals([], [1])).toEqual(false);
@@ -77,7 +76,7 @@ test('deep equals', () => {
 
   o = { a: { b: { c: { d: 789 } } } };
   expect(deepEquals(o, o)).toEqual(true);
-  expect(deepEquals(o, { a: { b: [1,2,3] } })).toEqual(false);
+  expect(deepEquals(o, { a: { b: [1, 2, 3] } })).toEqual(false);
 
   const common = { x: { y: 123 } };
   o = { a: { b: common } };
@@ -100,12 +99,10 @@ test('string compare', () => {
   expect(stringCompare('bbb', 'aaa')).toEqual(1);
 });
 
-
 test('repeat', () => {
   expect(repeat(3, 'a')).toEqual('aaa');
   expect(repeat(5, 'xyz')).toEqual('xyzxyzxyzxyzxyz');
 });
-
 
 test('deep merge', () => {
   const foo = Object.freeze({ a: { b: 1, c: [1, 2, 3] } });
@@ -132,7 +129,6 @@ test('deep merge', () => {
     d: { e: 'hello, world' }
   });
 });
-
 
 test('deep copy', () => {
   const foo = { a: 1, b: 'hello', c: { d: 3.14, e: [1, 2, 3] } };

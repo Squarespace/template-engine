@@ -29,7 +29,7 @@ export class TestLoader {
   constructor(private directory: string, private decoders: Partial<DecoderMap>) {
   }
 
-  load(path: string) {
+  load(path: string): any {
     if (path.startsWith(sep)) {
       throw new Error(`Path must be relative. Got ${path}`);
     }
@@ -96,7 +96,6 @@ export const parseMap = (str: string, func: (v: any) => any): any => {
   return obj;
 };
 
-
 const compiler = new Compiler();
 
 /**
@@ -116,7 +115,7 @@ export class TemplateTestLoader extends TestLoader {
     });
   }
 
-  execute(path: string) {
+  execute(path: string): void {
     const spec = this.load(path);
 
     // i18n-enable the execution context

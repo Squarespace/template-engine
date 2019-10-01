@@ -1,4 +1,4 @@
-import { getDatePattern, translateUnixToCLDR } from '../../src/plugins/util.date';
+import { translateUnixToCLDR } from '../../src/plugins/util.date';
 
 test('translate unix to moment', () => {
   expect(translateUnixToCLDR('%Y')).toEqual(['y']);

@@ -6,7 +6,7 @@ test('types', () => {
   expect(of(Infinity)).toBe(Type.MISSING);
   expect(of(-Infinity)).toBe(Type.MISSING);
 
-  const func = () => {};
+  const func = () => ({});
   expect(of(func)).toBe(Type.MISSING);
 
   const val = { a: 1, b: undefined };
@@ -31,7 +31,6 @@ test('types', () => {
 
   expect(of(null)).toBe(Type.NULL);
 });
-
 
 test('type names', () => {
   expect(nameOf(Type.MISSING)).toEqual('MISSING');

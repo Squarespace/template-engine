@@ -36,7 +36,6 @@ test('distinct', () => {
   expect(Animal.CAT).toEqual(Other.CAT);
 });
 
-
 test('is-a', () => {
   const Other = enum_('Other', {
     CAT: [1, 'Cat']
@@ -49,7 +48,6 @@ test('is-a', () => {
   expect(Animal.is(Other.CAT)).toEqual(false);
 });
 
-
 test('unique codes', () => {
   expect(() => enum_('Other', {
     FOO: [1, 'Foo'],
@@ -57,7 +55,6 @@ test('unique codes', () => {
     BAZ: [1, 'Baz']
   })).toThrow(Error);
 });
-
 
 test('values', () => {
   expect(Animal.values()).toEqual([

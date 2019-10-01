@@ -1,5 +1,5 @@
 import { Context } from '../src/context';
-import { Node, MISSING_NODE } from '../src/node';
+import { MISSING_NODE, Node } from '../src/node';
 import { Variable } from '../src/variable';
 import { Opcode } from '../src/opcodes';
 import { Code } from '../src/instructions';
@@ -9,12 +9,10 @@ test('node constructor', () => {
   expect(ctx.node()).toEqual(new Node(123));
 });
 
-
 test('injects', () => {
   const ctx = new Context(123, { injects: { foo: new Node(123) } });
   expect(ctx.getInjectable('foo')).toEqual(new Node(123));
 });
-
 
 test('buffer append', () => {
   const ctx = new Context({});
@@ -23,13 +21,11 @@ test('buffer append', () => {
   expect(ctx.render()).toEqual('a');
 });
 
-
 test('invalid push', () => {
   const ctx = new Context( { a: { b: 1 } });
   ctx.pushSection([]);
   expect(ctx.frame().node).toBe(MISSING_NODE);
 });
-
 
 test('push / pop', () => {
   const o1 = { a: { b: [1, 2, 3] } };
@@ -56,7 +52,6 @@ test('push / pop', () => {
   expect(ctx.frame().node.value).toEqual(o1);
 });
 
-
 test('variable resolution', () => {
   const o1 = { a: { b: [1, 2, { c: 4 }] } };
   const ctx = new Context(o1);
@@ -69,7 +64,6 @@ test('variable resolution', () => {
   ctx.pop();
   ctx.pop();
 });
-
 
 test('lookup stack', () => {
   const o1 = { a: { b: [1, 2, { c: [4, 5] }] }, d: [6, 7] };
@@ -95,7 +89,6 @@ test('lookup stack', () => {
   expect(ctx.lookupStack('b')).toBe(MISSING_NODE);
 });
 
-
 test('frame stop resolution', () => {
   const o1 = { a: { b: { c: 1 } } };
   const ctx = new Context(o1);
@@ -116,13 +109,11 @@ test('frame stop resolution', () => {
   ctx.pop();
 });
 
-
 test('new variable', () => {
   const ctx = new Context({ a: { b: { c: 1 } } });
   const v = ctx.newVariable('', ctx.resolve(['a', 'b', 'c']));
   expect(v.node.value).toEqual(1);
 });
-
 
 test('set variable', () => {
   const ctx = new Context({ a: { b: { c: 1 } } });
@@ -140,7 +131,6 @@ test('set variable', () => {
   expect(ctx.lookupStack('@foo')).toBe(MISSING_NODE);
 });
 
-
 test('set macro', () => {
   const ctx = new Context({});
   const inst: Code = [Opcode.ROOT, 1, [
@@ -150,14 +140,12 @@ test('set macro', () => {
   expect(ctx.getPartial('foo')).toEqual(inst);
 });
 
-
 test('too many pops', () => {
   const ctx = new Context({ a: 1 });
   ctx.pushSection(['a']);
   ctx.pop();
   expect(() => ctx.pop()).toThrowError(Error);
 });
-
 
 test('resolve missing', () => {
   const ctx = new Context({ a: 1 });

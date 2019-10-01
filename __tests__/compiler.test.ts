@@ -6,7 +6,7 @@ import { Code } from '../src/instructions';
 import { Variable } from '../src/variable';
 
 class Dummy extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const name = first.node.asString();
     first.set(`Hello, ${name}.`);
@@ -23,7 +23,6 @@ test('compiler defaults', () => {
   ({ ctx } = compiler.execute());
   expect(ctx.render()).toEqual('');
 });
-
 
 test('compiler custom formatter', () => {
   const formatters = {
@@ -51,7 +50,7 @@ test('compiler custom formatter', () => {
 test('compiler mixed partials raw/parsed recursion error', () => {
   const partials: Partials = {
     foo: [O.ROOT, 1, [
-      [O.VARIABLE, [['@']], [['apply', ['bar']]]]
+      [O.VARIABLE, [['@']], [['apply', [['bar'], ' ']]]]
     ], O.EOF],
     bar: '{@|apply foo}'
   };

@@ -2,6 +2,7 @@ import { Assembler } from './assembler';
 import { Opcode as O } from './opcodes';
 import { TemplateError } from './errors';
 import {
+  Arguments,
   Atom,
   Bindvar,
   Comment,
@@ -82,7 +83,7 @@ export class CodeBuilder {
   }
 
   inject(name: string, path: string): CodeBuilder {
-    this.assembler.accept(new Inject(name, path));
+    this.assembler.accept(new Inject(name, path, FAST_NULL));
     return this;
   }
 
@@ -106,12 +107,12 @@ export class CodeBuilder {
     return this;
   }
 
-  or(name?: string, args?: string[] | FAST_NULL): CodeBuilder {
+  or(name?: string, args?: Arguments | FAST_NULL): CodeBuilder {
     this.assembler.accept(new OrPredicate(name, args));
     return this;
   }
 
-  predicate(name: string, args: string[] | FAST_NULL = FAST_NULL): CodeBuilder {
+  predicate(name: string, args: Arguments | FAST_NULL = FAST_NULL): CodeBuilder {
     this.assembler.accept(new Predicate(name, args));
     return this;
   }

@@ -48,7 +48,7 @@ test('compiler api parse', () => {
   expect(code).toEqual([O.ROOT, 1, [
     [O.VARIABLE, [['@']], [['dummy']]],
     [O.TEXT, ' '],
-    [O.PREDICATE, 'dummy?', ['dummy'], [
+    [O.PREDICATE, 'dummy?', [['dummy'], ' '], [
       [O.TEXT, 'A']
     ], [O.OR_PREDICATE, 0, 0, [
       [O.TEXT, 'B']
@@ -69,7 +69,7 @@ test('compiler api execute', () => {
   ({ ctx, errors } = c.execute({
     code: '{@|missing}',
     json: 'foo'
-  }))
+  }));
   expect(ctx.render()).toEqual('foo');
   expect(errors.length).toEqual(1);
   expect(errors[0].message).toContain(`'missing' is unknown`);

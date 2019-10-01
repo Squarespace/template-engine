@@ -29,7 +29,6 @@ test('literals', () => {
   expect(ctx.render()).toEqual('\n\n{abc}\n \n\t');
 });
 
-
 test('variables', () => {
   const engine = newEngine();
   const inst: Code = [O.ROOT, 1, [
@@ -46,7 +45,6 @@ test('variables', () => {
   expect(ctx.render()).toEqual('a*c\n-e+');
 });
 
-
 test('variable mixed array', () => {
   const engine = newEngine();
   const inst: Code = [O.ROOT, 1, [
@@ -58,7 +56,6 @@ test('variable mixed array', () => {
   expect(ctx.render()).toEqual('1,null,2,null,3');
 });
 
-
 test('variable mixed object', () => {
   const engine = newEngine();
   const inst: Code = [O.ROOT, 1, [
@@ -69,7 +66,6 @@ test('variable mixed object', () => {
   engine.execute(inst, ctx);
   expect(ctx.render()).toEqual('');
 });
-
 
 test('variables missing', () => {
   const engine = newEngine();
@@ -83,13 +79,12 @@ test('variables missing', () => {
   expect(ctx.render()).toEqual('ac');
 });
 
-
 test('variables with formatters', () => {
   const engine = newEngine();
   const inst: Code = [O.ROOT, 1, [
     [O.VARIABLE, [['foo']], [['html']]],
     [O.TEXT, '\n'],
-    [O.VARIABLE, [['bar']], [['truncate', ['5']], ['json']]],
+    [O.VARIABLE, [['bar']], [['truncate', [['5'], ' ']], ['json']]],
     [O.TEXT, '\n'],
     [O.VARIABLE, [['baz']], [['json-pretty']]]
   ], O.EOF];
@@ -103,7 +98,6 @@ test('variables with formatters', () => {
   expect(ctx.render()).toEqual('&lt;tag&gt; &amp; tag\n"abcde..."\n{\n  "a": 1\n}');
 });
 
-
 test('variables missing formatters', () => {
   const engine = newEngine();
   const inst: Code = [O.ROOT, 1, [
@@ -115,11 +109,9 @@ test('variables missing formatters', () => {
   expect(ctx.render()).toEqual('hello');
 });
 
-
 pathseq('variables-%N.html', 1).forEach(path => {
   test(`variables - ${path}`, () => loader.execute(path));
 });
-
 
 test('section', () => {
   const engine = newEngine();
@@ -135,7 +127,6 @@ test('section', () => {
   engine.execute(inst, ctx);
   expect(ctx.render()).toEqual('');
 });
-
 
 test('section resolution', () => {
   const engine = newEngine();
@@ -153,7 +144,6 @@ test('section resolution', () => {
   expect(ctx.render()).toEqual('bar');
 });
 
-
 test('section empty', () => {
   const engine = newEngine();
   const inst: Code = [O.ROOT, 1, [
@@ -166,7 +156,6 @@ test('section empty', () => {
   engine.execute(inst, ctx);
   expect(ctx.render()).toEqual('');
 });
-
 
 test('repeated 1', () => {
   const engine = newEngine();
@@ -188,7 +177,6 @@ test('repeated 1', () => {
   expect(ctx.render()).toEqual('b');
 });
 
-
 test('repeated 2', () => {
   const engine = newEngine();
   const inst: Code = [O.ROOT, 1, [
@@ -202,7 +190,6 @@ test('repeated 2', () => {
   expect(ctx.render()).toEqual('123');
 });
 
-
 test('repeated 3', () => {
   const engine = newEngine();
   const inst: Code = [O.ROOT, 1, [
@@ -214,7 +201,6 @@ test('repeated 3', () => {
   engine.execute(inst, ctx);
   expect(ctx.render()).toEqual('123');
 });
-
 
 test('repeated 4', () => {
   const engine = newEngine();
@@ -238,7 +224,6 @@ test('repeated 4', () => {
   expect(ctx.render()).toEqual('B');
 });
 
-
 test('repeated 5', () => {
   const engine = newEngine();
   const inst: Code = [O.ROOT, 1, [
@@ -254,11 +239,10 @@ test('repeated 5', () => {
   expect(ctx.render()).toEqual('10a21b32c');
 });
 
-
 test('predicates', () => {
   const engine = newEngine();
   const inst: Code = [O.ROOT, 1, [
-    [O.PREDICATE, 'equal?', ['foo', 'bar'],
+    [O.PREDICATE, 'equal?', [['foo', 'bar'], ' '],
       [[O.TEXT, 'equal']],
       [O.OR_PREDICATE, 0, 0, [
         [O.TEXT, 'not equal']
@@ -285,12 +269,11 @@ test('predicates', () => {
   expect(ctx.render()).toEqual('not equal');
 });
 
-
 test('predicates missing', () => {
   const engine = newEngine();
   const inst: Code = [O.ROOT, 1, [
     [O.TEXT, 'A'],
-    [O.PREDICATE, 'missing?', ['foo'], [
+    [O.PREDICATE, 'missing?', [['foo'], ' '], [
       [O.TEXT, 'not executed'],
     ], O.END],
     [O.TEXT, 'B']
@@ -300,7 +283,6 @@ test('predicates missing', () => {
   engine.execute(inst, ctx);
   expect(ctx.render()).toEqual('AB');
 });
-
 
 test('bindvar', () => {
   const engine = newEngine();
@@ -317,16 +299,13 @@ test('bindvar', () => {
   expect(ctx.render()).toEqual('&lt;hi&gt;<bye>');
 });
 
-
 pathseq('bindvar-%N.html', 2).forEach(path => {
   test(`bindvar - ${path}`, () => loader.execute(path));
 });
 
-
 pathseq('ctxvar-%N.html', 1).forEach(path => {
   test(`ctxvar - ${path}`, () => loader.execute(path));
 });
-
 
 test('if', () => {
   const engine = newEngine();
@@ -354,7 +333,6 @@ test('if', () => {
   expect(ctx.render()).toEqual('or 0');
 });
 
-
 test('if or', () => {
   const engine = newEngine();
   const inst: Code = [O.ROOT, 1, [
@@ -376,7 +354,6 @@ test('if or', () => {
   expect(ctx.render()).toEqual('B');
 });
 
-
 test('inject', () => {
   const engine = newEngine();
   const inst: Code = [O.ROOT, 1, [
@@ -391,7 +368,6 @@ test('inject', () => {
   engine.execute(inst, ctx);
   expect(ctx.render()).toEqual('&lt;b&gt;file contents&lt;/b&gt;');
 });
-
 
 test('inject missing', () => {
   const engine = newEngine();
@@ -408,7 +384,6 @@ test('inject missing', () => {
   expect(ctx.render()).toEqual('');
 });
 
-
 test('inject mapping empty', () => {
   const engine = newEngine();
   const inst: Code = [O.ROOT, 1, [
@@ -420,11 +395,9 @@ test('inject mapping empty', () => {
   expect(ctx.render()).toEqual('');
 });
 
-
 pathseq('inject-%N.html', 2).forEach(path => {
   test(`inject - ${path}`, () => loader.execute(path));
 });
-
 
 test('macro', () => {
   const engine = newEngine();
@@ -438,7 +411,7 @@ test('macro', () => {
       [O.TEXT, 'never called']
     ]],
     [O.SECTION, ['person'], [
-      [O.VARIABLE, [['@']], [[ 'apply', ['person.html']]]],
+      [O.VARIABLE, [['@']], [[ 'apply', [['person.html'], ' ']]]],
     ], O.END]
 
   ], O.EOF];
@@ -448,12 +421,11 @@ test('macro', () => {
   expect(ctx.render()).toEqual('Betty is offline');
 });
 
-
 test('macro not defined', () => {
   const engine = newEngine();
   const inst: Code = [O.ROOT, 1, [
     [O.SECTION, ['person'], [
-      [O.VARIABLE, [['@']], [[ 'apply', ['person.html']]]],
+      [O.VARIABLE, [['@']], [[ 'apply', [['person.html'], ' ']]]],
     ], O.END]
   ], O.EOF];
 
@@ -461,7 +433,6 @@ test('macro not defined', () => {
   engine.execute(inst, ctx);
   expect(ctx.render()).toEqual('');
 });
-
 
 test('struct', () => {
   const engine = newEngine();
@@ -475,7 +446,6 @@ test('struct', () => {
   expect(ctx.render()).toEqual('hello');
 });
 
-
 class CustomEngine extends Engine {
 
   constructor(props: EngineProps) {
@@ -484,12 +454,12 @@ class CustomEngine extends Engine {
     this.impls[O.STRUCT] = this.executeStruct;
   }
 
-  executeAtom(inst: Code, ctx: Context) {
+  executeAtom(inst: Code, ctx: Context): void {
     const opaque = (inst as AtomCode)[1];
     ctx.append(`<!-- ${opaque.meta} -->`);
   }
 
-  executeStruct(inst: Code, ctx: Context) {
+  executeStruct(inst: Code, ctx: Context): void {
     const opaque = (inst as StructCode)[1];
     const buf = ctx.swapBuffer();
     super.executeBlock((inst as StructCode)[2], ctx);

@@ -6,7 +6,6 @@ test('basic', () => {
   expect(format(msg, args)).toEqual('Hi Betty, your last visit was on Thursday.');
 });
 
-
 test('many args', () => {
   let expected = '';
   let msg = '';
@@ -19,14 +18,12 @@ test('many args', () => {
   expect(format(msg, args)).toEqual(expected);
 });
 
-
 test('too few args', () => {
   const msg = '{0}{1}{2}';
   expect(format(msg, [])).toEqual('');
   expect(format(msg, ['x'])).toEqual('x');
   expect(format(msg, ['x', 'z'])).toEqual('xz');
 });
-
 
 test('bad format', () => {
   const msg = 'Hi {0} {abc} {1}!';

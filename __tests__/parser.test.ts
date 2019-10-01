@@ -158,7 +158,7 @@ test('inject', () => {
   let { code } = parse('abc{.inject @foo ./messages-en_US.json a b c}def');
   expect(code).toEqual([O.ROOT, 1, [
     [O.TEXT, 'abc'],
-    [O.INJECT, '@foo', './messages-en_US.json', 0], // arguments parsed but currently ignored
+    [O.INJECT, '@foo', './messages-en_US.json', [['a', 'b', 'c'], ' ']],
     [O.TEXT, 'def']
   ], O.EOF]);
 
@@ -188,7 +188,7 @@ test('inject', () => {
 
   ({ code } = parse('{.inject @foo a b c|}'));
   expect(code).toEqual([O.ROOT, 1, [
-    [O.INJECT, '@foo', 'a', 0]
+    [O.INJECT, '@foo', 'a', [['b', 'c|'], ' ']]
   ], O.EOF]);
 });
 
@@ -242,7 +242,7 @@ test('or predicate', () => {
   ({ code } = parse('foo{.section a}{.or equal? b c}A{.end}bar'));
   expect(code).toEqual([O.ROOT, 1, [
     [O.TEXT, 'foo'],
-    [O.SECTION, ['a'], [], [O.OR_PREDICATE, 'equal?', ['b', 'c'], [
+    [O.SECTION, ['a'], [], [O.OR_PREDICATE, 'equal?', [['b', 'c'], ' '], [
       [O.TEXT, 'A']
     ], O.END]],
     [O.TEXT, 'bar']
@@ -253,9 +253,9 @@ test('predicate', () => {
   let { code } = parse('foo{.equal? a b}A{.or greaterThan? c d}B{.end}bar');
   expect(code).toEqual([O.ROOT, 1, [
     [O.TEXT, 'foo'],
-    [O.PREDICATE, 'equal?', ['a', 'b'], [
+    [O.PREDICATE, 'equal?', [['a', 'b'], ' '], [
       [O.TEXT, 'A']
-    ], [O.OR_PREDICATE, 'greaterThan?', ['c', 'd'], [
+    ], [O.OR_PREDICATE, 'greaterThan?', [['c', 'd'], ' '], [
       [O.TEXT, 'B']
     ], O.END]],
     [O.TEXT, 'bar']
@@ -264,7 +264,7 @@ test('predicate', () => {
   ({ code } = parse('foo{.equal?:a:"b c d"}A{.or}B{.end}bar'));
   expect(code).toEqual([O.ROOT, 1, [
     [O.TEXT, 'foo'],
-    [O.PREDICATE, 'equal?', ['a', '\"b c d\"'], [
+    [O.PREDICATE, 'equal?', [['a', '\"b c d\"'], ':'], [
       [O.TEXT, 'A']
     ], [O.OR_PREDICATE, 0, 0, [
       [O.TEXT, 'B']
@@ -282,7 +282,7 @@ test('predicate', () => {
 
   ({ code } = parse('{.equal?|}'));
   expect(code).toEqual([O.ROOT, 1, [
-    [O.PREDICATE, 'equal?', [''], [], undefined]
+    [O.PREDICATE, 'equal?', [[''], '|'], [], undefined]
   ], O.END]);
 
   ({ code } = parse('{.**?}'));
@@ -338,7 +338,7 @@ test('section', () => {
 test('variables', () => {
   let { code } = parse('{a, b, c|foo d e|bar}');
   expect(code).toEqual([O.ROOT, 1, [
-    [O.VARIABLE, [['a'], ['b'], ['c']], [['foo', ['d', 'e']], ['bar']]]
+    [O.VARIABLE, [['a'], ['b'], ['c']], [['foo', [['d', 'e'], ' ']], ['bar']]]
   ], O.EOF]);
 
   ({ code } = parse('{values.Line1}'));
