@@ -1,7 +1,6 @@
 import { MISSING_NODE, Node } from '../../src/node';
 import { getFirstMatchingNode, makeSocialButton } from '../../src/plugins/util.social';
 
-
 test('get first matching node', () => {
   const node = new Node({
     'foo': 1,
@@ -11,7 +10,6 @@ test('get first matching node', () => {
   expect(getFirstMatchingNode(node, 'bar', 'foo').value).toEqual(2);
   expect(getFirstMatchingNode(node, 'quuz', 'baz')).toEqual(MISSING_NODE);
 });
-
 
 test('make social button', () => {
   let website = new Node({});

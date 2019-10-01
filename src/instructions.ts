@@ -18,7 +18,11 @@ export const enum Operator {
 
 export type Reference = (string | number)[];
 
-export type FormatterCall = [string] | [string, string[]];
+// [args, delimiter]
+export type Arguments = [string[], string];
+
+// [name] or [name, args]
+export type FormatterCall = [string] | [string, Arguments];
 
 export type Binding = [string, Reference];
 
@@ -58,6 +62,7 @@ export interface InjectCode {
   [0]: Opcode.INJECT;
   [1]: string;
   [2]: string;
+  [3]: Arguments | FAST_NULL;
 }
 
 export interface MacroCode {
@@ -69,7 +74,7 @@ export interface MacroCode {
 export interface OrPredicateCode {
   [0]: Opcode.OR_PREDICATE;
   [1]: string | number;
-  [2]: string[] | number;
+  [2]: Arguments | number;
   [3]: Code[];
   [4]: Code | undefined;
 }
@@ -77,7 +82,7 @@ export interface OrPredicateCode {
 export interface PredicateCode {
   [0]: Opcode.PREDICATE;
   [1]: string | number;
-  [2]: string[] | 0;
+  [2]: Arguments | 0;
   [3]: Code[];
   [4]: Code | undefined;
 }
@@ -229,8 +234,8 @@ export class If extends BaseInstruction implements BlockInstruction {
 }
 
 export class Inject extends BaseInstruction {
-  constructor(name: string, path: string) {
-    super(Opcode.INJECT, [Opcode.INJECT, name, path, FAST_NULL]);
+  constructor(name: string, path: string, args: Arguments | FAST_NULL) {
+    super(Opcode.INJECT, [Opcode.INJECT, name, path, args]);
   }
 }
 
@@ -245,7 +250,7 @@ export class Macro extends BaseInstruction implements CompositeInstruction {
 }
 
 export class OrPredicate extends BaseInstruction {
-  constructor(name?: string | number, args?: string[] | FAST_NULL) {
+  constructor(name?: string | number, args?: Arguments | FAST_NULL) {
     super(Opcode.OR_PREDICATE,
       [Opcode.OR_PREDICATE, name ? name : 0, args ? args : FAST_NULL, empty(), undefined]);
   }
@@ -264,7 +269,7 @@ export class OrPredicate extends BaseInstruction {
 }
 
 export class Predicate extends BaseInstruction implements BlockInstruction {
-  constructor(name: string, args: string[] | FAST_NULL) {
+  constructor(name: string, args: Arguments | FAST_NULL) {
     super(Opcode.PREDICATE,
       [Opcode.PREDICATE, name, args, [], undefined]);
   }

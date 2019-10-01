@@ -1,7 +1,7 @@
 import { Matcher } from './matcher';
 import { SlowMatcher } from './slowmatcher';
 import { Sink } from './sink';
-import { Instruction } from './instructions';
+import { FAST_NULL, Instruction } from './instructions';
 import {
   Bindvar,
   Comment,
@@ -323,7 +323,7 @@ export class Parser {
       return false;
     }
 
-    this.push(new Inject(definition, path));
+    this.push(new Inject(definition, path, args === null ? FAST_NULL : args));
     return true;
   }
 

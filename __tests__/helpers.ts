@@ -75,7 +75,7 @@ const blankProduct = {
  * Commerce product.
  */
 export class Product extends Struct<Product> {
-  constructor(obj = blankProduct) {
+  constructor(obj: any = blankProduct) {
     super(obj);
   }
 
@@ -104,27 +104,26 @@ export class Image extends Struct<Image> {
     super(obj);
   }
 
-  build(obj: any) {
+  build(obj: any): Image {
     return new Image(obj);
   }
 
-  focalPoint(x: number, y: number) {
+  focalPoint(x: number, y: number): Image {
     return this.set({ x, y }, 'mediaFocalPoint');
   }
 
-  originalSize(size: string) {
+  originalSize(size: string): Image {
     return this.set(size, 'originalSize');
   }
 
-  assetUrl(url: string) {
+  assetUrl(url: string): Image {
     return this.set(url, 'assetUrl');
   }
 
-  title(text: string) {
+  title(text: string): Image {
     return this.set(text, 'title');
   }
 }
-
 
 /**
  * Generate a sequence of numbered paths.
@@ -137,7 +136,6 @@ export const pathseq = (pattern: string, end: number) => {
   }
   return res;
 };
-
 
 interface TestCase {
   name: string;
@@ -170,4 +168,3 @@ export const predicateTests = (name: string, spec: any) => {
   });
   return cases;
 };
-

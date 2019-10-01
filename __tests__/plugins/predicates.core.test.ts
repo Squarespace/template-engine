@@ -1,7 +1,6 @@
 import { Context } from '../../src/context';
 import { TABLE as Core } from '../../src/plugins/predicates.core';
 
-
 test('debug?', () => {
   const impl = Core['debug?'];
 
@@ -16,7 +15,6 @@ test('debug?', () => {
   ctx.pushSection(['a']);
   expect(impl.apply([], ctx)).toEqual(true);
 });
-
 
 test('equal?', () => {
   const impl = Core['equal?'];
@@ -52,7 +50,6 @@ test('equal?', () => {
   expect(impl.apply(['"foo"'], ctx)).toEqual(true);
 });
 
-
 test('even?', () => {
   const impl = Core['even?'];
   let ctx = new Context(1);
@@ -68,7 +65,6 @@ test('even?', () => {
   ctx = new Context({ a: 'foo' });
   expect(impl.apply(['a'], ctx)).toEqual(false);
 });
-
 
 test('greaterThan?', () => {
   const impl = Core['greaterThan?'];
@@ -96,7 +92,6 @@ test('greaterThan?', () => {
   expect(impl.apply(['"ccc"'], ctx)).toEqual(false);
 });
 
-
 test('greaterThanOrEqual?', () => {
   const impl = Core['greaterThanOrEqual?'];
 
@@ -117,7 +112,6 @@ test('greaterThanOrEqual?', () => {
   expect(impl.apply(['a', '3'], ctx)).toEqual(true);
   expect(impl.apply(['a', '10'], ctx)).toEqual(false);
 });
-
 
 test('lessThan?', () => {
   const impl = Core['lessThan?'];
@@ -140,7 +134,6 @@ test('lessThan?', () => {
   expect(impl.apply(['a', '10'], ctx)).toEqual(true);
 });
 
-
 test('lessThanOrEqual?', () => {
   const impl = Core['lessThanOrEqual?'];
 
@@ -162,7 +155,6 @@ test('lessThanOrEqual?', () => {
   expect(impl.apply(['a', '10'], ctx)).toEqual(true);
 });
 
-
 test('notEqual?', () => {
   const impl = Core['notEqual?'];
 
@@ -183,7 +175,6 @@ test('notEqual?', () => {
   expect(impl.apply(['a', '3'], ctx)).toEqual(false);
   expect(impl.apply(['a', '10'], ctx)).toEqual(true);
 });
-
 
 test('nth?', () => {
   const impl = Core['nth?'];
@@ -210,7 +201,6 @@ test('nth?', () => {
   expect(impl.apply(['3', '0'], ctx)).toEqual(false);
 });
 
-
 test('odd?', () => {
   const impl = Core['odd?'];
   let ctx = new Context(1);
@@ -227,7 +217,6 @@ test('odd?', () => {
   expect(impl.apply(['a'], ctx)).toEqual(false);
 });
 
-
 test('plural?', () => {
   const impl = Core['plural?'];
   let ctx = new Context('1');
@@ -239,7 +228,6 @@ test('plural?', () => {
   ctx = new Context({ a: 'foo' });
   expect(impl.apply([], ctx)).toEqual(false);
 });
-
 
 test('singular?', () => {
   const impl = Core['singular?'];

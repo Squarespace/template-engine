@@ -2,10 +2,9 @@ import { join } from 'path';
 import { TABLE } from '../../src/plugins/formatters.content';
 import { Context } from '../../src/context';
 import { MISSING_NODE } from '../../src/node';
-import { Image, pathseq } from '../helpers';
+import { pathseq, Image } from '../helpers';
 import { TemplateTestLoader } from '../loader';
 import { Variable } from '../../src/variable';
-
 
 const IMAGE = new Image();
 const loader = new TemplateTestLoader(join(__dirname, 'resources'));
@@ -21,11 +20,9 @@ test('AbsUrl', () => {
   expect(vars[0].get()).toEqual('https://www.squarespace.com/foo/bar');
 });
 
-
 pathseq('f-audio-player-%N.html', 1).forEach(path => {
   test(`audio-player - ${path}`, () => loader.execute(path));
 });
-
 
 test('capitalize', () => {
   const impl = TABLE.capitalize;
@@ -33,7 +30,6 @@ test('capitalize', () => {
   impl.apply([], vars, CTX);
   expect(vars[0].get()).toEqual('ABC');
 });
-
 
 test('child image meta', () => {
   const impl = TABLE['child-image-meta'];
@@ -83,7 +79,6 @@ test('child image meta', () => {
   expect(vars[0].get()).toEqual('');
 });
 
-
 test('cover image meta', () => {
   const impl = TABLE['cover-image-meta'];
 
@@ -98,7 +93,6 @@ test('cover image meta', () => {
   impl.apply([], vars, CTX);
   expect(vars[0].get()).toContain('data-src="http://squarespace.com/');
 });
-
 
 test('color weight', () => {
   const impl = TABLE['color-weight'];
@@ -140,7 +134,6 @@ test('color weight', () => {
   expect(vars[0].node).toEqual(MISSING_NODE);
 });
 
-
 test('height', () => {
   const impl = TABLE.height;
 
@@ -153,26 +146,21 @@ test('height', () => {
   expect(vars[0].node).toBe(MISSING_NODE);
 });
 
-
 pathseq('f-image-%N.html', 3).forEach(path => {
   test(`image - ${path}`, () => loader.execute(path));
 });
-
 
 pathseq('f-image-srcset-%N.html', 1).forEach(path => {
   test(`image srcset - ${path}`, () => loader.execute(path));
 });
 
-
 pathseq('f-image-color-%N.html', 5).forEach(path => {
   test(`image color - ${path}`, () => loader.execute(path));
 });
 
-
 pathseq('f-item-classes-%N.html', 3).forEach(path => {
   test(`item classes - ${path}`, () => loader.execute(path));
 });
-
 
 test('resize height for width', () => {
   const impl = TABLE.resizedHeightForWidth;
@@ -188,7 +176,6 @@ test('resize height for width', () => {
   });
 });
 
-
 test('resize width for height', () => {
   const impl = TABLE.resizedWidthForHeight;
   const cases = [
@@ -202,7 +189,6 @@ test('resize width for height', () => {
     expect(vars[0].get()).toEqual(c.expected);
   });
 });
-
 
 test('squarespace thumbnail for width', () => {
   const impl = TABLE.squarespaceThumbnailForWidth;
@@ -222,7 +208,6 @@ test('squarespace thumbnail for width', () => {
   });
 });
 
-
 test('squarespace thumbnail for height', () => {
   const impl = TABLE.squarespaceThumbnailForHeight;
   const cases = [
@@ -238,11 +223,9 @@ test('squarespace thumbnail for height', () => {
   });
 });
 
-
 pathseq('f-video-%N.html', 3).forEach(path => {
   test(`video - ${path}`, () => loader.execute(path));
 });
-
 
 test('width', () => {
   const impl = TABLE.width;

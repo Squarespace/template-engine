@@ -1,6 +1,5 @@
 import { escapeHtmlAttributes, removeTags, slugify, truncate } from '../../src/plugins/util.string';
 
-
 test('remove tags', () => {
   let s = 'foo <bar> baz';
   expect(removeTags(s)).toEqual('foo  baz');
@@ -12,16 +11,13 @@ test('remove tags', () => {
   expect(removeTags(s)).toEqual('');
 });
 
-
 test('escape html attribute', () => {
   expect(escapeHtmlAttributes('<tag> "foo" & bar')).toEqual('&lt;tag&gt; &quot;foo&quot; &amp; bar');
 });
 
-
 test('slugify', () => {
   expect(slugify('Hello, \t \n World!')).toEqual('hello-world');
 });
-
 
 test('truncate', () => {
   const str = 'abc def ghi jkl';

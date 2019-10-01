@@ -55,7 +55,7 @@ const applyFormatters = (formatters: FormatterMap, calls: FormatterCall[], vars:
     if (!formatter || !(formatter instanceof Formatter)) {
       continue;
     }
-    const args = call.length === 1 ? [] : call[1];
+    const args = call.length === 1 ? [] : call[1][0];
     formatter.apply(args, vars, ctx);
   }
 };
@@ -240,8 +240,8 @@ export class Engine {
       const impl = this.predicates[name];
       let result = false;
       if (impl instanceof Predicate) {
-        const args = inst[2];
-        result = impl.apply(args === 0 ? [] : args, ctx);
+        const args = inst[2]; // [args, delimiter]
+        result = impl.apply(args === 0 ? [] : args[0], ctx);
       }
       if (result) {
         this.executeBlock(consequent, ctx);
@@ -336,7 +336,7 @@ export class Engine {
   executeInject(inst: InjectCode, ctx: Context): void {
     const name = inst[1];
     const path = inst[2];
-    // const args = inst[3] - arguments ignored for now
+    // const args = inst[3].slice(1) - arguments ignored for now
     const node = ctx.getInjectable(path);
     ctx.setVar(name, ctx.newVariable(name, node));
   }

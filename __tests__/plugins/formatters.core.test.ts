@@ -8,7 +8,6 @@ import { Opcode as O } from '../../src/opcodes';
 import { RootCode } from '../../src/instructions';
 import { Variable } from '../../src/variable';
 
-
 const loader = new TemplateTestLoader(join(__dirname, 'resources'));
 const variables = (...n: any[]) => n.map((v, i) => new Variable('var' + i, v));
 const newEngine = () => new Engine({ formatters: Core });
@@ -19,7 +18,7 @@ test('apply', () => {
   const engine = newEngine();
   const inst: RootCode = [O.ROOT, 1, [
     [O.TEXT, 'Hi, '],
-    [O.VARIABLE, [['person']], [['apply', ['person.html']]]]
+    [O.VARIABLE, [['person']], [['apply', [['person.html'], ' ']]]]
   ], O.EOF];
   const partial: RootCode = [O.ROOT, 1, [
     [O.VARIABLE, [['name']], 0],
@@ -32,12 +31,11 @@ test('apply', () => {
   expect(ctx.render()).toEqual('Hi, User Name!!');
 });
 
-
 test('apply private scope', () => {
   const engine = newEngine();
   const inst: RootCode = [O.ROOT, 1, [
     [O.TEXT, 'Hi, '],
-    [O.VARIABLE, [['person']], [['apply', ['person.html', 'private']]]],
+    [O.VARIABLE, [['person']], [['apply', [['person.html', 'private'], ' ']]]],
   ], O.EOF];
   const partial: RootCode = [O.ROOT, 1, [
     [O.VARIABLE, [['name']], 0],
@@ -50,12 +48,11 @@ test('apply private scope', () => {
   expect(ctx.render()).toEqual('Hi, User Name');
 });
 
-
 test('apply missing partial', () => {
   const engine = newEngine();
   const inst: RootCode = [O.ROOT, 1, [
     [O.TEXT, 'Hi, '],
-    [O.VARIABLE, [['person']], [['apply', ['missing.html']]]],
+    [O.VARIABLE, [['person']], [['apply', [['missing.html'], ' ']]]],
   ], O.EOF];
   const partial: RootCode = [O.ROOT, 1, [
     [O.VARIABLE, [['name']], 0],
@@ -70,7 +67,6 @@ test('apply missing partial', () => {
   expect(ctx.errors[0].type).toEqual('engine');
   expect(ctx.errors[0].message).toContain('apply partial');
 });
-
 
 test('apply no arguments', () => {
   const engine = newEngine();
@@ -89,14 +85,13 @@ test('apply no arguments', () => {
   expect(ctx.render()).toEqual('Hi, ');
 });
 
-
 test('apply self recursion', () => {
   const engine = newEngine();
   const inst: RootCode = [O.ROOT, 1, [
-    [O.VARIABLE, [['person']], [['apply', ['foo.html']]]]
+    [O.VARIABLE, [['person']], [['apply', [['foo.html'], ' ']]]]
   ], O.EOF];
   const partial: RootCode = [O.ROOT, 1, [
-    [O.VARIABLE, [['@']], [['apply', ['foo.html']]]]
+    [O.VARIABLE, [['@']], [['apply', [['foo.html'], ' ']]]]
   ], O.EOF];
 
   const node = { person: { name: 'User Name' } };
@@ -107,17 +102,16 @@ test('apply self recursion', () => {
   expect(ctx.errors[0].message).toContain('Recursion into self');
 });
 
-
 test('apply max recursion depth', () => {
   const engine = newEngine();
   const inst: RootCode = [O.ROOT, 1, [
-    [O.VARIABLE, [['person']], [['apply', ['partial-0.html']]]]
+    [O.VARIABLE, [['person']], [['apply', [['partial-0.html'], ' ']]]]
   ], O.EOF];
 
   const partials: { [x: string]: RootCode } = {};
   for (let i = 0; i < 20; i++) {
     partials[`partial-${i}.html`] = [O.ROOT, 1, [
-      [O.VARIABLE, [['@']], [['apply', [`partial-${i + 1}.html`]]]]
+      [O.VARIABLE, [['@']], [['apply', [[`partial-${i + 1}.html`], ' ']]]]
     ], O.EOF];
   }
 
@@ -129,11 +123,9 @@ test('apply max recursion depth', () => {
   expect(ctx.errors[0].message).toContain('recursion depth');
 });
 
-
 pathseq('f-apply-%N.html', 1).forEach(path => {
   test(`apply - ${path}`, () => loader.execute(path));
 });
-
 
 test('count', () => {
   let vars = variables([]);
@@ -165,7 +157,6 @@ test('count', () => {
   expect(vars[0].get()).toEqual(0);
 });
 
-
 test('cycle', () => {
   const args = ['a', 'b', 'c'];
 
@@ -190,13 +181,11 @@ test('cycle', () => {
   expect(vars[0].get()).toEqual('a');
 });
 
-
 test('encode-space', () => {
   const vars = variables(' \t\n ');
   Core['encode-space'].apply([], vars, CTX);
   expect(vars[0].get()).toEqual('&nbsp;&nbsp;&nbsp;&nbsp;');
 });
-
 
 test('encode-uri', () => {
   const vars = variables('<=%>');
@@ -204,13 +193,11 @@ test('encode-uri', () => {
   expect(vars[0].get()).toEqual('%3C=%25%3E');
 });
 
-
 test('encode-uri-component', () => {
   const vars = variables('<=%>');
   Core['encode-uri-component'].apply([], vars, CTX);
   expect(vars[0].get()).toEqual('%3C%3D%25%3E');
 });
-
 
 test('format', () => {
   const msg = 'The {0} is {1}.';
@@ -225,11 +212,9 @@ test('format', () => {
   expect(vars[0].get()).toEqual('The  is .');
 });
 
-
 pathseq('f-format-%N.html', 3).forEach(path => {
   test(`format - ${path}`, () => loader.execute(path));
 });
-
 
 test('html', () => {
   const vars = variables('"<foo & bar>"');
@@ -237,19 +222,15 @@ test('html', () => {
   expect(vars[0].get()).toEqual('"&lt;foo &amp; bar&gt;"');
 });
 
-
 const htmlattr = (name: string) => {
   const vars = variables('"<foo & bar>"');
   Core[name].apply([], vars, CTX);
   expect(vars[0].get()).toEqual('&quot;&lt;foo &amp; bar&gt;&quot;');
 };
 
-
 test('htmlattr', () => htmlattr('htmlattr'));
 
-
 test('htmltag', () => htmlattr('htmltag'));
-
 
 test('iter', () => {
   const vars = variables(' ');
@@ -269,7 +250,6 @@ test('iter', () => {
   expect(vars[0].get()).toEqual('2');
 });
 
-
 test('json', () => {
   let vars = variables('foo bar');
   Core.json.apply([], vars, CTX);
@@ -280,11 +260,9 @@ test('json', () => {
   expect(vars[0].get()).toEqual('["a",2,"c"]');
 });
 
-
 pathseq('f-json-%N.html', 5).forEach(path => {
   test(`json - ${path}`, () => loader.execute(path));
 });
-
 
 test('json-pretty', () => {
   const vars = variables({ a: [1, 2] });
@@ -292,11 +270,9 @@ test('json-pretty', () => {
   expect(vars[0].get()).toEqual('{\n  "a": [\n    1,\n    2\n  ]\n}');
 });
 
-
 pathseq('f-json-pretty-%N.html', 2).forEach(path => {
   test(`json pretty - ${path}`, () => loader.execute(path));
 });
-
 
 test('lookup', () => {
   const ctx = new Context({ key: 'a.b.c', a: { b: { c: 123 } } });
@@ -324,7 +300,6 @@ test('output', () => {
   expect(vars[0].get()).toEqual('a b c');
 });
 
-
 test('pluralize', () => {
   let vars = variables(1);
   Core.pluralize.apply([], vars, CTX);
@@ -347,13 +322,11 @@ test('pluralize', () => {
   expect(vars[0].get()).toEqual('y');
 });
 
-
 test('raw', () => {
   const vars = variables(3.14159);
   Core.raw.apply([], vars, CTX);
   expect(vars[0].get()).toEqual('3.14159');
 });
-
 
 test('round', () => {
   let vars = variables(1.44);
@@ -364,7 +337,6 @@ test('round', () => {
   Core.round.apply([], vars, CTX);
   expect(vars[0].get()).toEqual(2);
 });
-
 
 test('safe', () => {
   let vars = variables('foo <bar> bar');
@@ -388,7 +360,6 @@ test('safe', () => {
   expect(vars[0].get()).toEqual('{"a":"foo"}');
 });
 
-
 test('slugify', () => {
   let vars = variables('Next Total Eclipse on 20th of March 2015');
   Core.slugify.apply([], vars, CTX);
@@ -403,7 +374,6 @@ test('slugify', () => {
   expect(vars[0].get()).toEqual('12345--foobar-baz');
 });
 
-
 test('smartypants', () => {
   let vars = variables('Fred\'s');
   Core.smartypants.apply([], vars, CTX);
@@ -414,13 +384,11 @@ test('smartypants', () => {
   expect(vars[0].get()).toEqual('\u201cfoo\u201d');
 });
 
-
 test('str', () => {
   const vars = variables(123.4);
   Core.str.apply([], vars, CTX);
   expect(vars[0].get()).toEqual('123.4');
 });
-
 
 test('truncate', () => {
   let str = 'abcdefg';
@@ -453,7 +421,6 @@ test('truncate', () => {
   Core.truncate.apply(['10'], vars, CTX);
   expect(vars[0].get()).toEqual('abc def ...');
 });
-
 
 test('urlencode', () => {
   const vars = variables('\u201ca b\u201d');

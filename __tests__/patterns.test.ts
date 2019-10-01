@@ -10,7 +10,7 @@ class FastPatterns {
   constructor(private raw: string) {
   }
 
-  match(str: string, start: number = 0) {
+  match(str: string, start: number = 0): null | string {
     const pattern = new RegExp(this.raw, 'y');
     pattern.lastIndex = start;
     const value = pattern.exec(str);
@@ -26,7 +26,7 @@ class SlowPatterns {
   constructor(private raw: string) {
   }
 
-  match(str: string, start: number = 0) {
+  match(str: string, start: number = 0): string | null {
 
     const pattern = new RegExp('^' + this.raw, 'g');
     if (this.test(pattern, str, start)) {
@@ -38,7 +38,7 @@ class SlowPatterns {
     return null;
   }
 
-  test(pattern: RegExp, str: string, start: number = 0) {
+  test(pattern: RegExp, str: string, start: number = 0): boolean {
     const tmp = str.substring(start);
     if (pattern.test(tmp)) {
       return true;

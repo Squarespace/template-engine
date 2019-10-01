@@ -2,7 +2,6 @@ import { getMomentDateFormat, translateUnixToMoment } from '../../src/plugins/ut
 
 import * as moment from 'moment-timezone';
 
-
 test('translate unix to moment', () => {
   expect(translateUnixToMoment('%Y')).toEqual(['YYYY']);
   expect(translateUnixToMoment('%y')).toEqual(['YY']);
@@ -14,7 +13,6 @@ test('translate unix to moment', () => {
   expect(translateUnixToMoment('%C')).toEqual([{ calc: 'century' }]);
   expect(translateUnixToMoment('%s')).toEqual([{ calc: 'epoch-seconds' }]);
 });
-
 
 test('get moment date format', () => {
   const instant = 1384518716400;
