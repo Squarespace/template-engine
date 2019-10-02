@@ -322,6 +322,32 @@ test('pluralize', () => {
   expect(vars[0].get()).toEqual('y');
 });
 
+pathseq(`f-prop-%N.html`, 3).forEach(path => {
+  test(`get - ${path}`, () => loader.execute(path));
+});
+
+test('prop', () => {
+  let vars = variables({ foo: 123 });
+  Core.prop.apply(['foo'], vars, CTX);
+  expect(vars[0].get()).toEqual(123);
+
+  vars = variables({ bar: '123' });
+  Core.prop.apply(['bar'], vars, CTX);
+  expect(vars[0].get()).toEqual('123');
+
+  vars = variables({ bar: '123' });
+  Core.prop.apply(['foo'], vars, CTX);
+  expect(vars[0].get()).toEqual(null);
+
+  vars = variables({ bar: '123' });
+  Core.prop.apply(['bar', 'quux'], vars, CTX);
+  expect(vars[0].get()).toEqual(null);
+
+  vars = variables({ });
+  Core.prop.apply(['foo', 'bar'], vars, CTX);
+  expect(vars[0].get()).toEqual(null);
+});
+
 test('raw', () => {
   const vars = variables(3.14159);
   Core.raw.apply([], vars, CTX);
