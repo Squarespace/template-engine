@@ -252,6 +252,21 @@ export class PluralizeFormatter extends Formatter {
   }
 }
 
+export class PropFormatter extends Formatter {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
+    const first = vars[0];
+    let tmp = first.node;
+    for (const arg of args) {
+      const path = splitVariable(arg);
+      tmp = tmp.path(path);
+      if (tmp.type === Type.MISSING) {
+        break;
+      }
+    }
+    first.set(tmp);
+  }
+}
+
 export class RawFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
@@ -349,6 +364,7 @@ export const TABLE: FormatterTable = {
   'lookup': new LookupFormatter(),
   'output': new OutputFormatter(),
   'pluralize': new PluralizeFormatter(),
+  'prop': new PropFormatter(),
   'raw': new RawFormatter(),
   'round': new RoundFormatter(),
   'safe': new SafeFormatter(),
