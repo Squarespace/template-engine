@@ -282,7 +282,7 @@ test('lookup', () => {
   expect(vars[0].get()).toEqual(123);
 });
 
-pathseq(`f-get-%N.html`, 4).forEach(path => {
+pathseq(`f-get-%N.html`, 5).forEach(path => {
   test(`get - ${path}`, () => loader.execute(path));
 });
 
