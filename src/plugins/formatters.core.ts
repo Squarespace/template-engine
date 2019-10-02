@@ -3,7 +3,7 @@ import { partialMissing } from '../errors';
 import { isTruthy } from '../node';
 import { Formatter, FormatterTable } from '../plugin';
 import { MacroCode, RootCode } from '../instructions';
-import { Node } from '../node';
+import { MISSING_NODE, Node } from '../node';
 import { Variable } from '../variable';
 import { Type } from '../types';
 import { executeTemplate } from '../exec';
@@ -147,11 +147,20 @@ export class GetFormatter extends Formatter {
     for (const arg of args) {
       const path = splitVariable(arg);
       const node = ctx.resolve(path);
-      const resolved: (number | string)[] =
-        node.type === Type.ARRAY ? (node.value as (number | string)[]) :
-        node.type === Type.NUMBER ? [node.asNumber()] : [node.asString()];
-      tmp = tmp.path(resolved);
-      if (tmp.type !== Type.ARRAY && tmp.type !== Type.OBJECT) {
+
+      if (node.type === Type.MISSING) {
+        tmp = MISSING_NODE;
+      } else {
+
+        const resolved: (number | string)[] =
+          node.type === Type.ARRAY ? (node.value as (number | string)[]) :
+          node.type === Type.NUMBER ? [node.asNumber()] : [node.asString()];
+
+        tmp = tmp.path(resolved);
+      }
+
+      // Once we hit a missing node, no point continuing
+      if (tmp.type === Type.MISSING) {
         break;
       }
     }
@@ -188,16 +197,24 @@ export class IterFormatter extends Formatter {
 export class JsonFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
-    const value = JSON.stringify(first.node.value);
-    first.set(escapeScriptTags(value));
+    if (first.node.isMissing()) {
+      first.set('');
+    } else {
+      const value = JSON.stringify(first.node.value);
+      first.set(escapeScriptTags(value));
+    }
   }
 }
 
 export class JsonPretty extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
-    const value = JSON.stringify(first.node.value, undefined, '  ');
-    first.set(escapeScriptTags(value));
+    if (first.node.isMissing()) {
+      first.set('');
+    } else {
+      const value = JSON.stringify(first.node.value, undefined, '  ');
+      first.set(escapeScriptTags(value));
+    }
   }
 }
 
