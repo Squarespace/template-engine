@@ -68,3 +68,6 @@ export const truncate = (str: string, maxLen: number) => {
   }
   return str.substring(0, end) + ELLIPSIS;
 };
+
+export const defaultIfEmpty = (str: string, fallback: string) =>
+  str === null || !str ? fallback : str;
