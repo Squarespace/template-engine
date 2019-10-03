@@ -7,6 +7,7 @@ import { Formatter, FormatterTable } from '../plugin';
 import { isTruthy, MISSING_NODE } from '../node';
 import { executeTemplate } from '../exec';
 import * as commerceutil from './util.commerce';
+import * as stringutil from './util.string';
 import { Type } from '../types';
 import { parseDecimal } from './util.i18n';
 
@@ -237,13 +238,33 @@ export class VariantsSelectFormatter extends Formatter {
       return;
     }
 
+    const selectText = this.getSelectText(ctx, first.node);
     const node = ctx.newNode({
       item: first.node.value,
       options,
+      selectText
     });
 
     const text = executeTemplate(ctx, variantsSelectTemplate as unknown as RootCode, node, false);
     first.set(text);
+  }
+
+  private getSelectText(ctx: Context, node: Node): string {
+    const productType = commerceutil.getProductType(node);
+    // Gift Cards have variants forcibly named "Value" by default (as opposed to a merchant-defined variant name) and
+    // thus must be translated differently than other products. See COM-4912 for more details
+    let text = '';
+
+    // TODO: still need to implement message formatting in typescript compiler
+    const fallback = 'Select Value';
+    if (productType === ProductType.GIFT_CARD) {
+      text = ctx.resolve(['localizedStrings', 'giftCardVariantSelectText']).asString();
+      // fallback = 'Select Value';
+    } else {
+      text = ctx.resolve(['localizedStrings', 'productVariantSelectText']).asString();
+      // fallback = 'Select {variantName}';
+    }
+    return stringutil.defaultIfEmpty(text, fallback);
   }
 }
 
