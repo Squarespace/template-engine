@@ -1,0 +1,23 @@
+:JSON
+
+{
+  "foo": {
+    "bar": 123
+  },
+  "baz": "bar",
+  "keys": {
+    "first": "name",
+    "second": "make"
+  },
+  "product": {
+    "name": "Stratocaster",
+    "make": "Fender"
+  }
+}
+
+
+:TEMPLATE
+{foo|lookup baz}
+
+:OUTPUT
+123

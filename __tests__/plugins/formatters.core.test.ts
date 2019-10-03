@@ -274,11 +274,14 @@ pathseq('f-json-pretty-%N.html', 2).forEach(path => {
   test(`json pretty - ${path}`, () => loader.execute(path));
 });
 
+pathseq('f-lookup-%N.html', 1).forEach(path => {
+  test(`lookup - ${path}`, () => loader.execute(path));
+});
+
 test('lookup', () => {
   const ctx = new Context({ key: 'a.b.c', a: { b: { c: 123 } } });
-  ctx.pushSection(['a']);
-  const vars = variables('key');
-  Core.lookup.apply([], vars, ctx);
+  const vars = variables({});
+  Core.lookup.apply(['key'], vars, ctx);
   expect(vars[0].get()).toEqual(123);
 });
 

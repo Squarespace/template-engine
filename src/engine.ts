@@ -165,8 +165,10 @@ export class Engine {
    */
   executeVariable(inst: Code, ctx: Context): void {
     const vars = resolveVariables((inst as VariableCode)[1], ctx);
+    ctx.pushNode(vars[0].node);
     applyFormatters(this.formatters, (inst as VariableCode)[2] || [], vars, ctx);
     ctx.emit(vars);
+    ctx.pop();
   }
 
   /**

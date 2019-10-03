@@ -221,10 +221,14 @@ export class JsonPretty extends Formatter {
 export class LookupFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
-    const key = first.node.asString();
-    const ref = ctx.resolve(splitVariable(key));
-    const value = ctx.resolve(splitVariable(ref.asString()));
-    first.set(value);
+    const key = args[0];
+    if (key) {
+      const ref = ctx.resolve(splitVariable(key));
+      const value = ctx.resolve(splitVariable(ref.asString()));
+      first.set(value);
+    } else {
+      first.set('');
+    }
   }
 }
 
