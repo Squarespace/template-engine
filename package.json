@@ -30,7 +30,7 @@
     "url": "https://github.com/Squarespace/template-engine.git"
   },
   "peerDependencies": {
-    "@phensley/cldr-core": "0.18.1"
+    "@phensley/cldr-core": "0.18.3"
   },
   "devDependencies": {
     "@phensley/cldr": "0.18.1",
