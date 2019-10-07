@@ -334,11 +334,19 @@ export class StrFormatter extends Formatter {
 
 export class TruncateFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
-    const limit = args.length === 0 ? 0 : parseInt(args[0], 10);
+    let limit = 100;
+    let ellipsis = '...';
+    if (args.length) {
+      limit = parseInt(args[0], 10);
+    }
+    if (args.length > 1) {
+      ellipsis = args[1];
+    }
+
     if (isFinite(limit) && limit > 0) {
       const first = vars[0];
       let value = first.node.asString();
-      value = truncate(value, limit);
+      value = truncate(value, limit, ellipsis);
       first.set(value);
     }
   }

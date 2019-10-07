@@ -434,6 +434,10 @@ test('truncate', () => {
   expect(vars[0].get()).toEqual('abcde...');
 
   vars = variables(str);
+  Core.truncate.apply(['5', '…'], vars, CTX);
+  expect(vars[0].get()).toEqual('abcde…');
+
+  vars = variables(str);
   Core.truncate.apply([], vars, CTX);
   expect(vars[0].get()).toEqual(str);
 
