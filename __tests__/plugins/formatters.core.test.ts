@@ -404,13 +404,17 @@ test('slugify', () => {
 });
 
 test('smartypants', () => {
-  let vars = variables('Fred\'s');
+  let vars = variables('Fred\'s and Joe\'s');
   Core.smartypants.apply([], vars, CTX);
-  expect(vars[0].get()).toEqual('Fred\u2019s');
+  expect(vars[0].get()).toEqual('Fred\u2019s and Joe\u2019s');
 
   vars = variables('"foo"');
   Core.smartypants.apply([], vars, CTX);
   expect(vars[0].get()).toEqual('\u201cfoo\u201d');
+
+  vars = variables('I spoke to Larry--the project\nlead--about the issue');
+  Core.smartypants.apply([], vars, CTX);
+  expect(vars[0].get()).toEqual('I spoke to Larry\u2014the project\nlead\u2014about the issue');
 });
 
 test('str', () => {

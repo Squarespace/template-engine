@@ -306,18 +306,21 @@ export class SlugifyFormatter extends Formatter {
   }
 }
 
-const RE_SMARTY_1 = /(^|[-\u2014\\s(\["])'/g;
-const RE_SMARTY_2 = /(^|[-\u2014/\[(\u2018\s])"/g;
+const RE_SMARTY_1 = /(^|[-\u2014\\s(\["])'/gm;
+const RE_SMARTY_APOS = /'/gm;
+const RE_SMARTY_2 = /(^|[-\u2014/\[(\u2018\s])"/gm;
+const RE_SMARTY_QUOTE = /"/gm;
+const RE_SMARTY_MDASH = /--/gm;
 
 export class SmartyPantsFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     let value = first.node.asString();
     value = value.replace(RE_SMARTY_1, '$1\u2018');
-    value = value.replace("'", '\u2019');
+    value = value.replace(RE_SMARTY_APOS, '\u2019');
     value = value.replace(RE_SMARTY_2, '$1\u201c');
-    value = value.replace('"', '\u201d');
-    value = value.replace('--', '\u2014');
+    value = value.replace(RE_SMARTY_QUOTE, '\u201d');
+    value = value.replace(RE_SMARTY_MDASH, '\u2014');
     first.set(value);
   }
 }
