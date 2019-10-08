@@ -16,6 +16,14 @@ test('date', () => {
   expect(vars[0].get()).toEqual('Sun, May 12, 2013 9:00:00 PM EDT');
 
   vars = variables(may2013);
+  TABLE.date.apply(['%F'], vars, ctx);
+  expect(vars[0].get()).toEqual('2013-05-12');
+
+  vars = variables(may2013);
+  TABLE.date.apply(['%T'], vars, ctx);
+  expect(vars[0].get()).toEqual('21:00:00');
+
+  vars = variables(may2013);
   TABLE.date.apply(['%Y %q %'], vars, ctx);
   expect(vars[0].get()).toEqual('2013  %');
 
