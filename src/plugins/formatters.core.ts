@@ -361,7 +361,7 @@ export class UrlEncodeFormatter extends Formatter {
   }
 }
 
-export const TABLE: FormatterTable = {
+export const CORE_FORMATTERS: FormatterTable = {
   'apply': new ApplyFormatter(),
   'count': new CountFormatter(),
   'cycle': new CycleFormatter(),

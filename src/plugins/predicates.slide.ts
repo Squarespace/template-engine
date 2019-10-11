@@ -13,6 +13,6 @@ export class CurrentTypePredicate extends Predicate {
   }
 }
 
-export const TABLE: PredicateTable = {
+export const SLIDE_PREDICATES: PredicateTable = {
   'current-type?': new CurrentTypePredicate()
 };

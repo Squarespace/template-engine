@@ -23,7 +23,7 @@ import {
   Root
 } from './instructions';
 
-type State = (type: Opcode, inst: Instruction, push: boolean) => State;
+type AssemblerState = (type: Opcode, inst: Instruction, push: boolean) => AssemblerState;
 
 /**
  * Assembles a stream of instructions into a valid tree that can be executed.
@@ -35,7 +35,7 @@ export class Assembler extends Sink {
   public root: Root = new Root();
 
   private stack: Instruction[] = [];
-  private state: State;
+  private state: AssemblerState;
   private current?: Instruction;
 
   constructor() {
@@ -98,7 +98,7 @@ export class Assembler extends Sink {
    * Append the next instruction to the current instruction's consequent block,
    * then push the next instruction onto the stack.
    */
-  pushConsequent(type: Opcode, inst: Instruction): State {
+  pushConsequent(type: Opcode, inst: Instruction): AssemblerState {
     this.addConsequent(inst);
     return this.push(type, inst);
   }
@@ -106,7 +106,7 @@ export class Assembler extends Sink {
   /**
    * Push a block instruction onto the stack.
    */
-  push(type: Opcode, inst: Instruction): State {
+  push(type: Opcode, inst: Instruction): AssemblerState {
     this.stack.push(this.current!);
     this.current = inst;
     return this.stateFor(type);
@@ -115,7 +115,7 @@ export class Assembler extends Sink {
   /**
    * Pop a block instruction off the stack.
    */
-  pop(): State {
+  pop(): AssemblerState {
     const elem = this.stack.pop();
     this.current = elem;
     if (elem === undefined) {
@@ -128,7 +128,7 @@ export class Assembler extends Sink {
   /**
    * Return the handler state for a given instruction type.
    */
-  stateFor(type: Opcode): State {
+  stateFor(type: Opcode): AssemblerState {
     switch (type) {
     case Opcode.IF:
       return this.stateIf;
@@ -167,7 +167,7 @@ export class Assembler extends Sink {
   /**
    * ALTERNATES_WITH state.
    */
-  stateAlternatesWith(type: Opcode, inst: Instruction, push: boolean): State {
+  stateAlternatesWith(type: Opcode, inst: Instruction, push: boolean): AssemblerState {
     if (push) {
       return this.pushConsequent(type, inst);
     }
@@ -199,7 +199,7 @@ export class Assembler extends Sink {
   /**
    * Block state handles MACRO and STRUCT.
    */
-  stateBlock(type: Opcode, inst: Instruction, push: boolean): State {
+  stateBlock(type: Opcode, inst: Instruction, push: boolean): AssemblerState {
     if (push) {
       return this.pushConsequent(type, inst);
     }
@@ -227,14 +227,14 @@ export class Assembler extends Sink {
   /**
    * Dead state.
    */
-  stateDead(type: Opcode, inst: Instruction, push: boolean): State {
+  stateDead(type: Opcode, inst: Instruction, push: boolean): AssemblerState {
     return this.stateDead;
   }
 
   /**
    * EOF state.
    */
-  stateEOF(type: Opcode, inst: Instruction, push: boolean): State {
+  stateEOF(type: Opcode, inst: Instruction, push: boolean): AssemblerState {
     // Attempting to transition from this state is an error.
     this.error(transitionFromEOF(inst));
     return this.stateDead;
@@ -243,7 +243,7 @@ export class Assembler extends Sink {
   /**
    * IF state.
    */
-  stateIf(type: Opcode, inst: Instruction, push: boolean): State {
+  stateIf(type: Opcode, inst: Instruction, push: boolean): AssemblerState {
     if (push) {
       return this.pushConsequent(type, inst);
     }
@@ -275,7 +275,7 @@ export class Assembler extends Sink {
   /**
    * OR_PREDICATE state.
    */
-  stateOrPredicate(type: Opcode, inst: Instruction, push: boolean): State {
+  stateOrPredicate(type: Opcode, inst: Instruction, push: boolean): AssemblerState {
     if (push) {
       return this.pushConsequent(type, inst);
     }
@@ -314,7 +314,7 @@ export class Assembler extends Sink {
   /**
    * PREDICATE state.
    */
-  statePredicate(type: Opcode, inst: Instruction, push: boolean): State {
+  statePredicate(type: Opcode, inst: Instruction, push: boolean): AssemblerState {
     if (push) {
       return this.pushConsequent(type, inst);
     }
@@ -346,7 +346,7 @@ export class Assembler extends Sink {
   /**
    * REPEATED state.
    */
-  stateRepeated(type: Opcode, inst: Instruction, push: boolean): State {
+  stateRepeated(type: Opcode, inst: Instruction, push: boolean): AssemblerState {
     if (push) {
       return this.pushConsequent(type, inst);
     }
@@ -377,7 +377,7 @@ export class Assembler extends Sink {
   /**
    * ROOT state.
    */
-  stateRoot(type: Opcode, inst: Instruction, push: boolean): State {
+  stateRoot(type: Opcode, inst: Instruction, push: boolean): AssemblerState {
     if (push) {
       return this.pushConsequent(type, inst);
     }
@@ -401,7 +401,7 @@ export class Assembler extends Sink {
   /**
    * SECTION state.
    */
-  stateSection(type: Opcode, inst: Instruction, push: boolean): State {
+  stateSection(type: Opcode, inst: Instruction, push: boolean): AssemblerState {
     if (push) {
       return this.pushConsequent(type, inst);
     }

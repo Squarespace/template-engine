@@ -23,7 +23,7 @@ export class DisqusPredicate extends Predicate {
   }
 }
 
-export const TABLE: PredicateTable = {
+export const SOCIAL_PREDICATES: PredicateTable = {
   'comments?': new CommentsPredicate(),
   'disqus?': new DisqusPredicate(),
 };

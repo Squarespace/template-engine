@@ -157,7 +157,7 @@ export class TwitterFollowButtonFormatter extends Formatter {
   }
 }
 
-export const TABLE: FormatterTable = {
+export const SOCIAL_FORMATTERS: FormatterTable = {
   'activate-twitter-links': new ActivateTwitterLinksFormatter(),
   'comment-count': new CommentCountFormatter(),
   'comment-link': new CommentLinkFormatter(),

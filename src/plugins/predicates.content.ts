@@ -262,7 +262,7 @@ export class ShowPastEventsPredicate extends Predicate {
 
 // BUILD TABLE AND EXPORT
 
-export const TABLE: PredicateTable = {
+export const CONTENT_PREDICATES: PredicateTable = {
   'calendar-view?': new CalendarViewPredicate(),
   'child-images?': new ChildImagesPredicate(),
   'clickable?': new ClickablePredicate(),
@@ -313,22 +313,22 @@ const PROMOTED_BLOCK_TYPES = [
 
 GALLERY_DESIGN_SELECT.forEach(name => {
   const identifier = `gallery-design-${name}?`;
-  TABLE[identifier] = new GallerySelectPredicate('design', name);
+  CONTENT_PREDICATES[identifier] = new GallerySelectPredicate('design', name);
 });
 
 META_POSITION_SELECT.forEach(name => {
   const identifier = `gallery-meta-position-${name}?`;
-  TABLE[identifier] = new GallerySelectPredicate('meta-position', name);
+  CONTENT_PREDICATES[identifier] = new GallerySelectPredicate('meta-position', name);
 });
 
 ACTIVE_ALIGNMENT_SELECT.forEach(name => {
   const identifier = `gallery-active-alignment-${name}?`;
-  TABLE[identifier] = new GallerySelectPredicate('active-alignment', name);
+  CONTENT_PREDICATES[identifier] = new GallerySelectPredicate('active-alignment', name);
 });
 
 GALLERY_BOOLEAN.forEach(option => {
   const identifier = `gallery-${option}?`;
-  TABLE[identifier] = new GalleryBooleanPredicate(option);
+  CONTENT_PREDICATES[identifier] = new GalleryBooleanPredicate(option);
 });
 
 RecordType.values().forEach(type => {
@@ -336,22 +336,22 @@ RecordType.values().forEach(type => {
     return;
   }
   const identifier = `${type.name}?`;
-  TABLE[identifier] = new RecordTypePredicate(type);
+  CONTENT_PREDICATES[identifier] = new RecordTypePredicate(type);
 });
 
-TABLE['external-video?'] = new PromotedRecordTypePredicate(RecordType.VIDEO, 'video');
-TABLE['video?'] = new PromotedRecordTypePredicate(RecordType.VIDEO, 'video');
-TABLE['image?'] = new PromotedRecordTypePredicate(RecordType.IMAGE, 'image');
-TABLE['quote?'] = new PromotedRecordTypePredicate(RecordType.QUOTE, 'quote');
-TABLE['link?'] = new PromotedRecordTypePredicate(RecordType.LINK, 'link');
-TABLE['gallery?'] = new PromotedRecordTypePredicate(RecordType.GALLERY, 'gallery');
+CONTENT_PREDICATES['external-video?'] = new PromotedRecordTypePredicate(RecordType.VIDEO, 'video');
+CONTENT_PREDICATES['video?'] = new PromotedRecordTypePredicate(RecordType.VIDEO, 'video');
+CONTENT_PREDICATES['image?'] = new PromotedRecordTypePredicate(RecordType.IMAGE, 'image');
+CONTENT_PREDICATES['quote?'] = new PromotedRecordTypePredicate(RecordType.QUOTE, 'quote');
+CONTENT_PREDICATES['link?'] = new PromotedRecordTypePredicate(RecordType.LINK, 'link');
+CONTENT_PREDICATES['gallery?'] = new PromotedRecordTypePredicate(RecordType.GALLERY, 'gallery');
 
 PROMOTED_BLOCK_TYPES.forEach(type => {
   const identifier = `promoted${type.toUpperCase()}?`;
-  TABLE[identifier] = new PromotedBlockTypePredicate(type);
+  CONTENT_PREDICATES[identifier] = new PromotedBlockTypePredicate(type);
 });
 
 BackgroundSource.values().forEach(type => {
   const identifier = `background-source-${type.name}?`;
-  TABLE[identifier] = new BackgroundSourcePredicate(type);
+  CONTENT_PREDICATES[identifier] = new BackgroundSourcePredicate(type);
 });

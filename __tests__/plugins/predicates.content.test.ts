@@ -2,7 +2,7 @@ import { join } from 'path';
 import { pathseq } from '../helpers';
 import { framework } from '../cldr';
 import { TemplateTestLoader } from '../loader';
-import { TABLE as Content } from '../../src/plugins/predicates.content';
+import { CONTENT_PREDICATES as Content } from '../../src/plugins/predicates.content';
 import { Context } from '../../src/context';
 
 const loader = new TemplateTestLoader(join(__dirname, 'resources'));

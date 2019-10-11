@@ -44,6 +44,6 @@ export class DateFormatter extends Formatter {
   }
 }
 
-export const TABLE: FormatterTable = {
+export const DATE_FORMATTERS: FormatterTable = {
   'date': new DateFormatter()
 };

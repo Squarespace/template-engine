@@ -92,7 +92,7 @@ export class TimeSinceFormatter extends Formatter {
 
 // TODO: unit
 
-export const TABLE: FormatterTable = {
+export const I18N_FORMATTERS: FormatterTable = {
   message: new MessageFormatter(),
   datetime: new DatetimeFormatter(),
   decimal: new DecimalFormatter(),

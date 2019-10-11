@@ -353,12 +353,6 @@ export class SquarespaceThumbnailForHeightFormatter extends Formatter {
   }
 }
 
-export class TimeSinceFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context): void {
-    // TODO: implement
-  }
-}
-
 export class WidthFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
@@ -438,7 +432,7 @@ export class VideoFormatter extends Formatter {
   }
 }
 
-export const TABLE: FormatterTable = {
+export const CONTENT_FORMATTERS: FormatterTable = {
   'AbsUrl': new AbsUrlFormatter(),
   'audio-player': new AudioPlayerFormatter(),
   'capitalize': new CapitalizeFormatter(),
@@ -456,7 +450,6 @@ export const TABLE: FormatterTable = {
   'resizedWidthForHeight': new ResizedWidthForHeightFormatter(),
   'squarespaceThumbnailForHeight': new SquarespaceThumbnailForHeightFormatter(),
   'squarespaceThumbnailForWidth': new SquarespaceThumbnailForWidthFormatter(),
-  'timesince': new TimeSinceFormatter(),
   'width': new WidthFormatter(),
   'video': new VideoFormatter(),
 };
