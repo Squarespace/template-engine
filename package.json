@@ -1,6 +1,6 @@
 {
   "name": "@squarespace/template-engine",
-  "version": "1.5.7",
+  "version": "1.6.0",
   "description": "Squarespace template engine",
   "main": "lib/index.js",
   "module": "lib-es/index.js",
@@ -13,7 +13,7 @@
     "build": "npm run build:cj && npm run build:es && npm run build:rollup",
     "build:cj": "tsc",
     "build:es": "tsc --module esnext --outDir lib-es",
-		"build:rollup": "NODE_ENV=production rollup -c && dts-bundle-generator -o ./dist/sqsptemplate1.umd.d.ts src/index.ts",
+    "build:rollup": "NODE_ENV=production rollup -c && dts-bundle-generator -o ./dist/sqsptemplate1.umd.d.ts src/index.ts",
     "build:watch": "tsc --watch",
     "clean": "rimraf dist lib lib-es coverage && jest --clearCache",
     "depgraph": "depcruise -T dot -x tslib src | dot -T pdf > depgraph.pdf",
@@ -79,7 +79,7 @@
   },
   "files": [
     "bin",
-		"dist",
+    "dist",
     "lib",
     "lib-es"
   ]
