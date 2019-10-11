@@ -1,7 +1,7 @@
-import { CLDR, GregorianDate } from '@phensley/cldr';
+import { CLDR } from '@phensley/cldr';
 import { framework } from '../cldr';
 import { Context } from '../../src/context';
-import { TimeSinceFormatter, TABLE } from '../../src/plugins/formatters.i18n';
+import { I18N_FORMATTERS as TABLE, TimeSinceFormatter } from '../../src/plugins/formatters.i18n';
 import { Variable } from '../../src/variable';
 
 const variables = (...n: any[]) => n.map((v, i) => new Variable('var' + i, v));
