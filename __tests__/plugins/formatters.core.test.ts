@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { TABLE as Core } from '../../src/plugins/formatters.core';
+import { CORE_FORMATTERS as Core } from '../../src/plugins/formatters.core';
 import { Context } from '../../src/context';
 import { Engine } from '../../src/engine';
 import { pathseq } from '../helpers';

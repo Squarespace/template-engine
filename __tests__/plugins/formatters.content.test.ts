@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { TABLE } from '../../src/plugins/formatters.content';
+import { CONTENT_FORMATTERS as TABLE } from '../../src/plugins/formatters.content';
 import { Context } from '../../src/context';
 import { MISSING_NODE } from '../../src/node';
 import { pathseq, Image } from '../helpers';

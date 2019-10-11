@@ -339,7 +339,7 @@ export class SummaryFormFieldFormatter extends Formatter {
   }
 }
 
-export const TABLE: FormatterTable = {
+export const COMMERCE_FORMATTERS: FormatterTable = {
   'add-to-cart-btn': new AddToCartButtonFormatter(),
   'cart-quantity': new CartQuantityFormatter(),
   'cart-subtotal': new CartSubtotalFormatter(),

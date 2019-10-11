@@ -1,9 +1,7 @@
 import { Context } from '../context';
 import { Formatter, FormatterTable } from '../plugin';
 import { Variable } from '../variable';
-import { getMomentDateFormat } from './util.date';
-
-import * as moment from 'moment-timezone';
+import { getMomentDateFormat, momenttimezone } from './util.date';
 
 /**
  * Retrieves the Website's timeZone from the context, falling
@@ -30,7 +28,7 @@ export class DateFormatter extends Formatter {
     // Compute the moment object
     const instant = vars[0].node.asNumber();
     const timezone = getTimeZone(ctx);
-    const m = moment.tz(instant, 'UTC').tz(timezone);
+    const m = momenttimezone.tz(instant, 'UTC').tz(timezone);
 
     // Build format and apply
     const fmt = getMomentDateFormat(m, args[0]);
@@ -39,6 +37,6 @@ export class DateFormatter extends Formatter {
   }
 }
 
-export const TABLE: FormatterTable = {
+export const DATE_FORMATTERS: FormatterTable = {
   'date': new DateFormatter()
 };

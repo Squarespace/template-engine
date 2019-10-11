@@ -26,7 +26,7 @@ export class VariedPrices extends Predicate {
   }
 }
 
-export const TABLE: PredicateTable = {
+export const COMMERCE_PREDICATES: PredicateTable = {
   'has-variants?': new HasVariants(),
   'on-sale?': new OnSale(),
   'sold-out?': new SoldOut(),

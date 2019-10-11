@@ -1,4 +1,4 @@
-import { TABLE } from '../../src/plugins/formatters.date';
+import { DATE_FORMATTERS as TABLE } from '../../src/plugins/formatters.date';
 import { Context } from '../../src/context';
 import { Variable } from '../../src/variable';
 

@@ -438,7 +438,7 @@ export class VideoFormatter extends Formatter {
   }
 }
 
-export const TABLE: FormatterTable = {
+export const CONTENT_FORMATTERS: FormatterTable = {
   'AbsUrl': new AbsUrlFormatter(),
   'audio-player': new AudioPlayerFormatter(),
   'capitalize': new CapitalizeFormatter(),

@@ -1,13 +1,15 @@
-import { enum_, EnumValue } from '../enum';
+import { enum_, Enum, EnumMap, EnumMethods, EnumValue } from '../enum';
 
-export type BackgroundSource = EnumValue<'BackgroundSource'>;
-export const BackgroundSource = enum_('BackgroundSource', {
+export const BackgroundSourceMap: EnumMap = {
   UNDEFINED: [-1, 'undefined'],
   UPLOAD: [1, 'upload'],
   INSTAGRAM: [2, 'instagram'],
   VIDEO: [3, 'video'],
   NONE: [4, 'none'],
-});
+};
+
+export type BackgroundSource = EnumValue<'BackgroundSource'>;
+export const BackgroundSource = enum_('BackgroundSource', BackgroundSourceMap);
 
 export type CollectionType = EnumValue<'CollectionType'>;
 export const CollectionType = enum_('CollectionType', {

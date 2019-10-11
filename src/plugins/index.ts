@@ -1,49 +1,49 @@
-import * as commerceFormatters from './formatters.commerce';
-import * as contentFormatters from './formatters.content';
-import * as coreFormatters from './formatters.core';
-import * as dateFormatters from './formatters.date';
-import * as i18nFormatters from './formatters.i18n';
-import * as socialFormatters from './formatters.social';
+import { Formatter, Predicate } from '../plugin';
 
-import * as commercePredicates from './predicates.commerce';
-import * as contentPredicates from './predicates.content';
-import * as corePredicates from './predicates.core';
-import * as i18nPredicates from './predicates.i18n';
-import * as slidePredicates from './predicates.slide';
-import * as socialPredicates from './predicates.social';
+export * from './formatters.commerce';
+export * from './formatters.content';
+export * from './formatters.core';
+export * from './formatters.date';
+export * from './formatters.i18n';
+export * from './formatters.social';
+
+export * from './predicates.commerce';
+export * from './predicates.content';
+export * from './predicates.core';
+export * from './predicates.i18n';
+export * from './predicates.slide';
+export * from './predicates.social';
+
+import { COMMERCE_FORMATTERS } from './formatters.commerce';
+import { CONTENT_FORMATTERS } from './formatters.content';
+import { CORE_FORMATTERS } from './formatters.core';
+import { DATE_FORMATTERS } from './formatters.date';
+import { I18N_FORMATTERS } from './formatters.i18n';
+import { SOCIAL_FORMATTERS } from './formatters.social';
+
+import { COMMERCE_PREDICATES } from './predicates.commerce';
+import { CONTENT_PREDICATES } from './predicates.content';
+import { CORE_PREDICATES } from './predicates.core';
+import { I18N_PREDICATES } from './predicates.i18n';
+import { SLIDE_PREDICATES } from './predicates.slide';
+import { SOCIAL_PREDICATES } from './predicates.social';
 
 // Table of default formatter instances.
-export const Formatters = {
-  ...commerceFormatters.TABLE,
-  ...contentFormatters.TABLE,
-  ...coreFormatters.TABLE,
-  ...dateFormatters.TABLE,
-  ...i18nFormatters.TABLE,
-  ...socialFormatters.TABLE,
+export const Formatters: { [name: string]: Formatter } = {
+  ...COMMERCE_FORMATTERS,
+  ...CONTENT_FORMATTERS,
+  ...CORE_FORMATTERS,
+  ...DATE_FORMATTERS,
+  ...I18N_FORMATTERS,
+  ...SOCIAL_FORMATTERS,
 };
 
 // Table of default predicate instances.
-export const Predicates = {
-  ...commercePredicates.TABLE,
-  ...contentPredicates.TABLE,
-  ...corePredicates.TABLE,
-  ...i18nPredicates.TABLE,
-  ...slidePredicates.TABLE,
-  ...socialPredicates.TABLE,
-};
-
-// Formatter and predicate classes.
-export const plugins = {
-  ...commerceFormatters,
-  ...contentFormatters,
-  ...coreFormatters,
-  ...i18nFormatters,
-  ...socialFormatters,
-
-  ...commercePredicates,
-  ...contentPredicates,
-  ...corePredicates,
-  ...i18nPredicates,
-  ...slidePredicates,
-  ...socialPredicates
+export const Predicates: { [name: string]: Predicate } = {
+  ...COMMERCE_PREDICATES,
+  ...CONTENT_PREDICATES,
+  ...CORE_PREDICATES,
+  ...I18N_PREDICATES,
+  ...SLIDE_PREDICATES,
+  ...SOCIAL_PREDICATES,
 };

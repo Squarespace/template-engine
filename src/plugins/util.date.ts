@@ -1,4 +1,11 @@
-import * as moment from 'moment-timezone';
+
+// Must load both moment and moment-timezone to ensure they are
+// each initialized, since they load JSON under the hood.
+import _moment from 'moment';
+import _momenttimezone from 'moment-timezone';
+
+export const moment = _moment;
+export const momenttimezone = _momenttimezone;
 
 interface CalcSpec {
   calc: string;
@@ -124,7 +131,7 @@ export const translateUnixToMoment = (fmt: string) => {
  * We need to calculate the field's value on the fly and replace it
  * into the pattern.
  */
-export const getMomentDateFormat = (m: moment.Moment, raw: string) => {
+export const getMomentDateFormat = (m: _momenttimezone.Moment, raw: string) => {
   const parts = translateUnixToMoment(raw);
   const len = parts.length;
   for (let i = 0; i < len; i++) {

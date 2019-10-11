@@ -1,5 +1,5 @@
 import { Context } from '../../src/context';
-import { TABLE as Core } from '../../src/plugins/predicates.core';
+import { CORE_PREDICATES as Core } from '../../src/plugins/predicates.core';
 
 test('debug?', () => {
   const impl = Core['debug?'];

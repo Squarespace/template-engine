@@ -21,7 +21,7 @@ import { Opcode } from './opcodes';
 import { formatterUnknown, predicateUnknown } from './errors';
 import { FormatterTable, PredicateTable } from './plugin';
 
-type State = () => State | null;
+type ParserState = () => ParserState | null;
 
 /* Check if the current JS runtime supports sticky RegExp flag. */
 const hasStickyRegexp = (() => {
@@ -70,7 +70,7 @@ export class Parser {
    */
   parse(): void {
     this.idx = 0;
-    let state: State | null = this.stateMain;
+    let state: ParserState | null = this.stateMain;
     while (state !== null) {
       state = state.call(this);
     }
@@ -486,7 +486,7 @@ export class Parser {
   /**
    * Main parser state. Parses alternating text / code instructions.
    */
-  stateMain(): State | null {
+  stateMain(): ParserState | null {
     const len = this.len;
     for (;;) {
       // Save the current position before we start scanning below.
@@ -545,7 +545,7 @@ export class Parser {
   /**
    * Multi-line comment parser state.
    */
-  stateMultiLineComment(): State | null {
+  stateMultiLineComment(): ParserState | null {
     // Skip '{##'
     this.idx += 3;
     const start = this.idx;

@@ -4,8 +4,7 @@ import { Formatter, FormatterTable } from '../plugin';
 import { executeTemplate } from '../exec';
 import { RootCode } from '../instructions';
 import { Variable } from '../variable';
-
-import * as moment from 'moment-timezone';
+import { momenttimezone } from './util.date';
 
 // Template imports
 import commentLinkTemplate from './templates/comment-link.json';
@@ -91,8 +90,8 @@ export class GoogleCalendarUrlFormatter extends Formatter {
     const endInstant = node.get('endDate').asNumber();
     const title = escape(node.get('title').asString());
 
-    const start = moment.tz(startInstant, 'UTC').format(CALENDAR_DATE_FORMAT);
-    const end = moment.tz(endInstant, 'UTC').format(CALENDAR_DATE_FORMAT);
+    const start = momenttimezone.tz(startInstant, 'UTC').format(CALENDAR_DATE_FORMAT);
+    const end = momenttimezone.tz(endInstant, 'UTC').format(CALENDAR_DATE_FORMAT);
 
     let buf = `http://www.google.com/calendar/event?action=TEMPLATE&text=${title}`;
     buf += `&dates=${start}/${end}`;
@@ -152,7 +151,7 @@ export class TwitterFollowButtonFormatter extends Formatter {
   }
 }
 
-export const TABLE: FormatterTable = {
+export const SOCIAL_FORMATTERS: FormatterTable = {
   'activate-twitter-links': new ActivateTwitterLinksFormatter(),
   'comment-count': new CommentCountFormatter(),
   'comment-link': new CommentLinkFormatter(),

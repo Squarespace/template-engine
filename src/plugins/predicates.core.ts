@@ -159,7 +159,7 @@ export class SingularPredicate extends Predicate {
   }
 }
 
-export const TABLE: PredicateTable = {
+export const CORE_PREDICATES: PredicateTable = {
   'debug?': new DebugPredicate(),
   'equal?': new EqualPredicate(),
   'even?': new EvenPredicate(),
