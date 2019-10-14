@@ -11,7 +11,7 @@ const VERSION = 1;
 export type FAST_NULL = 0;
 export const FAST_NULL: FAST_NULL = 0;
 
-export const enum Operator {
+export enum Operator {
   OR = 0,
   AND = 1,
 }
