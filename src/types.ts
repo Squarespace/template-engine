@@ -1,4 +1,4 @@
-export const enum Type {
+export enum Type {
   MISSING = 0,
   OBJECT = 1,
   ARRAY = 2,

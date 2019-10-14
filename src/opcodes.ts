@@ -1,5 +1,5 @@
 // Opcode values for abstract syntax version 1
-export const enum Opcode {
+export enum Opcode {
   NOOP = -1,
   TEXT = 0,
   VARIABLE = 1,
