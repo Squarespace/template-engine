@@ -1,12 +1,12 @@
 import { Context } from '../context';
 import { isTruthy } from '../node';
-import { Predicate, PredicateTable } from '../plugin';
+import { PredicatePlugin, PredicateTable } from '../plugin';
 import { BackgroundSource, CollectionType, FolderBehavior, RecordType } from './enums';
 import { momenttimezone } from './util.date';
 import { removeTags } from './util.string';
 import { Type } from '../types';
 
-export class BackgroundSourcePredicate extends Predicate {
+export class BackgroundSourcePredicate extends PredicatePlugin {
   private code: number;
   constructor(type: BackgroundSource) {
     super();
@@ -18,13 +18,13 @@ export class BackgroundSourcePredicate extends Predicate {
   }
 }
 
-export class CalendarViewPredicate extends Predicate {
+export class CalendarViewPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     return ctx.resolve(['calendarView']).asBoolean();
   }
 }
 
-export class ChildImagesPredicate extends Predicate {
+export class ChildImagesPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     const items = ctx.node().get('items');
     if (items.type === Type.ARRAY && items.size() > 0) {
@@ -35,7 +35,7 @@ export class ChildImagesPredicate extends Predicate {
   }
 }
 
-export class ClickablePredicate extends Predicate {
+export class ClickablePredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     const node = ctx.resolve(['folderBehavior']);
     if (node.isMissing()) {
@@ -46,13 +46,13 @@ export class ClickablePredicate extends Predicate {
   }
 }
 
-export class CollectionPredicate extends Predicate {
+export class CollectionPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     return isTruthy(ctx.node().get('collection'));
   }
 }
 
-export class CollectionPagePredicate extends Predicate {
+export class CollectionPagePredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     const type = ctx.node().path(['collection', 'type']);
     if (!type.isMissing()) {
@@ -62,7 +62,7 @@ export class CollectionPagePredicate extends Predicate {
   }
 }
 
-export class CollectionTemplatePagePredicate extends Predicate {
+export class CollectionTemplatePagePredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     const collection = ctx.node().get('collection');
     if (collection.isMissing()) {
@@ -80,7 +80,7 @@ export class CollectionTemplatePagePredicate extends Predicate {
   }
 }
 
-export class CollectionTypeNameEqualsPredicate extends Predicate {
+export class CollectionTypeNameEqualsPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     return args.length === 0 ? false : ctx.resolve(['typeName']).asString() === args[0];
   }
@@ -88,7 +88,7 @@ export class CollectionTypeNameEqualsPredicate extends Predicate {
 
 const WHITESPACE_NBSP = /[\s\u200b\u00a0]+/g;
 
-export class ExcerptPredicate extends Predicate {
+export class ExcerptPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     const excerpt = ctx.node().get('excerpt');
     const html = excerpt.get('html');
@@ -104,19 +104,19 @@ export class ExcerptPredicate extends Predicate {
   }
 }
 
-export class ExternalLinkPredicate extends Predicate {
+export class ExternalLinkPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     return isTruthy(ctx.node().get('externalLink'));
   }
 }
 
-export class FolderPredicate extends Predicate {
+export class FolderPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     return isTruthy(ctx.node().path(['collection', 'folder']));
   }
 }
 
-export class GalleryBooleanPredicate extends Predicate {
+export class GalleryBooleanPredicate extends PredicatePlugin {
   constructor(private option: string) {
     super();
   }
@@ -127,14 +127,14 @@ export class GalleryBooleanPredicate extends Predicate {
   }
 }
 
-export class GalleryMetaPredicate extends Predicate {
+export class GalleryMetaPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     const options = ctx.resolve(['options']);
     return isTruthy(options.get('controls')) || isTruthy(options.get('indicators'));
   }
 }
 
-export class GallerySelectPredicate extends Predicate {
+export class GallerySelectPredicate extends PredicatePlugin {
   constructor(private option: string, private name: string) {
     super();
   }
@@ -145,13 +145,13 @@ export class GallerySelectPredicate extends Predicate {
   }
 }
 
-export class HasMultiplePredicate extends Predicate {
+export class HasMultiplePredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     return ctx.node().size() > 1;
   }
 }
 
-export class IndexPredicate extends Predicate {
+export class IndexPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     const collection = ctx.node().get('collection');
     if (collection.type !== Type.OBJECT) {
@@ -165,7 +165,7 @@ export class IndexPredicate extends Predicate {
   }
 }
 
-export class LocationPredicate extends Predicate {
+export class LocationPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     const location = ctx.node().get('location');
     if (location.get('mapLat').isMissing() || location.get('mapLng').isMissing()) {
@@ -175,14 +175,14 @@ export class LocationPredicate extends Predicate {
   }
 }
 
-export class MainImagePredicate extends Predicate {
+export class MainImagePredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     const node = ctx.node();
     return isTruthy(node.get('mainImageId')) || isTruthy(node.get('systemDataId'));
   }
 }
 
-export class PassThroughPredicate extends Predicate {
+export class PassThroughPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     const pass = ctx.node().get('passthrough');
     const url = ctx.node().get('sourceUrl').asString();
@@ -190,7 +190,7 @@ export class PassThroughPredicate extends Predicate {
   }
 }
 
-export class PromotedBlockTypePredicate extends Predicate {
+export class PromotedBlockTypePredicate extends PredicatePlugin {
   constructor(private promotedBlockType: string) {
     super();
   }
@@ -200,7 +200,7 @@ export class PromotedBlockTypePredicate extends Predicate {
   }
 }
 
-export class PromotedRecordTypePredicate extends Predicate {
+export class PromotedRecordTypePredicate extends PredicatePlugin {
   private code: number;
   constructor(recordType: RecordType, private promotedBlockType: string) {
     super();
@@ -214,7 +214,7 @@ export class PromotedRecordTypePredicate extends Predicate {
   }
 }
 
-export class RecordTypePredicate extends Predicate {
+export class RecordTypePredicate extends PredicatePlugin {
   private code: number;
   constructor(recordType: RecordType) {
     super();
@@ -226,13 +226,13 @@ export class RecordTypePredicate extends Predicate {
   }
 }
 
-export class RedirectPredicate extends Predicate {
+export class RedirectPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     return ctx.node().get('folderBehavior').asNumber() === FolderBehavior.REDIRECT.code;
   }
 }
 
-export class SameDayPredicate extends Predicate {
+export class SameDayPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     const node = ctx.node();
     const startDate = node.get('startDate').asNumber();
@@ -243,13 +243,13 @@ export class SameDayPredicate extends Predicate {
   }
 }
 
-export class ServiceNameEmailPredicate extends Predicate {
+export class ServiceNameEmailPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     return ctx.node().get('serviceName').asString() === 'email';
   }
 }
 
-export class ShowPastEventsPredicate extends Predicate {
+export class ShowPastEventsPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     return ctx.node().get('showPastOrUpcomingEvents').asString() === 'past';
   }

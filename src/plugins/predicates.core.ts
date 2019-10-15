@@ -1,6 +1,6 @@
 import { Context } from '../context';
 import { isTruthy, Node } from '../node';
-import { Predicate, PredicateTable } from '../plugin';
+import { PredicatePlugin, PredicateTable } from '../plugin';
 import { isJsonStart, splitVariable } from '../util';
 import { Type } from '../types';
 
@@ -36,7 +36,7 @@ const compute = (args: string[], ctx: Context, f: (a: Node, b: Node) => boolean)
   return len === 1 ? f(ctx.node(), nodes[0]) : f(nodes[0], nodes[1]);
 };
 
-export class DebugPredicate extends Predicate {
+export class DebugPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     const node = ctx.resolve(['debug']);
     return isTruthy(node);
@@ -45,13 +45,13 @@ export class DebugPredicate extends Predicate {
 
 const equals = (a: Node, b: Node) => a.equals(b);
 
-export class EqualPredicate extends Predicate {
+export class EqualPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     return compute(args, ctx, equals);
   }
 }
 
-export class EvenPredicate extends Predicate {
+export class EvenPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     let node = ctx.node();
     if (args.length >= 1) {
@@ -67,7 +67,7 @@ export class EvenPredicate extends Predicate {
 
 const greaterThan = (a: Node, b: Node) => a.compare(b) > 0;
 
-export class GreaterThanPredicate extends Predicate {
+export class GreaterThanPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     return compute(args, ctx, greaterThan);
   }
@@ -75,7 +75,7 @@ export class GreaterThanPredicate extends Predicate {
 
 const greaterThanOrEqual = (a: Node, b: Node) => a.compare(b) >= 0;
 
-export class GreaterThanOrEqualPredicate extends Predicate {
+export class GreaterThanOrEqualPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     return compute(args, ctx, greaterThanOrEqual);
   }
@@ -83,7 +83,7 @@ export class GreaterThanOrEqualPredicate extends Predicate {
 
 const lessThan = (a: Node, b: Node) => a.compare(b) < 0;
 
-export class LessThanPredicate extends Predicate {
+export class LessThanPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     return compute(args, ctx, lessThan);
   }
@@ -91,7 +91,7 @@ export class LessThanPredicate extends Predicate {
 
 const lessThanOrEqual = (a: Node, b: Node) => a.compare(b) <= 0;
 
-export class LessThanOrEqualPredicate extends Predicate {
+export class LessThanOrEqualPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     return compute(args, ctx, lessThanOrEqual);
   }
@@ -99,7 +99,7 @@ export class LessThanOrEqualPredicate extends Predicate {
 
 const notEqual = (a: Node, b: Node) => !a.equals(b);
 
-export class NotEqualPredicate extends Predicate {
+export class NotEqualPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     return compute(args, ctx, notEqual);
   }
@@ -107,7 +107,7 @@ export class NotEqualPredicate extends Predicate {
 
 const isInteger = (n: number) => typeof n === 'number' && Math.floor(n) === n;
 
-export class NthPredicate extends Predicate {
+export class NthPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     const len = args.length;
     if (len === 0) {
@@ -133,7 +133,7 @@ export class NthPredicate extends Predicate {
   }
 }
 
-export class OddPredicate extends Predicate {
+export class OddPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     let node = ctx.node();
     if (args.length >= 1) {
@@ -147,13 +147,13 @@ export class OddPredicate extends Predicate {
   }
 }
 
-export class PluralPredicate extends Predicate {
+export class PluralPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     return ctx.node().asNumber() > 1;
   }
 }
 
-export class SingularPredicate extends Predicate {
+export class SingularPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     return ctx.node().asNumber() === 1;
   }

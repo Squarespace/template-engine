@@ -5,8 +5,8 @@ import {
   Formatters,
   FormatterTable,
   Opcode as O,
-  Predicate,
   Predicates,
+  PredicatePlugin,
   PredicateTable,
   Variable
 } from '../src';
@@ -17,7 +17,7 @@ class DummyFormatter extends Formatter {
   }
 }
 
-class DummyPredicate extends Predicate {
+class DummyPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     return args[0] === 'dummy';
   }

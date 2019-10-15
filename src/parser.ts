@@ -15,7 +15,7 @@ import {
   Repeated,
   Section,
   Text,
-  Variable,
+  VariableInst,
 } from './instructions';
 import { Opcode } from './opcodes';
 import { formatterUnknown, predicateUnknown } from './errors';
@@ -465,7 +465,7 @@ export class Parser {
     }
 
     this.checkFormatters(formatters);
-    this.push(new Variable(variables, (formatters === null ? 0 : formatters) as FormatterCall[]));
+    this.push(new VariableInst(variables, (formatters === null ? 0 : formatters) as FormatterCall[]));
     return true;
   }
 

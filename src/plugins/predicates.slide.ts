@@ -1,10 +1,10 @@
 import { Context } from '../context';
-import { Predicate, PredicateTable } from '../plugin';
+import { PredicatePlugin, PredicateTable } from '../plugin';
 import { SliceType } from './enums';
 
 // TODO: current-type?  should be generalized.
 
-export class CurrentTypePredicate extends Predicate {
+export class CurrentTypePredicate extends PredicatePlugin {
 
   apply(args: string[], ctx: Context): boolean {
     const expected = ctx.node().get('currentType').asNumber() | 0;

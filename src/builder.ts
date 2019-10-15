@@ -20,7 +20,7 @@ import {
   Section,
   Struct,
   Text,
-  Variable,
+  VariableInst,
 } from './instructions';
 
 export interface CodeBuilderResult {
@@ -148,7 +148,7 @@ export class CodeBuilder {
   }
 
   variable(variables: Reference[], formatters: FormatterCall[]): CodeBuilder {
-    this.assembler.accept(new Variable(variables, formatters));
+    this.assembler.accept(new VariableInst(variables, formatters));
     return this;
   }
 

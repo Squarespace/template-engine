@@ -60,7 +60,7 @@ const NAMES = {
   [Opcode.CTXVAR]: 'CTXVAR'
 };
 
-export const nameOf = (opcode: Opcode) => {
+export const nameOfOpcode = (opcode: Opcode) => {
   const name = NAMES[opcode];
   return typeof name === 'undefined' ? 'UNKNOWN' : name;
 };

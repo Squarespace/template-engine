@@ -18,7 +18,7 @@
     "clean": "rimraf dist lib lib-es coverage && jest --clearCache",
     "depgraph": "depcruise -T dot -x tslib src | dot -T pdf > depgraph.pdf",
     "generate": "ts-node scripts/generate.ts",
-    "lint": "tslint -p ./tsconfig.json",
+    "lint": "tslint -p ./tsconfig.lint.json",
     "test": "NODE_ENV=test jest --coverage=true",
     "test:watch": "NODE_ENV=test jest --watch",
     "test:coveralls": "npm run test && cat ./coverage/lcov.info | ./node_modules/.bin/coveralls"

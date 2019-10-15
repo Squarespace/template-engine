@@ -1,8 +1,8 @@
 import { Context } from '../context';
-import { Predicate, PredicateTable } from '../plugin';
+import { PredicatePlugin, PredicateTable } from '../plugin';
 import { isTruthy } from '../node';
 
-export class CommentsPredicate extends Predicate {
+export class CommentsPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     const settings = ctx.resolve(['websiteSettings']);
     const node = ctx.node();
@@ -17,7 +17,7 @@ export class CommentsPredicate extends Predicate {
   }
 }
 
-export class DisqusPredicate extends Predicate {
+export class DisqusPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     return isTruthy(ctx.resolve(['websiteSettings', 'disqusShortName']));
   }

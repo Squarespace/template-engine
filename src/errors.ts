@@ -1,11 +1,11 @@
 import { getType, Instruction } from './instructions';
-import { nameOf, Opcode } from './opcodes';
+import { nameOfOpcode, Opcode } from './opcodes';
 
 // TODO: add instruction parse position and type to error messages.
 
 const info = (inst: Instruction | Opcode) => {
   const op = getType(inst);
-  return nameOf(op);
+  return nameOfOpcode(op);
 };
 
 export type ErrorType = 'parser' | 'assembler' | 'engine';
@@ -41,7 +41,7 @@ export const eofInBlock = (inst: Instruction) =>
     assembler(`Reached EOF in the middle of ${info(inst)}`);
 
 export const nonBlockState = (type: Opcode) =>
-    assembler(`machine fail: attempt to find state for non-block instruction ${nameOf(type)}`);
+    assembler(`machine fail: attempt to find state for non-block instruction ${nameOfOpcode(type)}`);
 
 export const notAllowedInBlock = (inst: Instruction, parent: Instruction) =>
     assembler(`${info(inst)} instruction is not allowed inside ${info(parent)} block.`);

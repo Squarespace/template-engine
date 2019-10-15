@@ -350,7 +350,7 @@ export class Text extends BaseInstruction {
   }
 }
 
-export class Variable extends BaseInstruction {
+export class VariableInst extends BaseInstruction {
   constructor(variables: Reference[], formatters: FormatterCall[]) {
     super(Opcode.VARIABLE, [Opcode.VARIABLE, variables, formatters]);
   }

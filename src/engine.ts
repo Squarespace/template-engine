@@ -1,5 +1,5 @@
 import { Context } from './context';
-import { nameOf, Opcode } from './opcodes';
+import { nameOfOpcode, Opcode } from './opcodes';
 import {
   BindvarCode,
   Code,
@@ -18,11 +18,11 @@ import {
 } from './instructions';
 import { unexpectedError } from './errors';
 import { Variable } from './variable';
-import { Formatter, Predicate } from './plugin';
+import { Formatter, PredicatePlugin } from './plugin';
 import { isTruthy } from './node';
 
 export type FormatterMap = { [x: string]: Formatter };
-export type PredicateMap = { [x: string]: Predicate };
+export type PredicateMap = { [x: string]: PredicatePlugin };
 
 type Bindings = { [x: string]: Node };
 
@@ -151,7 +151,7 @@ export class Engine {
         try {
           impl.call(this, inst, ctx);
         } catch (e) {
-          ctx.error(unexpectedError(e.name, nameOf(opcode), e.message));
+          ctx.error(unexpectedError(e.name, nameOfOpcode(opcode), e.message));
         }
       }
     }
@@ -241,7 +241,7 @@ export class Engine {
       // If predicate is not found, we just assume 'false' for now.
       const impl = this.predicates[name];
       let result = false;
-      if (impl instanceof Predicate) {
+      if (impl instanceof PredicatePlugin) {
         const args = inst[2]; // [args, delimiter]
         result = impl.apply(args === 0 ? [] : args[0], ctx);
       }

@@ -1,4 +1,4 @@
-import { Formatter, Predicate } from '../plugin';
+import { Formatter, PredicatePlugin } from '../plugin';
 
 export * from './formatters.commerce';
 export * from './formatters.content';
@@ -39,7 +39,7 @@ export const Formatters: { [name: string]: Formatter } = {
 };
 
 // Table of default predicate instances.
-export const Predicates: { [name: string]: Predicate } = {
+export const Predicates: { [name: string]: PredicatePlugin } = {
   ...COMMERCE_PREDICATES,
   ...CONTENT_PREDICATES,
   ...CORE_PREDICATES,

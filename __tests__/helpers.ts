@@ -1,6 +1,6 @@
 import { deepCopy, deepMerge } from '../src/util';
 import { Node } from '../src/node';
-import { nameOf, of, Type } from '../src/types';
+import { nameOfType, of, Type } from '../src/types';
 
 /**
  * Helper to simplify manipulating deep structures during testing.
@@ -51,7 +51,7 @@ export abstract class Struct<T> {
       const key = path[i];
       const type = of(obj);
       if (type !== Type.OBJECT && type !== Type.ARRAY) {
-        throw new Error(`Attempt to set property ${key} on object of type ${nameOf(type)}`);
+        throw new Error(`Attempt to set property ${key} on object of type ${nameOfType(type)}`);
       }
       if (i === last) {
         tmp[key] = value;
