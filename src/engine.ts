@@ -26,40 +26,6 @@ export type PredicateMap = { [x: string]: PredicatePlugin };
 
 type Bindings = { [x: string]: Node };
 
-/**
- * Resolve one or more variables against the context. Accepts a raw list of
- * variable names (e.g. ['foo.bar', 'baz.quux']), splits each info parts
- * (.e.g. [['foo', 'bar'], ['baz', 'quux']]), resolves them against the
- * context, and wraps in a Variable instance.
- */
-export const resolveVariables = (rawlist: (string | number)[][], ctx: Context) => {
-  const result = new Array(rawlist.length);
-  const size = rawlist.length;
-  for (let i = 0; i < size; i++) {
-    const names = rawlist[i];
-    result[i] = ctx.newVariable('', ctx.resolve(names));
-  }
-  return result;
-};
-
-/**
- * Apply formatters to the list of vars.
- */
-const applyFormatters = (formatters: FormatterMap, calls: FormatterCall[], vars: Variable[], ctx: Context) => {
-  const len = calls.length;
-  for (let i = 0; i < len; i++) {
-    const call = calls[i];
-    const name = call[0];
-    const formatter = formatters[name];
-    // Undefined formatters will raise an error in the parse phase.
-    if (!formatter || !(formatter instanceof Formatter)) {
-      continue;
-    }
-    const args = call.length === 1 ? [] : call[1][0];
-    formatter.apply(args, vars, ctx);
-  }
-};
-
 type Impl = (inst: Code, ctx: Context) => void;
 type Hook = Impl | null;
 
@@ -164,9 +130,9 @@ export class Engine {
    * inst[2]  - list of formatters with optional arguments [["html"], ["truncate", "10"]]
    */
   executeVariable(inst: Code, ctx: Context): void {
-    const vars = resolveVariables((inst as VariableCode)[1], ctx);
+    const vars = this.resolveVariables((inst as VariableCode)[1], ctx);
     ctx.pushNode(vars[0].node);
-    applyFormatters(this.formatters, (inst as VariableCode)[2] || [], vars, ctx);
+    this.applyFormatters(this.formatters, (inst as VariableCode)[2] || [], vars, ctx);
     ctx.emit(vars);
     ctx.pop();
   }
@@ -262,9 +228,9 @@ export class Engine {
    */
   executeBindvar(inst: BindvarCode, ctx: Context): void {
     const name = inst[1];
-    const vars = resolveVariables(inst[2], ctx);
+    const vars = this.resolveVariables(inst[2], ctx);
 
-    applyFormatters(this.formatters, inst[3] || [], vars, ctx);
+    this.applyFormatters(this.formatters, inst[3] || [], vars, ctx);
     ctx.setVar(name, vars[0]);
   }
 
@@ -297,7 +263,7 @@ export class Engine {
    */
   executeIf(inst: IfCode, ctx: Context): void {
     const operators = inst[1];
-    const vars = resolveVariables(inst[2], ctx);
+    const vars = this.resolveVariables(inst[2], ctx);
     const len = vars.length;
 
     // Compute the boolean value of the operators. This is a legacy
@@ -352,6 +318,40 @@ export class Engine {
   executeMacro(inst: MacroCode, ctx: Context): void {
     const name = inst[1];
     ctx.setMacro(name, inst);
+  }
+
+  /**
+   * Resolve one or more variables against the context. Accepts a raw list of
+   * variable names (e.g. ['foo.bar', 'baz.quux']), splits each info parts
+   * (.e.g. [['foo', 'bar'], ['baz', 'quux']]), resolves them against the
+   * context, and wraps in a Variable instance.
+   */
+  resolveVariables(rawlist: (string | number)[][], ctx: Context): Variable[] {
+    const result: Variable[] = new Array(rawlist.length);
+    const size = rawlist.length;
+    for (let i = 0; i < size; i++) {
+      const names = rawlist[i];
+      result[i] = ctx.newVariable('', ctx.resolve(names));
+    }
+    return result;
+  }
+
+  /**
+   * Apply formatters to the list of vars.
+   */
+  applyFormatters(formatters: FormatterMap, calls: FormatterCall[], vars: Variable[], ctx: Context): void {
+    const len = calls.length;
+    for (let i = 0; i < len; i++) {
+      const call = calls[i];
+      const name = call[0];
+      const formatter = formatters[name];
+      // Undefined formatters will raise an error in the parse phase.
+      if (!formatter || !(formatter instanceof Formatter)) {
+        continue;
+      }
+      const args = call.length === 1 ? [] : call[1][0];
+      formatter.apply(args, vars, ctx);
+    }
   }
 
 }
