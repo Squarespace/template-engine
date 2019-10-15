@@ -6,7 +6,7 @@ export * from './compiler';
 export * from './context';
 export * from './engine';
 export * from './enum';
-export * from './errors';
+export { ErrorType, TemplateError } from './errors';
 export * from './frame';
 export * from './instructions';
 export * from './matcher';
