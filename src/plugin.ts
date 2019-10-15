@@ -13,7 +13,7 @@ export type FormatterTable = {
   [x: string]: Formatter;
 };
 
-export abstract class Predicate {
+export abstract class PredicatePlugin {
 
   // TODO: add validateArgs() when parser is implemented
 
@@ -22,5 +22,5 @@ export abstract class Predicate {
 }
 
 export type PredicateTable = {
-  [x: string]: Predicate;
+  [x: string]: PredicatePlugin;
 };

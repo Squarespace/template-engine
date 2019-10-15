@@ -1,26 +1,26 @@
 import { Context } from '../context';
-import { Predicate, PredicateTable } from '../plugin';
+import { PredicatePlugin, PredicateTable } from '../plugin';
 import { hasVariants, hasVariedPrices, isOnSale, isSoldOut } from './util.commerce';
 
-export class HasVariants extends Predicate {
+export class HasVariants extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     return hasVariants(ctx.node());
   }
 }
 
-export class OnSale extends Predicate {
+export class OnSale extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     return isOnSale(ctx.node());
   }
 }
 
-export class SoldOut extends Predicate {
+export class SoldOut extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     return isSoldOut(ctx.node());
   }
 }
 
-export class VariedPrices extends Predicate {
+export class VariedPrices extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     return hasVariedPrices(ctx.node());
   }

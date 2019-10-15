@@ -18,7 +18,7 @@ const NAMES = {
   [Type.NULL]: 'NULL'
 };
 
-export const nameOf = (type: Type) => NAMES[type];
+export const nameOfType = (type: Type) => NAMES[type];
 
 export const of = (value: any) => {
   switch (typeof value) {

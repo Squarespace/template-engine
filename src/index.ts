@@ -1,33 +1,28 @@
-import { Assembler } from './assembler';
 import { Compiler } from './compiler';
-import { Context, Partials } from './context';
-import { Engine } from './engine';
-import { MISSING_NODE, Node } from './node';
-import { Parser } from './parser';
-import { Variable } from './variable';
-import { Formatter, FormatterTable, Predicate, PredicateTable } from './plugin';
-import { References, ReferenceScanner} from './scan';
 
-export { Opcode } from './opcodes';
+export * from './assembler';
+export * from './builder';
+export * from './compiler';
+export * from './context';
+export * from './engine';
+export * from './enum';
+export * from './errors';
+export * from './frame';
+export * from './instructions';
+export * from './matcher';
+export * from './node';
+export * from './opcodes';
+export * from './parser';
+export * from './patterns';
+export * from './plugin';
 export * from './plugins';
+export * from './pretty';
+export * from './scan';
+export * from './sink';
+export * from './slowmatcher';
+export * from './types';
+export * from './util';
+export * from './variable';
 
 // tslint:disable-next-line:no-default-export
 export default Compiler;
-
-export {
-  Assembler,
-  Compiler,
-  Context,
-  Engine,
-  Formatter,
-  FormatterTable,
-  MISSING_NODE,
-  Node,
-  Parser,
-  Partials,
-  Predicate,
-  PredicateTable,
-  ReferenceScanner,
-  References,
-  Variable,
-};

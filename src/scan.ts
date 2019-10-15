@@ -11,7 +11,7 @@ import {
   TextCode,
   VariableCode
 } from './instructions';
-import { nameOf, Opcode } from './opcodes';
+import { nameOfOpcode, Opcode } from './opcodes';
 
 class Data {
 
@@ -147,7 +147,7 @@ export class ReferenceScanner {
   }
 
   instruction(opcode: Opcode): void {
-    increment(this.refs.instructions, nameOf(opcode));
+    increment(this.refs.instructions, nameOfOpcode(opcode));
   }
 
   formatter(name: string): void {

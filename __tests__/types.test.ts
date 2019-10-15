@@ -1,4 +1,4 @@
-import { nameOf, of, Type } from '../src/types';
+import { nameOfType, of, Type } from '../src/types';
 
 test('types', () => {
   expect(of(undefined)).toBe(Type.MISSING);
@@ -33,6 +33,6 @@ test('types', () => {
 });
 
 test('type names', () => {
-  expect(nameOf(Type.MISSING)).toEqual('MISSING');
-  expect(nameOf(-5)).toEqual(undefined);
+  expect(nameOfType(Type.MISSING)).toEqual('MISSING');
+  expect(nameOfType(-5)).toEqual(undefined);
 });
