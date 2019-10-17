@@ -9,6 +9,7 @@ const variables = (...n: any[]) => n.map((v, i) => new Variable('var' + i, v));
 const EN = framework.get('en');
 const DE = framework.get('de');
 const ES = framework.get('es');
+const JA = framework.get('ja');
 
 const ZONE_NY = 'America/New_York';
 const ZONE_LA = 'America/Los_Angeles';
@@ -77,6 +78,13 @@ test('datetime', () => {
   // TODO:
   // args = ['skeleton:EyMMMd']
   // expect(formatGregorian(EN, d, ZONE_NY, args)).toEqual('');
+});
+
+test('japanese', () => {
+  // March 12, 2018 5:48:54 PM UTC
+  const d = '1520876934000';
+  const args: string[] = [];
+  expect(formatGregorian(JA, d, ZONE_NY, args)).toEqual('平成30年3月12日');
 });
 
 test('timesince', () => {

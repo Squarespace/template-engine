@@ -15,7 +15,8 @@ export class DatetimeFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const cldr = ctx.cldr;
-    if (cldr === undefined) {
+    if (!cldr) {
+      console.log('NOTHING');
       first.set('');
       return;
     }
@@ -28,7 +29,9 @@ export class DatetimeFormatter extends Formatter {
 
     const opts = setCalendarFormatOptions(args);
     const zoneId = getTimeZone(ctx);
+    console.log(`args:`, date, zoneId);
     const res = cldr.Calendars.formatDate({ date, zoneId }, opts);
+    console.log('result', cldr.General.locale().id, res);
     first.set(res);
   }
 }
