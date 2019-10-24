@@ -238,12 +238,6 @@ export const isSoldOut = (item: Node) => {
 export const isSubscribable = (item: Node): boolean =>
   item.path(['structuredContent', 'isSubscribable']).asBoolean();
 
-// TODO: writeMoneyString
-
-// TODO: writePriceString
-
-// TODO: writeVariantFormat
-
 const getUserDefinedOptions = (content: Node) => {
   const ordering = content.get('variantOptionOrdering');
   const options = [];

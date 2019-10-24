@@ -32,13 +32,6 @@ export class AddToCartButtonFormatter extends Formatter {
   }
 }
 
-// TODO: bookkeeper-money-format
-export class BookkeeperMoneyFormat extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context): void {
-    // TBD
-  }
-}
-
 export class CartQuantityFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
@@ -51,16 +44,6 @@ export class CartQuantityFormatter extends Formatter {
     }
     const text = `<span class="sqs-cart-quantity">${count}</span>`;
     first.set(text);
-  }
-}
-
-export class CartSubtotalFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context): void {
-    const first = vars[0];
-    const cents = first.node.get('subtotalCents').asNumber();
-    // const text = `<span class="sqs-cart-subtotal">`;
-    // TODO: writeMoneyString
-
   }
 }
 
@@ -78,12 +61,6 @@ export class FromPriceFormatter extends Formatter {
   }
 }
 
-// TODO: MoneyBaseFormatter base class
-// TODO: moneyFormat
-// TODO: money-format
-// TODO: money-string
-// TODO: percentage-format
-
 export class NormalPriceFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
@@ -99,8 +76,6 @@ export class ProductCheckoutFormatter extends Formatter {
     first.set(text);
   }
 }
-
-// TODO: product-price
 
 export class ProductQuickViewFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
@@ -342,7 +317,6 @@ export class SummaryFormFieldFormatter extends Formatter {
 export const COMMERCE_FORMATTERS: FormatterTable = {
   'add-to-cart-btn': new AddToCartButtonFormatter(),
   'cart-quantity': new CartQuantityFormatter(),
-  'cart-subtotal': new CartSubtotalFormatter(),
   'cart-url': new CartUrlFormatter(),
   'from-price': new FromPriceFormatter(),
   'normal-price': new NormalPriceFormatter(),

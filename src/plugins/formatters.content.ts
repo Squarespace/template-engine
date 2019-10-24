@@ -90,12 +90,6 @@ export class HeightFormatter extends Formatter {
   }
 }
 
-export class HumanizeDurationFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context): void {
-    // TODO: implement
-  }
-}
-
 export class ImageFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
@@ -353,12 +347,6 @@ export class SquarespaceThumbnailForHeightFormatter extends Formatter {
   }
 }
 
-export class TimeSinceFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context): void {
-    // TODO: implement
-  }
-}
-
 export class WidthFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
@@ -446,7 +434,6 @@ export const CONTENT_FORMATTERS: FormatterTable = {
   'cover-image-meta': new CoverImageMetaFormatter(),
   'color-weight': new ColorWeightFormatter(),
   'height': new HeightFormatter(),
-  'humanizeDuration': new HumanizeDurationFormatter(),
   'image': new ImageFormatter(),
   'image-color': new ImageColorFormatter(),
   'image-meta': new ImageMetaFormatter(),
@@ -456,7 +443,6 @@ export const CONTENT_FORMATTERS: FormatterTable = {
   'resizedWidthForHeight': new ResizedWidthForHeightFormatter(),
   'squarespaceThumbnailForHeight': new SquarespaceThumbnailForHeightFormatter(),
   'squarespaceThumbnailForWidth': new SquarespaceThumbnailForWidthFormatter(),
-  'timesince': new TimeSinceFormatter(),
   'width': new WidthFormatter(),
   'video': new VideoFormatter(),
 };
