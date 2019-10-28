@@ -2,7 +2,7 @@ import { Context } from '../context';
 import { isTruthy } from '../node';
 import { PredicatePlugin, PredicateTable } from '../plugin';
 import { BackgroundSource, CollectionType, FolderBehavior, RecordType } from './enums';
-import { momenttimezone } from './util.date';
+import { GregorianDate } from '../calendars';
 import { removeTags } from './util.string';
 import { Type } from '../types';
 
@@ -237,9 +237,9 @@ export class SameDayPredicate extends PredicatePlugin {
     const node = ctx.node();
     const startDate = node.get('startDate').asNumber();
     const endDate = node.get('endDate').asNumber();
-    const m1 = momenttimezone.tz(startDate, 'UTC');
-    const m2 = momenttimezone.tz(endDate, 'UTC');
-    return m1.year() === m2.year() && m1.month() === m2.month() && m1.date() === m2.date();
+    const d1 = GregorianDate.fromUnixEpoch(startDate, 'UTC');
+    const d2 = GregorianDate.fromUnixEpoch(endDate, 'UTC');
+    return d1.year() === d2.year() && d1.dayOfYear() === d2.dayOfYear();
   }
 }
 

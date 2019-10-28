@@ -31,8 +31,7 @@
     "url": "https://github.com/Squarespace/template-engine.git"
   },
   "dependencies": {
-    "moment": "^2.20.1",
-    "moment-timezone": "^0.5.14",
+    "@phensley/timezone": "^0.19.5",
     "utf8": "^3.0.0"
   },
   "devDependencies": {

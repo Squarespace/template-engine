@@ -25,7 +25,7 @@ test('date', () => {
 
   vars = variables(may2013);
   TABLE.date.apply(['%Y %q %'], vars, ctx);
-  expect(vars[0].get()).toEqual('2013  %');
+  expect(vars[0].get()).toEqual('2013 2 %');
 
   ctx = new Context(losAngeles);
   vars = variables(may2013);

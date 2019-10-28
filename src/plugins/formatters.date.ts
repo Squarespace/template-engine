@@ -1,7 +1,8 @@
+import { GregorianDate } from '../calendars';
 import { Context } from '../context';
 import { Formatter, FormatterTable } from '../plugin';
 import { Variable } from '../variable';
-import { getMomentDateFormat, momenttimezone } from './util.date';
+import { formatDate } from './util.date';
 
 /**
  * Retrieves the Website's timeZone from the context, falling
@@ -23,16 +24,12 @@ export class DateFormatter extends Formatter {
       return;
     }
 
-    // TODO: support locale
-
-    // Compute the moment object
     const instant = vars[0].node.asNumber();
     const timezone = getTimeZone(ctx);
-    const m = momenttimezone.tz(instant, 'UTC').tz(timezone);
+    const d = GregorianDate.fromUnixEpoch(instant, timezone);
 
     // Build format and apply
-    const fmt = getMomentDateFormat(m, args[0]);
-    const value = m.format(fmt);
+    const value = formatDate(d, args[0]);
     first.set(value);
   }
 }
