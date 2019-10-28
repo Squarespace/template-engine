@@ -37,7 +37,7 @@ export class DateFormatter extends Formatter {
       const date = cldr.Calendars.toGregorianDate({ date: instant, zoneId: timezone });
 
       // Build date pattern and apply
-      const pattern = getDatePattern(date, args[0]);
+      const pattern = getDatePattern(cldr, date, args[0]);
       value = cldr.Calendars.formatDateRaw(date, { pattern });
     }
     first.set(value);

@@ -51,8 +51,8 @@ test('date', () => {
   const fr = framework.get('fr');
   ctx = new Context(paris, { cldr: fr });
   vars = variables(may2013);
-  //TABLE.date.apply(['%c'], vars, ctx);
-  //expect(vars[0].get()).toEqual('Mon, May 13, 2013 3:00:00 AM CEST');
+  // TABLE.date.apply(['%c'], vars, ctx);
+  // expect(vars[0].get()).toEqual('Mon, May 13, 2013 3:00:00 AM CEST');
   TABLE.date.apply(['%c'], vars, ctx);
   expect(vars[0].get()).toEqual('lun., mai 13, 2013 3:00:00 AM UTC+2');
 });
@@ -61,7 +61,7 @@ test('all fields', () => {
   const en = framework.get('en');
   const nov2019 = 1573241320123;
 
-  let ctx = new Context({}, { cldr: en });
+  const ctx = new Context({}, { cldr: en });
   let vars = variables(nov2019);
 
   vars = variables(nov2019);
@@ -106,11 +106,11 @@ test('all fields', () => {
 
   vars = variables(nov2019);
   TABLE.date.apply(['%g'], vars, ctx);
-  expect(vars[0].get()).toEqual('AD');
+  expect(vars[0].get()).toEqual('19');
 
   vars = variables(nov2019);
   TABLE.date.apply(['%G'], vars, ctx);
-  expect(vars[0].get()).toEqual('Anno Domini');
+  expect(vars[0].get()).toEqual('2019');
 
   vars = variables(nov2019);
   TABLE.date.apply(['%H'], vars, ctx);

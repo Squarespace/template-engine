@@ -1,4 +1,4 @@
-import { GregorianDate } from '@phensley/cldr-core';
+import { CLDR, GregorianDate, ISO8601Date } from '@phensley/cldr-core';
 import { Context } from '../context';
 
 interface Calc {
@@ -6,7 +6,7 @@ interface Calc {
 }
 
 /**
- * Maps Unix date pattern to CLDR form:
+ * Maps legacy Unix date pattern to CLDR form:
  * https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Format_Patterns
  */
 const UNIX_TO_CLDR_FORMATS: { [field: string]: string | Calc } = {
@@ -42,10 +42,10 @@ const UNIX_TO_CLDR_FORMATS: { [field: string]: string | Calc } = {
   F: 'y-MM-dd',
 
   // %g     last two digits of year of ISO week number (see %G)
-  g: 'G',
+  g: { calc: 'iso-week-number-year-2' },
 
   // %G     year of ISO week number (see %V); normally useful only with %V
-  G: 'GGGG',
+  G: { calc: 'iso-week-number-year' },
 
   // %h     same as %b
   h: 'MMM',
@@ -211,49 +211,68 @@ const pad = (str: string) => str.length === 2 ? str : ` ${str}`;
  *
  * Argument 'd' is a GregorianDate instance.
  */
-export const getDatePattern = (d: GregorianDate, unixfmt: string) => {
+export const getDatePattern = (cldr: CLDR, d: GregorianDate, unixfmt: string) => {
+  let iso!: ISO8601Date;
+  const makeiso = () => {
+    if (!iso) {
+      iso = cldr.Calendars.toISO8601Date(d);
+    }
+  };
   const parts = translateUnixToCLDR(unixfmt);
   const len = parts.length;
   for (let i = 0; i < len; i++) {
     const part = parts[i];
     if (typeof part !== 'string') {
       switch (part.calc) {
-      case 'century':
-        parts[i] = `'${(d.year() / 100) | 0}'`;
-        break;
+        case 'century':
+          parts[i] = `'${(d.year() / 100) | 0}'`;
+          break;
 
-      case 'day-of-week-1': {
-        const wk = d.dayOfWeek() - 1;
-        parts[i] = wk === 0 ? '7' : `${wk}`;
-        break;
+        case 'day-of-week-1': {
+          const wk = d.dayOfWeek() - 1;
+          parts[i] = wk === 0 ? '7' : `${wk}`;
+          break;
+        }
+
+        case 'day-of-week-2': {
+          parts[i] = `${d.dayOfWeek() - 1}`;
+          break;
+        }
+
+        case 'day-space':
+          parts[i] = pad(`${d.dayOfMonth()}`);
+          break;
+
+        case 'epoch-seconds':
+          parts[i] = `'${(d.unixEpoch() / 1000) | 0}'`;
+          break;
+
+        case 'hour-12-space':
+          parts[i] = pad(`${d.hour()}`);
+          break;
+
+        case 'hour-24-space':
+          parts[i] = pad(`${d.hourOfDay()}`);
+          break;
+
+        case 'iso-week-number':
+          makeiso();
+          parts[i] = pad(`${iso.weekOfYear()}`);
+          break;
+
+        case 'iso-week-number-year':
+          makeiso();
+          parts[i] = `${iso.yearOfWeekOfYear()}`;
+          break;
+
+        case 'iso-week-number-year-2': {
+          makeiso();
+          const y = iso.yearOfWeekOfYear() % 100;
+          parts[i] = `${y}`;
+          break;
+        }
       }
 
-      case 'day-of-week-2': {
-        parts[i] = `${d.dayOfWeek() - 1}`;
-        break;
-      }
-
-      case 'day-space':
-        parts[i] = pad(`${d.dayOfMonth()}`);
-        break;
-
-      case 'epoch-seconds':
-        parts[i] = `'${(d.unixEpoch() / 1000) | 0}'`;
-        break;
-
-      case 'hour-12-space':
-        parts[i] = pad(`${d.hour()}`);
-        break;
-
-      case 'hour-24-space':
-        parts[i] = pad(`${d.hourOfDay()}`);
-        break;
-
-      case 'iso-week-number':
-        // TODO: requires date conversion to iso-8601 calendar currently
-        parts[i] = '';
-        break;
-      }
     }
   }
   return parts.join('');
