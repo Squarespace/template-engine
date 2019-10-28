@@ -1,9 +1,12 @@
+import { GregorianDate } from '../calendars';
+
 import { Context } from '../context';
 import { Node } from '../node';
 import { Formatter, FormatterTable } from '../plugin';
 import { executeTemplate } from '../exec';
 import { RootCode } from '../instructions';
 import { Variable } from '../variable';
+import { formatDate } from './util.date';
 
 // Template imports
 import commentLinkTemplate from './templates/comment-link.json';
@@ -70,7 +73,8 @@ export class CommentsFormatter extends Formatter {
   }
 }
 
-const CALENDAR_DATE_FORMAT = 'yMMdd\'T\'hhmmss\'Z\'';
+// const CALENDAR_DATE_FORMAT = 'YYYYMMDD[T]HHmmss[Z]';
+const CALENDAR_DATE_FORMAT = '%Y%m%dT%H%M%SZ';
 
 const getLocationString = (node: Node) => {
   const address1 = node.get('addressLine1').asString().trim();
@@ -95,9 +99,11 @@ export class GoogleCalendarUrlFormatter extends Formatter {
     const endInstant = node.get('endDate').asNumber();
     const title = escape(node.get('title').asString());
 
-    const pattern = CALENDAR_DATE_FORMAT;
-    const start = cldr.Calendars.formatDateRaw({ date: startInstant }, { pattern: pattern });
-    const end = cldr.Calendars.formatDateRaw({ date: endInstant }, { pattern });
+    const d1 = GregorianDate.fromUnixEpoch(startInstant, 'UTC');
+    const d2 = GregorianDate.fromUnixEpoch(endInstant, 'UTC');
+
+    const start = formatDate(d1, CALENDAR_DATE_FORMAT);
+    const end = formatDate(d2, CALENDAR_DATE_FORMAT);
 
     let buf = `http://www.google.com/calendar/event?action=TEMPLATE&text=${title}`;
     buf += `&dates=${start}/${end}`;

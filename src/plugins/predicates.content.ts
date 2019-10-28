@@ -2,6 +2,7 @@ import { Context } from '../context';
 import { isTruthy } from '../node';
 import { PredicatePlugin, PredicateTable } from '../plugin';
 import { BackgroundSource, CollectionType, FolderBehavior, RecordType } from './enums';
+import { GregorianDate } from '../calendars';
 import { removeTags } from './util.string';
 import { Type } from '../types';
 
@@ -236,15 +237,9 @@ export class SameDayPredicate extends PredicatePlugin {
     const node = ctx.node();
     const startDate = node.get('startDate').asNumber();
     const endDate = node.get('endDate').asNumber();
-    const { cldr } = ctx;
-    if (!cldr) {
-      return false;
-    }
-
-    const d1 = cldr.Calendars.toGregorianDate({ date: startDate });
-    const d2 = cldr.Calendars.toGregorianDate({ date: endDate });
-    const field = d1.fieldOfVisualDifference(d2);
-    return field !== 'y' && field !== 'M' && field !== 'd';
+    const d1 = GregorianDate.fromUnixEpoch(startDate, 'UTC');
+    const d2 = GregorianDate.fromUnixEpoch(endDate, 'UTC');
+    return d1.year() === d2.year() && d1.dayOfYear() === d2.dayOfYear();
   }
 }
 
