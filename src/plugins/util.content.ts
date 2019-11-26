@@ -55,7 +55,7 @@ export const outputImageMeta = (image: Node) => {
 
   res += `data-src="${assetUrl}" `;
   res += `data-image="${assetUrl}" `;
-  res += `data-image-dimension="${origSize}" `;
+  res += `data-image-dimensions="${origSize}" `;
   res += `data-image-focal-point="${focalPoint}" `;
   res += `alt="${altText}" `;
   return res;
