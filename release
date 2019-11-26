@@ -6,6 +6,14 @@ if [[ $REG != *"registry.npmjs.org"* ]] ; then
     exit 1
 fi
 
+# until 2.0 is released, block normal releases off of master
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+if [[ $BRANCH != 1.x ]] ; then
+    echo "Release script can only be used on the 1.x branch"
+    exit 1
+fi
+
 yarn clean
 yarn build
 yarn publish
