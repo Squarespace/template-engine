@@ -46,7 +46,7 @@ test('child image meta', () => {
   expect(vars[0].get()).toContain('data-licensed-asset-preview="true"');
   expect(vars[0].get()).toContain('data-src="http://glonk.com/"');
   expect(vars[0].get()).toContain('data-image="http://glonk.com/"');
-  expect(vars[0].get()).toContain('data-image-dimension="500x200"');
+  expect(vars[0].get()).toContain('data-image-dimensions="500x200"');
   expect(vars[0].get()).toContain('data-image-focal-point="0.3,0.7"');
   expect(vars[0].get()).toContain('alt="foo"');
 
