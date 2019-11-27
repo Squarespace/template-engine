@@ -3,7 +3,8 @@ import { Formatter, PredicatePlugin } from '../plugin';
 export * from './formatters.commerce';
 export * from './formatters.content';
 export * from './formatters.core';
-export * from './formatters.datecldr';
+export * from './formatters.date';
+// export * from './formatters.datecldr';
 export * from './formatters.i18n';
 export * from './formatters.social';
 
@@ -18,6 +19,7 @@ import { COMMERCE_FORMATTERS } from './formatters.commerce';
 import { CONTENT_FORMATTERS } from './formatters.content';
 import { CORE_FORMATTERS } from './formatters.core';
 // import { DATECLDR_FORMATTERS } from './formatters.datecldr';
+import { DATE_FORMATTERS } from './formatters.date';
 import { I18N_FORMATTERS } from './formatters.i18n';
 import { SOCIAL_FORMATTERS } from './formatters.social';
 
@@ -34,6 +36,7 @@ export const Formatters: { [name: string]: Formatter } = {
   ...CONTENT_FORMATTERS,
   ...CORE_FORMATTERS,
   // ...DATECLDR_FORMATTERS,
+  ...DATE_FORMATTERS,
   ...I18N_FORMATTERS,
   ...SOCIAL_FORMATTERS,
 };
