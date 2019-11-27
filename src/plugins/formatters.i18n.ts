@@ -4,7 +4,7 @@ import { Context } from '../context';
 import { Variable } from '../variable';
 import { FormatterTable } from '../plugin';
 import { Formatter } from '../plugin';
-import { getTimeZone } from './util.date';
+import { getTimeZone } from './util.timezone';
 import { parseDecimal } from './util.i18n';
 import {
   setCalendarFormatOptions,
