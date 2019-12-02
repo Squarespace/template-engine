@@ -117,12 +117,10 @@ export class TemplateTestLoader extends TestLoader {
 
   execute(path: string): void {
     const spec = this.load(path);
+    const params = spec.PARAMS;
 
     // i18n-enable the execution context
-    let locale = 'en';
-    if (spec.PARAMS) {
-      ({ locale } = spec.PARAMS);
-    }
+    const locale = (params || {}).locale || 'en';
     const cldr = framework.get(locale);
 
     // execute the test case

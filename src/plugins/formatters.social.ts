@@ -89,12 +89,6 @@ export class GoogleCalendarUrlFormatter extends Formatter {
     const first = vars[0];
     const node = first.node;
 
-    const { cldr } = ctx;
-    if (cldr === undefined) {
-      first.set('');
-      return;
-    }
-
     const startInstant = node.get('startDate').asNumber();
     const endInstant = node.get('endDate').asNumber();
     const title = escape(node.get('title').asString());
