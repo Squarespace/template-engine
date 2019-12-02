@@ -8,15 +8,15 @@ import { substituteZoneAlias, zoneInfoFromUTC } from './timezone';
 // Indicates a null field to support computing on demand
 const NULL = Number.MAX_SAFE_INTEGER;
 
-const { abs, floor } = Math;
+const { floor } = Math;
 
-const splitfrac = (n: number | undefined): [number, number] => {
-  n = n || 0;
-  const t = abs(n);
-  const sign = n < 0 ? -1 : 1;
-  const r = t | 0;
-  return [sign * r, sign * (t - r)];
-};
+// const splitfrac = (n: number | undefined): [number, number] => {
+//   n = n || 0;
+//   const t = abs(n);
+//   const sign = n < 0 ? -1 : 1;
+//   const r = t | 0;
+//   return [sign * r, sign * (t - r)];
+// };
 
 export type CalendarFromUnixEpoch<T> = (epoch: number, zoneId: string, firstDay: number, minDays: number) => T;
 
