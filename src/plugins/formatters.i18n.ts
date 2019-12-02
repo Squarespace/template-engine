@@ -62,7 +62,6 @@ export class MessageFormatter extends Formatter {
 }
 
 // TODO: money
-// TODO: plural (Legacy, deprecate)
 
 export class TimeSinceFormatter extends Formatter {
 
@@ -93,8 +92,9 @@ export class TimeSinceFormatter extends Formatter {
 // TODO: unit
 
 export const I18N_FORMATTERS: FormatterTable = {
-  message: new MessageFormatter(),
   datetime: new DatetimeFormatter(),
   decimal: new DecimalFormatter(),
+  message: new MessageFormatter(),
+  plural: new MessageFormatter(),
   timesince: new TimeSinceFormatter()
 };

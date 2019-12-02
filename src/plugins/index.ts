@@ -6,12 +6,14 @@ export * from './formatters.core';
 export * from './formatters.date';
 // export * from './formatters.datecldr';
 export * from './formatters.i18n';
+export * from './formatters.missing';
 export * from './formatters.social';
 
 export * from './predicates.commerce';
 export * from './predicates.content';
 export * from './predicates.core';
 export * from './predicates.i18n';
+export * from './predicates.missing';
 export * from './predicates.slide';
 export * from './predicates.social';
 
@@ -21,12 +23,14 @@ import { CORE_FORMATTERS } from './formatters.core';
 // import { DATECLDR_FORMATTERS } from './formatters.datecldr';
 import { DATE_FORMATTERS } from './formatters.date';
 import { I18N_FORMATTERS } from './formatters.i18n';
+import { MISSING_FORMATTERS } from './formatters.missing';
 import { SOCIAL_FORMATTERS } from './formatters.social';
 
 import { COMMERCE_PREDICATES } from './predicates.commerce';
 import { CONTENT_PREDICATES } from './predicates.content';
 import { CORE_PREDICATES } from './predicates.core';
 import { I18N_PREDICATES } from './predicates.i18n';
+import { MISSING_PREDICATES } from './predicates.missing';
 import { SLIDE_PREDICATES } from './predicates.slide';
 import { SOCIAL_PREDICATES } from './predicates.social';
 
@@ -38,6 +42,7 @@ export const Formatters: { [name: string]: Formatter } = {
   // ...DATECLDR_FORMATTERS,
   ...DATE_FORMATTERS,
   ...I18N_FORMATTERS,
+  ...MISSING_FORMATTERS,
   ...SOCIAL_FORMATTERS,
 };
 
@@ -47,6 +52,7 @@ export const Predicates: { [name: string]: PredicatePlugin } = {
   ...CONTENT_PREDICATES,
   ...CORE_PREDICATES,
   ...I18N_PREDICATES,
+  ...MISSING_PREDICATES,
   ...SLIDE_PREDICATES,
   ...SOCIAL_PREDICATES,
 };
