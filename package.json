@@ -1,6 +1,6 @@
 {
   "name": "@squarespace/template-engine",
-  "version": "2.0.0-beta.8",
+  "version": "2.0.0",
   "description": "Squarespace template engine",
   "main": "lib/index.js",
   "module": "lib-es/index.js",
@@ -33,7 +33,7 @@
   "dependencies": {
     "@phensley/timezone": ">=0.25",
     "utf8": "^3.0.0"
-   },
+  },
   "peerDependencies": {
     "@phensley/cldr-core": ">=0.25"
   },
