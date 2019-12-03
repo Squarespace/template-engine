@@ -5,9 +5,10 @@ import { Context, Partials } from './context';
 import { Engine, EngineProps } from './engine';
 import { TemplateError } from './errors';
 import { Opcode } from './opcodes';
-import { Parser } from './parser';
+import { matcherImpl, Parser } from './parser';
 import { Code } from './instructions';
 import { Formatters, Predicates } from './plugins';
+import { Matcher } from './matcher';
 
 const EMPTY_CODE: Code = [Opcode.ROOT, 1, [], Opcode.EOF];
 
@@ -57,8 +58,13 @@ export class Compiler {
 
   private engine: Engine;
 
+  // Reuse single instance of Matcher across multiple parses, avoids
+  // having to construct regexps on each parse.
+  private matcher: Matcher;
+
   constructor(private props: CompilerProps = { formatters: Formatters, predicates: Predicates }) {
     this.engine = new Engine(props);
+    this.matcher = new matcherImpl('');
   }
 
   /**
@@ -67,7 +73,7 @@ export class Compiler {
   parse(source: string): ParseResult {
     const { formatters, predicates } = this.props;
     const assembler = new Assembler();
-    const parser = new Parser(source, assembler, undefined, formatters, predicates);
+    const parser = new Parser(source, assembler, this.matcher, formatters, predicates);
     parser.parse();
     return {
       code: assembler.code(),

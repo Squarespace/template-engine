@@ -1,18 +1,22 @@
 import { Assembler } from '../src/assembler';
-import { Parser } from '../src/parser';
+import { Matcher } from '../src/matcher';
+import { matcherImpl, Parser } from '../src/parser';
 import { Opcode as O } from '../src/opcodes';
 import { Sink } from '../src/sink';
 import { Formatters, Predicates } from '../src/plugins';
 
+const MATCHER = new matcherImpl('');
+
 const parse = (str: string) => {
   const assembler = new Assembler();
-  const parser = new Parser(str, assembler, undefined, Formatters, Predicates);
+  const parser = new Parser(str, assembler, MATCHER, Formatters, Predicates);
   parser.parse();
   return { assembler, parser, code: assembler.code() };
 };
 
 test('initialization failures', () => {
-  expect(() => new Parser('hello', {} as Sink)).toThrowError();
+  const matcher = undefined as unknown as Matcher;
+  expect(() => new Parser('hello', {} as Sink, matcher)).toThrowError();
 });
 
 test('degenerate cases', () => {

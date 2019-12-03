@@ -1,11 +1,13 @@
 import { Assembler } from '../src/assembler';
-import { Parser } from '../src/parser';
+import { matcherImpl, Parser } from '../src/parser';
 import { ReferenceScanner } from '../src/scan';
 import { Formatters, Predicates } from '../src/plugins';
 
+const MATCHER = new matcherImpl('');
+
 const parse = (str: string) => {
   const assembler = new Assembler();
-  const parser = new Parser(str, assembler, undefined, Formatters, Predicates);
+  const parser = new Parser(str, assembler, MATCHER, Formatters, Predicates);
   parser.parse();
   return assembler.code();
 };

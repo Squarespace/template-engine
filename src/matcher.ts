@@ -65,6 +65,10 @@ export class Matcher {
     this.word = compile(patterns.word);
   }
 
+  init(str: string): void {
+    this.str = str;
+  }
+
   /**
    * Set the range to match over.
    */

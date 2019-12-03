@@ -34,7 +34,7 @@ const hasStickyRegexp = (() => {
 })();
 
 /** Switch our matcher implementation */
-const matcherImpl = hasStickyRegexp ? Matcher : SlowMatcher;
+export const matcherImpl = hasStickyRegexp ? Matcher : SlowMatcher;
 
 type MatcherCons = new (s: string) => Matcher;
 
@@ -45,12 +45,11 @@ export class Parser {
 
   private idx: number;
   private len: number;
-  private matcher: Matcher;
 
   constructor(
     private str: string,
     private sink: Sink,
-    matcher: MatcherCons = matcherImpl,
+    private matcher: Matcher,
     private formatters: FormatterTable = {},
     private predicates: PredicateTable = {}) {
 
@@ -62,7 +61,7 @@ export class Parser {
     this.sink = sink;
     this.idx = 0;
     this.len = str.length;
-    this.matcher = new matcher(str);
+    this.matcher.init(str);
   }
 
   /**
