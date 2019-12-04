@@ -19,7 +19,6 @@ export class MissingFormatter extends Formatter {
 }
 
 const NAMES = [
-  'datetime-interval',
   'datetimefield',
   'i18n-money-format',
   'money',

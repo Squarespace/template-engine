@@ -33,7 +33,42 @@ export class DatetimeFormatter extends Formatter {
   }
 }
 
-// TODO: datetime-interval
+export class DatetimeIntervalformatter extends Formatter {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
+    const cldr = ctx.cldr;
+    if (!cldr || vars.length < 2) {
+      vars[0].set('');
+      return;
+    }
+    const first = vars[0].node.asNumber();
+    // Java compiler compat, thought not really needed
+    if (first === 0) {
+      vars[0].set('');
+      return;
+    }
+
+    const zoneId = getTimeZone(ctx);
+    const start = { date: first, zoneId };
+    const end = { date: vars[1].node.asNumber(), zoneId };
+    let skeleton: string = args.length ? args[0] : '';
+    if (!skeleton) {
+      const field = cldr.Calendars.fieldOfVisualDifference(start, end);
+      switch (field) {
+        case 'y':
+        case 'M':
+        case 'd':
+          skeleton = 'yMMMd';
+          break;
+        default:
+          skeleton = 'hmv';
+          break;
+      }
+    }
+    const res = cldr.Calendars.formatDateInterval(start, end, { skeleton });
+    vars[0].set(res);
+  }
+}
+
 // TODO: datetimefield
 
 export class DecimalFormatter extends Formatter {
@@ -93,6 +128,7 @@ export class TimeSinceFormatter extends Formatter {
 
 export const I18N_FORMATTERS: FormatterTable = {
   datetime: new DatetimeFormatter(),
+  'datetime-interval': new DatetimeIntervalformatter(),
   decimal: new DecimalFormatter(),
   message: new MessageFormatter(),
   plural: new MessageFormatter(),
