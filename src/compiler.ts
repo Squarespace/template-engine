@@ -81,7 +81,6 @@ export class Compiler {
     };
   }
 
-  // { code = EMPTY_CODE, json = {}, partials = {}, injects = {} } = {}
   /**
    * Execute a template against the given node.
    */
