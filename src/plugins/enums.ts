@@ -1,4 +1,4 @@
-import { enum_, Enum, EnumMap, EnumMethods, EnumValue } from '../enum';
+import { enum_, EnumMap, EnumValue } from '../enum';
 
 export const BackgroundSourceMap: EnumMap = {
   UNDEFINED: [-1, 'undefined'],

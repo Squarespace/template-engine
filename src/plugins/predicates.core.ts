@@ -11,7 +11,7 @@ import { Type } from '../types';
  */
 const resolve = (args: string[], ctx: Context): Node[] => {
   return args.map(arg => {
-    if (typeof arg === 'string' && isJsonStart(arg)) {
+    if (isJsonStart(arg)) {
       try {
         const value = JSON.parse(arg);
         return ctx.newNode(value);
