@@ -1,18 +1,16 @@
-import { enum_, EnumMap, EnumValue } from '../enum';
+import { enum_, EnumDecl, EnumValue } from '../enum';
 
-export const BackgroundSourceMap: EnumMap = {
+export type BackgroundSource = EnumValue<'BackgroundSource'>;
+export const BackgroundSource: EnumDecl<'BackgroundSource'> = enum_('BackgroundSource', {
   UNDEFINED: [-1, 'undefined'],
   UPLOAD: [1, 'upload'],
   INSTAGRAM: [2, 'instagram'],
   VIDEO: [3, 'video'],
   NONE: [4, 'none'],
-};
-
-export type BackgroundSource = EnumValue<'BackgroundSource'>;
-export const BackgroundSource = enum_('BackgroundSource', BackgroundSourceMap);
+});
 
 export type CollectionType = EnumValue<'CollectionType'>;
-export const CollectionType = enum_('CollectionType', {
+export const CollectionType: EnumDecl<'CollectionType'> = enum_('CollectionType', {
   UNDEFINED: [-1, 'undefined'],
   COLLECTION_TYPE_GENERIC: [1, 'generic'],
   COLLECTION_TYPE_SUBSCRIPTION: [2, 'subscription'],
@@ -33,7 +31,7 @@ export const CollectionType = enum_('CollectionType', {
 });
 
 export type FolderBehavior = EnumValue<'FolderBehavior'>;
-export const FolderBehavior = enum_('FolderBehavior', {
+export const FolderBehavior: EnumDecl<'FolderBehavior'> = enum_('FolderBehavior', {
   UNDEFINED: [-1, 'undefined'],
   INDEX: [1, 'index'],
   REDIRECT: [2, 'redirect'],
@@ -41,7 +39,7 @@ export const FolderBehavior = enum_('FolderBehavior', {
 });
 
 export type ProductType = EnumValue<'ProductType'>;
-export const ProductType = enum_('ProductType', {
+export const ProductType: EnumDecl<'ProductType'> = enum_('ProductType', {
   UNDEFINED: [-1, 'undefined'],
   PHYSICAL: [1, 'physical'],
   DIGITAL: [2, 'digital'],
@@ -50,7 +48,7 @@ export const ProductType = enum_('ProductType', {
 });
 
 export type RecordType = EnumValue<'RecordType'>;
-export const RecordType = enum_('RecordType', {
+export const RecordType: EnumDecl<'RecordType'> = enum_('RecordType', {
   UNDEFINED: [-1, 'undefined'],
   TEXT: [1, 'text'],
   IMAGE: [2, 'image'],
@@ -76,7 +74,7 @@ export const RecordType = enum_('RecordType', {
 });
 
 export type SliceType = EnumValue<'SliceType'>;
-export const SliceType = enum_('SliceType', {
+export const SliceType: EnumDecl<'SliceType'> = enum_('SliceType', {
   UNDEFINED: [-1, 'undefined'],
   HEADING: [1, 'heading'],
   BODY: [3, 'body'],

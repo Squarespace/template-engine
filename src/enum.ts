@@ -19,6 +19,8 @@ export type EnumMap = {
   [id: string]: [number, string];
 };
 
+export type EnumDecl<T> = Enum<T, EnumMap> & EnumMethods<T>;
+
 /**
  * Generate a typed enum having the given kind and values, along
  * with some helper methods.
