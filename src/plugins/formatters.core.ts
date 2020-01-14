@@ -232,6 +232,15 @@ export class LookupFormatter extends Formatter {
   }
 }
 
+export class ModFormatter extends Formatter {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
+    const first = vars[0];
+    const n = first.node.asNumber();
+    const modulus = parseInt(args[0], 10) || 2;
+    first.set(n % (modulus && isFinite(modulus) ? modulus : 2));
+  }
+}
+
 export class OutputFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const value = args.join(' ');
@@ -377,6 +386,7 @@ export const CORE_FORMATTERS: FormatterTable = {
   'json': new JsonFormatter(),
   'json-pretty': new JsonPretty(),
   'lookup': new LookupFormatter(),
+  'mod': new ModFormatter(),
   'output': new OutputFormatter(),
   'pluralize': new PluralizeFormatter(),
   'prop': new PropFormatter(),

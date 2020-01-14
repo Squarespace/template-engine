@@ -285,6 +285,36 @@ test('lookup', () => {
   expect(vars[0].get()).toEqual(123);
 });
 
+test('mod', () => {
+  const ctx = new Context({});
+  let vars = variables(11);
+  Core.mod.apply(['3'], vars, ctx);
+  expect(vars[0].get()).toEqual(2);
+
+  vars = variables(12);
+  Core.mod.apply(['3'], vars, ctx);
+  expect(vars[0].get()).toEqual(0);
+
+  vars = variables(13);
+  Core.mod.apply(['3'], vars, ctx);
+  expect(vars[0].get()).toEqual(1);
+
+  // default to mod 2
+  vars = variables(3);
+  Core.mod.apply([], vars, ctx);
+  expect(vars[0].get()).toEqual(1);
+
+  // bad modulus, default to mod 2
+  vars = variables(3);
+  Core.mod.apply(['foo'], vars, ctx);
+  expect(vars[0].get()).toEqual(1);
+
+  // non-number argument
+  vars = variables({ foo: 'bar' });
+  Core.mod.apply(['3'], vars, ctx);
+  expect(vars[0].get()).toEqual(0);
+});
+
 pathseq(`f-get-%N.html`, 5).forEach(path => {
   test(`get - ${path}`, () => loader.execute(path));
 });
