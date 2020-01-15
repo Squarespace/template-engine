@@ -236,8 +236,8 @@ export class ModFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const n = first.node.asNumber();
-    const modulus = parseInt(args[0], 10) || 2;
-    first.set(n % (modulus && isFinite(modulus) ? modulus : 2));
+    const divisor = parseInt(args[0], 10) || 2;
+    first.set(n % (divisor && isFinite(divisor) ? divisor : 2));
   }
 }
 
