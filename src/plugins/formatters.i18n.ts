@@ -94,6 +94,7 @@ export class DecimalFormatter extends Formatter {
 export class MessageFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
+    const node = first.node;
     const cldr = ctx.cldr;
     if (cldr === undefined) {
       first.set('');
@@ -105,19 +106,19 @@ export class MessageFormatter extends Formatter {
     args.forEach(arg => {
       const i = arg.indexOf('=');
       if (i === -1) {
-        const _arg = ctx.resolve(splitVariable(arg));
+        const _arg = ctx.resolve(splitVariable(arg), node);
         positional.push(_arg.asString());
       } else {
         const key = arg.slice(0, i);
         const val = arg.slice(i + 1);
-        const _val = ctx.resolve(splitVariable(val));
+        const _val = ctx.resolve(splitVariable(val), node);
         keyword[key] = _val.asString();
       }
     });
 
+    const msg = first.node.asString();
     const formatter = cldr.General.messageFormatter();
-    const _args = args.map(a => ctx.resolve(splitVariable(a)));
-    const result = formatter.format(first.node.asString(), positional, keyword);
+    const result = formatter.format(msg, positional, keyword);
     first.set(result);
   }
 }

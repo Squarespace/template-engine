@@ -1,8 +1,13 @@
+import { join } from 'path';
 import { CLDR } from '@phensley/cldr';
 import { framework } from '../cldr';
 import { Context } from '../../src/context';
 import { I18N_FORMATTERS as TABLE, TimeSinceFormatter } from '../../src/plugins/formatters.i18n';
 import { Variable } from '../../src/variable';
+import { TemplateTestLoader } from '../loader';
+import { pathseq } from '../helpers';
+
+const loader = new TemplateTestLoader(join(__dirname, 'resources'));
 
 const variables = (...n: any[]) => n.map((v, i) => new Variable('var' + i, v));
 
@@ -120,11 +125,14 @@ test('datetime-interval', () => {
   expect(formatInterval(EN, start, start + ONE_DAY_MS, ZONE_NY, args)).toEqual('Mar 12 – 13, 2018');
 });
 
+pathseq('f-message-%N.html', 1).forEach(path => {
+  test(`comment count - ${path}`, () => loader.execute(path));
+});
+
 test('message', () => {
   const ctx: any = { person: { name: 'Bob' } };
   let args = ['person.name'];
   expect(formatMessage(EN, 'Hi, {0}', args, ctx)).toEqual('Hi, Bob');
-  console.log('\n\n\n');
 
   args = ['name=person.name'];
   expect(formatMessage(EN, 'Hi, {name}', args, ctx)).toEqual('Hi, Bob');

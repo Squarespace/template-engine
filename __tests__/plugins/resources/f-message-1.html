@@ -1,0 +1,20 @@
+:JSON
+{
+  "msg": "The {0 selectordinal one{#st} two{#nd} few{#rd} other{#th}} item is a {1}.",
+  "items": [
+    "guitar",
+    "sax",
+    "drum set",
+    "flute"
+  ]
+}
+
+:TEMPLATE
+{.repeated section items}
+{msg|message @index @}{.end}
+
+:OUTPUT
+The 1st item is a guitar.
+The 2nd item is a sax.
+The 3rd item is a drum set.
+The 4th item is a flute.

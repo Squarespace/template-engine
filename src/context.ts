@@ -140,6 +140,11 @@ export class Context {
     return this.stack[this.stack.length - 1];
   }
 
+  parent(): Frame {
+    const j = this.stack.length - 2;
+    return j > 0 ? this.stack[j] : this.stack[0];
+  }
+
   /**
    * Hide details of how the buffer is updated. This allows someone to intercept
    * each string fragment as it is appended. For instance, to append fragments to
@@ -351,15 +356,23 @@ export class Context {
   }
 
   /**
+   * Resolve the name array against the stack frame, avoiding
+   * matching the first frame's current node.
+   */
+  resolveArg(names: (string | number)[]): Node {
+    return this.resolve(names, this.frame().node);
+  }
+
+  /**
    * Resolve the name array against the stack frame. If no frame is defined
    * it uses the current frame.
    */
-  resolve(names: (string | number)[]): Node {
+  resolve(names: (string | number)[], skipFirst?: Node): Node {
     const len = names.length;
     if (len === 0) {
       return MISSING_NODE;
     }
-    let node = this.lookupStack(names[0]);
+    let node = this.lookupStack(names[0], skipFirst);
     if (len > 1) {
       node = node.path(names.slice(1));
     }
@@ -370,11 +383,14 @@ export class Context {
    * Look up the stack looking for the first name that resolves successfully.
    * If a frame is marked "stopResolution" we bail out at that point.
    */
-  lookupStack(name: string | number): Node {
+  lookupStack(name: string | number, skipFirst?: Node): Node {
     const len = this.stack.length - 1;
     for (let i = len; i >= 0; i--) {
       const frame = this.stack[i];
       const node = this.resolveName(name, frame);
+      if (i === len && node === skipFirst) {
+        continue;
+      }
       if (node.type !== Type.MISSING) {
         return node;
       }

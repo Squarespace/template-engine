@@ -4,7 +4,7 @@ import { framework } from './cldr';
 
 import { Assembler } from '../src/assembler';
 import { Compiler } from '../src/compiler';
-import { Parser, matcherImpl } from '../src/parser';
+import { matcherImpl, Parser } from '../src/parser';
 import { Code } from '../src/instructions';
 import { Formatters, Predicates } from '../src/plugins';
 

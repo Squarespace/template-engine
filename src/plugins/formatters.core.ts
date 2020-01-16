@@ -131,7 +131,7 @@ export class FormatFormatter extends Formatter {
     const first = vars[0];
     const values = args.map(arg => {
       const names = splitVariable(arg);
-      const node = ctx.resolve(names);
+      const node = ctx.resolve(names, first.node);
       return node.type === Type.NULL || node.type === Type.MISSING ? '' : node.value;
     });
     const fmt = first.node.asString();
