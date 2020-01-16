@@ -1,0 +1,22 @@
+:JSON
+{
+  "message": "{0}",
+  "items": [
+    "one", "two", "three"
+  ]
+}
+
+:PARTIALS
+{}
+
+:INJECT
+{}
+
+:TEMPLATE
+{.repeated section items}
+{message|format @}{.end}
+
+:OUTPUT
+one
+two
+three

@@ -212,7 +212,7 @@ test('format', () => {
   expect(vars[0].get()).toEqual('The  is .');
 });
 
-pathseq('f-format-%N.html', 3).forEach(path => {
+pathseq('f-format-%N.html', 4).forEach(path => {
   test(`format - ${path}`, () => loader.execute(path));
 });
 

@@ -344,12 +344,12 @@ export class Context {
    * Resolve the name array against the stack frame. If no frame is defined
    * it uses the current frame.
    */
-  resolve(names: (string | number)[]): Node {
+  resolve(names: (string | number)[], skip?: Node): Node {
     const len = names.length;
     if (len === 0) {
       return MISSING_NODE;
     }
-    let node = this.lookupStack(names[0]);
+    let node = this.lookupStack(names[0], skip);
     if (len > 1) {
       node = node.path(names.slice(1));
     }
@@ -360,11 +360,14 @@ export class Context {
    * Look up the stack looking for the first name that resolves successfully.
    * If a frame is marked "stopResolution" we bail out at that point.
    */
-  lookupStack(name: string | number): Node {
+  lookupStack(name: string | number, skip?: Node): Node {
     const len = this.stack.length - 1;
     for (let i = len; i >= 0; i--) {
       const frame = this.stack[i];
       const node = this.resolveName(name, frame);
+      if (i === len && node === skip) {
+        continue;
+      }
       if (node.type !== Type.MISSING) {
         return node;
       }
