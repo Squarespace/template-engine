@@ -10,6 +10,7 @@ import {
   setCalendarFormatOptions,
   setDecimalFormatOptions
 } from './util.options';
+import { splitVariable } from '../util';
 
 export class DatetimeFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
@@ -92,7 +93,32 @@ export class DecimalFormatter extends Formatter {
 
 export class MessageFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
-    // TODO: message formatter
+    const first = vars[0];
+    const cldr = ctx.cldr;
+    if (cldr === undefined) {
+      first.set('');
+      return;
+    }
+
+    const positional: string[] = [];
+    const keyword: { [name: string]: string } = {};
+    args.forEach(arg => {
+      const i = arg.indexOf('=');
+      if (i === -1) {
+        const _arg = ctx.resolve(splitVariable(arg));
+        positional.push(_arg.asString());
+      } else {
+        const key = arg.slice(0, i);
+        const val = arg.slice(i + 1);
+        const _val = ctx.resolve(splitVariable(val));
+        keyword[key] = _val.asString();
+      }
+    });
+
+    const formatter = cldr.General.messageFormatter();
+    const _args = args.map(a => ctx.resolve(splitVariable(a)));
+    const result = formatter.format(first.node.asString(), positional, keyword);
+    first.set(result);
   }
 }
 

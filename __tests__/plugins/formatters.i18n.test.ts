@@ -33,6 +33,14 @@ const formatDatetime = (engine: CLDR, epoch: string, zoneId: string, args: strin
   return vars[0].get();
 };
 
+const formatMessage = (engine: CLDR, msg: string, args: string[], context: any) => {
+  const impl = TABLE.message;
+  const ctx = new Context(context, { cldr: engine });
+  const vars = variables(msg);
+  impl.apply(args, vars, ctx);
+  return vars[0].get();
+};
+
 const formatInterval = (engine: CLDR, start: number, end: number, zoneId: string, args: string[]) => {
   const impl = TABLE['datetime-interval'];
   const ctx = new Context({ website: { timeZone: zoneId } }, { cldr: engine });
@@ -110,6 +118,16 @@ test('datetime-interval', () => {
   expect(formatInterval(EN, start, start + 2000, ZONE_NY, args)).toEqual('1:48 PM ET');
   expect(formatInterval(EN, start, start + 12000, ZONE_NY, args)).toEqual('1:48 – 1:49 PM ET');
   expect(formatInterval(EN, start, start + ONE_DAY_MS, ZONE_NY, args)).toEqual('Mar 12 – 13, 2018');
+});
+
+test('message', () => {
+  const ctx: any = { person: { name: 'Bob' } };
+  let args = ['person.name'];
+  expect(formatMessage(EN, 'Hi, {0}', args, ctx)).toEqual('Hi, Bob');
+  console.log('\n\n\n');
+
+  args = ['name=person.name'];
+  expect(formatMessage(EN, 'Hi, {name}', args, ctx)).toEqual('Hi, Bob');
 });
 
 test('timesince', () => {
