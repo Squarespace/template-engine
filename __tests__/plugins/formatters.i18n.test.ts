@@ -30,6 +30,14 @@ const formatDecimal = (engine: CLDR, n: string, args: string[]) => {
   return vars[0].get();
 };
 
+const formatMoney = (engine: CLDR, n: any, args: string[]) => {
+  const impl = TABLE.money;
+  const ctx = new Context({}, { cldr: engine });
+  const vars = variables(n);
+  impl.apply(args, vars, ctx);
+  return vars[0].get();
+};
+
 const formatDatetime = (engine: CLDR, epoch: string, zoneId: string, args: string[]) => {
   const impl = TABLE.datetime;
   const ctx = new Context({ website: { timeZone: zoneId } }, { cldr: engine });
@@ -59,7 +67,7 @@ const formatTimeSince = (engine: CLDR, start: Date, end: number, args: string[])
   // 'timesince' formatter computes relative to now, so use a special
   // property on the formatter to set "now"
   impl.NOW = start;
-  const ctx = new Context({ }, { cldr: engine });
+  const ctx = new Context({}, { cldr: engine });
   const vars = variables(end);
   impl.apply(args, vars, ctx);
   return vars[0].get();
@@ -80,12 +88,24 @@ test('decimal', () => {
   expect(formatDecimal(DE, big, args)).toEqual('9.007 Billionen');
 });
 
+test('money', () => {
+  let args: string[] = [];
+  const money = { decimalValue: '12345.67811111', currencyCode: 'USD' };
+  expect(formatMoney(EN, money, args)).toEqual('$12,345.68');
+  expect(formatMoney(DE, money, args)).toEqual('12.345,68 $');
+
+  args = ['style:accounting'];
+  money.decimalValue = '-175332.9999';
+  expect(formatMoney(EN, money, args)).toEqual('($175,333.00)');
+  expect(formatMoney(DE, money, args)).toEqual('-175.333,00 $');
+});
+
 test('datetime', () => {
   // March 12, 2018 5:48:54 PM UTC
-  const d = '1520876934000';
+  let d = '1520876934000';
   let args: string[] = [];
-  expect(formatDatetime(EN, d, ZONE_NY, args)).toEqual('3/12/2018');
-  expect(formatDatetime(DE, d, ZONE_NY, args)).toEqual('12.3.2018');
+  expect(formatDatetime(EN, d, ZONE_NY, args)).toEqual('March 12, 2018');
+  expect(formatDatetime(DE, d, ZONE_NY, args)).toEqual('12. März 2018');
 
   args = ['date:full', 'time:full'];
   expect(formatDatetime(EN, d, ZONE_NY, args))
@@ -98,19 +118,23 @@ test('datetime', () => {
   expect(formatDatetime(EN, d, ZONE_NY, args)).toEqual('1:48:54 PM');
   expect(formatDatetime(EN, d, ZONE_LA, args)).toEqual('10:48:54 AM');
 
-  // TODO:
-  // args = ['skeleton:EyMMMd']
-  // expect(formatGregorian(EN, d, ZONE_NY, args)).toEqual('');
+  d = '1509647217000';
+  args = [];
+  expect(formatDatetime(EN, d, ZONE_NY, args)).toEqual('November 2, 2017');
+  expect(formatDatetime(DE, d, ZONE_NY, args)).toEqual('2. November 2017');
+
+  args = ['skeleton:EyMMMd'];
+  expect(formatDatetime(EN, d, ZONE_NY, args)).toEqual('Thu, Nov 2, 2017');
 });
 
 test('japanese', () => {
   // March 12, 2018 5:48:54 PM UTC
   const d = '1520876934000';
   let args: string[] = [];
-  expect(formatDatetime(JA, d, ZONE_NY, args)).toEqual('H30/3/12');
-
-  args = ['date:long'];
   expect(formatDatetime(JA, d, ZONE_NY, args)).toEqual('平成30年3月12日');
+
+  args = ['date:short'];
+  expect(formatDatetime(JA, d, ZONE_NY, args)).toEqual('H30/3/12');
 
   args = ['date:full'];
   expect(formatDatetime(JA, d, ZONE_NY, args)).toEqual('平成30年3月12日月曜日');
@@ -120,8 +144,8 @@ test('datetime-interval', () => {
   // March 12, 2018 5:48:54 PM UTC
   const start = 1520876934000;
   const args: string[] = [];
-  expect(formatInterval(EN, start, start + 2000, ZONE_NY, args)).toEqual('1:48 PM ET');
-  expect(formatInterval(EN, start, start + 12000, ZONE_NY, args)).toEqual('1:48 – 1:49 PM ET');
+  expect(formatInterval(EN, start, start + 2000, ZONE_NY, args)).toEqual('1:48:54 PM');
+  expect(formatInterval(EN, start, start + 12000, ZONE_NY, args)).toEqual('1:48 – 1:49 PM');
   expect(formatInterval(EN, start, start + ONE_DAY_MS, ZONE_NY, args)).toEqual('Mar 12 – 13, 2018');
 });
 

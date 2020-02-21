@@ -31,14 +31,15 @@
     "url": "https://github.com/Squarespace/template-engine.git"
   },
   "dependencies": {
-    "@phensley/timezone": ">=0.25.1",
+    "@phensley/timezone": ">=0.25.20",
     "utf8": "^3.0.0"
   },
   "peerDependencies": {
-    "@phensley/cldr-core": ">=0.25.1"
+    "@phensley/cldr-core": ">=0.25.20",
+    "@phensley/cldr-schema": ">=0.25.20"
   },
   "devDependencies": {
-    "@phensley/cldr": ">=0.25.1",
+    "@phensley/cldr": ">=0.25.20",
     "@types/jest": "^24.0.13",
     "@types/node": "^12.0.8",
     "@types/utf8": "^2.1.6",

@@ -1,15 +1,18 @@
-import { RelativeTimeFormatOptions } from '@phensley/cldr-core';
+import { CurrencyType, RelativeTimeFormatOptions } from '@phensley/cldr-core';
 
 import { Context } from '../context';
 import { Variable } from '../variable';
 import { FormatterTable } from '../plugin';
+import { isTruthy } from '../node';
 import { Formatter } from '../plugin';
 import { getTimeZone } from './util.timezone';
 import { parseDecimal } from './util.i18n';
 import {
-  setCalendarFormatOptions,
-  setDecimalFormatOptions
-} from './util.options';
+  currencyOptions,
+  datetimeOptions,
+  decimalOptions,
+  intervalOptions
+} from './options';
 import { splitVariable } from '../util';
 
 export class DatetimeFormatter extends Formatter {
@@ -27,7 +30,7 @@ export class DatetimeFormatter extends Formatter {
       return;
     }
 
-    const opts = setCalendarFormatOptions(args);
+    const opts = datetimeOptions(args);
     const zoneId = getTimeZone(ctx);
     const res = cldr.Calendars.formatDate({ date, zoneId }, opts);
     first.set(res);
@@ -41,36 +44,24 @@ export class DatetimeIntervalformatter extends Formatter {
       vars[0].set('');
       return;
     }
-    const first = vars[0].node.asNumber();
-    // Java compiler compat, thought not really needed
-    if (first === 0) {
+
+    const n0 = vars[0].node.asNumber();
+    const n1 = vars[1].node.asNumber();
+    if (!isFinite(n0) || !isFinite(n1)) {
       vars[0].set('');
       return;
     }
 
     const zoneId = getTimeZone(ctx);
-    const start = { date: first, zoneId };
-    const end = { date: vars[1].node.asNumber(), zoneId };
-    let skeleton: string = args.length ? args[0] : '';
-    if (!skeleton) {
-      const field = cldr.Calendars.fieldOfVisualDifference(start, end);
-      switch (field) {
-        case 'y':
-        case 'M':
-        case 'd':
-          skeleton = 'yMMMd';
-          break;
-        default:
-          skeleton = 'hmv';
-          break;
-      }
-    }
-    const res = cldr.Calendars.formatDateInterval(start, end, { skeleton });
+    const start = { date: n0, zoneId };
+    const end = { date: n1, zoneId };
+    const opts = intervalOptions(args);
+    const res = cldr.Calendars.formatDateInterval(start, end, opts);
     vars[0].set(res);
   }
 }
 
-// TODO: datetimefield
+// TODO: datetimefield DEPRECATED
 
 export class DecimalFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
@@ -82,7 +73,7 @@ export class DecimalFormatter extends Formatter {
     }
 
     const node = first.node.asString();
-    const opts = setDecimalFormatOptions(args);
+    const opts = decimalOptions(args);
     const num = parseDecimal(node);
     const res = cldr.Numbers.formatDecimal(num, opts);
     first.set(res);
@@ -123,7 +114,45 @@ export class MessageFormatter extends Formatter {
   }
 }
 
-// TODO: money
+const useCLDRMode = (ctx: Context) =>
+  isTruthy(ctx.resolve(['website', 'useCLDRMoneyFormat']));
+
+export class MoneyFormatter extends Formatter {
+
+  apply(args: string[], vars: Variable[], ctx: Context): void {
+    const first = vars[0];
+    const node = first.node;
+    let decimalValue = node.path(['decimalValue']);
+    let currencyNode = node.path(['currencyCode']);
+    if (decimalValue.isMissing() || currencyNode.isMissing()) {
+      if (useCLDRMode(ctx)) {
+        decimalValue = node.path(['value']);
+        currencyNode = node.path(['currency']);
+      }
+
+      // No valid money node found.
+      if (decimalValue.isMissing() || currencyNode.isMissing()) {
+        first.set('');
+        return;
+      }
+    }
+
+    const cldr = ctx.cldr;
+    if (!cldr) {
+      first.set('');
+      return;
+    }
+
+    const code = currencyNode.asString();
+    const decimal = parseDecimal(decimalValue.asString());
+    const opts = currencyOptions(args);
+    const res = cldr.Numbers.formatCurrency(decimal, code as CurrencyType, opts);
+    first.set(res);
+  }
+
+}
+
+// TODO: relativetime
 
 export class TimeSinceFormatter extends Formatter {
 
@@ -158,6 +187,7 @@ export const I18N_FORMATTERS: FormatterTable = {
   'datetime-interval': new DatetimeIntervalformatter(),
   decimal: new DecimalFormatter(),
   message: new MessageFormatter(),
+  money: new MoneyFormatter(),
   plural: new MessageFormatter(),
   timesince: new TimeSinceFormatter()
 };
