@@ -3,8 +3,28 @@
 /* eslint-disable import/unambiguous,no-process-exit */
 
 const fs = require('fs');
+const { join } = require('path');
 const { Compiler, ReferenceScanner } = require('../lib');
+
 const { prettyJson } = require('../lib/pretty');
+const { CLDRFramework } = require('@phensley/cldr');
+
+const languageBundle = (tag) => {
+  const root = join(__dirname, '../node_modules/@phensley/cldr/packs');
+  if (!fs.existsSync(root)) {
+    throw new Error('Peer dependency @phensley/cldr must be installed!');
+  }
+  const locale = CLDRFramework.resolveLocale(tag);
+  const language = locale.tag.language();
+  const path = join(root, `${language}.json`);
+  const raw = fs.readFileSync(path);
+  return raw.toString('utf-8');
+};
+
+const framework = new CLDRFramework({
+  loader: tag => languageBundle(tag)
+});
+
 const RE_1 = /^-(\w)$/;
 const RE_2 = /^--([\w-]+)$/;
 
@@ -31,7 +51,7 @@ const parseArgs = () => {
     const m2 = match(next);
     if (m1) {
       const key = m1[1];
-      const val = m2 ? true : (i++, next || true);
+      const val = m2 ? true : (i++ , next || true);
       args[key] = val;
     } else {
       args._.push(arg);
@@ -49,6 +69,7 @@ const usage = (args) => {
   console.log('  -j, --json PATH      - Path to JSON data');
   console.log('  -p, --partials PATH  - Path to JSON partials');
   console.log('  -t, --template PATH  - Path to HTML or JSON template');
+  console.log('  -l, --locale ID      - Language tag for a locale');
   console.log('  -d, --dump           - Dump parsed template');
   console.log('  -P, --pretty         - Pretty-format the dumped template');
   console.log('  -R, --references     - Dump template references');
@@ -60,9 +81,12 @@ const main = () => {
   const codepath = args.template || args.t;
   const jsonpath = args.json || args.j;
   const partpath = args.partials || args.p;
+  const locale = args.locale || args.l || 'en';
   if (!codepath) {
     usage();
   }
+
+  const cldr = framework.get(locale);
 
   const compiler = new Compiler();
 
@@ -86,7 +110,7 @@ const main = () => {
   const json = jsonpath ? JSON.parse(read(jsonpath)) : {};
   const partials = partpath ? JSON.parse(read(partpath)) : {};
 
-  const { ctx } = compiler.execute({ code, json, partials });
+  const { ctx } = compiler.execute({ cldr, code, json, partials });
   console.log(ctx.render());
 };
 
