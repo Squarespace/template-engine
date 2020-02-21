@@ -16,7 +16,7 @@ const compiler = new Compiler();
 
 // Reduce the template directories to the list of templates.
 const files = dirs.reduce((list: string[], d) => {
-  var names = fs.readdirSync(d)
+  const names = fs.readdirSync(d)
     .filter(n => n.endsWith(extension))
     .map(n => join(d, n));
   return list.concat(names);
