@@ -21,12 +21,10 @@ export class MissingFormatter extends Formatter {
 const NAMES = [
   'datetimefield',
   'i18n-money-format',
-  'money',
   'money-format',
   'money-string',
   'moneyFormat',
   'percentage-format',
-  'plural',
   'product-price',
   'product-restock-notification',
   'product-scarcity',
