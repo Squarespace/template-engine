@@ -32,6 +32,10 @@ pathseq('f-normal-price-%N.html', 7).forEach(path => {
   test(`normal price - ${path}`, () => loader.execute(path));
 });
 
+pathseq('f-percentage-format-%N.html', 2).forEach(path => {
+  test(`percentage format - ${path}`, () => loader.execute(path));
+});
+
 pathseq('f-product-checkout-%N.html', 1).forEach(path => {
   test(`product checkout - ${path}`, () => loader.execute(path));
 });

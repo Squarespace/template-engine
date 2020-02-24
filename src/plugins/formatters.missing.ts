@@ -18,20 +18,33 @@ export class MissingFormatter extends Formatter {
   }
 }
 
-const NAMES = [
+export class NotImplementedFormatter extends Formatter {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
+    // NO OP
+  }
+}
+
+const NOIMPL = [
   'datetimefield',
   'i18n-money-format',
   'money-format',
   'money-string',
   'moneyFormat',
-  'percentage-format',
-  'product-price',
-  'product-restock-notification',
-  'product-scarcity',
   'unit',
 ];
 
-export const MISSING_FORMATTERS: FormatterTable = NAMES.reduce((table, name) => {
+const MISSING = [
+  'product-price',
+  'product-restock-notification',
+  'product-scarcity',
+];
+
+export const NOIMPL_FORMATTERS: FormatterTable = NOIMPL.reduce((table, name) => {
+  table[name] = new NotImplementedFormatter();
+  return table;
+}, {} as FormatterTable);
+
+export const MISSING_FORMATTERS: FormatterTable = MISSING.reduce((table, name) => {
   table[name] = new MissingFormatter(name);
   return table;
 }, {} as FormatterTable);

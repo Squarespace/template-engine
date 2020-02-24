@@ -75,8 +75,12 @@ export class DecimalFormatter extends Formatter {
     const node = first.node.asString();
     const opts = decimalOptions(args);
     const num = parseDecimal(node);
-    const res = cldr.Numbers.formatDecimal(num, opts);
-    first.set(res);
+    if (num !== undefined) {
+      const res = cldr.Numbers.formatDecimal(num, opts);
+      first.set(res);
+    } else {
+      first.set('');
+    }
   }
 }
 
@@ -145,9 +149,13 @@ export class MoneyFormatter extends Formatter {
 
     const code = currencyNode.asString();
     const decimal = parseDecimal(decimalValue.asString());
-    const opts = currencyOptions(args);
-    const res = cldr.Numbers.formatCurrency(decimal, code as CurrencyType, opts);
-    first.set(res);
+    if (decimal !== undefined) {
+      const opts = currencyOptions(args);
+      const res = cldr.Numbers.formatCurrency(decimal, code as CurrencyType, opts);
+      first.set(res);
+    } else {
+      first.set('');
+    }
   }
 
 }

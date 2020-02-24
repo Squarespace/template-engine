@@ -11,6 +11,8 @@ import * as stringutil from './util.string';
 import { Type } from '../types';
 import { parseDecimal } from './util.i18n';
 
+import { DecimalFormatOptions } from '@phensley/cldr-core';
+
 // Template imports
 import addToCartBtnTemplate from './templates/add-to-cart-btn.json';
 import productCheckoutTemplate from './templates/product-checkout.json';
@@ -43,11 +45,15 @@ export class BookkeeperMoneyFormat extends Formatter {
     }
 
     const region = cldr.General.locale().tag.region();
-    const node = first.node.asString();
-    const n = parseDecimal(node).divide(100);
-    const currency = cldr.Numbers.getCurrencyForRegion(region);
-    const s = cldr.Numbers.formatCurrency(n, currency);
-    first.set(s);
+    let n = parseDecimal(first.node.asString());
+    if (n !== undefined) {
+      n = n.divide(100);
+      const currency = cldr.Numbers.getCurrencyForRegion(region);
+      const s = cldr.Numbers.formatCurrency(n, currency);
+      first.set(s);
+    } else {
+      first.set('');
+    }
   }
 }
 
@@ -94,7 +100,27 @@ export class FromPriceFormatter extends Formatter {
 // TODO: moneyFormat
 // TODO: money-format
 // TODO: money-string
-// TODO: percentage-format
+
+export class PercentageFormatFormatter extends Formatter {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
+    const first = vars[0];
+    const { cldr } = ctx;
+    if (ctx === undefined) {
+      first.set('');
+      return;
+    }
+
+    const trim = args.filter(a => a === 'trim').length > 0;
+    const n = parseDecimal(first.node.asString());
+    if (n !== undefined) {
+      const minimumFractionDigits = trim ? 0 : 2;
+      const r = cldr?.Numbers.formatDecimal(n, { minimumFractionDigits, maximumFractionDigits: 3 });
+      first.set(r);
+    } else {
+      first.set('');
+    }
+  }
+}
 
 export class NormalPriceFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
@@ -359,6 +385,7 @@ export const COMMERCE_FORMATTERS: FormatterTable = {
   'cart-url': new CartUrlFormatter(),
   'from-price': new FromPriceFormatter(),
   'normal-price': new NormalPriceFormatter(),
+  'percentage-format': new PercentageFormatFormatter(),
   'product-checkout': new ProductCheckoutFormatter(),
   'product-quick-view': new ProductQuickViewFormatter(),
   'product-status': new ProductStatusFormatter(),

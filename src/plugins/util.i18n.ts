@@ -1,6 +1,10 @@
 import { Decimal } from '@phensley/cldr-core';
 
-export const parseDecimal = (s: string | number): Decimal => {
+export const parseDecimal = (s: string | number): Decimal | undefined => {
   const decimal: new (s: string | number) => Decimal = require('@phensley/cldr-core').Decimal;
-  return new decimal(s);
+  try {
+    return new decimal(s);
+  } catch (e) {
+    return undefined;
+  }
 };
