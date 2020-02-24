@@ -1,0 +1,20 @@
+[17, 1, [
+  [0, "<div class=\"product-price\">\n  "],
+  [8, [], [["formattedFromPrice"]], [
+      [1, [["fromText"]], [["message", [["fromPrice:formattedFromPrice", "price:formattedFromPrice", "billingPeriodValue:billingPeriodValue", "duration:duration"], " "]]]],
+      [0, "\n  "]
+    ], [7, 0, 0, [
+      [8, [], [["formattedSalePrice"]], [
+          [1, [["formattedSalePriceText"]], [["message", [["price:formattedSalePrice", "billingPeriodValue:billingPeriodValue", "duration:duration"], " "]]]],
+          15,
+          [0, "<span class=\"original-price\">"],
+          [1, [["formattedNormalPriceText"]], [["message", [["price:formattedNormalPrice", "billingPeriodValue:billingPeriodValue", "duration:duration"], " "]]]],
+          [0, "</span>\n  "]
+        ], [7, 0, 0, [
+          [8, [], [["formattedNormalPrice"]], [
+              [1, [["formattedNormalPriceText"]], [["message", [["price:formattedNormalPrice", "billingPeriodValue:billingPeriodValue", "duration:duration"], " "]]]]
+            ], 3]
+        ], 3]]
+    ], 3]],
+  [0, "\n  </div>"]
+], 18]
