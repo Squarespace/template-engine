@@ -185,8 +185,8 @@ const datetimeOption = (arg: string, val: string, options: DateFormatOptions) =>
         options.time = 'short';
         break;
       default:
-        if (FORMAT_WIDTH.has(val as FormatWidthType)) {
-          options.datetime = val as FormatWidthType;
+        if (FORMAT_WIDTH.has(arg as FormatWidthType)) {
+          options.datetime = arg as FormatWidthType;
         } else {
           const skel = options.skeleton;
           options.skeleton = skel === undefined ? arg : skel + arg;
