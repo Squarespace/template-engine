@@ -7,6 +7,7 @@ import { Opcode } from './opcodes';
 import { Type } from './types';
 import { Variable } from './variable';
 import { Code, RootCode } from './instructions';
+import { MessageFormats } from './plugins/messages';
 
 const DEFAULT_MAX_PARTIAL_DEPTH = 16;
 
@@ -40,6 +41,7 @@ export class Context {
   public parsefunc: ParseFunc | null;
   public errors: any[];
   public cldr?: CLDR;
+  public formatter?: MessageFormats;
 
   private locale?: any;
   private partials: Partials;
@@ -65,6 +67,11 @@ export class Context {
     // set you will experience partial functionality. All @phensley/cldr-based
     // formatters will return '' and predicates will evaluate to false.
     this.cldr = props.cldr;
+
+    // If i18n is enabled, define the message formatter
+    if (this.cldr) {
+      this.formatter = new MessageFormats(this.cldr);
+    }
 
     // TODO: REMOVE version, add temporary state to engine.
     // version of the template syntax being processed
@@ -167,26 +174,26 @@ export class Context {
   emit(vars: Variable[]): void {
     const first = vars[0].node!;
     switch (first.type) {
-    case Type.NUMBER:
-    case Type.STRING:
-    case Type.BOOLEAN:
-      this.append(first.value);
-      break;
+      case Type.NUMBER:
+      case Type.STRING:
+      case Type.BOOLEAN:
+        this.append(first.value);
+        break;
 
-    case Type.NULL:
-      this.append('');
-      break;
+      case Type.NULL:
+        this.append('');
+        break;
 
-    case Type.ARRAY: {
-      const arr = first.value;
-      for (let i = 0; i < arr.length; i++) {
-        if (i > 0) {
-          this.append(',');
+      case Type.ARRAY: {
+        const arr = first.value;
+        for (let i = 0; i < arr.length; i++) {
+          if (i > 0) {
+            this.append(',');
+          }
+          this.append(arr[i]);
         }
-        this.append(arr[i]);
+        break;
       }
-      break;
-    }
     }
 
   }

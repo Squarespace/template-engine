@@ -108,27 +108,25 @@ export class MessageFormatter extends Formatter {
       return;
     }
 
-    const positional: string[] = [];
-    const keyword: { [name: string]: string } = {};
+    const positional: any[] = [];
+    const keyword: { [name: string]: any } = {};
     args.forEach(arg => {
       const i = delimiter(arg);
       if (i === -1) {
         const _arg = ctx.resolve(splitVariable(arg), node);
-        positional.push(_arg.asString());
+        positional.push(_arg);
       } else {
         const key = arg.slice(0, i);
         const val = arg.slice(i + 1);
         const _val = ctx.resolve(splitVariable(val), node);
         // Index the argument both as a keyword and positional
-        const str = _val.asString();
-        keyword[key] = str;
-        positional.push(str);
+        keyword[key] = _val;
+        positional.push(_val);
       }
     });
 
     const msg = first.node.asString();
-    const formatter = cldr.General.messageFormatter();
-    const result = formatter.format(msg, positional, keyword);
+    const result = ctx.formatter!.formatter.format(msg, positional, keyword);
     first.set(result);
   }
 }

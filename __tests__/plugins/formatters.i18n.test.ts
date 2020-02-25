@@ -157,8 +157,12 @@ pathseq('f-message-%N.html', 1).forEach(path => {
   test(`comment count - ${path}`, () => loader.execute(path));
 });
 
+pathseq('f-message-plural-%N.html', 2).forEach(path => {
+  test(`message plural - ${path}`, () => loader.execute(path));
+});
+
 test('message', () => {
-  const ctx: any = { person: { name: 'Bob' } };
+  let ctx: any = { person: { name: 'Bob' } };
   let args = ['person.name'];
   expect(formatMessage(EN, 'Hi, {0}', args, ctx)).toEqual('Hi, Bob');
 
@@ -167,6 +171,10 @@ test('message', () => {
 
   args = ['name=person.name'];
   expect(formatMessage(EN, 'Hi, {name}', args, ctx)).toEqual('Hi, Bob');
+
+  ctx = { amount: { decimalValue: '12345.6789', currencyCode: 'USD' } };
+  args = ['amount'];
+  expect(formatMessage(EN, 'amt {0 currency}', args, ctx)).toEqual('amt $12,345.68');
 });
 
 test('timesince', () => {
