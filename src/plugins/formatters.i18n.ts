@@ -86,6 +86,18 @@ export class DecimalFormatter extends Formatter {
 
 // TODO: i18n-money-format  (Legacy)
 
+// Find the key/value delimiter in a string.
+const delimiter = (s: string): number => {
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    // Either ':' or '=' can delimit arguments
+    if (c === ':' || c === '=') {
+      return i;
+    }
+  }
+  return -1;
+};
+
 export class MessageFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
@@ -99,7 +111,7 @@ export class MessageFormatter extends Formatter {
     const positional: string[] = [];
     const keyword: { [name: string]: string } = {};
     args.forEach(arg => {
-      const i = arg.indexOf('=');
+      const i = delimiter(arg);
       if (i === -1) {
         const _arg = ctx.resolve(splitVariable(arg), node);
         positional.push(_arg.asString());

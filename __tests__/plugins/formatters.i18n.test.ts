@@ -162,6 +162,9 @@ test('message', () => {
   let args = ['person.name'];
   expect(formatMessage(EN, 'Hi, {0}', args, ctx)).toEqual('Hi, Bob');
 
+  args = ['name:person.name'];
+  expect(formatMessage(EN, 'Hi, {name}', args, ctx)).toEqual('Hi, Bob');
+
   args = ['name=person.name'];
   expect(formatMessage(EN, 'Hi, {name}', args, ctx)).toEqual('Hi, Bob');
 });
