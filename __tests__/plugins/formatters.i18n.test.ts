@@ -182,6 +182,11 @@ test('message', () => {
   expect(formatMessage(EN, 'date {0 datetime}', args, ctx))
     .toEqual('date February 25, 2020');
 
+  ctx = { website: { timeZone: 'America/Los_Angeles' }, epoch: 1582648395000 };
+  args = ['epoch'];
+  expect(formatMessage(EN, 'date {0 datetime time:full}', args, ctx))
+    .toEqual('date 8:33:15 AM Pacific Standard Time');
+
   ctx = { n: '123456.789' };
   args = ['n'];
   expect(formatMessage(EN, 'num {0 decimal maximumFractionDigits:1}', args, ctx))

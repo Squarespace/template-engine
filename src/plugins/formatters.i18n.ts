@@ -125,8 +125,12 @@ export class MessageFormatter extends Formatter {
       }
     });
 
+    const { formatter } = ctx;
+    const zoneId = getTimeZone(ctx);
+    formatter!.setTimeZone(zoneId);
+
     const msg = first.node.asString();
-    const result = ctx.formatter!.formatter.format(msg, positional, keyword);
+    const result = formatter!.formatter.format(msg, positional, keyword);
     first.set(result);
   }
 }
