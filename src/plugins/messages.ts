@@ -10,9 +10,11 @@ import {
 } from '@phensley/cldr-core';
 
 import { Node } from '../node';
-import { currencyOptions } from './options';
+import { currencyOptions, datetimeOptions, decimalOptions, intervalOptions } from './options';
 import { parseDecimal } from './util.i18n';
 import { Type } from '../types';
+
+const DEFAULT_ZONE = 'America/New_York';
 
 /**
  * Customized message formatter with i18n tags.
@@ -21,6 +23,7 @@ export class MessageFormats {
 
   readonly converter: ArgConverter;
   readonly formatter: MessageFormatter;
+  private zoneId: string = DEFAULT_ZONE;
 
   /**
    * This type will only be constructed if we have a valid cldr instance attached.
@@ -38,14 +41,18 @@ export class MessageFormats {
     this.formatter = new MessageFormatter(opts);
   }
 
+  setTimeZone(zoneId: string): void {
+    this.zoneId = zoneId;
+  }
+
   private formatters(): MessageFormatFuncMap {
     const currency = this.currency.bind(this);
     const decimal = this.decimal.bind(this);
     return {
       money: currency,
       currency: currency,
-      datetime: this.datetime.bind(this),
       'datetime-interval': this.interval.bind(this),
+      datetime: this.datetime.bind(this),
       number: decimal,
       decimal: decimal
     };
@@ -58,7 +65,7 @@ export class MessageFormats {
     if (!args || !args.length) {
       return '';
     }
-    const node: Node = args[0] as Node;
+    const node = args[0] as Node;
     let decimalValue = node.path(['decimalValue']);
     let currencyCode = node.path(['currencyCode']);
     if (decimalValue.isMissing() || currencyCode.isMissing()) {
@@ -76,15 +83,35 @@ export class MessageFormats {
   }
 
   private datetime(args: any[], options: string[]): string {
-    return '';
-  }
-
-  private interval(args: any[], options: string[]): string {
-    return '';
+    if (!args || !args.length) {
+      return '';
+    }
+    const node = args[0] as Node;
+    const epoch = node.asNumber();
+    const date = this.cldr.Calendars.toGregorianDate({ date: epoch, zoneId: this.zoneId });
+    const opts = datetimeOptions(options);
+    return this.cldr.Calendars.formatDate(date, opts);
   }
 
   private decimal(args: any[], options: string[]): string {
-    return '';
+    if (!args || !args.length) {
+      return '';
+    }
+    const value = this.converter.asDecimal(args[0]);
+    const opts = decimalOptions(options);
+    return this.cldr.Numbers.formatDecimal(value, opts);
+  }
+
+  private interval(args: any[], options: string[]): string {
+    if (!args || args.length < 2) {
+      return '';
+    }
+    const v1 = args[0].asNumber();
+    const v2 = args[1].asNumber();
+    const start = this.cldr.Calendars.toGregorianDate({ date: v1, zoneId: this.zoneId });
+    const end = this.cldr.Calendars.toGregorianDate({ date: v2, zoneId: this.zoneId });
+    const opts = intervalOptions(options);
+    return this.cldr.Calendars.formatDateInterval(start, end, opts);
   }
 }
 

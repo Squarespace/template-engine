@@ -174,7 +174,23 @@ test('message', () => {
 
   ctx = { amount: { decimalValue: '12345.6789', currencyCode: 'USD' } };
   args = ['amount'];
-  expect(formatMessage(EN, 'amt {0 currency}', args, ctx)).toEqual('amt $12,345.68');
+  expect(formatMessage(EN, 'amt {0 currency}', args, ctx))
+    .toEqual('amt $12,345.68');
+
+  ctx = { epoch: 1582648395000 };
+  args = ['epoch'];
+  expect(formatMessage(EN, 'date {0 datetime}', args, ctx))
+    .toEqual('date February 25, 2020');
+
+  ctx = { n: '123456.789' };
+  args = ['n'];
+  expect(formatMessage(EN, 'num {0 decimal maximumFractionDigits:1}', args, ctx))
+    .toEqual('num 123,456.8');
+
+  ctx = { s: 1582648395000, e: 1583748395000 };
+  args = ['s', 'e'];
+  expect(formatMessage(EN, 'inv {0;1 datetime-interval}', args, ctx))
+    .toEqual('inv Feb 25 – Mar 9, 2020');
 });
 
 test('timesince', () => {
