@@ -118,6 +118,10 @@ test('datetime', () => {
   expect(formatDatetime(EN, d, ZONE_NY, args)).toEqual('1:48:54 PM');
   expect(formatDatetime(EN, d, ZONE_LA, args)).toEqual('10:48:54 AM');
 
+  // Mixed date/time and skeleton
+  args = ['date:medium', 'time:Bh'];
+  expect(formatDatetime(EN, d, ZONE_NY, args)).toEqual('Mar 12, 2018, 1 in the afternoon');
+
   d = '1509647217000';
   args = [];
   expect(formatDatetime(EN, d, ZONE_NY, args)).toEqual('November 2, 2017');
@@ -125,10 +129,6 @@ test('datetime', () => {
 
   args = ['skeleton:EyMMMd'];
   expect(formatDatetime(EN, d, ZONE_NY, args)).toEqual('Thu, Nov 2, 2017');
-
-  // Mixed date/time and skeleton
-  args = ['date:medium', 'time:Bh'];
-  expect(formatDatetime(EN, d, ZONE_NY, args)).toEqual('Mar 12, 2018, 1 in the afternoon');
 });
 
 test('japanese', () => {

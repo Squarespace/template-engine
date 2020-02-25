@@ -107,7 +107,10 @@ export class MessageFormatter extends Formatter {
         const key = arg.slice(0, i);
         const val = arg.slice(i + 1);
         const _val = ctx.resolve(splitVariable(val), node);
-        keyword[key] = _val.asString();
+        // Index the argument both as a keyword and positional
+        const str = _val.asString();
+        keyword[key] = str;
+        positional.push(str);
       }
     });
 
