@@ -65,7 +65,7 @@
     "ts-node": "^8.2.0",
     "tslint": "^5.11.0",
     "tslint-no-circular-imports": "^0.7.0",
-    "typescript": "3.7.x"
+    "typescript": "3.8.x"
   },
   "jest": {
     "verbose": true,

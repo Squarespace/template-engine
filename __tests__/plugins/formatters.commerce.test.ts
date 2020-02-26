@@ -1,8 +1,25 @@
 import { join } from 'path';
 import { pathseq } from '../helpers';
+import { CLDR } from '@phensley/cldr';
+import { framework } from '../cldr';
+import { Context } from '../../src/context';
+import { Variable } from '../../src/variable';
+import { COMMERCE_FORMATTERS as TABLE } from '../../src/plugins/formatters.commerce';
 import { TemplateTestLoader } from '../loader';
 
+const EN = framework.get('en');
+
 const loader = new TemplateTestLoader(join(__dirname, 'resources'));
+
+const variables = (...n: any[]) => n.map((v, i) => new Variable('var' + i, v));
+
+const formatPercentage = (cldr: CLDR | undefined, n: string, args: string[]) => {
+  const impl = TABLE['percentage-format'];
+  const ctx = new Context({}, { cldr });
+  const vars = variables(n);
+  impl.apply(args, vars, ctx);
+  return vars[0].get();
+};
 
 pathseq('f-add-to-cart-btn-%N.html', 5).forEach(path => {
   test(`add to cart btn - ${path}`, () => loader.execute(path));
@@ -34,6 +51,13 @@ pathseq('f-normal-price-%N.html', 7).forEach(path => {
 
 pathseq('f-percentage-format-%N.html', 2).forEach(path => {
   test(`percentage format - ${path}`, () => loader.execute(path));
+});
+
+test('percentage', () => {
+  expect(formatPercentage(EN, '53.6', [])).toEqual('53.60');
+
+  // Undefined cldr produces empty output
+  expect(formatPercentage(undefined, '53.6', [])).toEqual('');
 });
 
 pathseq('f-product-checkout-%N.html', 1).forEach(path => {

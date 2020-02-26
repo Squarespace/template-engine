@@ -26,7 +26,7 @@ export type EnumDecl<T> = Enum<T, EnumMap> & EnumMethods<T>;
  * with some helper methods.
  */
 // tslint:disable-next-line:variable-name
-export const enum_ = <T extends string, R extends EnumMap>(kind: T, map: R): Enum<T, R> & EnumMethods<T> => {
+export const enum_ = <T extends string, R extends EnumMap>(kind: T, map: R): EnumDecl<T> => {
   const _values: EnumValue<T>[] = [];
   const names: { [x: string]: EnumValue<T> } = {};
   const codes: { [x: number]: EnumValue<T> } = {};
