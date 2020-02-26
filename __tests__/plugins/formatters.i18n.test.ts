@@ -30,9 +30,9 @@ const formatDecimal = (cldr: CLDR | undefined, n: string, args: string[]) => {
   return vars[0].get();
 };
 
-const formatMoney = (cldr: CLDR | undefined, n: any, args: string[]) => {
+const formatMoney = (cldr: CLDR | undefined, n: any, args: string[], context: any = {}) => {
   const impl = TABLE.money;
-  const ctx = new Context({}, { cldr });
+  const ctx = new Context(context, { cldr });
   const vars = variables(n);
   impl.apply(args, vars, ctx);
   return vars[0].get();
@@ -96,7 +96,7 @@ test('decimal', () => {
 
 test('money', () => {
   let args: string[] = [];
-  const money = { decimalValue: '12345.67811111', currencyCode: 'USD' };
+  let money: any = { decimalValue: '12345.67811111', currencyCode: 'USD' };
   expect(formatMoney(EN, money, args)).toEqual('$12,345.68');
   expect(formatMoney(DE, money, args)).toEqual('12.345,68 $');
 
@@ -110,6 +110,11 @@ test('money', () => {
 
   // Bad input
   expect(formatMoney(EN, '"abdef"', [])).toEqual('');
+
+  // Use CLDR mode
+  money = { value: '155900.799', currency: 'EUR' };
+  const ctx: any = { website: { useCLDRMoneyFormat: true } };
+  expect(formatMoney(EN, money, ['style:short'], ctx)).toEqual('€156K');
 });
 
 test('datetime', () => {
