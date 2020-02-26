@@ -98,7 +98,7 @@ const delimiter = (s: string): number => {
   return -1;
 };
 
-export class MessageFormatter extends Formatter {
+export class MessageFormatterImpl extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const node = first.node;
@@ -211,8 +211,8 @@ export const I18N_FORMATTERS: FormatterTable = {
   datetime: new DatetimeFormatter(),
   'datetime-interval': new DatetimeIntervalformatter(),
   decimal: new DecimalFormatter(),
-  message: new MessageFormatter(),
+  message: new MessageFormatterImpl(),
   money: new MoneyFormatter(),
-  plural: new MessageFormatter(),
+  plural: new MessageFormatterImpl(),
   timesince: new TimeSinceFormatter()
 };
