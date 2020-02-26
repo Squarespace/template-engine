@@ -105,7 +105,7 @@ export class PercentageFormatFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const { cldr } = ctx;
-    if (ctx === undefined) {
+    if (!cldr) {
       first.set('');
       return;
     }

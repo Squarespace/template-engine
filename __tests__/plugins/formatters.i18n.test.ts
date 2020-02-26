@@ -22,52 +22,52 @@ const ZONE_LON = 'Europe/London';
 
 const ONE_DAY_MS = 86400 * 1000;
 
-const formatDecimal = (engine: CLDR, n: string, args: string[]) => {
+const formatDecimal = (cldr: CLDR | undefined, n: string, args: string[]) => {
   const impl = TABLE.decimal;
-  const ctx = new Context({}, { cldr: engine });
+  const ctx = new Context({}, { cldr });
   const vars = variables(n);
   impl.apply(args, vars, ctx);
   return vars[0].get();
 };
 
-const formatMoney = (engine: CLDR, n: any, args: string[]) => {
+const formatMoney = (cldr: CLDR | undefined, n: any, args: string[]) => {
   const impl = TABLE.money;
-  const ctx = new Context({}, { cldr: engine });
+  const ctx = new Context({}, { cldr });
   const vars = variables(n);
   impl.apply(args, vars, ctx);
   return vars[0].get();
 };
 
-const formatDatetime = (engine: CLDR, epoch: string, zoneId: string, args: string[]) => {
+const formatDatetime = (cldr: CLDR | undefined, epoch: string, zoneId: string, args: string[]) => {
   const impl = TABLE.datetime;
-  const ctx = new Context({ website: { timeZone: zoneId } }, { cldr: engine });
+  const ctx = new Context({ website: { timeZone: zoneId } }, { cldr });
   const vars = variables(epoch);
   impl.apply(args, vars, ctx);
   return vars[0].get();
 };
 
-const formatMessage = (engine: CLDR, msg: string, args: string[], context: any) => {
+const formatMessage = (cldr: CLDR | undefined, msg: string, args: string[], context: any) => {
   const impl = TABLE.message;
-  const ctx = new Context(context, { cldr: engine });
+  const ctx = new Context(context, { cldr });
   const vars = variables(msg);
   impl.apply(args, vars, ctx);
   return vars[0].get();
 };
 
-const formatInterval = (engine: CLDR, start: number, end: number, zoneId: string, args: string[]) => {
+const formatInterval = (cldr: CLDR | undefined, start: number, end: number, zoneId: string, args: string[]) => {
   const impl = TABLE['datetime-interval'];
-  const ctx = new Context({ website: { timeZone: zoneId } }, { cldr: engine });
+  const ctx = new Context({ website: { timeZone: zoneId } }, { cldr });
   const vars = variables(String(start), String(end));
   impl.apply(args, vars, ctx);
   return vars[0].get();
 };
 
-const formatTimeSince = (engine: CLDR, start: Date, end: number, args: string[]) => {
+const formatTimeSince = (cldr: CLDR | undefined, start: Date, end: number, args: string[]) => {
   const impl = TABLE.timesince as TimeSinceFormatter;
   // 'timesince' formatter computes relative to now, so use a special
   // property on the formatter to set "now"
   impl.NOW = start;
-  const ctx = new Context({}, { cldr: engine });
+  const ctx = new Context({}, { cldr });
   const vars = variables(end);
   impl.apply(args, vars, ctx);
   return vars[0].get();
@@ -86,6 +86,9 @@ test('decimal', () => {
   args = ['group', 'style:long'];
   expect(formatDecimal(EN, big, args)).toEqual('9,007 trillion');
   expect(formatDecimal(DE, big, args)).toEqual('9.007 Billionen');
+
+  // Undefined cldr produces empty output
+  expect(formatDecimal(undefined, big, args)).toEqual('');
 });
 
 test('money', () => {
@@ -98,6 +101,9 @@ test('money', () => {
   money.decimalValue = '-175332.9999';
   expect(formatMoney(EN, money, args)).toEqual('($175,333.00)');
   expect(formatMoney(DE, money, args)).toEqual('-175.333,00 $');
+
+  // Undefined cldr produces empty output
+  expect(formatMoney(undefined, money, args)).toEqual('');
 });
 
 test('datetime', () => {
@@ -129,6 +135,9 @@ test('datetime', () => {
 
   args = ['skeleton:EyMMMd'];
   expect(formatDatetime(EN, d, ZONE_NY, args)).toEqual('Thu, Nov 2, 2017');
+
+  // Undefined cldr produces empty output
+  expect(formatDatetime(undefined, d, ZONE_NY, args)).toEqual('');
 });
 
 test('japanese', () => {
@@ -151,6 +160,9 @@ test('datetime-interval', () => {
   expect(formatInterval(EN, start, start + 2000, ZONE_NY, args)).toEqual('1:48:54 PM');
   expect(formatInterval(EN, start, start + 12000, ZONE_NY, args)).toEqual('1:48 – 1:49 PM');
   expect(formatInterval(EN, start, start + ONE_DAY_MS, ZONE_NY, args)).toEqual('Mar 12 – 13, 2018');
+
+  // Undefined cldr produces empty output
+  expect(formatInterval(undefined, start, start + 2000, ZONE_NY, args)).toEqual('');
 });
 
 pathseq('f-message-%N.html', 1).forEach(path => {
@@ -196,6 +208,9 @@ test('message', () => {
   args = ['s', 'e'];
   expect(formatMessage(EN, 'inv {0;1 datetime-interval}', args, ctx))
     .toEqual('inv Feb 25 – Mar 9, 2020');
+
+  // Undefined cldr produces empty output
+  expect(formatMessage(undefined, '{0}', args, ctx)).toEqual('');
 });
 
 test('timesince', () => {
@@ -233,4 +248,7 @@ test('timesince', () => {
   expect(formatTimeSince(EN, base, e, args)).toEqual('27 minutes ago');
   expect(formatTimeSince(DE, base, e, args)).toEqual('Vor 27 Minuten');
   expect(formatTimeSince(ES, base, e, args)).toEqual('Hace 27 minutos');
+
+  // Undefined cldr produces empty output
+  expect(formatTimeSince(undefined, base, e, args)).toEqual('');
 });
