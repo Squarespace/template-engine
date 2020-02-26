@@ -88,9 +88,12 @@ export class MessageFormats {
     }
     const node = args[0] as Node;
     const epoch = node.asNumber();
-    const date = this.cldr.Calendars.toGregorianDate({ date: epoch, zoneId: this.zoneId });
-    const opts = datetimeOptions(options);
-    return this.cldr.Calendars.formatDate(date, opts);
+    if (isFinite(epoch)) {
+      const date = this.cldr.Calendars.toGregorianDate({ date: epoch, zoneId: this.zoneId });
+      const opts = datetimeOptions(options);
+      return this.cldr.Calendars.formatDate(date, opts);
+    }
+    return '';
   }
 
   private decimal(args: any[], options: string[]): string {
@@ -132,7 +135,8 @@ class ArgConverter extends DefaultMessageArgConverter {
       const decimal = this.currency(node);
       if (!decimal.isMissing()) {
         try {
-          return parseDecimal(decimal.asString())!;
+          const d = parseDecimal(decimal.asString())!;
+          return d ? d : this.zero;
         } catch (e) {
           return this.zero;
         }
@@ -149,7 +153,8 @@ class ArgConverter extends DefaultMessageArgConverter {
         case Type.STRING:
         default:
           try {
-            return parseDecimal(node.value)!;
+            const d = parseDecimal(node.value)!;
+            return d ? d : this.zero;
           } catch (e) {
             // fall through
             return this.zero;

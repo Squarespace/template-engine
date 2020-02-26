@@ -225,6 +225,12 @@ test('message', () => {
 
   // Undefined cldr produces empty output
   expect(formatMessage(undefined, '{0}', args, ctx)).toEqual('');
+
+  // Bad arguments
+  ctx = { s: 'ABCDEF' };
+  args = ['s'];
+  expect(formatMessage(EN, '{0 decimal}', args, ctx)).toEqual('0');
+  expect(formatMessage(EN, '{0 datetime}', args, ctx)).toEqual('');
 });
 
 test('timesince', () => {
