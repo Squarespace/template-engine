@@ -89,6 +89,9 @@ test('decimal', () => {
 
   // Undefined cldr produces empty output
   expect(formatDecimal(undefined, big, args)).toEqual('');
+
+  // Bad input
+  expect(formatDecimal(EN, '"abcdef"', [])).toEqual('');
 });
 
 test('money', () => {
@@ -104,6 +107,9 @@ test('money', () => {
 
   // Undefined cldr produces empty output
   expect(formatMoney(undefined, money, args)).toEqual('');
+
+  // Bad input
+  expect(formatMoney(EN, '"abdef"', [])).toEqual('');
 });
 
 test('datetime', () => {
@@ -138,6 +144,9 @@ test('datetime', () => {
 
   // Undefined cldr produces empty output
   expect(formatDatetime(undefined, d, ZONE_NY, args)).toEqual('');
+
+  // Bad input
+  expect(formatDatetime(EN, '"abcdef"', ZONE_NY, args)).toEqual('');
 });
 
 test('japanese', () => {

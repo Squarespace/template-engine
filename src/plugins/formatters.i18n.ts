@@ -67,7 +67,7 @@ export class DecimalFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const cldr = ctx.cldr;
-    if (cldr === undefined) {
+    if (!cldr) {
       first.set('');
       return;
     }
@@ -103,7 +103,7 @@ export class MessageFormatterImpl extends Formatter {
     const first = vars[0];
     const node = first.node;
     const cldr = ctx.cldr;
-    if (cldr === undefined) {
+    if (!cldr) {
       first.set('');
       return;
     }
@@ -187,7 +187,7 @@ export class TimeSinceFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const { cldr } = ctx;
-    if (cldr === undefined) {
+    if (!cldr) {
       first.set('');
       return;
     }
