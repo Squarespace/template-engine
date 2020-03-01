@@ -17,7 +17,7 @@ import { makeSocialButton } from './util.social';
 const TWITTER_LINKS_REGEX = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\\/%=~_|])/ig;
 const TWITTER_LINKS_REPLACEMENT = '<a target="new" href="$1">$1</a>';
 const TWITTER_TWEETS_REGEX = /(^| )@([a-z0-9_]+)/ig;
-const TWITTER_TWEETS_REPLACEMENT = '$1<a target="new" href="http://www.twitter.com/$2/">@$2</a>';
+const TWITTER_TWEETS_REPLACEMENT = '$1<a target="new" href="https://twitter.com/$2/">@$2</a>';
 const TWITTER_HASHTAG_REGEX = /(^| )#([a-z0-9_]+)/ig;
 
 export class ActivateTwitterLinksFormatter extends Formatter {
