@@ -21,6 +21,10 @@ test('activate twitter links', () => {
   expect(result).toContain('<a target="new" href="https://twitter.com/hashtag/Bar?src=hash">#Bar</a>');
 });
 
+pathseq('f-activate-twitter-links-%N.html', 1).forEach(path => {
+  test(`${path}`, () => loader.execute(path));
+});
+
 pathseq('f-comment-count-%N.html', 3).forEach(path => {
   test(`comment count - ${path}`, () => loader.execute(path));
 });
