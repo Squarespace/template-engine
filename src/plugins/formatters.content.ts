@@ -51,7 +51,7 @@ export class ChildImageMetaFormatter extends Formatter {
     const first = vars[0];
     const index = args.length === 0 ? 0 : parseInt(args[0], 10);
     const child = first.node.path(['items', index]);
-    first.set(outputImageMeta(child));
+    first.set(outputImageMeta(child, ''));
   }
 }
 
@@ -59,7 +59,7 @@ export class CoverImageMetaFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const image = first.node.get('coverImage');
-    first.set(outputImageMeta(image));
+    first.set(outputImageMeta(image, ''));
   }
 }
 
@@ -112,29 +112,15 @@ export class ImageFormatter extends Formatter {
     const id = node.get('id').asString();
     const altText = escapeHtmlAttributes(this.getAltText(ctx));
     const assetUrl = node.get('assetUrl').asString();
-    const focalPoint = getFocalPoint(node);
-    const origSize = node.get('originalSize').asString();
 
     let res = '<noscript>';
     res += `<img src="${assetUrl}" `;
-    if (altText.length > 0) {
-      res += ` alt="${altText}" `;
-    }
-    res += ' /></noscript>';
+    res += `alt="${altText}" `;
+    res += '/></noscript>';
 
     res += `<img class="${cls}" `;
-    if (altText.length > 0) {
-      res += `alt="${altText}" `;
-    }
+    res += outputImageMeta(node, altText);
 
-    if (isLicensedAssetPreview(node)) {
-      res += 'data-licensed-asset-preview="true" ';
-    }
-
-    res += `data-src="${assetUrl}" `;
-    res += `data-image="${assetUrl}" `;
-    res += `data-image-dimensions="${origSize}" `;
-    res += `data-image-focal-point="${focalPoint}" `;
     res += 'data-load="false" ';
     res += `data-image-id="${id}" `;
     res += 'data-type="image" />';
@@ -199,7 +185,7 @@ export class ImageMetaFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const image = first.node;
-    first.set(outputImageMeta(image));
+    first.set(outputImageMeta(image, ''));
   }
 }
 

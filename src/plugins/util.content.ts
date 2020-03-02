@@ -35,22 +35,29 @@ export const getAltTextFromContentItem = (item: Node) => {
 };
 
 export const isLicensedAssetPreview = (image: Node) => {
-  return image.get('licensedAssetPreview').type === Type.OBJECT;
+  return image.path(['licensedAssetPreview']).type === Type.OBJECT;
 };
 
-export const outputImageMeta = (image: Node) => {
+export const outputImageMeta = (image: Node, preferredAlt: string) => {
   if (image.isMissing()) {
     return '';
   }
 
+  const componentKey = image.path(['componentKey']);
   const focalPoint = getFocalPoint(image);
   const origSize = image.get('originalSize').asString();
   const assetUrl = image.get('assetUrl').asString();
-  const altText = escapeHtmlAttributes(getAltTextFromContentItem(image));
+  const altText = escapeHtmlAttributes(
+    preferredAlt ? preferredAlt : getAltTextFromContentItem(image)
+  );
 
   let res = '';
   if (isLicensedAssetPreview(image)) {
     res += 'data-licensed-asset-preview="true" ';
+  }
+
+  if (!componentKey.isMissing()) {
+    res += `data-component-key="${componentKey.asString()}" `;
   }
 
   res += `data-src="${assetUrl}" `;
