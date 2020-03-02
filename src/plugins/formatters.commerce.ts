@@ -171,7 +171,7 @@ export class ProductQuickViewFormatter extends Formatter {
     }
 
     let buf = '';
-    buf += `<span class="sqs-product-quick-view-button" data-id="${id}"`;
+    buf += `<span class="sqs-product-quick-view-button" role="button" tabindex="0" data-id="${id}"`;
     buf += ` data-group="${group}">`;
 
     const text = ctx.resolve(['localizedStrings', 'productQuickViewText']);
