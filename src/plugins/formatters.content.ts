@@ -12,7 +12,9 @@ import {
   getFocalPoint,
   isLicensedAssetPreview,
   outputImageMeta,
-  splitDimensions } from './util.content';
+  splitDimensions
+} from './util.content';
+import { pad } from './util.date';
 import { escapeHtmlAttributes, slugify } from './util.string';
 import { hexColorToInt } from './util.color';
 
@@ -92,7 +94,12 @@ export class HeightFormatter extends Formatter {
 
 export class HumanizeDurationFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
-    // TODO: implement
+    const first = vars[0];
+    const ms = first.node.asNumber() / 1000 | 0;
+    const mins = ms / 60 | 0;
+    const secs = ms - (mins * 60);
+    const res = `${mins}:${pad(`${secs}`, '0', 2)}`;
+    first.set(res);
   }
 }
 

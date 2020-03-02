@@ -312,12 +312,10 @@ const getTZC = (offset: number): [boolean, number, number] => {
   return [negative, hours, minutes];
 };
 
-// const pad = (str: string, c: string = ' ') => str.length === 2 ? str : `${c}${str}`;
-
-const pad = (s: string, ch: string, n: number) => {
+export const pad = (s: string, ch: string, n: number) => {
   let d = n - s.length;
   let r = '';
-  if (d) {
+  if (d > 0) {
     while (d--) {
       r += ch;
     }

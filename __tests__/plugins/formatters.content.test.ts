@@ -50,27 +50,35 @@ test('child image meta', () => {
   expect(vars[0].get()).toContain('data-image-focal-point="0.3,0.7"');
   expect(vars[0].get()).toContain('alt="foo"');
 
-  vars = variables({ items: [
-    image.title('').get()
-  ] });
+  vars = variables({
+    items: [
+      image.title('').get()
+    ]
+  });
   impl.apply([], vars, CTX);
   expect(vars[0].get()).toContain('alt=""');
 
-  vars = variables({ items: [
-    image.title('').set('bar', 'body').get()
-  ] });
+  vars = variables({
+    items: [
+      image.title('').set('bar', 'body').get()
+    ]
+  });
   impl.apply([], vars, CTX);
   expect(vars[0].get()).toContain('alt="bar"');
 
-  vars = variables({ items: [
-    image.title('').set('baz', 'filename').get()
-  ] });
+  vars = variables({
+    items: [
+      image.title('').set('baz', 'filename').get()
+    ]
+  });
   impl.apply([], vars, CTX);
   expect(vars[0].get()).toContain('alt="baz"');
 
-  vars = variables({ items: [
-    image.set(undefined, 'mediaFocalPoint').get()
-  ] });
+  vars = variables({
+    items: [
+      image.set(undefined, 'mediaFocalPoint').get()
+    ]
+  });
   impl.apply([], vars, CTX);
   expect(vars[0].get()).toContain('data-image-focal-point="0.5,0.5"');
 
@@ -144,6 +152,10 @@ test('height', () => {
   vars = variables(undefined);
   impl.apply([], vars, CTX);
   expect(vars[0].node).toBe(MISSING_NODE);
+});
+
+pathseq('f-humanize-duration-%N.html', 1).forEach(path => {
+  test(`humanize duration - ${path}`, () => loader.execute(path));
 });
 
 pathseq('f-image-%N.html', 3).forEach(path => {
