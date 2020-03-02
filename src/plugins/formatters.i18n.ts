@@ -11,7 +11,8 @@ import {
   currencyOptions,
   datetimeOptions,
   decimalOptions,
-  intervalOptions
+  intervalOptions,
+  relativetimeOptions
 } from './options';
 import { splitVariable } from '../util';
 import { humanizeDate } from './util.content';
@@ -178,12 +179,10 @@ export class MoneyFormatter extends Formatter {
 
 }
 
-// TODO: relativetime
-
-export class TimeSinceFormatter extends Formatter {
+export class RelativeTimeFormatter extends Formatter {
 
   // exposed only for testing
-  public NOW: Date | undefined = undefined;
+  public NOW: Date | undefined;
 
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
@@ -192,7 +191,38 @@ export class TimeSinceFormatter extends Formatter {
       first.set('');
       return;
     }
+    let s = (this.NOW || new Date()).getTime();
+    let e = first.node.asNumber();
+    if (vars.length > 1) {
+      s = e;
+      e = vars[1].node.asNumber();
+    }
+    if (!isFinite(s) || !isFinite(e)) {
+      first.set('');
+      return;
+    }
+    const start = cldr.Calendars.toGregorianDate({ date: s });
+    const end = cldr.Calendars.toGregorianDate({ date: e });
+
+    const opts = relativetimeOptions(args);
+    const res = cldr.Calendars.formatRelativeTime(start, end, opts);
+    first.set(res);
+  }
+}
+
+export class TimeSinceFormatter extends Formatter {
+
+  // exposed only for testing
+  public NOW: Date | undefined;
+
+  apply(args: string[], vars: Variable[], ctx: Context): void {
+    const first = vars[0];
     const n = first.node.asNumber();
+    const { cldr } = ctx;
+    if (!cldr || !isFinite(n)) {
+      first.set('');
+      return;
+    }
     const now = cldr.Calendars.toGregorianDate(this.NOW || new Date());
     const date = cldr.Calendars.toGregorianDate({ date: n });
 
@@ -211,5 +241,6 @@ export const I18N_FORMATTERS: FormatterTable = {
   message: new MessageFormatterImpl(),
   money: new MoneyFormatter(),
   plural: new MessageFormatterImpl(),
+  'relative-time': new RelativeTimeFormatter(),
   timesince: new TimeSinceFormatter()
 };

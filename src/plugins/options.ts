@@ -3,13 +3,16 @@ import {
   CurrencyFormatOptions,
   CurrencyFormatStyleType,
   CurrencySymbolWidthType,
+  DateFieldWidthType,
   DateFormatOptions,
   DateIntervalFormatOptions,
   DecimalFormatOptions,
   DecimalFormatStyleType,
   FormatWidthType,
   NumberFormatOptions,
-  RoundingModeType
+  RelativeTimeFormatOptions,
+  RoundingModeType,
+  TimePeriodField
 } from '@phensley/cldr-core';
 
 // Arbitrary value just to have an upper limit.
@@ -39,6 +42,14 @@ const CONTEXT_TYPE = new Set<ContextType>([
   'middle-of-text', 'begin-sentence', 'standalone', 'ui-list-or-menu'
 ]);
 
+const TIMEPERIOD_FIELD = new Set<TimePeriodField>([
+  'year', 'month', 'week', 'day', 'hour', 'minute', 'second', 'millis'
+]);
+
+const DATEFIELD_WIDTH = new Set<DateFieldWidthType>([
+  'short', 'narrow', 'wide'
+]);
+
 export type Parser<T> = (arg: string, val: string, opts: T) => void;
 
 export const decimalOptions = (args: string[]): DecimalFormatOptions => {
@@ -62,6 +73,12 @@ export const datetimeOptions = (args: string[]): DateFormatOptions => {
 export const intervalOptions = (args: string[]): DateIntervalFormatOptions => {
   const opts: DateIntervalFormatOptions = {};
   parse(args, opts, intervalOption);
+  return opts;
+};
+
+export const relativetimeOptions = (args: string[]): RelativeTimeFormatOptions => {
+  const opts: RelativeTimeFormatOptions = {};
+  parse(args, opts, relativetimeOption);
   return opts;
 };
 
@@ -275,6 +292,38 @@ const intervalOption = (arg: string, val: string, options: DateIntervalFormatOpt
       break;
 
     default:
+      break;
+  }
+};
+
+const relativetimeOption = (arg: string, val: string, options: RelativeTimeFormatOptions) => {
+  switch (arg) {
+    case 'context':
+      if (CONTEXT_TYPE.has(val as ContextType)) {
+        options.context = val as ContextType;
+      }
+      break;
+    case 'dayOfWeek':
+      options.dayOfWeek = val === 'true';
+      break;
+    case 'field':
+      if (TIMEPERIOD_FIELD.has(val as TimePeriodField)) {
+        options.field = val as TimePeriodField;
+      }
+      break;
+    case 'numericOnly':
+      options.numericOnly = val === 'true';
+      break;
+    case 'alwaysNow':
+      options.alwaysNow = val === 'true';
+      break;
+    case 'width':
+      if (DATEFIELD_WIDTH.has(val as DateFieldWidthType)) {
+        options.width = val as DateFieldWidthType;
+      }
+      break;
+    default:
+      numberOption(arg, val, options);
       break;
   }
 };

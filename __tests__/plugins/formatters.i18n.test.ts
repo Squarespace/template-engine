@@ -2,7 +2,11 @@ import { join } from 'path';
 import { CLDR } from '@phensley/cldr';
 import { framework } from '../cldr';
 import { Context } from '../../src/context';
-import { I18N_FORMATTERS as TABLE, TimeSinceFormatter } from '../../src/plugins/formatters.i18n';
+import {
+  I18N_FORMATTERS as TABLE,
+  RelativeTimeFormatter,
+  TimeSinceFormatter
+} from '../../src/plugins/formatters.i18n';
 import { Variable } from '../../src/variable';
 import { TemplateTestLoader } from '../loader';
 import { pathseq } from '../helpers';
@@ -62,11 +66,23 @@ const formatInterval = (cldr: CLDR | undefined, start: number, end: number, zone
   return vars[0].get();
 };
 
-const formatTimeSince = (cldr: CLDR | undefined, start: Date, end: number, args: string[]) => {
+const formatRelativeTime = (cldr: CLDR | undefined, start: number | undefined, vars: Variable[], args: string[]) => {
+  const impl = TABLE['relative-time'] as RelativeTimeFormatter;
+  if (start) {
+    impl.NOW = new Date(start);
+  }
+  const ctx = new Context({}, { cldr });
+  impl.apply(args, vars, ctx);
+  return vars[0].get();
+};
+
+const formatTimeSince = (cldr: CLDR | undefined, start: Date | undefined, end: number, args: string[]) => {
   const impl = TABLE.timesince as TimeSinceFormatter;
   // 'timesince' formatter computes relative to now, so use a special
   // property on the formatter to set "now"
-  impl.NOW = start;
+  if (start) {
+    impl.NOW = start;
+  }
   const ctx = new Context({}, { cldr });
   const vars = variables(end);
   impl.apply(args, vars, ctx);
@@ -233,6 +249,64 @@ test('message', () => {
   expect(formatMessage(EN, '{0 datetime}', args, ctx)).toEqual('');
 });
 
+test('relative time', () => {
+  const base = new Date().getTime();
+  const start = EN.Calendars.toGregorianDate({ date: base });
+  const args: string[] = ['context:begin-sentence'];
+  let e: number;
+
+  e = start.add({ millis: 100 }).unixEpoch();
+  expect(formatRelativeTime(EN, base, variables(e), args)).toEqual('Now');
+  expect(formatRelativeTime(DE, base, variables(e), args)).toEqual('Jetzt');
+  expect(formatRelativeTime(ES, base, variables(e), args)).toEqual('Ahora');
+
+  expect(formatRelativeTime(EN, undefined, variables(base, e), args)).toEqual('Now');
+
+  e = start.add({ millis: -100 }).unixEpoch();
+  expect(formatRelativeTime(EN, base, variables(e), ['numericOnly:true'])).toEqual('0 seconds ago');
+
+  e = start.add({ year: -1.6 }).unixEpoch();
+  expect(formatRelativeTime(EN, base, variables(e), args)).toEqual('2 years ago');
+  expect(formatRelativeTime(DE, base, variables(e), args)).toEqual('Vor 2 Jahren');
+  expect(formatRelativeTime(ES, base, variables(e), args)).toEqual('Hace 2 años');
+
+  expect(formatRelativeTime(EN, undefined, variables(base, e), args)).toEqual('2 years ago');
+
+  e = start.add({ month: -6 }).unixEpoch();
+  expect(formatRelativeTime(EN, base, variables(e), args)).toEqual('6 months ago');
+  expect(formatRelativeTime(DE, base, variables(e), args)).toEqual('Vor 6 Monaten');
+  expect(formatRelativeTime(ES, base, variables(e), args)).toEqual('Hace 6 meses');
+
+  expect(formatRelativeTime(EN, undefined, variables(base, e), args)).toEqual('6 months ago');
+
+  e = start.add({ day: -27 }).unixEpoch();
+  expect(formatRelativeTime(EN, base, variables(e), args)).toEqual('4 weeks ago');
+  expect(formatRelativeTime(DE, base, variables(e), args)).toEqual('Vor 4 Wochen');
+  expect(formatRelativeTime(ES, base, variables(e), args)).toEqual('Hace 4 semanas');
+
+  expect(formatRelativeTime(EN, undefined, variables(base, e), args)).toEqual('4 weeks ago');
+
+  e = start.add({ hour: -27 }).unixEpoch();
+  expect(formatRelativeTime(EN, base, variables(e), args)).toEqual('Yesterday');
+  expect(formatRelativeTime(DE, base, variables(e), args)).toEqual('Gestern');
+  expect(formatRelativeTime(ES, base, variables(e), args)).toEqual('Ayer');
+
+  expect(formatRelativeTime(EN, undefined, variables(base, e), args)).toEqual('Yesterday');
+
+  e = start.add({ minute: -27 }).unixEpoch();
+  expect(formatRelativeTime(EN, base, variables(e), args)).toEqual('27 minutes ago');
+  expect(formatRelativeTime(DE, base, variables(e), args)).toEqual('Vor 27 Minuten');
+  expect(formatRelativeTime(ES, base, variables(e), args)).toEqual('Hace 27 minutos');
+
+  expect(formatRelativeTime(EN, undefined, variables(base, e), args)).toEqual('27 minutes ago');
+
+  // Undefined cldr produces empty output
+  expect(formatRelativeTime(undefined, base, variables(e), args)).toEqual('');
+
+  // Invalid type
+  expect(formatRelativeTime(EN, base, variables('foo'), args)).toEqual('');
+});
+
 test('timesince', () => {
   const base = new Date();
   const start = EN.Calendars.toGregorianDate(base);
@@ -257,48 +331,6 @@ test('timesince', () => {
   e = start.add({ minute: -27 }).unixEpoch();
   expect(formatTimeSince(EN, base, e, args)).toEqual('about 27 minutes ago');
 
-  // Undefined cldr produces empty output
+  // base cldr produces empty output
   expect(formatTimeSince(undefined, base, e, args)).toEqual('');
-
 });
-
-// TODO
-// test('relative time', () => {
-//   const base = new Date();
-//   const start = EN.Calendars.toGregorianDate(base);
-//   const args: string[] = [];
-//   let e: number;
-
-//   e = start.add({ millis: 100 }).unixEpoch();
-//   expect(formatTimeSince(EN, base, e, args)).toEqual('Now');
-//   expect(formatTimeSince(DE, base, e, args)).toEqual('Jetzt');
-//   expect(formatTimeSince(ES, base, e, args)).toEqual('Ahora');
-
-//   e = start.add({ year: -1.6 }).unixEpoch();
-//   expect(formatTimeSince(EN, base, e, args)).toEqual('2 years ago');
-//   expect(formatTimeSince(DE, base, e, args)).toEqual('Vor 2 Jahren');
-//   expect(formatTimeSince(ES, base, e, args)).toEqual('Hace 2 años');
-
-//   e = start.add({ month: -6 }).unixEpoch();
-//   expect(formatTimeSince(EN, base, e, args)).toEqual('6 months ago');
-//   expect(formatTimeSince(DE, base, e, args)).toEqual('Vor 6 Monaten');
-//   expect(formatTimeSince(ES, base, e, args)).toEqual('Hace 6 meses');
-
-//   e = start.add({ day: -27 }).unixEpoch();
-//   expect(formatTimeSince(EN, base, e, args)).toEqual('4 weeks ago');
-//   expect(formatTimeSince(DE, base, e, args)).toEqual('Vor 4 Wochen');
-//   expect(formatTimeSince(ES, base, e, args)).toEqual('Hace 4 semanas');
-
-//   e = start.add({ hour: -27 }).unixEpoch();
-//   expect(formatTimeSince(EN, base, e, args)).toEqual('Yesterday');
-//   expect(formatTimeSince(DE, base, e, args)).toEqual('Gestern');
-//   expect(formatTimeSince(ES, base, e, args)).toEqual('Ayer');
-
-//   e = start.add({ minute: -27 }).unixEpoch();
-//   expect(formatTimeSince(EN, base, e, args)).toEqual('27 minutes ago');
-//   expect(formatTimeSince(DE, base, e, args)).toEqual('Vor 27 Minuten');
-//   expect(formatTimeSince(ES, base, e, args)).toEqual('Hace 27 minutos');
-
-//   // Undefined cldr produces empty output
-//   expect(formatTimeSince(undefined, base, e, args)).toEqual('');
-// });
