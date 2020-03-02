@@ -1,9 +1,18 @@
+import { Decimal } from '@phensley/cldr-core';
 import { isTruthy, Node } from '../node';
 import { ProductType } from './enums';
 import { Type } from '../types';
+import { parseDecimal } from './util.i18n';
 
 const productTypePath = ['structuredContent', 'productType'];
 const variantsPath = ['structuredContent', 'variants'];
+
+const ZERO = parseDecimal('0');
+
+const DEFAULT_MONEY_NODE = new Node({
+  'value': '0',
+  'currency': 'USD'
+});
 
 export const getProductType = (item: Node) => {
   const type = item.path(productTypePath);
@@ -23,37 +32,62 @@ export const hasVariants = (item: Node) => {
   return type === ProductType.DIGITAL ? false : populated;
 };
 
-export const getFromPrice = (item: Node) => {
+export const getAmountFromMoneyNode = (moneyNode?: Node) => {
+  if (!moneyNode) {
+    return ZERO;
+  }
+  const value = moneyNode.path(['value']).asString();
+  return !value ? ZERO : (parseDecimal(value) || ZERO);
+};
+
+export const getLegacyPriceFromMoneyNode = (moneyNode: Node) => {
+  const price = getAmountFromMoneyNode(moneyNode);
+  return price ? price.movePoint(2) : ZERO;
+};
+
+export const getFromPrice = (item: Node): Node | undefined => {
   const type = getProductType(item);
   const content = item.get('structuredContent');
 
   switch (type) {
-  case ProductType.GIFT_CARD:
-  case ProductType.PHYSICAL:
-  case ProductType.SERVICE: {
-    const variants = content.get('variants');
-    const size = variants.size();
-    if (variants.type !== Type.ARRAY || size === 0) {
-      return 0;
-    }
-    const first = variants.get(0);
-    let price = getPrice(first).asNumber();
-    for (let i = 1; i < size; i++) {
-      const current = getPrice(variants.get(i)).asNumber();
-      if (current < price) {
-        price = current;
+    case ProductType.GIFT_CARD:
+    case ProductType.PHYSICAL:
+    case ProductType.SERVICE: {
+      const variants = content.get('variants');
+      const size = variants.size();
+      if (variants.type !== Type.ARRAY || size === 0) {
+        return DEFAULT_MONEY_NODE;
       }
+      const first = variants.get(0);
+      let moneyNode = isTruthy(first.path(['onSale']))
+        ? first.path(['salePriceMoney'])
+        : first.path(['priceMoney']);
+      let price = getAmountFromMoneyNode(moneyNode);
+      if (price === undefined) {
+        return undefined;
+      }
+
+      for (let i = 1; i < variants.size(); i++) {
+        const v = variants.get(i);
+        const currentNode = isTruthy(v.path(['onSale']))
+          ? v.path(['salePriceMoney'])
+          : v.path(['priceMoney']);
+        const current = getAmountFromMoneyNode(currentNode)!;
+        if (current.compare(price) < 0) {
+          price = current;
+          moneyNode = currentNode;
+        }
+      }
+      return moneyNode;
     }
-    return price;
-  }
 
-  case ProductType.DIGITAL: {
-    const cents = content.get('priceCents');
-    return cents.isMissing() ? 0 : cents.asNumber();
-  }
+    case ProductType.DIGITAL: {
+      const money = content.path(['priceMoney']);
+      return money.isMissing() ? DEFAULT_MONEY_NODE : money;
+    }
 
-  default:
-    return 0;
+    default:
+      return DEFAULT_MONEY_NODE;
   }
 };
 
@@ -62,31 +96,31 @@ export const getNormalPrice = (item: Node) => {
   const content = item.get('structuredContent');
 
   switch (type) {
-  case ProductType.PHYSICAL:
-  case ProductType.SERVICE: {
-    const variants = content.get('variants');
-    const size = variants.size();
-    if (variants.type !== Type.ARRAY || size === 0) {
-      return 0;
-    }
-    let price = variants.get(0).get('price').asNumber();
-    for (let i = 1; i < size; i++) {
-      const current = variants.get(i).get('price').asNumber();
-      if (current > price) {
-        price = current;
+    case ProductType.PHYSICAL:
+    case ProductType.SERVICE: {
+      const variants = content.get('variants');
+      const size = variants.size();
+      if (variants.type !== Type.ARRAY || size === 0) {
+        return 0;
       }
+      let price = variants.get(0).get('price').asNumber();
+      for (let i = 1; i < size; i++) {
+        const current = variants.get(i).get('price').asNumber();
+        if (current > price) {
+          price = current;
+        }
+      }
+      return price;
     }
-    return price;
-  }
 
-  case ProductType.DIGITAL: {
-    const cents = content.get('priceCents');
-    return cents.isMissing() ? 0 : cents.asNumber();
-  }
+    case ProductType.DIGITAL: {
+      const cents = content.get('priceCents');
+      return cents.isMissing() ? 0 : cents.asNumber();
+    }
 
-  case ProductType.GIFT_CARD:
-  default:
-    return 0;
+    case ProductType.GIFT_CARD:
+    default:
+      return 0;
   }
 };
 
@@ -95,32 +129,32 @@ export const getSalePrice = (item: Node) => {
   const content = item.get('structuredContent');
 
   switch (type) {
-  case ProductType.PHYSICAL:
-  case ProductType.SERVICE: {
-    const variants = content.get('variants');
-    const size = variants.size();
-    if (variants.type !== Type.ARRAY || size === 0) {
-      return 0;
-    }
-    let salePrice: number | null = null;
-    for (let i = 0; i < size; i++) {
-      const variant = variants.get(i);
-      const price = variant.get('salePrice').asNumber();
-      if (isTruthy(variant.get('onSale')) && (salePrice === null || price < salePrice)) {
-        salePrice = price;
+    case ProductType.PHYSICAL:
+    case ProductType.SERVICE: {
+      const variants = content.get('variants');
+      const size = variants.size();
+      if (variants.type !== Type.ARRAY || size === 0) {
+        return 0;
       }
+      let salePrice: number | null = null;
+      for (let i = 0; i < size; i++) {
+        const variant = variants.get(i);
+        const price = variant.get('salePrice').asNumber();
+        if (isTruthy(variant.get('onSale')) && (salePrice === null || price < salePrice)) {
+          salePrice = price;
+        }
+      }
+      return salePrice === null ? 0 : salePrice;
     }
-    return salePrice === null ? 0 : salePrice;
-  }
 
-  case ProductType.DIGITAL: {
-    const cents = content.get('salePriceCents');
-    return cents.isMissing() ? 0 : cents.asNumber();
-  }
+    case ProductType.DIGITAL: {
+      const cents = content.get('salePriceCents');
+      return cents.isMissing() ? 0 : cents.asNumber();
+    }
 
-  case ProductType.GIFT_CARD:
-  default:
-    return 0;
+    case ProductType.GIFT_CARD:
+    default:
+      return 0;
   }
 };
 
@@ -149,33 +183,33 @@ export const hasVariedPrices = (item: Node) => {
   const type = getProductType(item);
 
   switch (type) {
-  case ProductType.GIFT_CARD:
-  case ProductType.PHYSICAL:
-  case ProductType.SERVICE: {
-    const variants = getVariants(item);
-    const size = variants.size();
-    if (variants.type === Type.ARRAY && size > 0) {
-      const first = variants.get(0);
-      const onSale = first.get('onSale');
-      const salePrice = first.get('salePrice');
-      const price = first.get('price');
+    case ProductType.GIFT_CARD:
+    case ProductType.PHYSICAL:
+    case ProductType.SERVICE: {
+      const variants = getVariants(item);
+      const size = variants.size();
+      if (variants.type === Type.ARRAY && size > 0) {
+        const first = variants.get(0);
+        const onSale = first.get('onSale');
+        const salePrice = first.get('salePrice');
+        const price = first.get('price');
 
-      for (let i = 1; i < size; i++) {
-        const v = variants.get(i);
-        const flag1 = !v.get('onSale').equals(onSale);
-        const flag2 = isTruthy(onSale) && !v.get('salePrice').equals(salePrice);
-        const flag3 = !v.get('price').equals(price);
-        if (flag1 || flag2 || flag3) {
-          return true;
+        for (let i = 1; i < size; i++) {
+          const v = variants.get(i);
+          const flag1 = !v.get('onSale').equals(onSale);
+          const flag2 = isTruthy(onSale) && !v.get('salePrice').equals(salePrice);
+          const flag3 = !v.get('price').equals(price);
+          if (flag1 || flag2 || flag3) {
+            return true;
+          }
         }
       }
+      return false;
     }
-    return false;
-  }
 
-  case ProductType.DIGITAL:
-  default:
-    return false;
+    case ProductType.DIGITAL:
+    default:
+      return false;
   }
 };
 
@@ -184,27 +218,27 @@ export const isOnSale = (item: Node) => {
   const content = item.get('structuredContent');
 
   switch (type) {
-  case ProductType.PHYSICAL:
-  case ProductType.SERVICE: {
-    const variants = content.get('variants');
-    const size = variants.size();
-    if (variants.type === Type.ARRAY && size > 0) {
-      for (let i = 0; i < size; i++) {
-        const variant = variants.get(i);
-        if (isTruthy(variant.get('onSale'))) {
-          return true;
+    case ProductType.PHYSICAL:
+    case ProductType.SERVICE: {
+      const variants = content.get('variants');
+      const size = variants.size();
+      if (variants.type === Type.ARRAY && size > 0) {
+        for (let i = 0; i < size; i++) {
+          const variant = variants.get(i);
+          if (isTruthy(variant.get('onSale'))) {
+            return true;
+          }
         }
       }
+      break;
     }
-    break;
-  }
 
-  case ProductType.DIGITAL:
-    return isTruthy(content.get('onSale'));
+    case ProductType.DIGITAL:
+      return isTruthy(content.get('onSale'));
 
-  case ProductType.GIFT_CARD:
-  default:
-    break;
+    case ProductType.GIFT_CARD:
+    default:
+      break;
   }
   return false;
 };
@@ -212,26 +246,26 @@ export const isOnSale = (item: Node) => {
 export const isSoldOut = (item: Node) => {
   const type = getProductType(item);
   switch (type) {
-  case ProductType.PHYSICAL:
-  case ProductType.SERVICE: {
-    const variants = getVariants(item);
-    if (variants.type === Type.ARRAY) {
-      for (let i = 0; i < variants.size(); i++) {
-        const variant = variants.get(i);
-        if (isTruthy(variant.get('unlimited')) || variant.get('qtyInStock').asNumber() > 0) {
-          return false;
+    case ProductType.PHYSICAL:
+    case ProductType.SERVICE: {
+      const variants = getVariants(item);
+      if (variants.type === Type.ARRAY) {
+        for (let i = 0; i < variants.size(); i++) {
+          const variant = variants.get(i);
+          if (isTruthy(variant.get('unlimited')) || variant.get('qtyInStock').asNumber() > 0) {
+            return false;
+          }
         }
       }
+      return true;
     }
-    return true;
-  }
 
-  case ProductType.DIGITAL:
-  case ProductType.GIFT_CARD:
-    return false;
+    case ProductType.DIGITAL:
+    case ProductType.GIFT_CARD:
+      return false;
 
-  default:
-    return true;
+    default:
+      return true;
   }
 };
 

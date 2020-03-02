@@ -92,7 +92,15 @@ export class FromPriceFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const price = commerceutil.getFromPrice(first.node);
-    first.set(price);
+    if (price) {
+      const res = commerceutil.getLegacyPriceFromMoneyNode(price);
+      if (res) {
+        first.set(res.toString());
+        return;
+      }
+    }
+    first.set('');
+    return;
   }
 }
 

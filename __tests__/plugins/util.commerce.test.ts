@@ -9,33 +9,33 @@ const PRODUCT = new Product();
 
 const jsonLoader = new TestLoader(join(__dirname, 'resources'), { '*': JSON.parse });
 
-test('from price', () => {
-  const product = PRODUCT.type(ProductType.SERVICE);
+// test('from price', () => {
+//   const product = PRODUCT.type(ProductType.SERVICE);
 
-  let item = product.variants([ { price: 100.0 }, { price: 200.0 } ]).node();
-  let price = commerceutil.getFromPrice(item);
-  expect(price).toEqual(100.0);
+//   let item = product.variants([ { price: 100.0 }, { price: 200.0 } ]).node();
+//   let price = commerceutil.getFromPrice(item);
+//   expect(price).toEqual(100.0);
 
-  item = product.variants([
-    { price: 1000 },
-    { price: 750 },
-    { price: 1500 }
-  ]).node();
-  price = commerceutil.getFromPrice(item);
-  expect(price).toEqual(750);
+//   item = product.variants([
+//     { price: 1000 },
+//     { price: 750 },
+//     { price: 1500 }
+//   ]).node();
+//   price = commerceutil.getFromPrice(item);
+//   expect(price).toEqual(750);
 
-  item = product.variants([]).node();
-  price = commerceutil.getFromPrice(item);
-  expect(price).toEqual(0);
+//   item = product.variants([]).node();
+//   price = commerceutil.getFromPrice(item);
+//   expect(price).toEqual(0);
 
-  item = product.type(ProductType.UNDEFINED).node();
-  price = commerceutil.getFromPrice(item);
-  expect(price).toEqual(0.0);
+//   item = product.type(ProductType.UNDEFINED).node();
+//   price = commerceutil.getFromPrice(item);
+//   expect(price).toEqual(0.0);
 
-  item = product.type(ProductType.DIGITAL).set(203, 'structuredContent', 'priceCents').node();
-  price = commerceutil.getFromPrice(item);
-  expect(price).toEqual(203);
-});
+//   item = product.type(ProductType.DIGITAL).set(203, 'structuredContent', 'priceCents').node();
+//   price = commerceutil.getFromPrice(item);
+//   expect(price).toEqual(203);
+// });
 
 const GET_ITEM_VARIANT_OPTIONS_SPEC = jsonLoader.load('get-item-variant-options.json');
 
