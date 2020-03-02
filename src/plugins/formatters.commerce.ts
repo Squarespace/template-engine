@@ -100,7 +100,6 @@ export class FromPriceFormatter extends Formatter {
       }
     }
     first.set('');
-    return;
   }
 }
 
@@ -134,7 +133,14 @@ export class NormalPriceFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const price = commerceutil.getNormalPrice(first.node);
-    first.set(price);
+    if (price) {
+      const res = commerceutil.getLegacyPriceFromMoneyNode(price);
+      if (res) {
+        first.set(res.toString());
+        return;
+      }
+    }
+    first.set('');
   }
 }
 

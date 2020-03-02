@@ -73,7 +73,7 @@ export const getFromPrice = (item: Node): Node | undefined => {
           ? v.path(['salePriceMoney'])
           : v.path(['priceMoney']);
         const current = getAmountFromMoneyNode(currentNode)!;
-        if (current.compare(price) < 0) {
+        if (current && current.compare(price) < 0) {
           price = current;
           moneyNode = currentNode;
         }
@@ -91,36 +91,43 @@ export const getFromPrice = (item: Node): Node | undefined => {
   }
 };
 
-export const getNormalPrice = (item: Node) => {
+export const getNormalPrice = (item: Node): Node | undefined => {
   const type = getProductType(item);
   const content = item.get('structuredContent');
 
   switch (type) {
     case ProductType.PHYSICAL:
-    case ProductType.SERVICE: {
+    case ProductType.SERVICE:
+    case ProductType.GIFT_CARD: {
       const variants = content.get('variants');
       const size = variants.size();
       if (variants.type !== Type.ARRAY || size === 0) {
-        return 0;
+        return DEFAULT_MONEY_NODE;
       }
-      let price = variants.get(0).get('price').asNumber();
-      for (let i = 1; i < size; i++) {
-        const current = variants.get(i).get('price').asNumber();
-        if (current > price) {
-          price = current;
+      let moneyNode = variants.get(0);
+      let price = getAmountFromMoneyNode(moneyNode);
+      if (price === undefined) {
+        return undefined;
+      }
+
+      for (let i = 1; i < variants.size(); i++) {
+        const currentNode = variants.get(i).path(['priceMoney']);
+        const curr = getAmountFromMoneyNode(currentNode)!;
+        if (curr && curr.compare(price) > 0) {
+          price = curr;
+          moneyNode = currentNode;
         }
       }
-      return price;
+      return moneyNode;
     }
 
     case ProductType.DIGITAL: {
-      const cents = content.get('priceCents');
-      return cents.isMissing() ? 0 : cents.asNumber();
+      const money = content.path(['priceMoney']);
+      return money.isMissing() ? DEFAULT_MONEY_NODE : money;
     }
 
-    case ProductType.GIFT_CARD:
     default:
-      return 0;
+      return DEFAULT_MONEY_NODE;
   }
 };
 
