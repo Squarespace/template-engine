@@ -256,7 +256,14 @@ export class SalePriceFormatter extends Formatter {
   apply(args: string[], vars: Variable[], _ctx: Context): void {
     const first = vars[0];
     const price = commerceutil.getSalePrice(first.node);
-    first.set(price);
+    if (price) {
+      const res = commerceutil.getLegacyPriceFromMoneyNode(price);
+      if (res) {
+        first.set(res.toString());
+        return;
+      }
+    }
+    first.set('');
   }
 }
 

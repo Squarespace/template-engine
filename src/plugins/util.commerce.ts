@@ -131,7 +131,7 @@ export const getNormalPrice = (item: Node): Node | undefined => {
   }
 };
 
-export const getSalePrice = (item: Node) => {
+export const getSalePrice = (item: Node): Node | undefined => {
   const type = getProductType(item);
   const content = item.get('structuredContent');
 
@@ -141,27 +141,35 @@ export const getSalePrice = (item: Node) => {
       const variants = content.get('variants');
       const size = variants.size();
       if (variants.type !== Type.ARRAY || size === 0) {
-        return 0;
+        return DEFAULT_MONEY_NODE;
       }
-      let salePrice: number | null = null;
+      let saleNode: Node | undefined;
+      let salePrice: Decimal | undefined;
       for (let i = 0; i < size; i++) {
-        const variant = variants.get(i);
-        const price = variant.get('salePrice').asNumber();
-        if (isTruthy(variant.get('onSale')) && (salePrice === null || price < salePrice)) {
-          salePrice = price;
+        const v = variants.get(i);
+        const priceMoney = v.path(['salePriceMoney']);
+        const price = getAmountFromMoneyNode(priceMoney);
+        if (isTruthy(v.path(['onSale']))) {
+          if (!saleNode) {
+            saleNode = priceMoney;
+            salePrice = price;
+          } else if (price && salePrice && price.compare(salePrice) < 0) {
+            saleNode = priceMoney;
+            salePrice = price;
+          }
         }
       }
-      return salePrice === null ? 0 : salePrice;
+      return salePrice ? saleNode : DEFAULT_MONEY_NODE;
     }
 
     case ProductType.DIGITAL: {
-      const cents = content.get('salePriceCents');
-      return cents.isMissing() ? 0 : cents.asNumber();
+      const money = content.path(['salePriceMoney']);
+      return money.isMissing() ? DEFAULT_MONEY_NODE : money;
     }
 
     case ProductType.GIFT_CARD:
     default:
-      return 0;
+      return DEFAULT_MONEY_NODE;
   }
 };
 
