@@ -154,7 +154,7 @@ export class GetFormatter extends Formatter {
 
         const resolved: (number | string)[] =
           node.type === Type.ARRAY ? (node.value as (number | string)[]) :
-          node.type === Type.NUMBER ? [node.asNumber()] : [node.asString()];
+            node.type === Type.NUMBER ? [node.asNumber()] : [node.asString()];
 
         tmp = tmp.path(resolved);
       }
@@ -337,7 +337,15 @@ export class SmartyPantsFormatter extends Formatter {
 export class StrFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
-    first.set(first.node.asString());
+    switch (first.node.type) {
+      case Type.OBJECT:
+      case Type.ARRAY:
+        first.set('');
+        break;
+      default:
+        first.set(first.node.asString());
+        break;
+    }
   }
 }
 

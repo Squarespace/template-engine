@@ -376,7 +376,7 @@ test('prop', () => {
   Core.prop.apply(['bar', 'quux'], vars, CTX);
   expect(vars[0].get()).toEqual(null);
 
-  vars = variables({ });
+  vars = variables({});
   Core.prop.apply(['foo', 'bar'], vars, CTX);
   expect(vars[0].get()).toEqual(null);
 });
@@ -448,9 +448,13 @@ test('smartypants', () => {
 });
 
 test('str', () => {
-  const vars = variables(123.4);
+  let vars = variables(123.4);
   Core.str.apply([], vars, CTX);
   expect(vars[0].get()).toEqual('123.4');
+
+  vars = variables({ foo: 1 });
+  Core.str.apply([], vars, CTX);
+  expect(vars[0].get()).toEqual('');
 });
 
 test('truncate', () => {
