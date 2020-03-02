@@ -34,6 +34,62 @@ export const getAltTextFromContentItem = (item: Node) => {
   return '';
 };
 
+export const humanizeDatePlural = (value: number, type: string) => {
+  let r = 'about ';
+  switch (type) {
+    case 'hour': {
+      if (value === 1) {
+        r += 'an hour';
+      } else {
+        r += `${value} ${type}s`;
+      }
+      break;
+    }
+
+    default:
+      if (value === 1) {
+        r += `a ${type}`;
+      } else {
+        r += `${value} ${type}s`;
+      }
+      break;
+  }
+  return r + ' ago';
+};
+
+export const humanizeDate = (delta: number, showSeconds: boolean) => {
+  delta /= 1000 | 0;
+  const days = delta / 86400 | 0;
+  const years = days / 365 | 0;
+  if (years > 0) {
+    return humanizeDatePlural(years, 'year');
+  }
+  const months = days / 30 | 0;
+  if (months > 0) {
+    return humanizeDatePlural(months, 'month');
+  }
+  const weeks = days / 7 | 0;
+  if (weeks > 0) {
+    return humanizeDatePlural(weeks, 'week');
+  }
+  if (days > 0) {
+    return humanizeDatePlural(days, 'day');
+  }
+  delta -= (days * 86400);
+  const hours = delta / 3600 | 0;
+  if (hours > 0) {
+    return humanizeDatePlural(hours, 'hour');
+  }
+  const mins = delta / 60 | 0;
+  if (mins > 0) {
+    return humanizeDatePlural(mins, 'minute');
+  }
+  if (showSeconds) {
+    return humanizeDatePlural(delta, 'second');
+  }
+  return 'less than a minute ago';
+};
+
 export const isLicensedAssetPreview = (image: Node) => {
   return image.path(['licensedAssetPreview']).type === Type.OBJECT;
 };

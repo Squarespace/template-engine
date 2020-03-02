@@ -10,7 +10,6 @@ import { isOnSale, isSoldOut } from './util.commerce';
 import {
   getAltTextFromContentItem,
   getFocalPoint,
-  isLicensedAssetPreview,
   outputImageMeta,
   splitDimensions
 } from './util.content';

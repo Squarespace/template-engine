@@ -240,35 +240,65 @@ test('timesince', () => {
   let e: number;
 
   e = start.add({ millis: 100 }).unixEpoch();
-  expect(formatTimeSince(EN, base, e, args)).toEqual('Now');
-  expect(formatTimeSince(DE, base, e, args)).toEqual('Jetzt');
-  expect(formatTimeSince(ES, base, e, args)).toEqual('Ahora');
+  expect(formatTimeSince(EN, base, e, args)).toEqual('less than a minute ago');
 
   e = start.add({ year: -1.6 }).unixEpoch();
-  expect(formatTimeSince(EN, base, e, args)).toEqual('2 years ago');
-  expect(formatTimeSince(DE, base, e, args)).toEqual('Vor 2 Jahren');
-  expect(formatTimeSince(ES, base, e, args)).toEqual('Hace 2 años');
+  expect(formatTimeSince(EN, base, e, args)).toEqual('about a year ago');
 
   e = start.add({ month: -6 }).unixEpoch();
-  expect(formatTimeSince(EN, base, e, args)).toEqual('6 months ago');
-  expect(formatTimeSince(DE, base, e, args)).toEqual('Vor 6 Monaten');
-  expect(formatTimeSince(ES, base, e, args)).toEqual('Hace 6 meses');
+  expect(formatTimeSince(EN, base, e, args)).toEqual('about 6 months ago');
 
   e = start.add({ day: -27 }).unixEpoch();
-  expect(formatTimeSince(EN, base, e, args)).toEqual('4 weeks ago');
-  expect(formatTimeSince(DE, base, e, args)).toEqual('Vor 4 Wochen');
-  expect(formatTimeSince(ES, base, e, args)).toEqual('Hace 4 semanas');
+  expect(formatTimeSince(EN, base, e, args)).toEqual('about 3 weeks ago');
 
   e = start.add({ hour: -27 }).unixEpoch();
-  expect(formatTimeSince(EN, base, e, args)).toEqual('Yesterday');
-  expect(formatTimeSince(DE, base, e, args)).toEqual('Gestern');
-  expect(formatTimeSince(ES, base, e, args)).toEqual('Ayer');
+  expect(formatTimeSince(EN, base, e, args)).toEqual('about a day ago');
 
   e = start.add({ minute: -27 }).unixEpoch();
-  expect(formatTimeSince(EN, base, e, args)).toEqual('27 minutes ago');
-  expect(formatTimeSince(DE, base, e, args)).toEqual('Vor 27 Minuten');
-  expect(formatTimeSince(ES, base, e, args)).toEqual('Hace 27 minutos');
+  expect(formatTimeSince(EN, base, e, args)).toEqual('about 27 minutes ago');
 
   // Undefined cldr produces empty output
   expect(formatTimeSince(undefined, base, e, args)).toEqual('');
+
 });
+
+// TODO
+// test('relative time', () => {
+//   const base = new Date();
+//   const start = EN.Calendars.toGregorianDate(base);
+//   const args: string[] = [];
+//   let e: number;
+
+//   e = start.add({ millis: 100 }).unixEpoch();
+//   expect(formatTimeSince(EN, base, e, args)).toEqual('Now');
+//   expect(formatTimeSince(DE, base, e, args)).toEqual('Jetzt');
+//   expect(formatTimeSince(ES, base, e, args)).toEqual('Ahora');
+
+//   e = start.add({ year: -1.6 }).unixEpoch();
+//   expect(formatTimeSince(EN, base, e, args)).toEqual('2 years ago');
+//   expect(formatTimeSince(DE, base, e, args)).toEqual('Vor 2 Jahren');
+//   expect(formatTimeSince(ES, base, e, args)).toEqual('Hace 2 años');
+
+//   e = start.add({ month: -6 }).unixEpoch();
+//   expect(formatTimeSince(EN, base, e, args)).toEqual('6 months ago');
+//   expect(formatTimeSince(DE, base, e, args)).toEqual('Vor 6 Monaten');
+//   expect(formatTimeSince(ES, base, e, args)).toEqual('Hace 6 meses');
+
+//   e = start.add({ day: -27 }).unixEpoch();
+//   expect(formatTimeSince(EN, base, e, args)).toEqual('4 weeks ago');
+//   expect(formatTimeSince(DE, base, e, args)).toEqual('Vor 4 Wochen');
+//   expect(formatTimeSince(ES, base, e, args)).toEqual('Hace 4 semanas');
+
+//   e = start.add({ hour: -27 }).unixEpoch();
+//   expect(formatTimeSince(EN, base, e, args)).toEqual('Yesterday');
+//   expect(formatTimeSince(DE, base, e, args)).toEqual('Gestern');
+//   expect(formatTimeSince(ES, base, e, args)).toEqual('Ayer');
+
+//   e = start.add({ minute: -27 }).unixEpoch();
+//   expect(formatTimeSince(EN, base, e, args)).toEqual('27 minutes ago');
+//   expect(formatTimeSince(DE, base, e, args)).toEqual('Vor 27 Minuten');
+//   expect(formatTimeSince(ES, base, e, args)).toEqual('Hace 27 minutos');
+
+//   // Undefined cldr produces empty output
+//   expect(formatTimeSince(undefined, base, e, args)).toEqual('');
+// });

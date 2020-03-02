@@ -14,6 +14,7 @@ import {
   intervalOptions
 } from './options';
 import { splitVariable } from '../util';
+import { humanizeDate } from './util.content';
 
 export class DatetimeFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
@@ -195,13 +196,9 @@ export class TimeSinceFormatter extends Formatter {
     const now = cldr.Calendars.toGregorianDate(this.NOW || new Date());
     const date = cldr.Calendars.toGregorianDate({ date: n });
 
-    // TODO: parse arguments
-    const opts: RelativeTimeFormatOptions = {
-      context: 'begin-sentence'
-    };
-
-    const s = cldr.Calendars.formatRelativeTime(now, date, opts);
-    first.set(s);
+    const delta = now.unixEpoch() - date.unixEpoch();
+    const res = humanizeDate(delta, false);
+    first.set(res);
   }
 }
 
