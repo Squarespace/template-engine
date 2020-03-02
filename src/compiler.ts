@@ -12,7 +12,7 @@ import { Matcher } from './matcher';
 
 const EMPTY_CODE: Code = [Opcode.ROOT, 1, [], Opcode.EOF];
 
-export interface CompilerProps extends EngineProps {}
+export interface CompilerProps extends EngineProps { }
 
 export type InjectsMap = { [path: string]: any };
 
@@ -22,6 +22,7 @@ export interface ExecuteProps {
   partials?: Partials;
   injects?: InjectsMap;
   cldr?: CLDR;
+  now?: number;
 }
 
 export interface ParseResult {
@@ -86,14 +87,14 @@ export class Compiler {
    */
   execute(props: ExecuteProps = DefaultExecuteProps): ExecuteResult {
     let code: string | Code = props.code;
-    const { cldr, json, partials, injects } = props;
+    const { cldr, now, json, partials, injects } = props;
     let errors: TemplateError[] = [];
 
     if (typeof code === 'string') {
       ({ code, errors } = this.parse(code));
     }
 
-    const ctx = new Context(json, { cldr, partials, injects });
+    const ctx = new Context(json, { cldr, now, partials, injects });
     ctx.parsefunc = (raw: string) => this.parse(raw);
     this.engine.execute(code, ctx);
 

@@ -181,9 +181,6 @@ export class MoneyFormatter extends Formatter {
 
 export class RelativeTimeFormatter extends Formatter {
 
-  // exposed only for testing
-  public NOW: Date | undefined;
-
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const { cldr } = ctx;
@@ -191,7 +188,7 @@ export class RelativeTimeFormatter extends Formatter {
       first.set('');
       return;
     }
-    let s = (this.NOW || new Date()).getTime();
+    let s = ctx.now === undefined ? new Date().getTime() : ctx.now;
     let e = first.node.asNumber();
     if (vars.length > 1) {
       s = e;
@@ -212,9 +209,6 @@ export class RelativeTimeFormatter extends Formatter {
 
 export class TimeSinceFormatter extends Formatter {
 
-  // exposed only for testing
-  public NOW: Date | undefined;
-
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const n = first.node.asNumber();
@@ -223,10 +217,11 @@ export class TimeSinceFormatter extends Formatter {
       first.set('');
       return;
     }
-    const now = cldr.Calendars.toGregorianDate(this.NOW || new Date());
+    const now = ctx.now === undefined ? new Date().getDate() : ctx.now;
+    const base = cldr.Calendars.toGregorianDate({ date: now });
     const date = cldr.Calendars.toGregorianDate({ date: n });
 
-    const delta = now.unixEpoch() - date.unixEpoch();
+    const delta = base.unixEpoch() - date.unixEpoch();
     const res = humanizeDate(delta, false);
     first.set(res);
   }

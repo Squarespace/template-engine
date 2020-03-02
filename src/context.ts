@@ -20,6 +20,8 @@ export interface ContextProps {
   partials?: Partials;
   injects?: any;
   cldr?: CLDR;
+  // Override the 'now' timestamp
+  now?: number;
 }
 
 type ParseFunc = (s: string) => { code: Code, errors: TemplateError[] };
@@ -39,9 +41,10 @@ export class Context {
   public version: number;
   public engine: ContextEngineRef | null;
   public parsefunc: ParseFunc | null;
-  public errors: any[];
-  public cldr?: CLDR;
-  public formatter?: MessageFormats;
+  readonly errors: any[];
+  readonly cldr?: CLDR;
+  readonly now?: number;
+  readonly formatter?: MessageFormats;
 
   private locale?: any;
   private partials: Partials;
@@ -61,13 +64,13 @@ export class Context {
     this.locale = props.locale;
     this.partials = props.partials || {};
     this.injects = props.injects || {};
+    this.now = props.now;
 
     // Instance of @phensley/cldr interface CLDR providing cldr-based formatting for
     // a given locale. It is the caller's responsibility to set this. If not
     // set you will experience partial functionality. All @phensley/cldr-based
     // formatters will return '' and predicates will evaluate to false.
     this.cldr = props.cldr;
-
     // If i18n is enabled, define the message formatter
     if (this.cldr) {
       this.formatter = new MessageFormats(this.cldr);

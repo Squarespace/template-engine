@@ -68,22 +68,14 @@ const formatInterval = (cldr: CLDR | undefined, start: number, end: number, zone
 
 const formatRelativeTime = (cldr: CLDR | undefined, start: number | undefined, vars: Variable[], args: string[]) => {
   const impl = TABLE['relative-time'] as RelativeTimeFormatter;
-  if (start) {
-    impl.NOW = new Date(start);
-  }
-  const ctx = new Context({}, { cldr });
+  const ctx = new Context({}, { cldr, now: start });
   impl.apply(args, vars, ctx);
   return vars[0].get();
 };
 
-const formatTimeSince = (cldr: CLDR | undefined, start: Date | undefined, end: number, args: string[]) => {
+const formatTimeSince = (cldr: CLDR | undefined, start: number | undefined, end: number, args: string[]) => {
   const impl = TABLE.timesince as TimeSinceFormatter;
-  // 'timesince' formatter computes relative to now, so use a special
-  // property on the formatter to set "now"
-  if (start) {
-    impl.NOW = start;
-  }
-  const ctx = new Context({}, { cldr });
+  const ctx = new Context({}, { cldr, now: start });
   const vars = variables(end);
   impl.apply(args, vars, ctx);
   return vars[0].get();
@@ -249,6 +241,10 @@ test('message', () => {
   expect(formatMessage(EN, '{0 datetime}', args, ctx)).toEqual('');
 });
 
+pathseq('f-relative-time-%N.html', 1).forEach(path => {
+  test(`relative time - ${path}`, () => loader.execute(path));
+});
+
 test('relative time', () => {
   const base = new Date().getTime();
   const start = EN.Calendars.toGregorianDate({ date: base });
@@ -308,8 +304,8 @@ test('relative time', () => {
 });
 
 test('timesince', () => {
-  const base = new Date();
-  const start = EN.Calendars.toGregorianDate(base);
+  const base = new Date().getTime();
+  const start = EN.Calendars.toGregorianDate({ date: base });
   const args: string[] = [];
   let e: number;
 
