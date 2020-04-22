@@ -16,7 +16,6 @@ export type Partials = { [name: string]: string | RootCode };
 type ParsedPartials = { [name: string]: Code };
 
 export interface ContextProps {
-  locale?: any;
   partials?: Partials;
   injects?: any;
   cldr?: CLDR;
@@ -46,7 +45,6 @@ export class Context {
   readonly now?: number;
   readonly formatter?: MessageFormats;
 
-  private locale?: any;
   private partials: Partials;
   private injects: any;
   private buf: string;
@@ -61,7 +59,6 @@ export class Context {
       node = this.newNode(node);
     }
 
-    this.locale = props.locale;
     this.partials = props.partials || {};
     this.injects = props.injects || {};
     this.now = props.now;
