@@ -37,9 +37,6 @@
     "@phensley/timezone": "^1.1.1",
     "utf8": "^3.0.0"
   },
-  "peerDependencies": {
-    "@phensley/cldr-core": "^1.1.1"
-  },
   "devDependencies": {
     "@phensley/cldr": "^1.1.0",
     "@types/jest": "^25.2.1",
