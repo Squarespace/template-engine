@@ -2,7 +2,7 @@
   [6, "@quantityLabel", [["localizedStrings", "productQuantityInputLabel"]], 0],
   [0, "\n\n<div class=\"product-quantity-input\" data-item-id=\""],
   [1, [["id"]], 0],
-  [0, "\">\n  <div class=\"quantity-label\">"],
+  [0, "\" data-animation-role=\"content\">\n  <div class=\"quantity-label\">"],
   [8, [], [["@quantityLabel"]], [
       [1, [["@quantityLabel"]], 0]
     ], [7, 0, 0, [

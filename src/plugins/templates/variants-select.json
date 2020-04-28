@@ -18,7 +18,7 @@
           [1, [["@subscriptionPlan"]], [["json"], ["htmltag"]]],
           [0, "\""]
         ], 3],
-      [0, ">"],
+      [0, " data-animation-role=\"content\">"],
       [4, ["options"], [
           [0, "\n    <div class=\"variant-option\">\n    <div class=\"variant-option-title\">"],
           [1, [["name"]], 0],
