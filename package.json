@@ -38,10 +38,14 @@
     "utf8": "^3.0.0"
   },
   "peerDependencies": {
-    "@phensley/cldr": "^1.1.2"
+    "@phensley/cldr": "^1.1.2",
+    "@phensley/cldr-core": "^1.1.2"
   },
   "peerDependenciesMeta": {
     "@phensley/cldr": {
+      "optional": true
+    },
+    "@phensley/cldr-core": {
       "optional": true
     }
   },
