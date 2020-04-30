@@ -45,14 +45,14 @@ export class Context {
   readonly now?: number;
   readonly formatter?: MessageFormats;
 
-  private partials: Partials;
-  private injects: any;
-  private buf: string;
-  private stack: Frame[];
-  private partialsDepth: number;
-  private maxPartialDepth: number;
-  private partialsExecuting: Set<string>;
-  private parsedPartials: ParsedPartials;
+  protected partials: Partials;
+  protected injects: any;
+  protected buf: string;
+  protected stack: Frame[];
+  protected partialsDepth: number;
+  protected maxPartialDepth: number;
+  protected partialsExecuting: Set<string>;
+  protected parsedPartials: ParsedPartials;
 
   constructor(node: Node | any, props: ContextProps = {}) {
     if (!(node instanceof Node)) {
