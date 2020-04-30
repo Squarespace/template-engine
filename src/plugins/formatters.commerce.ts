@@ -303,13 +303,12 @@ export class VariantsSelectFormatter extends Formatter {
     let text = '';
 
     // TODO: still need to implement message formatting in typescript compiler
-    const fallback = 'Select Value';
+    let fallback = 'Select Value';
     if (productType === ProductType.GIFT_CARD) {
       text = ctx.resolve(['localizedStrings', 'giftCardVariantSelectText']).asString();
-      // fallback = 'Select Value';
     } else {
       text = ctx.resolve(['localizedStrings', 'productVariantSelectText']).asString();
-      // fallback = 'Select {variantName}';
+      fallback = 'Select {variantName}';
     }
     return stringutil.defaultIfEmpty(text, fallback);
   }
