@@ -1,20 +1,36 @@
 [17, 1, [
-  [0, "<div class=\"product-price\">\n  "],
+  [6, "@originalPriceText", [["localizedStrings", "originalPriceText"]], 0],
+  [0, "\n"],
+  [6, "@salePriceText", [["localizedStrings", "salePriceText"]], 0],
+  [0, "\n\n<div class=\"product-price\">\n"],
   [8, [], [["formattedFromPrice"]], [
       [1, [["fromText"]], [["message", [["fromPrice:formattedFromPrice", "price:formattedFromPrice", "billingPeriodValue:billingPeriodValue", "duration:duration"], " "]]]],
-      [0, "\n  "]
+      [0, "\n"]
     ], [7, 0, 0, [
       [8, [], [["formattedSalePrice"]], [
+          [0, "<span class=\"visually-hidden v6-visually-hidden\">"],
+          [8, [], [["@salePriceText"]], [
+              [1, [["@salePriceText"]], [["htmltag"]]]
+            ], [7, 0, 0, [
+              [0, "Sale Price:"]
+            ], 3]],
+          [0, "</span>"],
           [1, [["formattedSalePriceText"]], [["message", [["price:formattedSalePrice", "billingPeriodValue:billingPeriodValue", "duration:duration"], " "]]]],
           15,
-          [0, "<span class=\"original-price\">"],
+          [0, "<span class=\"visually-hidden v6-visually-hidden\">"],
+          [8, [], [["@originalPriceText"]], [
+              [1, [["@originalPriceText"]], [["htmltag"]]]
+            ], [7, 0, 0, [
+              [0, "Original Price:"]
+            ], 3]],
+          [0, "</span><span class=\"original-price\">"],
           [1, [["formattedNormalPriceText"]], [["message", [["price:formattedNormalPrice", "billingPeriodValue:billingPeriodValue", "duration:duration"], " "]]]],
-          [0, "</span>\n  "]
+          [0, "</span>\n"]
         ], [7, 0, 0, [
           [8, [], [["formattedNormalPrice"]], [
               [1, [["formattedNormalPriceText"]], [["message", [["price:formattedNormalPrice", "billingPeriodValue:billingPeriodValue", "duration:duration"], " "]]]]
             ], 3]
         ], 3]]
     ], 3]],
-  [0, "\n  </div>"]
+  [0, "\n</div>"]
 ], 18]
