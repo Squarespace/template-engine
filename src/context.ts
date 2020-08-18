@@ -1,6 +1,11 @@
 import { CLDR } from '@phensley/cldr-core';
 
-import { partialParseFail, partialRecursion, partialSelfRecursion, TemplateError } from './errors';
+import {
+  partialParseFail,
+  partialRecursion,
+  partialSelfRecursion,
+  TemplateError,
+} from './errors';
 import { Frame } from './frame';
 import { MISSING_NODE, Node } from './node';
 import { Opcode } from './opcodes';
@@ -23,7 +28,7 @@ export interface ContextProps {
   now?: number;
 }
 
-type ParseFunc = (s: string) => { code: Code, errors: TemplateError[] };
+type ParseFunc = (s: string) => { code: Code; errors: TemplateError[] };
 
 const NULL_TEMPLATE: RootCode = [Opcode.ROOT, 1, [], Opcode.EOF];
 
@@ -36,7 +41,6 @@ export interface ContextEngineRef {
  * Context for a single template execution.
  */
 export class Context {
-
   public version: number;
   public engine: ContextEngineRef | null;
   public parsefunc: ParseFunc | null;
@@ -97,10 +101,6 @@ export class Context {
   }
 
   enterPartial(name: string): boolean {
-    if (this.partialsExecuting.has(name)) {
-      this.error(partialSelfRecursion(name));
-      return false;
-    }
     this.partialsExecuting.add(name);
     this.partialsDepth++;
     if (this.partialsDepth > this.maxPartialDepth) {
@@ -195,7 +195,6 @@ export class Context {
         break;
       }
     }
-
   }
 
   /**
@@ -317,7 +316,9 @@ export class Context {
     // the assembler is valid, this should never happen. Treat as a severe error.
     // If can (of course) occur when compiling a hand-created invalid instruction tree.
     if (this.stack.length === 0) {
-      throw new Error('Too many Context.pop() calls, attempt to pop the root frame!!!');
+      throw new Error(
+        'Too many Context.pop() calls, attempt to pop the root frame!!!'
+      );
     }
   }
 
@@ -429,5 +430,4 @@ export class Context {
     }
     return frame.node.get(name);
   }
-
 }
