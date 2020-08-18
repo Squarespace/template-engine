@@ -8,6 +8,7 @@ import {
   splitVariable,
   stringCompare,
 } from '../src/util';
+import { removeTags } from '../src/plugins/util.string';
 
 test('variable splitting', () => {
   expect(splitVariable('@')).toEqual(['@']);
@@ -71,7 +72,9 @@ test('deep equals', () => {
   expect(deepEquals(o, o)).toEqual(true);
   expect(deepEquals(o, { a: 1, b: [3, { c: false }, null] })).toEqual(false);
   expect(deepEquals(o, { a: 1 })).toEqual(false);
-  expect(deepEquals(o, { a: 1, b: [2, { c: false }, null], d: 3 })).toEqual(false);
+  expect(deepEquals(o, { a: 1, b: [2, { c: false }, null], d: 3 })).toEqual(
+    false
+  );
   expect(deepEquals(o, { a: 1, b: [] })).toEqual(false);
 
   o = { a: { b: { c: { d: 789 } } } };
@@ -81,7 +84,7 @@ test('deep equals', () => {
   const common = { x: { y: 123 } };
   o = { a: { b: common } };
   expect(deepEquals(o, o)).toEqual(true);
-  expect(deepEquals(o, { a: { b: common } } )).toEqual(true);
+  expect(deepEquals(o, { a: { b: common } })).toEqual(true);
 
   // refrerence cycle
   o = { a: { b: null } };
@@ -110,10 +113,10 @@ test('deep merge', () => {
   let obj: any = { c: 'nothing' };
   let result = deepMerge(obj, foo, bar);
   expect(result).toEqual({
-    a: { b: 1, c: [ 1, 2, 3 ] },
+    a: { b: 1, c: [1, 2, 3] },
     b: 3.14159,
     c: 'nothing',
-    d: { e: 'hello, world' }
+    d: { e: 'hello, world' },
   });
 
   obj = { a: 1, b: 2, c: 3 };
@@ -126,7 +129,7 @@ test('deep merge', () => {
     a: 1,
     b: 3.14159,
     c: 3,
-    d: { e: 'hello, world' }
+    d: { e: 'hello, world' },
   });
 });
 
@@ -135,4 +138,10 @@ test('deep copy', () => {
   const bar = deepCopy(foo);
   expect(foo).toEqual(bar);
   expect(foo).not.toBe(bar);
+});
+
+test('remove tags', () => {
+  const src = '<b>bold</b><div><i>italics</i></div>';
+  const dst = removeTags(src);
+  expect(dst).toEqual(' bold   italics  ');
 });

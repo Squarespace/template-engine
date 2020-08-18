@@ -10,16 +10,17 @@ export const removeTags = (str: string) => {
   for (let i = 0; i < len; i++) {
     const ch = str[i];
     switch (ch) {
-    case '<':
-      intag = true;
-      break;
-    case '>':
-      intag = false;
-      break;
-    default:
-      if (!intag) {
-        res += ch;
-      }
+      case '<':
+        intag = true;
+        break;
+      case '>':
+        intag = false;
+        res += ' ';
+        break;
+      default:
+        if (!intag) {
+          res += ch;
+        }
     }
   }
   return res;
@@ -29,7 +30,7 @@ const HTML_ATTRIBUTE_CHARS = {
   '&': '&amp;',
   '<': '&lt;',
   '>': '&gt;',
-  '"': '&quot;'
+  '"': '&quot;',
 };
 
 export const escapeHtmlAttributes = (str: string) => {
@@ -48,12 +49,16 @@ export const slugify = (str: string) => {
 const SCRIPT_TAG = /<\//g;
 
 export const escapeScriptTags = (str: string) => {
-  return str.replace(SCRIPT_TAG, '<\\\/');
+  return str.replace(SCRIPT_TAG, '<\\/');
 };
 
 const ELLIPSIS = '...';
 
-export const truncate = (str: string, maxLen: number, ellipsis: string = ELLIPSIS) => {
+export const truncate = (
+  str: string,
+  maxLen: number,
+  ellipsis: string = ELLIPSIS
+) => {
   if (str.length <= maxLen) {
     return str;
   }
@@ -61,7 +66,14 @@ export const truncate = (str: string, maxLen: number, ellipsis: string = ELLIPSI
   let end = maxLen;
   for (let i = maxLen - 1; i >= 0; i--) {
     const ch = str[i];
-    if (ch === ' ' || ch === '\n' || ch === '\t' || ch === '\u000b' || ch === '\r' || ch === '\f') {
+    if (
+      ch === ' ' ||
+      ch === '\n' ||
+      ch === '\t' ||
+      ch === '\u000b' ||
+      ch === '\r' ||
+      ch === '\f'
+    ) {
       end = i + 1;
       break;
     }

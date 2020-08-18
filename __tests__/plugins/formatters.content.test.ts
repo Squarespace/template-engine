@@ -20,7 +20,7 @@ test('AbsUrl', () => {
   expect(vars[0].get()).toEqual('https://www.squarespace.com/foo/bar');
 });
 
-pathseq('f-audio-player-%N.html', 1).forEach(path => {
+pathseq('f-audio-player-%N.html', 1).forEach((path) => {
   test(`audio-player - ${path}`, () => loader.execute(path));
 });
 
@@ -34,8 +34,7 @@ test('capitalize', () => {
 test('child image meta', () => {
   const impl = TABLE['child-image-meta'];
 
-  const image = IMAGE
-    .focalPoint(0.3, 0.7)
+  const image = IMAGE.focalPoint(0.3, 0.7)
     .title('foo')
     .originalSize('500x200')
     .set({ foo: 1 }, 'licensedAssetPreview')
@@ -51,33 +50,25 @@ test('child image meta', () => {
   expect(vars[0].get()).toContain('alt="foo"');
 
   vars = variables({
-    items: [
-      image.title('').get()
-    ]
+    items: [image.title('').get()],
   });
   impl.apply([], vars, CTX);
   expect(vars[0].get()).toContain('alt=""');
 
   vars = variables({
-    items: [
-      image.title('').set('bar', 'body').get()
-    ]
+    items: [image.title('').set('bar', 'body').get()],
   });
   impl.apply([], vars, CTX);
   expect(vars[0].get()).toContain('alt="bar"');
 
   vars = variables({
-    items: [
-      image.title('').set('baz', 'filename').get()
-    ]
+    items: [image.title('').set('baz', 'filename').get()],
   });
   impl.apply([], vars, CTX);
   expect(vars[0].get()).toContain('alt="baz"');
 
   vars = variables({
-    items: [
-      image.set(undefined, 'mediaFocalPoint').get()
-    ]
+    items: [image.set(undefined, 'mediaFocalPoint').get()],
   });
   impl.apply([], vars, CTX);
   expect(vars[0].get()).toContain('data-image-focal-point="0.5,0.5"');
@@ -87,11 +78,14 @@ test('child image meta', () => {
   expect(vars[0].get()).toEqual('');
 });
 
+pathseq('f-child-image-meta-%N.html', 6).forEach((path) => {
+  test(`child image meta - ${path}`, () => loader.execute(path));
+});
+
 test('cover image meta', () => {
   const impl = TABLE['cover-image-meta'];
 
-  const image = IMAGE
-    .focalPoint(0.3, 0.7)
+  const image = IMAGE.focalPoint(0.3, 0.7)
     .title('foo')
     .originalSize('500x200')
     .set({ foo: 1 }, 'licensedAssetPreview')
@@ -154,23 +148,23 @@ test('height', () => {
   expect(vars[0].node).toBe(MISSING_NODE);
 });
 
-pathseq('f-humanize-duration-%N.html', 1).forEach(path => {
+pathseq('f-humanize-duration-%N.html', 1).forEach((path) => {
   test(`humanize duration - ${path}`, () => loader.execute(path));
 });
 
-pathseq('f-image-%N.html', 4).forEach(path => {
+pathseq('f-image-%N.html', 4).forEach((path) => {
   test(`image - ${path}`, () => loader.execute(path));
 });
 
-pathseq('f-image-srcset-%N.html', 1).forEach(path => {
+pathseq('f-image-srcset-%N.html', 1).forEach((path) => {
   test(`image srcset - ${path}`, () => loader.execute(path));
 });
 
-pathseq('f-image-color-%N.html', 5).forEach(path => {
+pathseq('f-image-color-%N.html', 5).forEach((path) => {
   test(`image color - ${path}`, () => loader.execute(path));
 });
 
-pathseq('f-item-classes-%N.html', 3).forEach(path => {
+pathseq('f-item-classes-%N.html', 3).forEach((path) => {
   test(`item classes - ${path}`, () => loader.execute(path));
 });
 
@@ -181,7 +175,7 @@ test('resize height for width', () => {
     { input: '1200x2400', arg: '600', expected: 1200 },
   ];
 
-  cases.forEach(c => {
+  cases.forEach((c) => {
     const vars = variables(c.input);
     impl.apply([c.arg], vars, CTX);
     expect(vars[0].get()).toEqual(c.expected);
@@ -195,7 +189,7 @@ test('resize width for height', () => {
     { input: '1200x2400', arg: '600', expected: 300 },
   ];
 
-  cases.forEach(c => {
+  cases.forEach((c) => {
     const vars = variables(c.input);
     impl.apply([c.arg], vars, CTX);
     expect(vars[0].get()).toEqual(c.expected);
@@ -213,7 +207,7 @@ test('squarespace thumbnail for width', () => {
     { arg: '1100', expected: '1500w' },
   ];
 
-  cases.forEach(c => {
+  cases.forEach((c) => {
     const vars = variables('100x200');
     impl.apply([c.arg], vars, CTX);
     expect(vars[0].get()).toEqual(c.expected);
@@ -225,17 +219,21 @@ test('squarespace thumbnail for height', () => {
   const cases = [
     { input: '100x200', arg: '50', expected: '100w' },
     { input: '1200x2400', arg: '600', expected: '300w' },
-    { input: '1200', arg: '600', expected: "Invalid source parameter. Pass in 'originalSize'" },
+    {
+      input: '1200',
+      arg: '600',
+      expected: "Invalid source parameter. Pass in 'originalSize'",
+    },
   ];
 
-  cases.forEach(c => {
+  cases.forEach((c) => {
     const vars = variables(c.input);
     impl.apply([c.arg], vars, CTX);
     expect(vars[0].get()).toEqual(c.expected);
   });
 });
 
-pathseq('f-video-%N.html', 3).forEach(path => {
+pathseq('f-video-%N.html', 3).forEach((path) => {
   test(`video - ${path}`, () => loader.execute(path));
 });
 
