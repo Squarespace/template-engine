@@ -51,7 +51,7 @@ const parseArgs = () => {
     const m2 = match(next);
     if (m1) {
       const key = m1[1];
-      const val = m2 ? true : (i++ , next || true);
+      const val = m2 ? true : (i++, next || true);
       args[key] = val;
     } else {
       args._.push(arg);
@@ -112,6 +112,11 @@ const main = () => {
 
   const { ctx } = compiler.execute({ cldr, code, json, partials });
   console.log(ctx.render());
+  if (ctx.errors) {
+    for (const err of ctx.errors) {
+      process.stderr.write(err.message + '\n');
+    }
+  }
 };
 
 parseArgs();
