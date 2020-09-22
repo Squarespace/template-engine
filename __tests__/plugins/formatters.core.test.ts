@@ -99,7 +99,8 @@ test('apply self recursion', () => {
   engine.execute(inst, ctx);
   expect(ctx.errors.length).toEqual(1);
   expect(ctx.errors[0].type).toEqual('engine');
-  expect(ctx.errors[0].message).toContain('Recursion into self');
+  // self-recursion is now allowed but limited to max recursion depth
+  expect(ctx.errors[0].message).toContain('exceeded maximum recursion depth');
 });
 
 test('apply max recursion depth', () => {

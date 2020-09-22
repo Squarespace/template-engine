@@ -60,7 +60,7 @@ test('compiler mixed partials raw/parsed recursion error', () => {
   const { ctx, errors } = compiler.execute({ code, json, partials });
   expect(errors.length).toEqual(1);
   expect(errors[0].type).toEqual('engine');
-  expect(errors[0].message).toContain('Recursion into self');
+  expect(errors[0].message).toContain('exceeded maximum recursion depth');
 });
 
 test('compiler raw partials', () => {
