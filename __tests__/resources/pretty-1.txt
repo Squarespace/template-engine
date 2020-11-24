@@ -8,6 +8,7 @@ never called.
 {bar.0.baz.1.quux}
 {.section foo}{.end}
 {.section person}
+{.eval @a = 3 * a.b.c; @a * 7}
 {@|apply person.html}
 {.end}
 {.ctx @foo a=bar.baz b=baz.biz}
@@ -31,6 +32,8 @@ never called.
   [2, ["foo"], [], 3],
   [0, "\n"],
   [2, ["person"], [
+      [0, "\n"],
+      [23, "@a = 3 * a.b.c; @a * 7"],
       [0, "\n"],
       [1, [["@"]], [["apply", [["person.html"], " "]]]],
       [0, "\n"]

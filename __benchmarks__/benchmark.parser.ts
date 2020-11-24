@@ -1,5 +1,5 @@
 import { makeSuite, pad } from './util';
-import { Compiler, Parser } from '../src';
+import { Compiler, Parser, StickyMatcher } from '../src';
 import { Sink } from '../src/sink';
 import { Opcode } from '../src/opcodes';
 import { Instruction } from '../src/instructions';
@@ -20,14 +20,31 @@ const nullSink = new DummySink();
 const iterations = [1, 4, 16, 64, 256, 1024, 4096];
 const padding = 32;
 
+const MATCHER = new StickyMatcher('');
+let base: string;
 
-let base = pad(padding, 'fooooooooooooooooooooo', 'x');
+base = pad(padding, '{.eval 17.5 * max(-2, 3) == "a"}', 'x');
+iterations.forEach(n => {
+  const source = repeat(n, base);
+  const desc = `- eval ${n} (${source.length} chars)`;
+
+  parseSuite.add(`parse ${desc}`, () => {
+    const parser = new Parser(source, nullSink, MATCHER);
+    parser.parse();
+  });
+
+  assembleSuite.add(`parse + assemble ${desc}`, () => {
+    compiler.parse(source);
+  });
+});
+
+base = pad(padding, 'fooooooooooooooooooooo', 'x');
 iterations.forEach(n => {
   const source = repeat(n, base);
   const desc = `- text ${n} (${source.length} chars)`;
 
   parseSuite.add(`parse ${desc}`, () => {
-    const parser = new Parser(source, nullSink);
+    const parser = new Parser(source, nullSink, MATCHER);
     parser.parse();
   });
 
@@ -43,7 +60,7 @@ iterations.forEach(n => {
   const desc = `- text + var ${n} (${source.length} chars)`;
 
   parseSuite.add(`parse ${desc}`, () => {
-    const parser = new Parser(source, nullSink);
+    const parser = new Parser(source, nullSink, MATCHER);
     parser.parse();
   });
 
@@ -59,7 +76,7 @@ iterations.forEach(n => {
   const desc = `- vars ${n} (${source.length} chars)`;
 
   parseSuite.add(`parse ${desc}`, () => {
-    const parser = new Parser(source, nullSink);
+    const parser = new Parser(source, nullSink, MATCHER);
     parser.parse();
   });
 
@@ -75,7 +92,7 @@ iterations.forEach(n => {
   const desc = `- section ${n} (${source.length} chars)`;
 
   parseSuite.add(`parse ${desc}`, () => {
-    const parser = new Parser(source, nullSink);
+    const parser = new Parser(source, nullSink, MATCHER);
     parser.parse();
   });
 
@@ -91,7 +108,7 @@ iterations.forEach(n => {
   const desc = `- repeated ${n} (${source.length} chars)`;
 
   parseSuite.add(`parse ${desc}`, () => {
-    const parser = new Parser(source, nullSink);
+    const parser = new Parser(source, nullSink, MATCHER);
     parser.parse();
   });
 
@@ -107,7 +124,7 @@ iterations.forEach(n => {
   const desc = `- bindvar ${n} (${source.length} chars)`;
 
   parseSuite.add(`parse ${desc}`, () => {
-    const parser = new Parser(source, nullSink);
+    const parser = new Parser(source, nullSink, MATCHER);
     parser.parse();
   });
 

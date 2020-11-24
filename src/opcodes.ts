@@ -30,7 +30,10 @@ export enum Opcode {
   ATOM = 21,
 
   // Composite context variable instruction
-  CTXVAR = 22
+  CTXVAR = 22,
+
+  // Evaluate expression
+  EVAL = 23
 }
 
 const NAMES = {
@@ -57,7 +60,8 @@ const NAMES = {
   [Opcode.ALTERNATES_WITH]: 'ALTERNATES_WITH',
   [Opcode.STRUCT]: 'STRUCT',
   [Opcode.ATOM]: 'ATOM',
-  [Opcode.CTXVAR]: 'CTXVAR'
+  [Opcode.CTXVAR]: 'CTXVAR',
+  [Opcode.EVAL]: 'EVAL',
 };
 
 export const nameOfOpcode = (opcode: Opcode) => {

@@ -134,6 +134,43 @@ test('ctxvar', () => {
   expect(code).toEqual([O.ROOT, 1, [[O.TEXT, '{.ctx @foo a=b c=d.}']], O.EOF]);
 });
 
+test('eval', () => {
+  let { code } = parse('{.eval}');
+  expect(code).toEqual([O.ROOT, 1, [
+    [O.TEXT, '{.eval}']
+  ], O.EOF]);
+
+  ({ code } = parse('{.eval1}'));
+  expect(code).toEqual([O.ROOT, 1, [
+    [O.TEXT, '{.eval1}']
+  ], O.EOF]);
+
+  ({ code } = parse('{.eval }'));
+  expect(code).toEqual([O.ROOT, 1, [
+    [O.EVAL, ''],
+  ], O.EOF]);
+
+  ({ code } = parse('{.eval @foo}'));
+  expect(code).toEqual([O.ROOT, 1, [
+    [O.EVAL, '@foo'],
+  ], O.EOF]);
+
+  ({ code } = parse('{.eval 1 + 2 ; }'));
+  expect(code).toEqual([O.ROOT, 1, [
+    [O.EVAL, '1 + 2 ; '],
+  ], O.EOF]);
+
+  ({ code } = parse('{.eval @foo ='));
+  expect(code).toEqual([O.ROOT, 1, [
+    [O.TEXT, '{.eval @foo ='],
+  ], O.EOF]);
+
+  ({ code } = parse('{.eval \n @foo = 1 ; \n @foo}'));
+  expect(code).toEqual([O.ROOT, 1, [
+    [O.EVAL, '@foo = 1 ; \n @foo'],
+  ], O.EOF]);
+});
+
 test('if', () => {
   let { code } = parse('{.if a.b}A{.end}');
   expect(code).toEqual([O.ROOT, 1, [

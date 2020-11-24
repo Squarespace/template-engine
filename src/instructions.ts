@@ -50,6 +50,13 @@ export interface CtxvarCode {
   [2]: Binding[];
 }
 
+export interface EvalCode {
+  [0]: Opcode.EVAL;
+  [1]: string;
+  // Property to store parsed expression during evaluation.
+  expr?: any;
+}
+
 export interface IfCode {
   [0]: Opcode.IF;
   [1]: Operator[];
@@ -131,6 +138,7 @@ export type Code =
   | BindvarCode
   | CommentCode
   | CtxvarCode
+  | EvalCode
   | IfCode
   | InjectCode
   | MacroCode
@@ -216,6 +224,13 @@ export class Comment extends BaseInstruction {
 export class Ctxvar extends BaseInstruction {
   constructor(name: string, bindings: Binding[]) {
     super(Opcode.CTXVAR, [Opcode.CTXVAR, name, bindings]);
+  }
+}
+
+export class EvalInst extends BaseInstruction {
+  cached: any; // cache the parsed expression
+  constructor(code: string) {
+    super(Opcode.EVAL, [Opcode.EVAL, code]);
   }
 }
 

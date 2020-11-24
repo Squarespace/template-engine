@@ -12,24 +12,17 @@ import {
 
 // Table for fast mapping of instructions to their opcodes.
 const INSTRUCTIONS: { [x: string]: (string | Opcode)[] } = {
-  a: ['lternates with', Opcode.ALTERNATES_WITH],
-  c: ['tx', Opcode.CTXVAR],
-  e: ['nd', Opcode.END, 'of', Opcode.EOF],
-  i: ['f', Opcode.IF, 'nject', Opcode.INJECT],
-  m: [
-    'acro',
-    Opcode.MACRO,
-    'eta-left',
-    Opcode.META_LEFT,
-    'eta-right',
-    Opcode.META_RIGHT,
-  ],
-  n: ['ewline', Opcode.NEWLINE],
-  o: ['r', Opcode.OR_PREDICATE],
-  r: ['epeated section', Opcode.REPEATED],
-  s: ['ection', Opcode.SECTION, 'pace', Opcode.SPACE],
-  t: ['ab', Opcode.TAB],
-  v: ['ar', Opcode.BINDVAR],
+  'a': ['lternates with', Opcode.ALTERNATES_WITH],
+  'c': ['tx', Opcode.CTXVAR],
+  'e': ['nd', Opcode.END, 'of', Opcode.EOF, 'val', Opcode.EVAL],
+  'i': ['f', Opcode.IF, 'nject', Opcode.INJECT],
+  'm': ['acro', Opcode.MACRO, 'eta-left', Opcode.META_LEFT, 'eta-right', Opcode.META_RIGHT],
+  'n': ['ewline', Opcode.NEWLINE],
+  'o': ['r', Opcode.OR_PREDICATE],
+  'r': ['epeated section', Opcode.REPEATED],
+  's': ['ection', Opcode.SECTION, 'pace', Opcode.SPACE],
+  't': ['ab', Opcode.TAB],
+  'v': ['ar', Opcode.BINDVAR]
 };
 
 export type RegExpCompiler = (s: string) => RegExp;
@@ -98,11 +91,34 @@ export class Matcher implements MatcherProps {
   }
 
   /**
+   * Position of the match pointer.
+   */
+  pos(): number {
+    return this.start;
+  }
+
+  /**
    * Set the range to match over.
    */
   set(start: number, end: number): void {
     this.start = start;
     this.end = end;
+  }
+
+  /**
+   * Seek forward until we find the matched character.
+   */
+  seekTo(ch: string): string | null {
+    let i = this.start;
+    let j = this.end;
+    while (i <= j) {
+      if (this.str[i] === ch) {
+        this.end = i;
+        return this.str.substr(this.start, i - this.start);
+      }
+      i++;
+    }
+    return null;
   }
 
   /**
@@ -168,7 +184,6 @@ export class Matcher implements MatcherProps {
    * Match one or more variable bindings.
    */
   matchBindings(): any {
-    // TODO:
     const bindings = [];
     let start = this.start;
     for (;;) {

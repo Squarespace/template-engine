@@ -13,6 +13,7 @@ import { Type } from './types';
 import { Variable } from './variable';
 import { Code, RootCode } from './instructions';
 import { MessageFormats } from './plugins/messages';
+import { ExprOptions } from './math';
 
 const DEFAULT_MAX_PARTIAL_DEPTH = 16;
 
@@ -20,12 +21,41 @@ export type Partials = { [name: string]: string | RootCode };
 
 type ParsedPartials = { [name: string]: Code };
 
+/**
+ * Options to configure an execution of the compiler.
+ */
 export interface ContextProps {
+
+  /**
+   * Partial template mapping.
+   */
   partials?: Partials;
+
+  /**
+   * Injectable objects.
+   */
   injects?: any;
+
+  /**
+   * Enable the i18n features and use the given locale.
+   */
   cldr?: CLDR;
-  // Override the 'now' timestamp
+
+  /**
+   * Override for the 'now' timestamp. All datetime operations will be
+   * relative to this value.
+   */
   now?: number;
+
+  /**
+   * Explicitly enable the {.expr} instruction.
+   */
+  enableExpr?: boolean;
+
+  /**
+   * Options to configure the expression engine
+   */
+  exprOpts?: ExprOptions;
 }
 
 type ParseFunc = (s: string) => { code: Code; errors: TemplateError[] };
@@ -47,6 +77,8 @@ export class Context {
   readonly errors: any[];
   readonly cldr?: CLDR;
   readonly now?: number;
+  readonly enableExpr?: boolean;
+  readonly exprOpts?: ExprOptions;
   readonly formatter?: MessageFormats;
 
   protected partials: Partials;
@@ -66,6 +98,8 @@ export class Context {
     this.partials = props.partials || {};
     this.injects = props.injects || {};
     this.now = props.now;
+    this.enableExpr = props.enableExpr;
+    this.exprOpts = props.exprOpts;
 
     // Instance of @phensley/cldr interface CLDR providing cldr-based formatting for
     // a given locale. It is the caller's responsibility to set this. If not
@@ -172,12 +206,18 @@ export class Context {
    * Emit a variable into the output.
    */
   emit(vars: Variable[]): void {
-    const first = vars[0].node!;
-    switch (first.type) {
+    this.emitNode(vars[0].node!);
+  }
+
+  /**
+   * Emit a node into the output.
+   */
+  emitNode(node: Node): void {
+    switch (node.type) {
       case Type.NUMBER:
       case Type.STRING:
       case Type.BOOLEAN:
-        this.append(first.value);
+        this.append(node.value);
         break;
 
       case Type.NULL:
@@ -185,7 +225,7 @@ export class Context {
         break;
 
       case Type.ARRAY: {
-        const arr = first.value;
+        const arr = node.value;
         for (let i = 0; i < arr.length; i++) {
           if (i > 0) {
             this.append(',');
