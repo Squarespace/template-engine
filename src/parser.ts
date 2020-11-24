@@ -5,6 +5,7 @@ import {
   Bindvar,
   Comment,
   Ctxvar,
+  EvalInst,
   FormatterCall,
   If,
   Inject,
@@ -130,6 +131,9 @@ export class Parser {
     case Opcode.CTXVAR:
       return this.parseCtxvar();
 
+    case Opcode.EVAL:
+      return this.parseEval();
+
     case Opcode.IF:
       return this.parseIf();
 
@@ -227,6 +231,29 @@ export class Parser {
 
     this.push(new Ctxvar(definition, bindings));
     return true;
+  }
+
+  /**
+   * Parse an EVAL instruction. Example:
+   *
+   *  {.eval @foo = 1 + 2 ; @bar = 3 * @index0 ; @foo + @bar}
+   */
+  parseEval(): boolean {
+    const m = this.matcher;
+
+    if (!m.matchWhitespace()) {
+      return false;
+    }
+    m.consume();
+
+    // We interpret the expression at runtime so just scan to the closing brace.
+    const code = m.seekTo('}');
+    if (code !== null) {
+      this.push(new EvalInst(code));
+      m.consume();
+      return true;
+    }
+    return false;
   }
 
   /**

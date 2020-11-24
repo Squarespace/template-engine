@@ -6,6 +6,7 @@ import { Formatters, Predicates } from '../src/plugins';
 import { Opcode as O } from '../src/opcodes';
 import { TemplateTestLoader } from './loader';
 import { AtomCode, Code, StructCode } from '../src/instructions';
+import { ContextProps } from '../src/context';
 
 const loader = new TemplateTestLoader(join(__dirname, 'resources'));
 const newEngine = () => new Engine({ formatters: Formatters, predicates: Predicates });
@@ -111,6 +112,25 @@ test('variables missing formatters', () => {
 
 pathseq('variables-%N.html', 1).forEach(path => {
   test(`variables - ${path}`, () => loader.execute(path));
+});
+
+test('eval', () => {
+  const engine = newEngine();
+  const opts: ContextProps = { enableExpr: true };
+  let inst: Code = [O.ROOT, 1, [
+    [O.EVAL, 'a.b + 2']
+  ], O.EOF];
+  let ctx = new Context({ a: { b: 1 }}, opts);
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('3');
+
+  // error
+  inst = [O.ROOT, 1, [
+    [O.EVAL, '"\\u"']
+  ], O.EOF];
+  ctx = new Context({}, opts);
+  engine.execute(inst, ctx);
+  expect(ctx.errors[0].message).toContain('unicode escape');
 });
 
 test('section', () => {

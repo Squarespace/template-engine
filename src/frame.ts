@@ -32,6 +32,13 @@ export class Frame {
   }
 
   /**
+   * Returns the map containing the local variables for this frame.
+   */
+  getVars(): Map<string, Node> | undefined {
+    return this.variables;
+  }
+
+  /**
    * Adds a macro to this frame.
    */
   setMacro(name: string, inst: Code): void {

@@ -9,6 +9,7 @@ import { Parser } from './parser';
 import { Code } from './instructions';
 import { Formatters, Predicates } from './plugins';
 import { Matcher, MatcherImpl } from './matcher';
+import { ExprOptions } from './math';
 
 const EMPTY_CODE: Code = [Opcode.ROOT, 1, [], Opcode.EOF];
 
@@ -23,6 +24,8 @@ export interface ExecuteProps {
   injects?: InjectsMap;
   cldr?: CLDR;
   now?: number;
+  enableExpr?: boolean;
+  exprOpts?: ExprOptions;
 }
 
 export interface ParseResult {
@@ -87,14 +90,14 @@ export class Compiler {
    */
   execute(props: ExecuteProps = DefaultExecuteProps): ExecuteResult {
     let code: string | Code = props.code;
-    const { cldr, now, json, partials, injects } = props;
+    const { cldr, now, json, partials, injects, enableExpr, exprOpts } = props;
     let errors: TemplateError[] = [];
 
     if (typeof code === 'string') {
       ({ code, errors } = this.parse(code));
     }
 
-    const ctx = new Context(json, { cldr, now, partials, injects });
+    const ctx = new Context(json, { cldr, now, partials, injects, enableExpr, exprOpts });
     ctx.parsefunc = (raw: string) => this.parse(raw);
     this.engine.execute(code, ctx);
 

@@ -9,9 +9,21 @@ const compiler = new Compiler();
 
 const iterations = [1, 4, 16, 64, 256, 1024, 4096];
 const padding = 32;
+let base: string;
 
+base = pad(padding, '{.eval 17.5 * max(-2, 3) == "a"}', 'x');
+iterations.forEach(n => {
+  const source = repeat(n, base);
+  const desc = `- eval ${n} (${source.length} chars)`;
+  const { code } = compiler.parse(source);
+  const json = { a: 'hello' };
 
-let base = pad(padding, 'fooooooooooooooooooooo', 'x');
+  executeSuite.add(`execute ${desc}`, () => {
+    compiler.execute({ code, json, enableExpr: true });
+  });
+});
+
+base = pad(padding, 'fooooooooooooooooooooo', 'x');
 iterations.forEach(n => {
   const source = repeat(n, base);
   const desc = `- text ${n} (${source.length} chars)`;
@@ -22,7 +34,6 @@ iterations.forEach(n => {
     compiler.execute({ code, json });
   });
 });
-
 
 base = pad(padding, 'fooooooooooooooooooooo{a}', 'x');
 iterations.forEach(n => {

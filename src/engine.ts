@@ -5,6 +5,7 @@ import {
   Code,
   CtxvarCode,
   FormatterCall,
+  EvalCode,
   IfCode,
   InjectCode,
   MacroCode,
@@ -16,10 +17,11 @@ import {
   TextCode,
   VariableCode,
 } from './instructions';
-import { unexpectedError } from './errors';
+import { expressionParse, expressionReduce, unexpectedError } from './errors';
 import { Variable } from './variable';
 import { Formatter, PredicatePlugin } from './plugin';
 import { isTruthy } from './node';
+import { Expr } from './math';
 
 export type FormatterMap = { [x: string]: Formatter };
 export type PredicateMap = { [x: string]: PredicatePlugin };
@@ -76,6 +78,7 @@ export class Engine {
       (inst, ctx) => this.executeBlock((inst as StructCode)[2], ctx), // STRUCT
       null, // ATOM
       this.executeCtxvar, // CTXVAR
+      this.executeEval, // EVAL
     ];
   }
 
@@ -251,6 +254,81 @@ export class Engine {
     }
     const variable = ctx.newVariable(name, ctx.newNode(bindings));
     ctx.setVar(name, variable);
+  }
+
+  /**
+   * Eval instruction
+   *
+   * inst[1]  - string expression to evaluate
+   */
+  executeEval(inst: EvalCode, ctx: Context): void {
+    // Refuse to evaluate the instruction if not explicitly enabled.
+    if (!ctx.enableExpr) {
+      return;
+    }
+
+    // Raw expression to be parsed and evaluated.
+    const raw = inst[1];
+
+    // Check if we have no yet parsed and cached the expression.
+    let expr: Expr = inst.expr;
+    if (!expr) {
+
+      // Construct the expression. This tokenizes the input.
+      expr = new Expr(raw, ctx.exprOpts);
+
+      // Build the expression. This assembles the expression in reverse
+      // polish notation so it can be evaluated later.
+      expr.build();
+
+      // Check if the expression has a parse error and emit it.
+      if (expr.errors.length) {
+        expr.errors.map(e => ctx.error(expressionParse(raw, e)));
+      }
+
+      // Cache the assembled expression
+      inst.expr = expr;
+    }
+
+    // Evaluate the expression against the current context and append any output.
+    // We only attempt to reduce the expression if there were no parse errors.
+    if (!expr.errors.length) {
+      // Track the error count to detect if reduce produces an error.
+      const errs = ctx.errors.length;
+
+      // Create a temporary stack frame. This will collect local variables created
+      // by the expression. If reducing the expression produces an error, the
+      // local variables created by the expression will be discarded.
+      ctx.pushNode(ctx.node());
+
+      // Reduce the expression
+      const r = expr.reduce(ctx);
+
+      // Collect all local variables created by the expression.
+      const vars = ctx.frame().getVars();
+
+      // Pop the temporary stack frame.
+      ctx.pop();
+
+      // If an error occurred during reduce we suppress the output. The temporary
+      // stack frame allows us to "undo" the effects of the evaluation, removing
+      // any local variables created by the invalid expression.
+      if (expr.errors.length === errs) {
+        // Reduce produced no errors, so retain the local variables.
+        if (vars) {
+          // Copy the local variables to the stack frame.
+          const frame = ctx.frame();
+          vars.forEach((v, k) => {
+            frame.setVar(k, v);
+          });
+        }
+
+        // If the expression produced immediate output, emit it.
+        if (r) {
+          ctx.emitNode(r);
+        }
+      }
+    }
   }
 
   /**
