@@ -1,9 +1,10 @@
 import { Assembler } from '../src/assembler';
-import { matcherImpl, Parser } from '../src/parser';
+import { Parser } from '../src/parser';
+import { MatcherImpl } from '../src/matcher';
 import { ReferenceScanner } from '../src/scan';
 import { Formatters, Predicates } from '../src/plugins';
 
-const MATCHER = new matcherImpl('');
+const MATCHER = new MatcherImpl('');
 
 const parse = (str: string) => {
   const assembler = new Assembler();

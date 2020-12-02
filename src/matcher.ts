@@ -3,20 +3,33 @@ import { Opcode } from './opcodes';
 import * as patterns from './patterns';
 import { Arguments, FormatterCall, Operator } from './instructions';
 import { splitVariable } from './util';
+import {
+  hasStickyRegexp,
+  MatcherProps,
+  GlobalMatcherMixin,
+  StickyMatcherMixin,
+} from './matchers';
 
 // Table for fast mapping of instructions to their opcodes.
 const INSTRUCTIONS: { [x: string]: (string | Opcode)[] } = {
-  'a': ['lternates with', Opcode.ALTERNATES_WITH],
-  'c': ['tx', Opcode.CTXVAR],
-  'e': ['nd', Opcode.END, 'of', Opcode.EOF],
-  'i': ['f', Opcode.IF, 'nject', Opcode.INJECT],
-  'm': ['acro', Opcode.MACRO, 'eta-left', Opcode.META_LEFT, 'eta-right', Opcode.META_RIGHT],
-  'n': ['ewline', Opcode.NEWLINE],
-  'o': ['r', Opcode.OR_PREDICATE],
-  'r': ['epeated section', Opcode.REPEATED],
-  's': ['ection', Opcode.SECTION, 'pace', Opcode.SPACE],
-  't': ['ab', Opcode.TAB],
-  'v': ['ar', Opcode.BINDVAR]
+  a: ['lternates with', Opcode.ALTERNATES_WITH],
+  c: ['tx', Opcode.CTXVAR],
+  e: ['nd', Opcode.END, 'of', Opcode.EOF],
+  i: ['f', Opcode.IF, 'nject', Opcode.INJECT],
+  m: [
+    'acro',
+    Opcode.MACRO,
+    'eta-left',
+    Opcode.META_LEFT,
+    'eta-right',
+    Opcode.META_RIGHT,
+  ],
+  n: ['ewline', Opcode.NEWLINE],
+  o: ['r', Opcode.OR_PREDICATE],
+  r: ['epeated section', Opcode.REPEATED],
+  s: ['ection', Opcode.SECTION, 'pace', Opcode.SPACE],
+  t: ['ab', Opcode.TAB],
+  v: ['ar', Opcode.BINDVAR],
 };
 
 export type RegExpCompiler = (s: string) => RegExp;
@@ -30,11 +43,10 @@ const compileSticky = (s: string) => new RegExp(s, 'y');
 /**
  * Helper for low-level pattern matching over a range of characters.
  */
-export class Matcher {
-
-  private start: number = 0;
-  protected end: number = 0;
-  protected matchEnd: number = 0;
+export class Matcher implements MatcherProps {
+  start: number = 0;
+  end: number = 0;
+  matchEnd: number = 0;
 
   private filePath: RegExp;
   private formatterArgs: RegExp;
@@ -47,10 +59,7 @@ export class Matcher {
   private whitespace: RegExp;
   private word: RegExp;
 
-  constructor(
-    protected str: string,
-    compile: RegExpCompiler = compileSticky) {
-
+  constructor(public str: string, compile: RegExpCompiler = compileSticky) {
     // Private copies of patterns, since we set RegExp.lastIndex to match
     // at string offsets.
     this.filePath = compile(patterns.filePath);
@@ -63,6 +72,25 @@ export class Matcher {
     this.variableSeparator = compile(patterns.variableSeparator);
     this.whitespace = compile(patterns.whitespace);
     this.word = compile(patterns.word);
+  }
+
+  /**
+   * Override by mixin.
+   */
+  compile(s: string): RegExp {
+    return (null as unknown) as RegExp;
+  }
+  /**
+   * Overridden by mixin.
+   */
+  match(pattern: RegExp, start: number): string | null {
+    return null;
+  }
+  /**
+   * Overridden by mixin.
+   */
+  test(pattern: RegExp, start: number): boolean {
+    return false;
   }
 
   init(str: string): void {
@@ -139,7 +167,8 @@ export class Matcher {
   /**
    * Match one or more variable bindings.
    */
-  matchBindings(): any { // TODO:
+  matchBindings(): any {
+    // TODO:
     const bindings = [];
     let start = this.start;
     for (;;) {
@@ -267,7 +296,6 @@ export class Matcher {
         const args: Arguments = [rawArgs.slice(1).split(delim), delim];
         result.push([formatter, args]);
         start = this.matchEnd;
-
       } else {
         // Append formatter with no arguments.
         result.push([formatter]);
@@ -343,27 +371,9 @@ export class Matcher {
   matchWhitespace(): boolean {
     return this.test(this.whitespace, this.start);
   }
-
-  /**
-   * Attempt to match a pattern. If the pattern matches, set the matchEnd
-   * pointer and return the matched string. Otherwise return null.
-   */
-  match(pattern: RegExp, start: number): string | null {
-    pattern.lastIndex = start;
-    const raw = pattern.exec(this.str);
-    if (raw !== null) {
-      this.matchEnd = pattern.lastIndex;
-      return raw[0];
-    }
-    return null;
-  }
-
-  test(pattern: RegExp, start: number): boolean {
-    pattern.lastIndex = start;
-    if (pattern.test(this.str)) {
-      this.matchEnd = pattern.lastIndex;
-      return true;
-    }
-    return false;
-  }
 }
+
+export class GlobalMatcher extends GlobalMatcherMixin(Matcher) {}
+export class StickyMatcher extends StickyMatcherMixin(Matcher) {}
+
+export const MatcherImpl = hasStickyRegexp ? StickyMatcher : GlobalMatcher;

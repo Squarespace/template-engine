@@ -1,5 +1,4 @@
 import { Matcher } from './matcher';
-import { SlowMatcher } from './slowmatcher';
 import { Sink } from './sink';
 import { FAST_NULL, Instruction } from './instructions';
 import {
@@ -22,21 +21,6 @@ import { formatterUnknown, predicateUnknown } from './errors';
 import { FormatterTable, PredicateTable } from './plugin';
 
 type ParserState = () => ParserState | null;
-
-/* Check if the current JS runtime supports sticky RegExp flag. */
-const hasStickyRegexp = (() => {
-  try {
-    const r = new RegExp('.', 'y');
-    return r && true;
-  } catch (e) {
-    return false;
-  }
-})();
-
-/** Switch our matcher implementation */
-export const matcherImpl = hasStickyRegexp ? Matcher : SlowMatcher;
-
-type MatcherCons = new (s: string) => Matcher;
 
 /**
  * Parse a template and send instructions to the given sink.

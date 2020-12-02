@@ -1,11 +1,12 @@
 import { Assembler } from '../src/assembler';
 import { Context } from '../src/context';
 import { Engine } from '../src/engine';
-import { matcherImpl, Parser } from '../src/parser';
+import { Parser } from '../src/parser';
+import { MatcherImpl } from '../src/matcher';
 import { Opcode as O } from '../src/opcodes';
 import { Formatters, Predicates } from '../src/plugins';
 
-const MATCHER = new matcherImpl('');
+const MATCHER = new MatcherImpl('');
 
 const parse = (str: string) => {
   const assembler = new Assembler();
