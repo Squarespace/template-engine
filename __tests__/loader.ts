@@ -4,7 +4,8 @@ import { framework } from './cldr';
 
 import { Assembler } from '../src/assembler';
 import { Compiler } from '../src/compiler';
-import { matcherImpl, Parser } from '../src/parser';
+import { Parser } from '../src/parser';
+import { MatcherImpl } from '../src/matcher';
 import { Code } from '../src/instructions';
 import { Formatters, Predicates } from '../src/plugins';
 
@@ -74,7 +75,7 @@ export class TestLoader {
  */
 export const parseTemplate = (str: string) => {
   const assembler = new Assembler();
-  const matcher = new matcherImpl('');
+  const matcher = new MatcherImpl('');
   const parser = new Parser(str, assembler, matcher, Formatters, Predicates);
   parser.parse();
   const errors = assembler.errors;

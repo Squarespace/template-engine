@@ -1,11 +1,11 @@
 import { Assembler } from '../src/assembler';
-import { Matcher } from '../src/matcher';
-import { matcherImpl, Parser } from '../src/parser';
+import { Matcher, MatcherImpl } from '../src/matcher';
+import { Parser } from '../src/parser';
 import { Opcode as O } from '../src/opcodes';
 import { Sink } from '../src/sink';
 import { Formatters, Predicates } from '../src/plugins';
 
-const MATCHER = new matcherImpl('');
+const MATCHER = new MatcherImpl('');
 
 const parse = (str: string) => {
   const assembler = new Assembler();

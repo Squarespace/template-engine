@@ -1,5 +1,4 @@
-import { Matcher } from '../src/matcher';
-import { SlowMatcher } from '../src/slowmatcher';
+import { GlobalMatcher, Matcher, StickyMatcher } from '../src/matcher';
 
 import { Opcode } from '../src/opcodes';
 
@@ -18,7 +17,7 @@ type Methods =
   | 'matchVariables'
   | 'matchFormatters';
 
-type matcher = new(s: string) => Matcher | SlowMatcher;
+type matcher = new(s: string) => StickyMatcher | GlobalMatcher;
 
 const matcher = (impl: matcher, method: Methods) => {
   return (str: string, start: number = 0): any => {
@@ -32,8 +31,8 @@ const matcher = (impl: matcher, method: Methods) => {
 };
 
 const MATCHERS = [
-  { name: 'fast', impl: Matcher },
-  { name: 'slow', impl: SlowMatcher }
+  { name: 'fast', impl: StickyMatcher },
+  { name: 'slow', impl: GlobalMatcher }
 ];
 
 for (const o of MATCHERS) {

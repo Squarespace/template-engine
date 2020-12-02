@@ -19,7 +19,6 @@ export * from './plugins';
 export * from './pretty';
 export * from './scan';
 export * from './sink';
-export * from './slowmatcher';
 export * from './types';
 export * from './util';
 export * from './variable';
