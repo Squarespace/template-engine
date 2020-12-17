@@ -303,6 +303,12 @@ test('numbers', () => {
   const c = context({});
   let e: Expr;
 
+  // decimal number must have a leading zero
+  expect(parse('0.1')).toEqual([num(0.1)]);
+
+  // trailing digit is unnecessary
+  expect(parse('1.')).toEqual([num(1)]);
+
   expect(reduce('0x01', c)).toEqual(new Node(0x01));
   expect(reduce('0x012345678', c)).toEqual(new Node(0x012345678));
   expect(reduce('0x111111111111111111111', c)).toEqual(
@@ -319,11 +325,22 @@ test('numbers', () => {
   expect(reduce('1e-20+1e20', c)).toEqual(new Node(1e20));
 
   // invalid number sequences
+
+  e = new Expr('.1');
+  expect(e.errors[0]).toContain('Unexpected char');
+
   e = new Expr('0x');
   expect(e.errors[0]).toContain('hex number');
 
+  e = new Expr('1..2');
+  expect(e.errors[0]).toContain('Duplicate decimal point');
+
   e = new Expr('0.0.0.');
-  expect(e.errors[0]).toContain('Unexpected character');
+  expect(e.errors[0]).toContain('Duplicate decimal point');
+
+  // decimal must not appear in the exponent.
+  e = new Expr('12e10.1');
+  expect(e.errors[0]).toContain('decimal point in exponent');
 
   e = new Expr('1e');
   expect(e.errors[0]).toContain('exponent');

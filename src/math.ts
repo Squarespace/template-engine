@@ -1194,7 +1194,7 @@ export class Expr {
           // check for a hexadecimal number prefix
           const hx = c0 === '0' && (c1 === 'x' || c1 === 'X');
           i = hx ? this.hex(str, i + 2, len) : this.decimal(str, i, len);
-          if (i === -1) {
+          if (i < 0) {
             // the hex / decimal parse methods emit errors, so no need to
             break loop;
           }
@@ -1349,11 +1349,21 @@ export class Expr {
    */
   decimal(str: string, i: number, len: number): number {
     const j = decimal(str, i, len);
-    if (j == -2) {
-      this.errors.push(`Expected a digit after exponent in decimal number`);
-      return -1;
+    switch (j) {
+      case -2:
+        this.errors.push(`Expected a digit after exponent in decimal number`);
+        break;
+      case -3:
+        this.errors.push(`Duplicate decimal point in number`);
+        break;
+      case -4:
+        this.errors.push(`Unexpected decimal point in exponent`);
+        break;
     }
 
+    if (j < 0) {
+      return -1;
+    }
     // no need to consider radix as numbers will always be in decimal
     const text = str.substring(i, j);
     this.push(num(parseFloat(text)));
@@ -1559,8 +1569,13 @@ const decimal = (str: string, i: number, len: number): number => {
       case '.':
         // decimal point can only occur once and cannot occur within the
         // exponent region
-        if (f & (NF.DOT | NF.E)) {
-          break loop;
+        if (f & NF.DOT) {
+          // repeated decimal point
+          return -3;
+        }
+        if (f & NF.E) {
+          // error, unexpected decimal point in exponent
+          return -4;
         }
         // we've seen a decimal point
         f |= NF.DOT;
