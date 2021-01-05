@@ -584,8 +584,33 @@ test('nesting', () => {
   expect(reduce('((1 + 2) * 3) ** 2', c)).toEqual(new Node(81));
 
   // errant right parens
-  expect(reduce('1 )', c)).toEqual(new Node(1));
+  expect(reduce('1 )', c)).toEqual(undefined);
   expect(reduce('1 + ) 2', c)).toEqual(undefined);
+});
+
+test('balanced parens', () => {
+  let c = context({});
+  let e: Expr;
+
+  e = new Expr('@foo = (1 + 2');
+  e.build();
+  expect(e.errors[0]).toContain('Mismatched');
+
+  e = new Expr('(1 + 2');
+  e.build();
+  expect(e.errors[0]).toContain('Mismatched');
+
+  e = new Expr('1 + 2)');
+  e.build();
+  expect(e.errors[0]).toContain('Mismatched');
+
+  e = new Expr('((1 + 2)');
+  e.build();
+  expect(e.errors[0]).toContain('Mismatched');
+
+  e = new Expr('(1 + 2))');
+  e.build();
+  expect(e.errors[0]).toContain('Mismatched');
 });
 
 test('shift', () => {

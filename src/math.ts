@@ -130,6 +130,7 @@ const E_INVALID_HEX = `Invalid 2-char hex escape found`;
 const E_INVALID_UNICODE = `Invalid unicode escape found`;
 // const E_INVALID_HEX_NUM = 'Invalid hex number sequence';
 // const E_INVALID_DEC_NUM = 'Invalid decimal number sequence';
+const E_MISMATCHED_OP = `Mismatched operator found: `;
 
 // Operator associativity
 export const enum Assoc {
@@ -694,7 +695,10 @@ const mul = (a: Token, b: Token): Token => num(asnum(a) * asnum(b));
 const matcher = new ExprMatcherImpl('');
 
 // Uncomment to debug tokens
-// const debug = (t: Token): string => {
+// const debug = (t: Token | undefined): string => {
+//   if (!t) {
+//     return 'undefined';
+//   }
 //   switch (t.type) {
 //     case ExprTokenType.BOOLEAN:
 //       return `bool(${t.value})`;
@@ -1056,10 +1060,13 @@ export class Expr {
                 out.push(ops.pop()!);
                 ({ top } = ops);
               }
-              // Eliminate the matching left parenthesis
-              if (top && top.value.type === OperatorType.LPRN) {
-                ops.pop();
+              // Ensure parenthesis are balanced.
+              if (!top || top.value.type !== OperatorType.LPRN) {
+                this.errors.push(`${E_MISMATCHED_OP} ${t.value.desc}`);
+                return;
               }
+
+              ops.pop();
               break;
             }
 
@@ -1163,7 +1170,17 @@ export class Expr {
    */
   private pushExpr(queue: Token[], ops: Stack<Token>): void {
     while (ops.length) {
-      queue.push(ops.pop()!);
+      const t = ops.pop()!;
+      // We detect unexpected operators here.
+      if (t.type === ExprTokenType.OPERATOR) {
+        switch (t.value.type) {
+          case OperatorType.LPRN:
+          case OperatorType.RPRN:
+            this.errors.push(`${E_MISMATCHED_OP} ${t.value.desc}`);
+            return;
+        }
+      }
+      queue.push(t);
     }
     if (queue.length) {
       this.expr.push(queue);
