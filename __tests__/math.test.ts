@@ -20,6 +20,7 @@ import {
   ASN,
   SEMI,
   SEQ,
+  VarToken,
   ExprOptions,
 } from '../src/math';
 import { splitVariable } from '../src/util';
@@ -43,7 +44,7 @@ const build = (s: string) => {
 const parse = (s: string) => new Expr(s).tokens.elems;
 
 const call = (value: string) => ({ type: ExprTokenType.CALL, value });
-const varn = (value: string) => ({
+const varn = (value: string): VarToken => ({
   type: ExprTokenType.VARIABLE,
   value: splitVariable(value),
 });
@@ -265,6 +266,26 @@ test('unsupported values', () => {
   expect(reduce('num(arr)', c)).toEqual(undefined);
   expect(reduce('str(arr)', c)).toEqual(undefined);
   expect(reduce('bool(arr)', c)).toEqual(undefined);
+});
+
+test('unsupported operators', () => {
+  let c: Context = new Context(new Node({}));
+  let e: Expr;
+
+  // Reduce invalid expressions to ensure that unexpected operators are caught
+  // during evaluation.
+
+  e = new Expr('');
+  e.reduceExpr(c, [num(1), num(2), SEMI]);
+  expect(e.errors[0]).toContain('Unexpected operator');
+
+  e = new Expr('');
+  e.reduceExpr(c, [num(1), num(2), LPRN]);
+  expect(e.errors[0]).toContain('Unexpected operator');
+
+  e = new Expr('');
+  e.reduceExpr(c, [varn('@foo'), num(1), num(2), ADD, LPRN, ASN]);
+  expect(e.errors[0]).toContain('Unexpected operator');
 });
 
 test('strings', () => {

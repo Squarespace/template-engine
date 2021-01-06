@@ -130,7 +130,8 @@ const E_INVALID_HEX = `Invalid 2-char hex escape found`;
 const E_INVALID_UNICODE = `Invalid unicode escape found`;
 // const E_INVALID_HEX_NUM = 'Invalid hex number sequence';
 // const E_INVALID_DEC_NUM = 'Invalid decimal number sequence';
-const E_MISMATCHED_OP = `Mismatched operator found: `;
+const E_MISMATCHED_OP = `Mismatched operator found:`;
+const E_UNEXPECTED_OPERATOR = `Unexpected operator found during evaluation:`;
 
 // Operator associativity
 export const enum Assoc {
@@ -695,7 +696,7 @@ const mul = (a: Token, b: Token): Token => num(asnum(a) * asnum(b));
 const matcher = new ExprMatcherImpl('');
 
 // Uncomment to debug tokens
-// const debug = (t: Token | undefined): string => {
+// export const debug = (t: Token | undefined): string => {
 //   if (!t) {
 //     return 'undefined';
 //   }
@@ -879,9 +880,8 @@ export class Expr {
           // Validate operator args are present and valid
           if (a === undefined || b === undefined) {
             // Invalid arguments to operator, bail out.
-            const op = OPERATORS[t.value.type].desc;
             ctx.error(
-              expressionReduce(this.raw, `Invalid arguments to operator ${op}`)
+              expressionReduce(this.raw, `Invalid arguments to operator ${t.value.desc}`)
             );
             break loop;
           }
@@ -974,7 +974,11 @@ export class Expr {
             case OperatorType.LOR:
               r = bool(asbool(a) || asbool(b));
               break;
-          }
+            default:
+              this.errors.push(`${E_UNEXPECTED_OPERATOR} ${t.value.desc}`);
+              stack.top = undefined;
+              break loop;
+            }
           stack.push(r!);
         }
       }
