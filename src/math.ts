@@ -1071,6 +1071,12 @@ export class Expr {
               }
 
               ops.pop();
+
+              // If a function call token preceeded the left parenthesis, pop it to the output
+              ({ top } = ops);
+              if (top && top.type === ExprTokenType.CALL) {
+                out.push(ops.pop()!);
+              }
               break;
             }
 

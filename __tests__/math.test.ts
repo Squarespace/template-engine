@@ -66,6 +66,12 @@ test('basics', () => {
   expect(build(e)).toEqual([]);
   expect(reduce(e, c)).toEqual(undefined);
 
+  // if no operators are applied, the result is the top of the RPN stack
+  e = '1 2 3 4 5'
+  expect(parse(e)).toEqual([num(1), num(2), num(3), num(4), num(5)]);
+  expect(build(e)).toEqual([[num(1), num(2), num(3), num(4), num(5)]]);
+  expect(reduce(e, c)).toEqual(new Node(5));
+
   e = '1+2';
   expect(parse(e)).toEqual([num(1), ADD, num(2)]);
   expect(build(e)).toEqual([[num(1), num(2), ADD]]);
@@ -793,6 +799,16 @@ test('function calls', () => {
 
   // missing nodes will reduce to null
   expect(reduce('missing', c)).toEqual(new Node(null));
+});
+
+test('function args boundary', () => {
+  const c = context({});
+
+  expect(build('max(1, 2) 123')).toEqual([[ARGS, num(1), num(2), call('max'), num(123)]]);
+  expect(reduce('max(1, 2) 123', c)).toEqual(new Node(123));
+
+  expect(build('max(2) 1')).toEqual([[ARGS, num(2), call('max'), num(1)]]);
+  expect(reduce('max(2) 1', c)).toEqual(new Node(1));
 });
 
 test('type conversions', () => {
