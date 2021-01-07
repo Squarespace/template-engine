@@ -325,13 +325,7 @@ export class Parser {
     // Note we do not skip spaces since the first char indicates
     // the delimiter.
     const args = m.matchArguments();
-    if (args !== null) {
-      m.consume();
-    }
-
-    if (!m.complete()) {
-      return false;
-    }
+    m.consume();
 
     this.push(new Inject(definition, path, args === null ? FAST_NULL : args));
     return true;

@@ -3,7 +3,6 @@ import {
   CLDR,
   Decimal,
   DefaultMessageArgConverter,
-  MessageArgConverter,
   MessageFormatter,
   MessageFormatterOptions,
   MessageFormatFuncMap,

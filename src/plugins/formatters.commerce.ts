@@ -11,7 +11,7 @@ import * as stringutil from './util.string';
 import { Type } from '../types';
 import { parseDecimal } from './util.i18n';
 
-import { DecimalFormatOptions } from '@phensley/cldr-core';
+// import { DecimalFormatOptions } from '@phensley/cldr-core';
 
 // Template imports
 import addToCartBtnTemplate from './templates/add-to-cart-btn.json';
@@ -79,8 +79,8 @@ export class CartQuantityFormatter extends Formatter {
 
 export class CartSubtotalFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
-    const first = vars[0];
-    const cents = first.node.get('subtotalCents').asNumber();
+    // const first = vars[0];
+    // const cents = first.node.get('subtotalCents').asNumber();
     // const text = `<span class="sqs-cart-subtotal">`;
     // TODO: writeMoneyString
   }

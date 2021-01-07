@@ -30,6 +30,12 @@ test('literals', () => {
   expect(ctx.render()).toEqual('\n\n{abc}\n \n\t');
 });
 
+test('coverage', () => {
+  const c = new Context({});
+  const engine = new Engine();
+  engine.executeBlock(undefined as any as Code[], c);
+});
+
 test('variables', () => {
   const engine = newEngine();
   const inst: Code = [O.ROOT, 1, [

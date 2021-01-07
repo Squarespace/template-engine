@@ -54,6 +54,11 @@ test('basic', () => {
   expect(r.variables).toEqual([{ 'foo.bar': null, foo: { bar: null }}]);
 });
 
+test('dupe names', () => {
+  const r = scan('{.section name}foo{.end}{.section name}bar{.end}');
+  expect(r.variables).toEqual([{name: {}}]);
+});
+
 test('unexpected', () => {
   const s = new ReferenceScanner();
   s.extract(undefined);

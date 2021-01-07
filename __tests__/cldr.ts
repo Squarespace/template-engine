@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import { join } from 'path';
-import * as zlib from 'zlib';
 
 import { CLDRFramework } from '@phensley/cldr';
 

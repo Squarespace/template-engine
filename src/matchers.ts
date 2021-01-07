@@ -6,6 +6,7 @@ export const hasStickyRegexp = (() => {
     const r = new RegExp('.', 'y');
     return r && true;
   } catch (e) {
+    /* istanbul ignore next */
     return false;
   }
 })();

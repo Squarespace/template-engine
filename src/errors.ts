@@ -83,8 +83,8 @@ export const partialParseFail = (name: string, msg: string) =>
 export const partialRecursion = (name: string, limit: number) =>
     engine(`Attempt to apply partial '${name}' exceeded maximum recursion depth of ${limit}`);
 
-export const partialSelfRecursion = (name: string) =>
-    engine(`Recursion into self while evaluating partial '${name}`);
+// export const partialSelfRecursion = (name: string) =>
+//     engine(`Recursion into self while evaluating partial '${name}`);
 
 // export const generalError = (name: string, msg: string) =>
 //     engine(`Default error ${name}: ${msg}`);

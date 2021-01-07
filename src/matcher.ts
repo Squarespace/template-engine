@@ -28,12 +28,6 @@ const INSTRUCTIONS: { [x: string]: (string | Opcode)[] } = {
 export type RegExpCompiler = (s: string) => RegExp;
 
 /**
- * Compile a regular expression with the sticky 'y' flag, which only
- * matches from the position indicated by RegExp.lastIndex.
- */
-const compileSticky = (s: string) => new RegExp(s, 'y');
-
-/**
  * Helper for low-level pattern matching over a range of characters.
  */
 export class Matcher implements MatcherProps {
@@ -52,37 +46,40 @@ export class Matcher implements MatcherProps {
   private whitespace: RegExp;
   private word: RegExp;
 
-  constructor(public str: string, compile: RegExpCompiler = compileSticky) {
+  constructor(public str: string) {
     // Private copies of patterns, since we set RegExp.lastIndex to match
     // at string offsets.
-    this.filePath = compile(patterns.filePath);
-    this.formatterArgs = compile(patterns.formatterArgs);
-    this.instructionArgs = compile(patterns.instructionArgs);
-    this.operator = compile(patterns.operator);
-    this.predicate = compile(patterns.predicate);
-    this.variableDefinition = compile(patterns.variableDefinition);
-    this.variableReference = compile(patterns.variableReference);
-    this.variableSeparator = compile(patterns.variableSeparator);
-    this.whitespace = compile(patterns.whitespace);
-    this.word = compile(patterns.word);
+    this.filePath = this.compile(patterns.filePath);
+    this.formatterArgs = this.compile(patterns.formatterArgs);
+    this.instructionArgs = this.compile(patterns.instructionArgs);
+    this.operator = this.compile(patterns.operator);
+    this.predicate = this.compile(patterns.predicate);
+    this.variableDefinition = this.compile(patterns.variableDefinition);
+    this.variableReference = this.compile(patterns.variableReference);
+    this.variableSeparator = this.compile(patterns.variableSeparator);
+    this.whitespace = this.compile(patterns.whitespace);
+    this.word = this.compile(patterns.word);
   }
 
   /**
-   * Override by mixin.
+   * Overridden by mixin.
    */
-  compile(s: string): RegExp {
-    return (null as unknown) as RegExp;
+  compile(str: string): RegExp {
+    /* istanbul ignore next */
+    return undefined as unknown as RegExp;
   }
   /**
    * Overridden by mixin.
    */
   match(pattern: RegExp, start: number): string | null {
+    /* istanbul ignore next */
     return null;
   }
   /**
    * Overridden by mixin.
    */
   test(pattern: RegExp, start: number): boolean {
+    /* istanbul ignore next */
     return false;
   }
 
@@ -110,7 +107,7 @@ export class Matcher implements MatcherProps {
    */
   seekTo(ch: string): string | null {
     let i = this.start;
-    let j = this.end;
+    const j = this.end;
     while (i <= j) {
       if (this.str[i] === ch) {
         this.end = i;
@@ -391,4 +388,5 @@ export class Matcher implements MatcherProps {
 export class GlobalMatcher extends GlobalMatcherMixin(Matcher) {}
 export class StickyMatcher extends StickyMatcherMixin(Matcher) {}
 
+/* istanbul ignore next */
 export const MatcherImpl = hasStickyRegexp ? StickyMatcher : GlobalMatcher;

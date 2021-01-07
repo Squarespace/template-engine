@@ -1,10 +1,11 @@
-import { GlobalMatcher, Matcher, StickyMatcher } from '../src/matcher';
+import { GlobalMatcher, StickyMatcher } from '../src/matcher';
 
 import { Opcode } from '../src/opcodes';
 
 /* eslint-disable no-loop-func */
 
 type Methods =
+  | 'pos'
   | 'matchArguments'
   | 'matchDefinition'
   | 'matchFilePath'
@@ -46,6 +47,28 @@ for (const o of MATCHERS) {
     expect(match('}foo}bar')).toEqual(null);
     expect(match('|abc|def')).toEqual([['abc', 'def'], '|']);
 
+  });
+}
+
+for (const o of MATCHERS) {
+  test(`${o.name} position`, () => {
+    const str = 'a   b';
+    const m = new o.impl(str);
+    m.set(0, str.length);
+    expect(m.pos()).toEqual(0);
+    expect(m.matchVariable()).toEqual(['a']);
+    m.consume();
+
+    expect(m.pos()).toEqual(1);
+
+    m.matchWhitespace();
+    m.consume();
+
+    expect(m.pos()).toEqual(4);
+
+    expect(m.matchVariable()).toEqual(['b']);
+    m.consume();
+    expect(m.pos()).toEqual(str.length);
   });
 }
 

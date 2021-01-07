@@ -57,7 +57,7 @@ test('compiler mixed partials raw/parsed recursion error', () => {
   const code = '{num|apply foo}';
   const json = { num: 123 };
   const compiler = new Compiler();
-  const { ctx, errors } = compiler.execute({ code, json, partials });
+  const { errors } = compiler.execute({ code, json, partials });
   expect(errors.length).toEqual(1);
   expect(errors[0].type).toEqual('engine');
   expect(errors[0].message).toContain('exceeded maximum recursion depth');

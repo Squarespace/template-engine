@@ -122,6 +122,8 @@ const enum NF {
 
 export class StickyExprMatcher extends StickyMatcherMixin(ExprMatcher) {}
 export class GlobalExprMatcher extends GlobalMatcherMixin(ExprMatcher) {}
+
+/* istanbul ignore next */
 export const ExprMatcherImpl = hasStickyRegexp
   ? StickyExprMatcher
   : GlobalExprMatcher;
@@ -398,7 +400,6 @@ const asnum = (t: Token): number => {
         return 0;
       }
       const len = t.value.length;
-      let hx = false;
       let j: number;
 
       let i = 0;
@@ -438,7 +439,7 @@ const asnum = (t: Token): number => {
       }
       // If the entire string is a valid decimal number, parse it. Otherwise
       // return a NaN.
-      return j == len ? parseFloat(t.value) : NaN;
+      return j === len ? parseFloat(t.value) : NaN;
     case ExprTokenType.BOOLEAN:
       return t.value ? 1 : 0;
     case ExprTokenType.NULL:
@@ -756,7 +757,7 @@ export class Expr {
   maxTokens: number;
   maxStringLen: number;
 
-  constructor(private raw: string, private opts: ExprOptions = {}) {
+  constructor(private raw: string, opts: ExprOptions = {}) {
     this.maxTokens = opts.maxTokens || 0;
     this.maxStringLen = opts.maxStringLen || 0;
     this.tokenize(raw, 0, raw.length);
@@ -843,8 +844,8 @@ export class Expr {
               continue;
             }
             case OperatorType.ASN: {
-              let b = asliteral(ctx, stack.pop());
-              let a = stack.pop();
+              const b = asliteral(ctx, stack.pop());
+              const a = stack.pop();
               // Make sure the arguments to the assignment are valid
               if (
                 a !== undefined &&
@@ -873,8 +874,8 @@ export class Expr {
           }
 
           // Binary operators, pop 2 args from stack and push result
-          let b = asliteral(ctx, stack.pop());
-          let a = asliteral(ctx, stack.pop());
+          const b = asliteral(ctx, stack.pop());
+          const a = asliteral(ctx, stack.pop());
 
           // Validate operator args are present and valid
           if (a === undefined || b === undefined) {
@@ -947,9 +948,11 @@ export class Expr {
               r = bool(a.value! >= b.value!);
               break;
             case OperatorType.EQ:
+              // intentional == below
               r = bool(a.value == b.value);
               break;
             case OperatorType.NEQ:
+              // intentional != below
               r = bool(a.value != b.value);
               break;
             case OperatorType.SEQ:
@@ -1128,7 +1131,7 @@ export class Expr {
       return;
     }
     if (t.type === ExprTokenType.OPERATOR) {
-      let { type } = t.value;
+      const { type } = t.value;
       switch (type) {
         // convert unary plus / minus
         case OperatorType.SUB:
@@ -1361,7 +1364,7 @@ export class Expr {
         }
       }
 
-      if (i == -1) {
+      if (i === -1) {
         // Error occurred, bail out
         break;
       }
@@ -1400,7 +1403,7 @@ export class Expr {
    * Parse a hexadecimal integer number.
    */
   hex(str: string, i: number, len: number): number {
-    let j = hex(str, i, len);
+    const j = hex(str, i, len);
     if (i === j) {
       this.errors.push(`Expected digits after start of hex number`);
       return -1;

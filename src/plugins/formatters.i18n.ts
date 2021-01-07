@@ -1,4 +1,4 @@
-import { CurrencyType, RelativeTimeFormatOptions } from '@phensley/cldr-core';
+import { CurrencyType } from '@phensley/cldr-core';
 
 import { Context } from '../context';
 import { Variable } from '../variable';

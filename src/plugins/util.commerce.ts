@@ -19,7 +19,7 @@ export const getProductType = (item: Node) => {
   return ProductType.fromCode(type.asNumber());
 };
 
-const getPrice = (v: Node) => isTruthy(v.get('onSale')) ? v.get('salePrice') : v.get('price');
+// const getPrice = (v: Node) => isTruthy(v.get('onSale')) ? v.get('salePrice') : v.get('price');
 
 export const getVariants = (item: Node) => {
   return item.path(variantsPath);

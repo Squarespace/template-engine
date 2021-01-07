@@ -14,6 +14,11 @@ const parse = (str: string) => {
   return { assembler, parser, code: assembler.code() };
 };
 
+const parser = (str: string) => {
+  const assembler = new Assembler();
+  return new Parser(str, assembler, MATCHER, Formatters, Predicates);
+};
+
 test('initialization failures', () => {
   const matcher = undefined as unknown as Matcher;
   expect(() => new Parser('hello', {} as Sink, matcher)).toThrowError();
@@ -171,6 +176,19 @@ test('eval', () => {
   ], O.EOF]);
 });
 
+test('eval coverage', () => {
+  let p: Parser;
+  let s: string;
+
+  s = '.eval 1 + 1';
+  p = parser(s);
+  expect(p.parseInstruction(0, s.length)).toEqual(false);
+
+  s = '.eval 1 + 1}';
+  p = parser(s);
+  expect(p.parseInstruction(0, s.length)).toEqual(true);
+});
+
 test('if', () => {
   let { code } = parse('{.if a.b}A{.end}');
   expect(code).toEqual([O.ROOT, 1, [
@@ -287,6 +305,11 @@ test('or predicate', () => {
       [O.TEXT, 'A']
     ], O.END]],
     [O.TEXT, 'bar']
+  ], O.EOF]);
+
+  ({ code } = parse('{.or:}'));
+  expect(code).toEqual([O.ROOT, 1, [
+    [O.TEXT, '{.or:}'],
   ], O.EOF]);
 });
 

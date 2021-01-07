@@ -3,7 +3,6 @@ import { CLDR } from '@phensley/cldr-core';
 import {
   partialParseFail,
   partialRecursion,
-  partialSelfRecursion,
   TemplateError,
 } from './errors';
 import { Frame } from './frame';
@@ -177,13 +176,19 @@ export class Context {
     this.buf = old;
   }
 
+  /**
+   * Return current stack frame.
+   */
   frame(): Frame {
     return this.stack[this.stack.length - 1];
   }
 
+  /**
+   * Return current stack frame's parent.
+   */
   parent(): Frame {
     const j = this.stack.length - 2;
-    return j > 0 ? this.stack[j] : this.stack[0];
+    return this.stack[j < 0 ? 0 : j];
   }
 
   /**
@@ -396,11 +401,7 @@ export class Context {
   pushNext(): void {
     const frame = this.frame();
     const node = frame.node.path([frame.currentIndex]);
-    if (node.type === Type.MISSING) {
-      this.pushNode(MISSING_NODE);
-    } else {
-      this.pushNode(node);
-    }
+    this.pushNode(node);
   }
 
   /**

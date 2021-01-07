@@ -1,21 +1,22 @@
 import { Context } from '../src/context';
 import { Node } from '../src/node';
 import {
+  bool,
   tokenDebug,
   ADD,
   ArgsToken,
-  bool,
   BooleanToken,
   COMMA,
   DIV,
   EQ,
   Expr,
   ExprTokenType,
+  LOR,
   LPRN,
   MINUS,
   MUL,
-  NullToken,
   num,
+  NullToken,
   RPRN,
   SUB,
   ASN,
@@ -115,6 +116,14 @@ test('basics', () => {
   e = '1 === 1';
   expect(parse(e)).toEqual([num(1), SEQ, num(1)]);
   expect(build(e)).toEqual([[num(1), num(1), SEQ]]);
+
+  e = 'false == true';
+  expect(parse(e)).toEqual([FALSE, EQ, TRUE]);
+  expect(build(e)).toEqual([[FALSE, TRUE, EQ]]);
+
+  e = 'null || 1';
+  expect(parse(e)).toEqual([NULL, LOR, num(1)]);
+  expect(build(e)).toEqual([[NULL, num(1), LOR]]);
 
   e = '(1 + (2 * (7 - (3 / 4))))';
   expect(parse(e)).toEqual([
@@ -291,7 +300,7 @@ test('unsupported values', () => {
 });
 
 test('unsupported operators', () => {
-  let c: Context = new Context(new Node({}));
+  const c: Context = new Context(new Node({}));
   let e: Expr;
 
   // Reduce invalid expressions to ensure that unexpected operators are caught
@@ -399,7 +408,6 @@ test('numbers', () => {
 });
 
 test('string errors', () => {
-  const c = context({});
   let e: Expr;
 
   e = new Expr("'");
@@ -622,7 +630,6 @@ test('exponent', () => {
 
 test('nesting', () => {
   const c = context({});
-  let e: Expr;
 
   expect(reduce('((1 + 2) * 3) ** 2', c)).toEqual(new Node(81));
 
@@ -632,7 +639,6 @@ test('nesting', () => {
 });
 
 test('balanced parens', () => {
-  let c = context({});
   let e: Expr;
 
   e = new Expr('@foo = (1 + 2');
@@ -767,7 +773,7 @@ test('comparisons', () => {
 });
 
 test('constants', () => {
-  let c = context({});
+  const c = context({});
 
   // general math constants
   expect(reduce('PI', c)).toEqual(new Node(Math.PI));

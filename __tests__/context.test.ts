@@ -52,6 +52,17 @@ test('push / pop', () => {
   expect(ctx.frame().node.value).toEqual(o1);
 });
 
+test('parent', () => {
+  const o = { a: { b: 2 }};
+  const ctx = new Context(o);
+
+  // root frame's parent is itself
+  expect(ctx.parent().node.value).toEqual(o);
+
+  ctx.pushSection(['a']);
+  expect(ctx.parent().node.value).toEqual(o);
+});
+
 test('variable resolution', () => {
   const o1 = { a: { b: [1, 2, { c: 4 }] } };
   const ctx = new Context(o1);
@@ -63,6 +74,13 @@ test('variable resolution', () => {
   expect(ctx.resolve(['a', 'b']).value).toEqual([1, 2, { c: 4 }]);
   ctx.pop();
   ctx.pop();
+});
+
+test('resolve arg', () => {
+  const o = { a: { b: [1, 2, 3] }};
+  const ctx = new Context(o);
+
+  expect(ctx.resolveArg(['a', 'b']).value).toEqual([1, 2, 3]);
 });
 
 test('lookup stack', () => {

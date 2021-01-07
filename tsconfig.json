@@ -12,7 +12,7 @@
     "strict": true,
     "strictNullChecks": true,
     "noImplicitReturns": true,
-    "noUnusedLocals": false,
+    "noUnusedLocals": true,
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": false,
     "esModuleInterop": true,
