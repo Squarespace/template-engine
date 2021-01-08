@@ -115,22 +115,59 @@ pathseq('variables-%N.html', 1).forEach(path => {
 });
 
 test('eval', () => {
+  let inst: Code;
+  let ctx: Context;
   const engine = newEngine();
-  const opts: ContextProps = { enableExpr: true };
-  let inst: Code = [O.ROOT, 1, [
+  const opts: ContextProps = { enableExpr: false };
+
+  inst = [O.ROOT, 1, [
     [O.EVAL, 'a.b + 2']
   ], O.EOF];
-  let ctx = new Context({ a: { b: 1 }}, opts);
+
+  // disabled expression evaluation
+  ctx = new Context({ a: { b: 1 }}, opts);
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('');
+
+  // enabled..
+  opts.enableExpr = true;
+  ctx = new Context({ a: { b: 1 }}, opts);
   engine.execute(inst, ctx);
   expect(ctx.render()).toEqual('3');
-
-  // error
+  
+  // error in expression
   inst = [O.ROOT, 1, [
     [O.EVAL, '"\\u"']
   ], O.EOF];
   ctx = new Context({}, opts);
   engine.execute(inst, ctx);
   expect(ctx.errors[0].message).toContain('unicode escape');
+});
+
+test('eval debug', () => {
+  const engine = newEngine();
+  const opts: ContextProps = { enableExpr: true };
+  let inst: Code;
+  let ctx: Context;
+  let res: string;
+
+  // evaluate with output
+  inst = [O.ROOT, 1, [
+    [O.EVAL, '# @a = min(2, b.c) ; @a * 7']
+  ], O.EOF];
+  ctx = new Context({ b: { c: 3 }}, opts);
+  engine.execute(inst, ctx);
+  res = ctx.render();
+  expect(res).toEqual('EVAL=[[@a <args> 2 b.c min() <assign>], [@a 7 <multiply>]] -> 14');
+
+  // evaluate with no output
+  inst = [O.ROOT, 1, [
+    [O.EVAL, '# @a = min(1, 2, 3)']
+  ], O.EOF];
+  ctx = new Context({}, opts);
+  engine.execute(inst, ctx);
+  res = ctx.render();
+  expect(res).toEqual('EVAL=[[@a <args> 1 2 3 min() <assign>]]');
 });
 
 test('section', () => {

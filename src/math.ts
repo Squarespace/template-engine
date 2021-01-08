@@ -334,8 +334,8 @@ export const ASN = _op(OperatorType.ASN, 3, Assoc.RIGHT, 'assign');
 // fake operators
 export const SEMI = _op(OperatorType.SEMI, 1, Assoc.LEFT, 'semicolon');
 export const COMMA = _op(OperatorType.COMMA, 1, Assoc.RIGHT, 'comma');
-export const LPRN = _op(OperatorType.LPRN, 1, Assoc.LEFT, 'left parenthesis');
-export const RPRN = _op(OperatorType.RPRN, 1, Assoc.LEFT, 'right parenthesis');
+export const LPRN = _op(OperatorType.LPRN, 1, Assoc.LEFT, 'left paren');
+export const RPRN = _op(OperatorType.RPRN, 1, Assoc.LEFT, 'right paren');
 
 /**
  * Stack.
@@ -695,32 +695,31 @@ const mul = (a: Token, b: Token): Token => num(asnum(a) * asnum(b));
 
 const matcher = new ExprMatcherImpl('');
 
-// Uncomment to debug tokens
-// export const debug = (t: Token | undefined): string => {
-//   if (!t) {
-//     return 'undefined';
-//   }
-//   switch (t.type) {
-//     case ExprTokenType.BOOLEAN:
-//       return `bool(${t.value})`;
-//     case ExprTokenType.NULL:
-//       return `null`;
-//     case ExprTokenType.NUMBER:
-//       return `num(${t.value})`;
-//     case ExprTokenType.STRING:
-//       return `str(${JSON.stringify(t.value)})`;
-//     case ExprTokenType.OPERATOR:
-//       return `op(${t.value.desc})`;
-//     case ExprTokenType.VARIABLE:
-//       return `var(${t.value})`;
-//     case ExprTokenType.CALL:
-//       return `${t.value}()`;
-//     case ExprTokenType.ARGS:
-//       return `<args>`;
-//     default:
-//       return 'unknown';
-//   }
-// };
+export const tokenDebug = (t: Token | undefined): string => {
+  if (!t) {
+    return 'undefined';
+  }
+  switch (t.type) {
+    case ExprTokenType.BOOLEAN:
+      return t.value ? 'true' : 'false';
+    case ExprTokenType.NULL:
+      return `null`;
+    case ExprTokenType.NUMBER:
+      return numfmt(t.value);
+    case ExprTokenType.STRING:
+      return JSON.stringify(t.value);
+    case ExprTokenType.OPERATOR:
+      return `<${t.value.desc}>`;
+    case ExprTokenType.VARIABLE:
+      return `${t.value.join('.')}`;
+    case ExprTokenType.CALL:
+      return `${t.value}()`;
+    case ExprTokenType.ARGS:
+      return `<args>`;
+    default:
+      return '<unk>';
+  }
+};
 
 /**
  * Options to configure the expression engine.
