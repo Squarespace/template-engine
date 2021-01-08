@@ -1,6 +1,7 @@
 import { Context } from '../src/context';
 import { Node } from '../src/node';
 import {
+  tokenDebug,
   ADD,
   ArgsToken,
   bool,
@@ -42,6 +43,9 @@ const build = (s: string) => {
 };
 
 const parse = (s: string) => new Expr(s).tokens.elems;
+
+const debug = (s: string) =>
+  '[' + build(s).map(e => '[' + e.map(tokenDebug).join(' ') + ']').join(', ') + ']';
 
 const call = (value: string) => ({ type: ExprTokenType.CALL, value });
 const varn = (value: string): VarToken => ({
@@ -170,6 +174,18 @@ test('basics', () => {
   ]);
   c = context({});
   expect(reduce(e, c)).toEqual(new Node(1.5));
+});
+
+test('debug', () => {
+  expect(debug('@a = 2 * 3 / max(c, d)'))
+    .toEqual('[[@a 2 3 <multiply> <args> c d max() <divide> <assign>]]');
+  expect(debug(`"foo" !== "bar"`))
+    .toEqual('[["foo" "bar" <strict inequality>]]');
+  expect(debug('null == false || null != true'))
+    .toEqual('[[null false <equality> null true <inequality> <logical or>]]');
+  expect(tokenDebug({ type: 100 }))
+    .toEqual('<unk>');
+  expect(tokenDebug(undefined)).toEqual('undefined');
 });
 
 test('limits', () => {

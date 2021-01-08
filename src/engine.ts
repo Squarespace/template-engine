@@ -1,5 +1,6 @@
 import { Context } from './context';
 import { nameOfOpcode, Opcode } from './opcodes';
+import { Node } from './node';
 import {
   BindvarCode,
   Code,
@@ -17,11 +18,13 @@ import {
   TextCode,
   VariableCode,
 } from './instructions';
-import { expressionParse, expressionReduce, unexpectedError } from './errors';
+import { expressionParse, unexpectedError } from './errors';
 import { Variable } from './variable';
 import { Formatter, PredicatePlugin } from './plugin';
 import { isTruthy } from './node';
-import { Expr } from './math';
+import { tokenDebug, Expr } from './math';
+
+const DEBUG_ARROW = new Node(' -> ');
 
 export type FormatterMap = { [x: string]: Formatter };
 export type PredicateMap = { [x: string]: PredicatePlugin };
@@ -268,11 +271,18 @@ export class Engine {
     }
 
     // Raw expression to be parsed and evaluated.
-    const raw = inst[1];
+    let raw = inst[1];
 
     // Check if we have no yet parsed and cached the expression.
     let expr: Expr = inst.expr;
     if (!expr) {
+      let debug = false;
+
+      // Check for debug flag at beginning of expression and skip it
+      if (raw.startsWith('#')) {
+        raw = raw.slice(1);
+        debug = true;
+      }
 
       // Construct the expression. This tokenizes the input.
       expr = new Expr(raw, ctx.exprOpts);
@@ -288,6 +298,14 @@ export class Engine {
 
       // Cache the assembled expression
       inst.expr = expr;
+      inst.debug = debug;
+    }
+
+    if (inst.debug) {
+      // Emit the assembled expressions
+      const msg = `EVAL=[${expr.expr.map(
+        e => '[' + e.map(tokenDebug).join(' ') + ']').join(', ')}]`;
+      ctx.emitNode(new Node(msg));
     }
 
     // Evaluate the expression against the current context and append any output.
@@ -325,6 +343,9 @@ export class Engine {
 
         // If the expression produced immediate output, emit it.
         if (r) {
+          if (inst.debug) {
+            ctx.emitNode(DEBUG_ARROW);
+          }
           ctx.emitNode(r);
         }
       }

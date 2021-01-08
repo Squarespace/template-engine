@@ -55,6 +55,8 @@ export interface EvalCode {
   [1]: string;
   // Property to store parsed expression during evaluation.
   expr?: any;
+  // Emit expression debug
+  debug?: boolean;
 }
 
 export interface IfCode {
