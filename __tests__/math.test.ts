@@ -868,6 +868,7 @@ test('type conversions', () => {
   expect(reduce('num("0x")', c)).toEqual(new Node(NaN));
   expect(reduce('num("0xfoo")', c)).toEqual(new Node(NaN));
   expect(reduce('num("123foo")', c)).toEqual(new Node(NaN));
+  expect(reduce('num("-123")', c)).toEqual(new Node(-123));
   expect(reduce('num("-")', c)).toEqual(new Node(NaN));
   expect(reduce('num("--123")', c)).toEqual(new Node(NaN));
   expect(reduce('num(n0)', c)).toEqual(new Node(-0x1234));

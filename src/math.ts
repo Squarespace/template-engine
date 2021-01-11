@@ -404,6 +404,9 @@ const asnum = (t: Token): number => {
 
       let i = 0;
       const c = t.value[i];
+
+      // Check for a single sign character. We skip over it and let the
+      // parse handle it.
       if (c === '-' || c === '+') {
         i++;
       }
@@ -417,6 +420,8 @@ const asnum = (t: Token): number => {
           // check for a hexadecimal sequence
           const c = ch(t.value, i + 1);
           if (c === 'x' || c === 'X') {
+            // test for a valid hex sequence and find the bound, then 
+            // call parseInt to parse the full number including the sign
             j = hex(t.value, i + 2, len);
             return j === len ? parseInt(t.value, 16) : NaN;
           }
@@ -432,13 +437,14 @@ const asnum = (t: Token): number => {
         case '7':
         case '8':
         case '9':
+          // find bound of decimal number
           j = decimal(t.value, i, len);
           break;
         default:
           return NaN;
       }
-      // If the entire string is a valid decimal number, parse it. Otherwise
-      // return a NaN.
+      // If the entire string is a valid decimal number, parse it, including the
+      // sign. Otherwise return a NaN.
       return j === len ? parseFloat(t.value) : NaN;
     case ExprTokenType.BOOLEAN:
       return t.value ? 1 : 0;
