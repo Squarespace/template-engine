@@ -67,6 +67,12 @@ export interface IfCode {
   [4]: Code | undefined;
 }
 
+export interface IncludeCode {
+  [0]: Opcode.INCLUDE;
+  [1]: string;
+  [2]: Arguments | FAST_NULL;
+}
+
 export interface InjectCode {
   [0]: Opcode.INJECT;
   [1]: string;
@@ -142,6 +148,7 @@ export type Code =
   | CtxvarCode
   | EvalCode
   | IfCode
+  | IncludeCode
   | InjectCode
   | MacroCode
   | OrPredicateCode
@@ -247,6 +254,12 @@ export class If extends BaseInstruction implements BlockInstruction {
 
   setAlternate(inst: Instruction): void {
     (this.code as IfCode)[4] = getCode(inst);
+  }
+}
+
+export class Include extends BaseInstruction {
+  constructor(name: string, args: Arguments | FAST_NULL) {
+    super(Opcode.INCLUDE, [Opcode.INCLUDE, name, args]);
   }
 }
 

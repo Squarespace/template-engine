@@ -33,7 +33,10 @@ export enum Opcode {
   CTXVAR = 22,
 
   // Evaluate expression
-  EVAL = 23
+  EVAL = 23,
+
+  // Include a macro / partial inline
+  INCLUDE = 24,
 }
 
 const NAMES = {
@@ -62,6 +65,7 @@ const NAMES = {
   [Opcode.ATOM]: 'ATOM',
   [Opcode.CTXVAR]: 'CTXVAR',
   [Opcode.EVAL]: 'EVAL',
+  [Opcode.INCLUDE]: 'INCLUDE',
 };
 
 export const nameOfOpcode = (opcode: Opcode) => {

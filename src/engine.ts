@@ -8,6 +8,7 @@ import {
   FormatterCall,
   EvalCode,
   IfCode,
+  IncludeCode,
   InjectCode,
   MacroCode,
   PredicateCode,
@@ -18,7 +19,7 @@ import {
   TextCode,
   VariableCode,
 } from './instructions';
-import { expressionParse, unexpectedError } from './errors';
+import { expressionParse, unexpectedError, partialMissing } from './errors';
 import { Variable } from './variable';
 import { Formatter, PredicatePlugin } from './plugin';
 import { isTruthy } from './node';
@@ -82,6 +83,7 @@ export class Engine {
       null, // ATOM
       this.executeCtxvar, // CTXVAR
       this.executeEval, // EVAL
+      this.executeInclude, // INCLUDE
     ];
   }
 
@@ -390,6 +392,65 @@ export class Engine {
       this.executeBlock(inst[3], ctx);
     } else if (inst[4]) {
       this.execute(inst[4], ctx);
+    }
+  }
+
+  /**
+   * Include instruction.
+   * 
+   * inst[1]  - name of macro or partial to include
+   * inst[2]  - optional arguments
+   */
+  executeInclude(inst: IncludeCode, ctx: Context): void {
+    // Refuse to evaluate the instruction if not explicitly enabled.
+    if (!ctx.enableInclude) {
+      return;
+    }
+
+    const name = inst[1];
+    const rawargs = inst[2];
+
+    // Fetch the partial or macro code
+    const code = ctx.getPartial(name);
+    if (!Array.isArray(code)) {
+      ctx.error(partialMissing(name));
+      return;
+    }
+
+    // Set options from arguments
+    let output = false;
+    if (Array.isArray(rawargs)) {
+      for (const arg of rawargs[0]) {
+        switch (arg) {
+          case 'output':
+            output = true;
+            break;
+        }
+      }
+    }
+
+    let buf: string | undefined;
+
+    // By default we suppress output from the partial or macro
+    if (!output) {
+      buf = ctx.swapBuffer();
+    }
+
+    // Execute the partial or macro inline.
+    if (ctx.enterPartial(name)) {
+      switch (code[0]) {
+        case Opcode.ROOT:
+          this.execute(code as RootCode, ctx);
+          break;
+        case Opcode.MACRO:
+          this.executeBlock((code as MacroCode)[2], ctx);
+          break;
+      }
+      ctx.exitPartial(name);
+    }
+
+    if (!output && buf !== undefined) {
+      ctx.restoreBuffer(buf);
     }
   }
 

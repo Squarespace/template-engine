@@ -29,7 +29,8 @@ const STRUCTURE = [
   [0, 0, BLOCK], // STRUCT
   null, // ATOM
   null, // CTXVAR
-  null  // EVAL
+  null, // EVAL
+  null, // INCLUDE
 ];
 
 /**

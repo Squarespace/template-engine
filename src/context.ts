@@ -55,6 +55,11 @@ export interface ContextProps {
    * Options to configure the expression engine
    */
   exprOpts?: ExprOptions;
+
+  /**
+   * Explicitly enable the {.include} instruction.
+   */
+  enableInclude?: boolean;
 }
 
 type ParseFunc = (s: string) => { code: Code; errors: TemplateError[] };
@@ -78,6 +83,7 @@ export class Context {
   readonly now?: number;
   readonly enableExpr?: boolean;
   readonly exprOpts?: ExprOptions;
+  readonly enableInclude?: boolean;
   readonly formatter?: MessageFormats;
 
   protected partials: Partials;
@@ -99,6 +105,7 @@ export class Context {
     this.now = props.now;
     this.enableExpr = props.enableExpr;
     this.exprOpts = props.exprOpts;
+    this.enableInclude = props.enableInclude;
 
     // Instance of @phensley/cldr interface CLDR providing cldr-based formatting for
     // a given locale. It is the caller's responsibility to set this. If not

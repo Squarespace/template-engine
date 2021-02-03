@@ -1,6 +1,6 @@
 import { join } from 'path';
 import { pathseq } from './helpers';
-import { Context } from '../src/context';
+import { Context, Partials } from '../src/context';
 import { Engine, EngineProps } from '../src/engine';
 import { Formatters, Predicates } from '../src/plugins';
 import { Opcode as O } from '../src/opcodes';
@@ -415,6 +415,115 @@ test('if or', () => {
   ctx = new Context({ a: 0, b: 0 });
   engine.execute(inst, ctx);
   expect(ctx.render()).toEqual('B');
+});
+
+test('include', () => {
+  const engine = newEngine();
+  let inst: Code = [O.ROOT, 1, [
+    [O.INCLUDE, 'foo.html', 0],
+    [O.VARIABLE, [['@a']], 0],
+    [O.VARIABLE, [['b']], 0]
+  ], O.EOF];
+
+  // partial just defines a variable and outputs a string
+  let partials: Partials = {
+    'foo.html': [O.ROOT, 1, [
+      [O.BINDVAR, '@a', [['a']], 0],
+      [O.TEXT, 'the-string ']
+    ], O.EOF]
+  };
+
+  // Same test but don't suppress the output
+  let ctx = new Context({ a: 123, b: '!' }, { partials, enableInclude: true });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('123!');
+
+  inst = [O.ROOT, 1, [
+    [O.INCLUDE, 'foo.html', [['output'], ' ']],
+    [O.VARIABLE, [['@a']], 0],
+    [O.VARIABLE, [['b']], 0]
+  ], O.EOF];
+
+  ctx = new Context({ a: 123, b: '!' }, { partials, enableInclude: true });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('the-string 123!');
+
+  // Use an evaluated expression to define the variable
+  partials = {
+    'foo.html': [O.ROOT, 1, [
+      [O.EVAL, '@a = 123'],
+      [O.TEXT, 'the-string ']
+    ], O.EOF]
+  };
+
+  ctx = new Context({ b: '!' }, { partials, enableExpr: true, enableInclude: true });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('the-string 123!');
+});
+
+test('include macro', () => {
+  const engine = newEngine();
+  let inst: Code = [O.ROOT, 1, [
+    [O.MACRO, 'foo.html', [
+      [O.BINDVAR, '@a', [['a']], 0],
+      [O.TEXT, 'hello']
+    ]],
+    [O.INCLUDE, 'foo.html', 0],
+    [O.VARIABLE, [['@a']], 0],
+    [O.VARIABLE, [['b']], 0]
+  ], O.EOF];
+
+  const ctx = new Context({ a: 123, b: '!' }, { enableInclude: true });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('123!');
+});
+
+test('include recursive', () => {
+  const engine = newEngine();
+  let inst: Code = [O.ROOT, 1, [
+    [O.MACRO, 'foo.html', [
+      [O.TEXT, 'A'],
+      [O.INCLUDE, 'foo.html', [['output'], ' ']],
+    ]],
+    [O.INCLUDE, 'foo.html', [['output'], ' ']],
+  ], O.EOF];
+
+  const ctx = new Context({ }, { enableInclude: true });
+  engine.execute(inst, ctx);
+  // number of 'A' emitted equals maximum recursion depth
+  expect(ctx.render()).toEqual('AAAAAAAAAAAAAAAA');
+  expect(ctx.errors[0].message).toContain('maximum recursion');
+});
+
+test('include missing', () => {
+  const engine = newEngine();
+  const inst: Code = [O.ROOT, 1, [
+    [O.INCLUDE, 'foo.html', [['output'], ' ']],
+    [O.TEXT, 'abc']
+  ], O.EOF]
+  const partials: Partials = {
+    'bar.html': ''
+  };
+  const ctx = new Context({ }, { partials, enableInclude: true });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('abc');
+  expect(ctx.errors[0].message).toContain('Attempt to apply');
+});
+
+test('include disabled', () => {
+  const engine = newEngine();
+  const inst: Code = [O.ROOT, 1, [
+    [O.INCLUDE, 'foo.html', [['output'], ' ']],
+    [O.TEXT, 'abc']
+  ], O.EOF]
+  const partials: Partials = {
+    'foo.html': [O.ROOT, 1, [
+      [O.TEXT, 'the-string'],
+    ], O.EOF]
+  };
+  const ctx = new Context({ }, { partials });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('abc');
 });
 
 test('inject', () => {

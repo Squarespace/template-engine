@@ -1,6 +1,6 @@
 import { Matcher } from './matcher';
 import { Sink } from './sink';
-import { FAST_NULL, Instruction } from './instructions';
+import { FAST_NULL, Instruction, Include } from './instructions';
 import {
   Bindvar,
   Comment,
@@ -136,6 +136,9 @@ export class Parser {
 
     case Opcode.IF:
       return this.parseIf();
+
+    case Opcode.INCLUDE:
+      return this.parseInclude();
 
     case Opcode.INJECT:
       return this.parseInject();
@@ -288,6 +291,33 @@ export class Parser {
 
     const [operators, variables] = expr;
     this.push(new If(operators, variables));
+    return true;
+  }
+
+  /**
+   * Parse an INCLUDE instruction. Example:
+   *
+   *  {.include partial suppress}
+   */
+  parseInclude(): boolean {
+    const m = this.matcher;
+
+    // this instruction accepts space-delimited arguments
+    if (!m.matchSpace()) {
+      return false;
+    }
+
+    const args = m.matchArguments();
+    m.consume();
+
+    // First arg is the partial/macro name and is required.
+    if (args === null || args[0].length < 1) {
+      return false;
+    }
+
+    const name = args[0][0];
+    args[0] = args[0].slice(1);
+    this.push(new Include(name, args));
     return true;
   }
 

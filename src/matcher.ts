@@ -15,7 +15,7 @@ const INSTRUCTIONS: { [x: string]: (string | Opcode)[] } = {
   'a': ['lternates with', Opcode.ALTERNATES_WITH],
   'c': ['tx', Opcode.CTXVAR],
   'e': ['nd', Opcode.END, 'of', Opcode.EOF, 'val', Opcode.EVAL],
-  'i': ['f', Opcode.IF, 'nject', Opcode.INJECT],
+  'i': ['f', Opcode.IF, 'nclude', Opcode.INCLUDE, 'nject', Opcode.INJECT],
   'm': ['acro', Opcode.MACRO, 'eta-left', Opcode.META_LEFT, 'eta-right', Opcode.META_RIGHT],
   'n': ['ewline', Opcode.NEWLINE],
   'o': ['r', Opcode.OR_PREDICATE],
@@ -172,7 +172,8 @@ export class Matcher implements MatcherProps {
     if (rawArgs !== null) {
       // Parse and append formatter with arguments.
       const delim = rawArgs[0];
-      return [rawArgs.slice(1).split(delim), delim];
+      const args = rawArgs.slice(1).split(delim);
+      return (args.length === 1 && !args[0]) ? [[], delim] : [args, delim];
     }
     return null;
   }

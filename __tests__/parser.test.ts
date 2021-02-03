@@ -213,6 +213,22 @@ test('if', () => {
   expect(code).toEqual([O.ROOT, 1, [[O.TEXT, '{.if a || **}']], O.EOF]);
 });
 
+test('include', () => {
+  let { code } = parse('{.include foo.html suppress foo bar}');
+  expect(code).toEqual([O.ROOT, 1, [
+    [O.INCLUDE, 'foo.html', [['suppress', 'foo', 'bar'], ' ']],
+  ], O.EOF]);
+
+  ({ code } = parse('{.include}'));
+  expect(code).toEqual([O.ROOT, 1, [[O.TEXT, '{.include}']], O.EOF]);
+
+  ({ code } = parse('{.include }'));
+  expect(code).toEqual([O.ROOT, 1, [[O.TEXT, '{.include }']], O.EOF]);
+
+  ({ code } = parse('{.include a}'));
+  expect(code).toEqual([O.ROOT, 1, [[O.INCLUDE, 'a', [[], ' ']]], O.EOF]);
+});
+
 test('inject', () => {
   let { code } = parse('abc{.inject @foo ./messages-en_US.json a b c}def');
   expect(code).toEqual([O.ROOT, 1, [
@@ -346,7 +362,7 @@ test('predicate', () => {
 
   ({ code } = parse('{.equal?|}'));
   expect(code).toEqual([O.ROOT, 1, [
-    [O.PREDICATE, 'equal?', [[''], '|'], [], undefined]
+    [O.PREDICATE, 'equal?', [[], '|'], [], undefined]
   ], O.END]);
 
   ({ code } = parse('{.**?}'));

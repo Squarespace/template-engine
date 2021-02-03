@@ -110,7 +110,7 @@ const main = () => {
   const json = jsonpath ? JSON.parse(read(jsonpath)) : {};
   const partials = partpath ? JSON.parse(read(partpath)) : {};
 
-  const { ctx } = compiler.execute({ cldr, code, json, partials, enableExpr: true });
+  const { ctx } = compiler.execute({ cldr, code, json, partials, enableExpr: true, enableInclude: true });
   console.log(ctx.render());
   if (ctx.errors) {
     for (const err of ctx.errors) {
