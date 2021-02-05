@@ -1,6 +1,6 @@
 import { join } from 'path';
 import { CORE_FORMATTERS as Core } from '../../src/plugins/formatters.core';
-import { Context } from '../../src/context';
+import { Context, Partials } from '../../src/context';
 import { Engine } from '../../src/engine';
 import { pathseq } from '../helpers';
 import { TemplateTestLoader } from '../loader';
@@ -83,6 +83,25 @@ test('apply no arguments', () => {
   const ctx = new Context(node, { partials: { 'person.html': partial } });
   engine.execute(inst, ctx);
   expect(ctx.render()).toEqual('Hi, ');
+});
+
+test('apply no parsefunc', () => {
+  const engine = newEngine();
+  const inst: RootCode = [O.ROOT, 1, [
+    [O.TEXT, 'Hi, '],
+    [O.VARIABLE, [['person']], [['apply', [['person.html'], ' ']]]],
+  ], O.EOF];
+  const partials: Partials = {
+    'person.html': '{name}{sym}'
+  };
+  
+  const node = { person: { name: 'User Name', sym: '!' } };
+  // This context doesn't define a parse function, so has no way of parsing
+  // a string into a partial template.
+  const ctx = new Context(node, { partials });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('Hi, ');
+  expect(ctx.errors[0].message).toContain('apply partial');
 });
 
 test('apply self recursion', () => {
