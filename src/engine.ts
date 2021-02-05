@@ -333,7 +333,7 @@ export class Engine {
       // If an error occurred during reduce we suppress the output. The temporary
       // stack frame allows us to "undo" the effects of the evaluation, removing
       // any local variables created by the invalid expression.
-      if (expr.errors.length === errs) {
+      if (ctx.errors.length === errs) {
         // Reduce produced no errors, so retain the local variables.
         if (vars) {
           // Copy the local variables to the stack frame.

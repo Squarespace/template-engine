@@ -176,6 +176,39 @@ test('eval debug', () => {
   expect(res).toEqual('EVAL=[[@a <args> 1 2 3 min() <assign>]]');
 });
 
+test('eval reuse', () => {
+  // 2nd time the eval instruction is executed we reuse the parsed expression
+  const engine = newEngine();
+  const inst: Code = [O.ROOT, 1, [
+    [O.REPEATED, ['items'], [
+      [O.EVAL, '@a = @ + @'], 
+      [O.VARIABLE, [['@a']], 0]
+    ], O.END, []]
+  ], O.EOF];
+
+  let ctx = new Context({ items: ['A', 'B', 'C'] }, { enableExpr: true });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('AABBCC');
+});
+
+test('eval runtime errors', () => {
+  const engine = newEngine();
+  const opts: ContextProps = { enableExpr: true };
+  let inst: Code;
+  let ctx: Context;
+  let res: string;
+
+  // min() can't operate on strings
+  inst = [O.ROOT, 1, [
+    [O.EVAL, 'num()']
+  ], O.EOF];
+  ctx = new Context({ }, opts);
+  engine.execute(inst, ctx);
+  res = ctx.render();
+  expect(res).toEqual('');
+  expect(ctx.errors[0].message).toContain('Error calling function');
+});
+
 test('section', () => {
   const engine = newEngine();
   const inst: Code = [O.ROOT, 1, [
@@ -332,6 +365,20 @@ test('predicates', () => {
   expect(ctx.render()).toEqual('not equal');
 });
 
+test('predicate without alternative', () => {
+  const engine = newEngine();
+  const inst: Code = [O.ROOT, 1, [
+    [O.PREDICATE, 'equal?', [['foo', 'bar'], ' '],
+      [[O.TEXT, 'equal']],
+      undefined
+    ]
+  ], O.EOF];
+
+  let ctx = new Context({ foo: 1, bar: 2 });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('');
+});
+
 test('predicates missing', () => {
   const engine = newEngine();
   const inst: Code = [O.ROOT, 1, [
@@ -415,6 +462,20 @@ test('if or', () => {
   ctx = new Context({ a: 0, b: 0 });
   engine.execute(inst, ctx);
   expect(ctx.render()).toEqual('B');
+});
+
+test('if without alternative', () => {
+  const engine = newEngine();
+  const inst: Code = [O.ROOT, 1, [
+    [O.IF, [0], [['a'], ['b']], 
+      [[O.TEXT, 'A']],
+      undefined,
+    ],
+  ], O.EOF];
+
+  let ctx = new Context({ a: 0, b: 0 });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('');
 });
 
 test('include', () => {
