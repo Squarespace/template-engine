@@ -49,28 +49,33 @@ class Pretty {
    * Formats an instruction according to its internal structure.
    */
   formatInstruction(inst: Code, depth: number): string {
-    const opcode = typeof inst === 'number' ? inst : inst[0];
-    const structure = STRUCTURE[opcode];
+    // Atomic instructions are just numbers (EOF, SPACE, etc)
+    if (typeof inst === 'number') {
+      return this.formatValue(inst, depth);
+    }
 
-    // Atomic instructions are integers.
+    // All other instructions must be arrays at this point.
+    if (!Array.isArray(inst)) {
+      return '';
+    }    
+
+    const structure = STRUCTURE[inst[0]];
     if (structure === null) {
       return this.formatValue(inst, depth);
     }
 
     // Composite instructions are Arrays.
     let res = '[';
-    if (Array.isArray(inst)) {
-      for (let i = 0; i < inst.length; i++) {
-        if (i > 0) {
-          res += ', ';
-        }
-        if (structure[i] === BLOCK) {
-          res += this.formatBlock(inst[i], depth + 1);
-        } else if (structure[i] === INST) {
-          res += this.formatInstruction(inst[i], depth);
-        } else {
-          res += this.formatValue(inst[i], depth);
-        }
+    for (let i = 0; i < inst.length; i++) {
+      if (i > 0) {
+        res += ', ';
+      }
+      if (structure[i] === BLOCK) {
+        res += this.formatBlock(inst[i], depth + 1);
+      } else if (structure[i] === INST) {
+        res += this.formatInstruction(inst[i], depth);
+      } else {
+        res += this.formatValue(inst[i], depth);
       }
     }
     return res + ']';
@@ -91,7 +96,7 @@ class Pretty {
    */
   formatBlock(block: Code[], depth: number): string {
     // Empty blocks are inlined.
-    if (block.length === 0) {
+    if (!Array.isArray(block) || block.length === 0) {
       return '[]';
     }
 
