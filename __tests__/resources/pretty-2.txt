@@ -1,0 +1,7 @@
+:TEMPLATE
+{a.b.c|capitalize}
+
+:JSON
+[17, 1, [
+      [1, [["a", "b", "c"]], [["capitalize"]]]
+], 18]
