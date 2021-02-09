@@ -325,8 +325,12 @@ test('strings', () => {
   expect(reduce("'bar'", c)).toEqual(new Node('bar'));
   expect(reduce('"\\\"bar\\\""', c)).toEqual(new Node('"bar"'));
 
+  // incomplete escapes
+  expect(reduce("'\\", c)).toEqual(undefined);
+  expect(reduce("'\\'", c)).toEqual(undefined);
+
   // unterminated
-  expect(reduce('"\u000000', c)).toEqual(undefined);
+  expect(reduce('"\\u000000', c)).toEqual(undefined);
 
   // single-character escapes
   expect(reduce('"\\a\\b\\c\\n\\t\\r\\f"', c)).toEqual(new Node('abc\n\t\r\f'));
@@ -345,6 +349,7 @@ test('strings', () => {
   );
 
   // unicode escape out-of-range replacement
+  expect(reduce('"\\u0003\\u000f\\u0019\"', c)).toEqual(new Node('   '));
   expect(reduce('"\\u222222"', c)).toEqual(new Node(' '));
 
   // ascii control code replacement
@@ -364,8 +369,11 @@ test('numbers', () => {
   expect(reduce('0x01', c)).toEqual(new Node(0x01));
   expect(reduce('0x012345678', c)).toEqual(new Node(0x012345678));
   expect(reduce('0x111111111111111111111', c)).toEqual(
-    new Node(0x111111111111111111111)
+    new Node(1.2895208742556044e+24)
   );
+  expect(reduce('0x11111111111111111', c)).toEqual(
+    new Node(1.9676527011956855e+19)
+  )
 
   expect(reduce('1e20', c)).toEqual(new Node(1e20));
   expect(reduce('1e22', c)).toEqual(new Node(1e22));
@@ -619,6 +627,12 @@ test('modulus', () => {
   expect(reduce('5 % 3', c)).toEqual(new Node(2));
   expect(reduce('5 % 4', c)).toEqual(new Node(1));
   expect(reduce('5 % 5', c)).toEqual(new Node(0));
+
+  expect(reduce('Infinity % 10', c)).toEqual(new Node(NaN));
+  expect(reduce('10 % Infinity', c)).toEqual(new Node(10));
+  expect(reduce('Infinity % Infinity', c)).toEqual(new Node(NaN));
+
+  expect(reduce('5 % 3.21', c)).toEqual(new Node(1.79));
 });
 
 test('exponent', () => {
@@ -776,9 +790,9 @@ test('constants', () => {
   const c = context({});
 
   // general math constants
-  expect(reduce('PI', c)).toEqual(new Node(Math.PI));
-  expect(reduce('E', c)).toEqual(new Node(Math.E));
-  expect(reduce('-E', c)).toEqual(new Node(-Math.E));
+  expect(reduce('PI', c)).toEqual(new Node(3.141592653589793));
+  expect(reduce('E', c)).toEqual(new Node(2.718281828459045));
+  expect(reduce('-E', c)).toEqual(new Node(-2.718281828459045));
   expect(reduce('Infinity', c)).toEqual(new Node(Infinity));
   expect(reduce('-Infinity', c)).toEqual(new Node(-Infinity));
   expect(reduce('NaN', c)).toEqual(new Node(NaN));

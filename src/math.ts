@@ -611,8 +611,8 @@ export const str = (value: string): StringToken => ({
 
 // Constant tokens we may reference more than once
 const MINUS_ONE: NumberToken = num(-1);
-const PI: NumberToken = num(Math.PI);
-const E: NumberToken = num(Math.E);
+const PI: NumberToken = num(3.141592653589793);
+const E: NumberToken = num(2.718281828459045);
 const INFINITY: NumberToken = num(Infinity);
 const NAN: NumberToken = num(NaN);
 const TRUE: BooleanToken = bool(true);
