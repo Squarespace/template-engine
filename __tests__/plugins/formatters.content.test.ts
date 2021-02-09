@@ -152,7 +152,7 @@ pathseq('f-humanize-duration-%N.html', 1).forEach((path) => {
   test(`humanize duration - ${path}`, () => loader.execute(path));
 });
 
-pathseq('f-image-%N.html', 4).forEach((path) => {
+pathseq('f-image-%N.html', 6).forEach((path) => {
   test(`image - ${path}`, () => loader.execute(path));
 });
 

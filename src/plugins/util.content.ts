@@ -2,6 +2,8 @@ import { isTruthy, Node } from '../node';
 import { escapeHtmlAttributes, removeTags } from './util.string';
 import { Type } from '../types';
 
+const MAX_ALT_TEXT_LENGTH = 1000;
+
 export const getFocalPoint = (media: Node) => {
   const node = media.get('mediaFocalPoint');
   if (!node.isMissing()) {
@@ -21,8 +23,9 @@ export const getAltTextFromContentItem = (item: Node) => {
   const body = item.get('body');
   if (isTruthy(body)) {
     const text = removeTags(body.asString());
-    if (text.length > 0) {
-      return text;
+    const len = text.length;
+    if (len > 0) {
+      return text.substring(0, Math.min(len, MAX_ALT_TEXT_LENGTH));
     }
   }
 
