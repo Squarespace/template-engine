@@ -1,0 +1,21 @@
+:TEMPLATE
+{.macro first} pre {.eval @foo = 3 ** factor} post {.end}
+{.macro second} pre {.eval @bar = 4 << factor} post {.end}
+
+1. {.include first}
+{@foo}
+
+2. {.include second output}
+{@bar}
+
+:JSON
+{
+    "factor": 3
+}
+
+:OUTPUT
+1. 
+27
+
+2.  pre  post 
+32

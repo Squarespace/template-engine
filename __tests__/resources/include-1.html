@@ -1,0 +1,14 @@
+:TEMPLATE
+{.macro foo.html}
+{.eval @width = 600 ; @height = @width * aspectRatio}
+{.end}
+{.include foo.html}
+<table height="{@height}" width="{@width}"></table>
+
+:JSON
+{
+    "aspectRatio": 0.6
+}
+
+:OUTPUT
+<table height="360" width="600"></table>
