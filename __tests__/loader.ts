@@ -133,7 +133,9 @@ export class TemplateTestLoader extends TestLoader {
       code: spec.TEMPLATE,
       json: spec.JSON,
       partials: spec.PARTIALS,
-      injects: spec.INJECT
+      injects: spec.INJECT,
+      enableExpr: true,
+      enableInclude: true
     });
     const output = ctx.render();
     expect(output.trim()).toEqual(spec.OUTPUT);

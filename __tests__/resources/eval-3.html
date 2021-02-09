@@ -1,0 +1,13 @@
+:TEMPLATE
+{.eval foo == bar && baz == quux}
+
+:JSON
+{
+    "foo": "123",
+    "bar": 123,
+    "baz": 0,
+    "quux": false
+}
+
+:OUTPUT
+true
