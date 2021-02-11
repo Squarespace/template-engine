@@ -902,18 +902,28 @@ test('number formatting', () => {
   const c = context({});
 
   // large magnitude
-  expect(reduce('str(1e20)', c)).toEqual(new Node('100000000000000000000'));
-  expect(reduce('str(1e21)', c)).toEqual(new Node('1e+21'));
-  expect(reduce('str(1e300)', c)).toEqual(new Node('1e+300'));
-  expect(reduce('str(-1e20)', c)).toEqual(new Node('-100000000000000000000'));
-  expect(reduce('str(-1e21)', c)).toEqual(new Node('-1e+21'));
-  expect(reduce('str(-1e300)', c)).toEqual(new Node('-1e+300'));
+  expect(reduce("str(1e20)", c)).toEqual(new Node("100000000000000000000"));
+  expect(reduce("str(1e21)", c)).toEqual(new Node("1e+21"));
+  expect(reduce("str(1e300)", c)).toEqual(new Node("1e+300"));
 
   // small magnitude
-  expect(reduce('str(1e-20)', c)).toEqual(new Node('0.00000000000000000001'));
-  expect(reduce('str(1e-21)', c)).toEqual(new Node('1e-21'));
-  expect(reduce('str(1e-300)', c)).toEqual(new Node('1e-300'));
-  expect(reduce('str(-1e-20)', c)).toEqual(new Node('-0.00000000000000000001'));
-  expect(reduce('str(-1e-21)', c)).toEqual(new Node('-1e-21'));
-  expect(reduce('str(-1e-300)', c)).toEqual(new Node('-1e-300'));
+  expect(reduce("str(1e-5)", c)).toEqual(new Node("0.00001"));
+  expect(reduce("str(1e-6)", c)).toEqual(new Node("0.000001"));
+  expect(reduce("str(1e-7)", c)).toEqual(new Node("1e-7"));
+  expect(reduce("str(1e-20)", c)).toEqual(new Node("1e-20"));
+  expect(reduce("str(1e-21)", c)).toEqual(new Node("1e-21"));
+  expect(reduce("str(1e-300)", c)).toEqual(new Node("1e-300"));
+
+  // negative large magnitude
+  expect(reduce("str(-1e20)", c)).toEqual(new Node("-100000000000000000000"));
+  expect(reduce("str(-1e21)", c)).toEqual(new Node("-1e+21"));
+  expect(reduce("str(-1e300)", c)).toEqual(new Node("-1e+300"));
+
+  // negative small magnitude
+  expect(reduce("str(-1e-5)", c)).toEqual(new Node("-0.00001"));
+  expect(reduce("str(-1e-6)", c)).toEqual(new Node("-0.000001"));
+  expect(reduce("str(-1e-7)", c)).toEqual(new Node("-1e-7"));
+  expect(reduce("str(-1e-20)", c)).toEqual(new Node("-1e-20"));
+  expect(reduce("str(-1e-21)", c)).toEqual(new Node("-1e-21"));
+  expect(reduce("str(-1e-300)", c)).toEqual(new Node("-1e-300"));
 });

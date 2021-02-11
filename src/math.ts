@@ -475,55 +475,6 @@ const asbool = (t: Token): boolean => {
 };
 
 /**
- * Format a number as a string with up to 20 digits after the decimal point.
- * Of magnitude >= 1e21 or <= 1e-21 will use exponential notation.
- */
-const numfmt = (n: number) => {
-  if (isNaN(n)) {
-    return 'NaN';
-  }
-  if (!isFinite(n)) {
-    return n < 0 ? '-Infinity' : 'Infinity';
-  }
-
-  // Really large or really tiny magnitudes format in exponential notation
-  if (
-    n >= 1e21 ||
-    (n > 0 && n <= 1e-21) ||
-    (n < 0 && n >= -1e-21) ||
-    n <= -1e21
-  ) {
-    return n.toExponential();
-  }
-
-  // Format as fixed and trim trailing zeros
-  const s = n.toFixed(20);
-  const last = s.length - 1;
-  let j = last;
-  for (let i = last; i >= 0; i--) {
-    const ch = s[i];
-    // If exponential notation is detected, return as-is
-    /* istanbul ignore next */
-    if (ch === 'e' || ch === 'E') {
-      return s;
-    }
-
-    // Point at current char
-    j = i;
-
-    // Break at first non-zero char
-    if (ch !== '0') {
-      break;
-    }
-  }
-  // If all trailing zeros were trimmed, also trim the trailing dot
-  if (j > 0 && s[j] === '.') {
-    j--;
-  }
-  return j < last ? s.substring(0, j + 1) : s;
-};
-
-/**
  * Convert token to string.
  */
 const asstr = (t: Token): string => {
@@ -531,7 +482,7 @@ const asstr = (t: Token): string => {
     case ExprTokenType.BOOLEAN:
       return t.value ? 'true' : 'false';
     case ExprTokenType.NUMBER:
-      return numfmt(t.value);
+      return String(t.value);
     case ExprTokenType.STRING:
       return t.value;
     case ExprTokenType.NULL:
@@ -712,7 +663,7 @@ export const tokenDebug = (t: Token | undefined): string => {
     case ExprTokenType.NULL:
       return `null`;
     case ExprTokenType.NUMBER:
-      return numfmt(t.value);
+      return String(t.value);
     case ExprTokenType.STRING:
       return JSON.stringify(t.value);
     case ExprTokenType.OPERATOR:
