@@ -27,6 +27,11 @@ test('date', () => {
   TABLE.date.apply(['%c'], vars, ctx);
   expect(vars[0].get()).toEqual('Sun, May 12, 2013 6:00:00 PM PDT');
 
+  ctx = new Context(losAngeles, { cldr: en });
+  vars = variables(may2013 - (86400000 * 5));
+  TABLE.date.apply(['%c'], vars, ctx);
+  expect(vars[0].get()).toEqual('Tue, May 7, 2013 6:00:00 PM PDT');
+
   vars = variables(may2013);
   TABLE.date.apply(['%Y-%m-%d %H:%M:%S %Z'], vars, ctx);
   expect(vars[0].get()).toEqual('2013-05-12 18:00:00 PDT');
