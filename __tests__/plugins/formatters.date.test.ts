@@ -1,9 +1,18 @@
+import { join } from 'path';
 import { DATE_FORMATTERS as TABLE } from '../../src/plugins/formatters.date';
 import { Context } from '../../src/context';
 import { Variable } from '../../src/variable';
 import { framework } from '../cldr';
+import { pathseq } from '../helpers';
+import { TemplateTestLoader } from '../loader';
+
+const loader = new TemplateTestLoader(join(__dirname, 'resources'));
 
 const variables = (...n: any[]) => n.map((v, i) => new Variable('var' + i, v));
+
+pathseq('f-date-%N.html', 2).forEach(path => {
+  test(`date - ${path}`, () => loader.execute(path));
+});
 
 test('date', () => {
   const en = framework.get('en');
@@ -207,11 +216,11 @@ test('all fields', () => {
 
   vars = variables(nov2019);
   TABLE.date.apply(['%x'], vars, ctx);
-  expect(vars[0].get()).toEqual('11/08/19');
+  expect(vars[0].get()).toEqual('11/08/2019');
 
   vars = variables(nov2019);
   TABLE.date.apply(['%X'], vars, ctx);
-  expect(vars[0].get()).toEqual('14:28:40');
+  expect(vars[0].get()).toEqual('02:28:40 PM');
 
   vars = variables(nov2019);
   TABLE.date.apply(['%y'], vars, ctx);

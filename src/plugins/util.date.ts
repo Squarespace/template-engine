@@ -66,24 +66,24 @@ export const formatDate = (d: GregorianDate, fmt: string) => {
 
       // %c     locale's date and time (e.g., Thu Mar  3 23:05:25 2005)
       case 'c': {
-        // day of month and hour without extra spaces
-        out = formatDate(d, `%a, %b ${d.dayOfMonth()}, %Y ${d.hour()}:%M:%S %p %Z`);
+        // day of month, unpadded
+        out = formatDate(d, `%a, %b ${d.dayOfMonth()}, %Y %i:%M:%S %p %Z`);
         break;
       }
 
       // %C     century; like %Y, except omit last two digits (e.g., 20)
       case 'C':
-        out = `${(d.year() / 100) | 0}`;
-        break;
-
-      // %D     date; same as %m/%d/%y
-      case 'D':
-        out = formatDate(d, '%m/%d/%y');
+        out = pad(`${(d.year() / 100) | 0}`, '0', 2);
         break;
 
       // %d     day of month (e.g., 01)
       case 'd':
         out = pad(`${d.dayOfMonth()}`, '0', 2);
+        break;
+
+      // %D     date; same as %m/%d/%y
+      case 'D':
+        out = formatDate(d, '%m/%d/%y');
         break;
 
       // %e     day of month, space padded; same as %_d
@@ -103,7 +103,7 @@ export const formatDate = (d: GregorianDate, fmt: string) => {
 
       // %G     year of ISO week number (see %V); normally useful only with %V
       case 'G':
-        out = `${d.yearOfWeekOfYearISO()}`;
+        out = pad(`${d.yearOfWeekOfYearISO()}`, '0', 4);
         break;
 
       // %h     same as %b
@@ -116,10 +116,19 @@ export const formatDate = (d: GregorianDate, fmt: string) => {
         out = pad(`${d.hourOfDay()}`, '0', 2);
         break;
 
-      // %I     hour (01..12)
-      case 'I':
-        out = pad(`${d.hour()}`, '0', 2);
+      // %i     hour (1..12), unpadded
+      case 'i': {
+        const h = d.hour();
+        out = `${h == 0 ? 12 : h}`;
         break;
+      }
+
+      // %I     hour (01..12), zero-padded
+      case 'I': {
+        const h = d.hour();
+        out = pad(`${h == 0 ? 12 : h}`, '0', 2);
+        break;
+      }
 
       // %j     day of year (001..366)
       case 'j':
@@ -128,7 +137,7 @@ export const formatDate = (d: GregorianDate, fmt: string) => {
 
       // %k     hour, space padded ( 0..23); same as %H
       case 'k':
-        out = pad(`${d.hourOfDay()}`, '0', 2);
+        out = pad(`${d.hourOfDay()}`, ' ', 2);
         break;
 
       // %l     hour, space padded ( 1..12); same as %I
@@ -219,6 +228,16 @@ export const formatDate = (d: GregorianDate, fmt: string) => {
         out = pad(`${d.weekOfYear()}`, '0', 2);
         break;
 
+      // Undocumented
+      case 'v':
+        out = formatDate(d, '%e-%b-%Y');
+        break;
+    
+      // %V     ISO week number, with Monday as first day of week (01..53)
+      case 'V':
+        out = pad(`${d.weekOfYearISO()}`, '0', 2);
+        break;
+
       // %w     day of week (0..6); 0 is Sunday
       case 'w':
         out = `${d.dayOfWeek() - 1}`;
@@ -229,14 +248,14 @@ export const formatDate = (d: GregorianDate, fmt: string) => {
         out = pad(`${d.weekOfYear()}`, '0', 2);
         break;
 
-      // %x     locale's date representation (e.g., 12/31/99)
+      // %x     locale's date representation (e.g., 12/31/1999)
       case 'x':
-        out = formatDate(d, '%m/%d/%y');
+        out = formatDate(d, '%m/%d/%Y');
         break;
 
       // %X     locale's time representation (e.g., 23:13:48)
-      case 'X':
-        out = formatDate(d, '%H:%M:%S');
+      case 'X': 
+        out = formatDate(d, '%I:%M:%S %p');
         break;
 
       // %y     last two digits of year (00..99)
@@ -265,14 +284,6 @@ export const formatDate = (d: GregorianDate, fmt: string) => {
         out = d.timeZoneAbbr();
         break;
 
-      // Undocumented
-      case 'v':
-        break;
-
-      // %V     ISO week number, with Monday as first day of week (01..53)
-      case 'V':
-        out = pad(`${d.weekOfYearISO()}`, '0', 2);
-        break;
 
       // NOT IMPLEMENTED:
       // %:z    +hh:mm numeric time zone (e.g., -04:00)
@@ -284,11 +295,6 @@ export const formatDate = (d: GregorianDate, fmt: string) => {
     if (out) {
       parts.push(out);
     }
-
-    // const replacement = UNIX_TO_CLDR_FORMATS[ch];
-    // if (replacement) {
-    //   parts.push(replacement);
-    // }
 
     i++;
   }

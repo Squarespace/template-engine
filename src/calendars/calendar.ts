@@ -281,34 +281,33 @@ export abstract class CalendarDate {
     const dow = f[DateField.DAY_OF_WEEK];
     const dom = f[DateField.DAY_OF_MONTH];
     const doy = f[DateField.DAY_OF_YEAR];
-    f[DateField.WEEK_OF_MONTH] = this.weekNumber(dom, dom, dow);
+    f[DateField.WEEK_OF_MONTH] = this.weekNumber(this._firstDay, this._minDays, dom, dom, dow);
     f[DateField.DAY_OF_WEEK_IN_MONTH] = ((dom - 1) / 7 | 0) + 1;
 
     // compute US
-    this._computeWeekFields(DateField.WEEK_OF_YEAR, DateField.YEAR_WOY, 1, 1, dow, dom, doy);
+    this._computeWeekFields(DateField.WEEK_OF_YEAR, DateField.YEAR_WOY, this._firstDay, this._minDays, dow, dom, doy);
 
     // compute ISO
     this._computeWeekFields(DateField.ISO_WEEK_OF_YEAR, DateField.ISO_YEAR_WOY, 2, 4, dow, dom, doy);
-
   }
 
   protected _computeWeekFields(woyfield: number, ywoyfield: number,
-    firstDay: number, minDays: number, dow: number, dom: number, doy: number): void {
+    firstDay: number, minDays: number, dow: number, _dom: number, doy: number): void {
 
     const f = this._fields;
     const eyear = f[DateField.EXTENDED_YEAR];
 
     let ywoy = eyear;
-    const rdow = (dow + 7 - this._firstDay) % 7;
-    const rdowJan1 = (dow - doy + 7001 - this._firstDay) % 7;
+    const rdow = (dow + 7 - firstDay) % 7;
+    const rdowJan1 = (dow - doy + 7001 - firstDay) % 7;
     let woy = floor((doy - 1 + rdowJan1) / 7);
-    if ((7 - rdowJan1) >= this._minDays) {
+    if ((7 - rdowJan1) >= minDays) {
       woy++;
     }
 
     if (woy === 0) {
       const prevDay = doy + this.yearLength(eyear - 1);
-      woy = this.weekNumber(prevDay, prevDay, dow);
+      woy = this.weekNumber(firstDay, minDays, prevDay, prevDay, dow);
       ywoy--;
     } else {
       const lastDoy = this.yearLength(eyear);
@@ -317,7 +316,7 @@ export abstract class CalendarDate {
         if (lastRdow < 0) {
           lastRdow += 7;
         }
-        if (((6 - lastRdow) >= this._minDays) && ((doy + 7 - rdow) > lastDoy)) {
+        if (((6 - lastRdow) >= minDays) && ((doy + 7 - rdow) > lastDoy)) {
           woy = 1;
           ywoy++;
         }
@@ -332,13 +331,13 @@ export abstract class CalendarDate {
     return this.monthStart(y + 1, 0, false) - this.monthStart(y, 0, false);
   }
 
-  protected weekNumber(desiredDay: number, dayOfPeriod: number, dayOfWeek: number): number {
-    let psow = (dayOfWeek - this._firstDay - dayOfPeriod + 1) % 7;
+  protected weekNumber(firstDay: number, minDays: number, desiredDay: number, dayOfPeriod: number, dayOfWeek: number): number {
+    let psow = (dayOfWeek - firstDay - dayOfPeriod + 1) % 7;
     if (psow < 0) {
       psow += 7;
     }
     const weekNo = floor((desiredDay + psow - 1) / 7);
-    return ((7 - psow) >= this._minDays) ? weekNo + 1 : weekNo;
+    return 7 - psow >= minDays ? weekNo + 1 : weekNo;
   }
 
   protected utcfields(): number[] {
