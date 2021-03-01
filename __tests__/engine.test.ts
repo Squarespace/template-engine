@@ -1,5 +1,4 @@
 import { join } from 'path';
-import { pathseq } from './helpers';
 import { Context, Partials } from '../src/context';
 import { Engine, EngineProps } from '../src/engine';
 import { Formatters, Predicates } from '../src/plugins';
@@ -116,7 +115,7 @@ test('variables missing formatters', () => {
   expect(ctx.render()).toEqual('hello');
 });
 
-pathseq('variables-%N.html', 1).forEach(path => {
+loader.paths('variables-%N.html').forEach(path => {
   test(`variables - ${path}`, () => loader.execute(path));
 });
 
@@ -409,11 +408,11 @@ test('bindvar', () => {
   expect(ctx.render()).toEqual('&lt;hi&gt;<bye>');
 });
 
-pathseq('bindvar-%N.html', 2).forEach(path => {
+loader.paths('bindvar-%N.html').forEach(path => {
   test(`bindvar - ${path}`, () => loader.execute(path));
 });
 
-pathseq('ctxvar-%N.html', 1).forEach(path => {
+loader.paths('ctxvar-%N.html').forEach(path => {
   test(`ctxvar - ${path}`, () => loader.execute(path));
 });
 
@@ -628,7 +627,7 @@ test('inject mapping empty', () => {
   expect(ctx.render()).toEqual('');
 });
 
-pathseq('inject-%N.html', 2).forEach(path => {
+loader.paths('inject-%N.html').forEach(path => {
   test(`inject - ${path}`, () => loader.execute(path));
 });
 

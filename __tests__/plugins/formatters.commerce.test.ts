@@ -1,5 +1,4 @@
 import { join } from 'path';
-import { pathseq } from '../helpers';
 import { CLDR } from '@phensley/cldr';
 import { framework } from '../cldr';
 import { Context } from '../../src/context';
@@ -25,35 +24,35 @@ const formatPercentage = (
   return vars[0].get();
 };
 
-pathseq('f-add-to-cart-btn-%N.html', 5).forEach((path) => {
+loader.paths('f-add-to-cart-btn-%N.html').forEach((path) => {
   test(`add to cart btn - ${path}`, () => loader.execute(path));
 });
 
-pathseq('f-bookkeeper-money-format-%N.html', 1).forEach((path) => {
+loader.paths('f-bookkeeper-money-format-%N.html').forEach((path) => {
   test(`bookkeeper money format - ${path}`, () => loader.execute(path));
 });
 
-pathseq('f-cart-quantity-%N.html', 2).forEach((path) => {
+loader.paths('f-cart-quantity-%N.html').forEach((path) => {
   test(`cart quantity - ${path}`, () => loader.execute(path));
 });
 
-pathseq('f-cart-url-%N.html', 1).forEach((path) => {
+loader.paths('f-cart-url-%N.html').forEach((path) => {
   test(`cart url - ${path}`, () => loader.execute(path));
 });
 
 // TODO: these return double in Java and get formatted with trailing zero,
 // e.g. '100.0'. Javascript formats as '100'.
-pathseq('f-from-price-%N.html', 7).forEach((path) => {
+loader.paths('f-from-price-%N.html').forEach((path) => {
   test(`from price - ${path}`, () => loader.execute(path));
 });
 
 // TODO: these return double in Java and get formatted with trailing zero,
 // e.g. '100.0'. Javascript formats as '100'.
-pathseq('f-normal-price-%N.html', 7).forEach((path) => {
+loader.paths('f-normal-price-%N.html').forEach((path) => {
   test(`normal price - ${path}`, () => loader.execute(path));
 });
 
-pathseq('f-percentage-format-%N.html', 2).forEach((path) => {
+loader.paths('f-percentage-format-%N.html').forEach((path) => {
   test(`percentage format - ${path}`, () => loader.execute(path));
 });
 
@@ -64,67 +63,67 @@ test('percentage', () => {
   expect(formatPercentage(undefined, '53.6', [])).toEqual('');
 });
 
-pathseq('f-product-checkout-%N.html', 1).forEach((path) => {
+loader.paths('f-product-checkout-%N.html').forEach((path) => {
   test(`product checkout - ${path}`, () => loader.execute(path));
 });
 
-pathseq('f-product-quick-view-%N.html', 5).forEach((path) => {
+loader.paths('f-product-quick-view-%N.html').forEach((path) => {
   test(`product quick view - ${path}`, () => loader.execute(path));
 });
 
 // TODO product-scarcity (depends on 'message' formatter which requires i18n branch)
 
 // TODO product-price
-// pathseq('f-product-price-%N.html', 8).forEach((path) => {
+// loader.paths('f-product-price-%N.html', 8).forEach((path) => {
 //   test(`product price - ${path}`, () => loader.execute(path));
 // });
 
-pathseq('f-product-status-%N.html', 8).forEach((path) => {
+loader.paths('f-product-status-%N.html').forEach((path) => {
   test(`product status - ${path}`, () => loader.execute(path));
 });
 
-pathseq('f-quantity-input-%N.html', 5).forEach((path) => {
+loader.paths('f-quantity-input-%N.html').forEach((path) => {
   test(`quantity input - ${path}`, () => loader.execute(path));
 });
 
 // TODO: these return double in Java and get formatted with trailing zero,
 // e.g. '100.0'. Javascript formats as '100'.
-pathseq('f-sale-price-%N.html', 7).forEach((path) => {
+loader.paths('f-sale-price-%N.html').forEach((path) => {
   test(`sale price - ${path}`, () => loader.execute(path));
 });
 
-pathseq('f-summary-form-field-address-%N.html', 2).forEach((path) => {
+loader.paths('f-summary-form-field-address-%N.html').forEach((path) => {
   test(`summary form field address - ${path}`, () => loader.execute(path));
 });
 
-pathseq('f-summary-form-field-checkbox-%N.html', 3).forEach((path) => {
+loader.paths('f-summary-form-field-checkbox-%N.html').forEach((path) => {
   test(`summary form field checkbox - ${path}`, () => loader.execute(path));
 });
 
-pathseq('f-summary-form-field-date-%N.html', 1).forEach((path) => {
+loader.paths('f-summary-form-field-date-%N.html').forEach((path) => {
   test(`summary form field date - ${path}`, () => loader.execute(path));
 });
 
-pathseq('f-summary-form-field-likert-%N.html', 1).forEach((path) => {
+loader.paths('f-summary-form-field-likert-%N.html').forEach((path) => {
   test(`summary form field likert - ${path}`, () => loader.execute(path));
 });
 
-pathseq('f-summary-form-field-name-%N.html', 1).forEach((path) => {
+loader.paths('f-summary-form-field-name-%N.html').forEach((path) => {
   test(`summary form field name - ${path}`, () => loader.execute(path));
 });
 
-pathseq('f-summary-form-field-phone-%N.html', 1).forEach((path) => {
+loader.paths('f-summary-form-field-phone-%N.html').forEach((path) => {
   test(`summary form field phone - ${path}`, () => loader.execute(path));
 });
 
-pathseq('f-summary-form-field-time-%N.html', 1).forEach((path) => {
+loader.paths('f-summary-form-field-time-%N.html').forEach((path) => {
   test(`summary form field time - ${path}`, () => loader.execute(path));
 });
 
-pathseq('f-variant-descriptor-%N.html', 2).forEach((path) => {
+loader.paths('f-variant-descriptor-%N.html').forEach((path) => {
   test(`variant descriptor - ${path}`, () => loader.execute(path));
 });
 
-pathseq('f-variants-select-%N.html', 3).forEach((path) => {
+loader.paths('f-variants-select-%N.html').forEach((path) => {
   test(`variants select - ${path}`, () => loader.execute(path));
 });

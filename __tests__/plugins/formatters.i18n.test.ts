@@ -9,7 +9,6 @@ import {
 } from '../../src/plugins/formatters.i18n';
 import { Variable } from '../../src/variable';
 import { TemplateTestLoader } from '../loader';
-import { pathseq } from '../helpers';
 
 const loader = new TemplateTestLoader(join(__dirname, 'resources'));
 
@@ -187,11 +186,11 @@ test('datetime-interval', () => {
   expect(formatInterval(undefined, start, start + 2000, ZONE_NY, args)).toEqual('');
 });
 
-pathseq('f-message-%N.html', 1).forEach(path => {
+loader.paths('f-message-%N.html').forEach(path => {
   test(`comment count - ${path}`, () => loader.execute(path));
 });
 
-pathseq('f-message-plural-%N.html', 2).forEach(path => {
+loader.paths('f-message-plural-%N.html').forEach(path => {
   test(`message plural - ${path}`, () => loader.execute(path));
 });
 
@@ -241,7 +240,7 @@ test('message', () => {
   expect(formatMessage(EN, '{0 datetime}', args, ctx)).toEqual('');
 });
 
-pathseq('f-relative-time-%N.html', 1).forEach(path => {
+loader.paths('f-relative-time-%N.html').forEach(path => {
   test(`relative time - ${path}`, () => loader.execute(path));
 });
 

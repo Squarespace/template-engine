@@ -30,6 +30,21 @@ export class TestLoader {
   constructor(private directory: string, private decoders: Partial<DecoderMap>) {
   }
 
+  /**
+   * Return all paths in directory that match the numbered pattern.
+   */
+  paths(pattern: string): string[] {
+    const rx = new RegExp(pattern.replace('%N', '\\d+'));
+    const names = fs.readdirSync(this.directory);
+    const res: string[] = [];
+    for (const name of names) {
+      if (rx.test(name)) {
+        res.push(name);
+      }
+    }
+    return res.sort();
+  }
+
   load(path: string): any {
     if (path.startsWith(sep)) {
       throw new Error(`Path must be relative. Got ${path}`);

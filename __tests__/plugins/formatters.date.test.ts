@@ -3,14 +3,13 @@ import { DATE_FORMATTERS as TABLE } from '../../src/plugins/formatters.date';
 import { Context } from '../../src/context';
 import { Variable } from '../../src/variable';
 import { framework } from '../cldr';
-import { pathseq } from '../helpers';
 import { TemplateTestLoader } from '../loader';
 
 const loader = new TemplateTestLoader(join(__dirname, 'resources'));
 
 const variables = (...n: any[]) => n.map((v, i) => new Variable('var' + i, v));
 
-pathseq('f-date-%N.html', 2).forEach(path => {
+loader.paths('f-date-%N.html').forEach(path => {
   test(`date - ${path}`, () => loader.execute(path));
 });
 

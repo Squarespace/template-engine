@@ -2,7 +2,6 @@ import { join } from 'path';
 import { Context } from '../../src/context';
 import { SOCIAL_FORMATTERS as TABLE } from '../../src/plugins/formatters.social';
 import { Node } from '../../src/node';
-import { pathseq } from '../helpers';
 import { TemplateTestLoader } from '../loader';
 import { Variable } from '../../src/variable';
 
@@ -21,38 +20,38 @@ test('activate twitter links', () => {
   expect(result).toContain('<a target="new" href="https://twitter.com/hashtag/Bar?src=hash">#Bar</a>');
 });
 
-pathseq('f-activate-twitter-links-%N.html', 1).forEach(path => {
+loader.paths('f-activate-twitter-links-%N.html').forEach(path => {
   test(`${path}`, () => loader.execute(path));
 });
 
-pathseq('f-comment-count-%N.html', 3).forEach(path => {
+loader.paths('f-comment-count-%N.html').forEach(path => {
   test(`comment count - ${path}`, () => loader.execute(path));
 });
 
-pathseq('f-comment-link-%N.html', 3).forEach(path => {
+loader.paths('f-comment-link-%N.html').forEach(path => {
   test(`comment link - ${path}`, () => loader.execute(path));
 });
 
-pathseq('f-comments-%N.html', 3).forEach(path => {
+loader.paths('f-comments-%N.html').forEach(path => {
   test(`comments - ${path}`, () => loader.execute(path));
 });
 
-pathseq('f-like-button-%N.html', 2).forEach(path => {
+loader.paths('f-like-button-%N.html').forEach(path => {
   test(`like button - ${path}`, () => loader.execute(path));
 });
 
-pathseq('f-google-calendar-url-%N.html', 3).forEach(path => {
+loader.paths('f-google-calendar-url-%N.html').forEach(path => {
   test(`google calendar url - ${path}`, () => loader.execute(path));
 });
 
-pathseq('f-social-button-%N.html', 1).forEach(path => {
+loader.paths('f-social-button-%N.html').forEach(path => {
   test(`social button - ${path}`, () => loader.execute(path));
 });
 
-pathseq('f-social-button-inline-%N.html', 1).forEach(path => {
+loader.paths('f-social-button-inline-%N.html').forEach(path => {
   test(`social button inline - ${path}`, () => loader.execute(path));
 });
 
-pathseq('f-twitter-follow-button-%N.html', 2).forEach(path => {
+loader.paths('f-twitter-follow-button-%N.html').forEach(path => {
   test(`twitter follow button - ${path}`, () => loader.execute(path));
 });

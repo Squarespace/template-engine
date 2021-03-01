@@ -125,18 +125,6 @@ export class Image extends Struct<Image> {
   }
 }
 
-/**
- * Generate a sequence of numbered paths.
- */
-export const pathseq = (pattern: string, end: number) => {
-  const res = [];
-  for (let i = 1; i <= end; i++) {
-    const path = pattern.replace('%N', String(i));
-    res.push(path);
-  }
-  return res;
-};
-
 interface TestCase {
   name: string;
   input: any;

@@ -1,5 +1,4 @@
 import { join } from 'path';
-import { pathseq } from './helpers';
 import { parseTemplate, TestLoader } from './loader';
 import { prettyJson } from '../src/pretty';
 import { Code } from '../src/instructions';
@@ -42,7 +41,7 @@ test('malformed', () => {
   expect(actual).toEqual('');
 });
 
-pathseq('ast-%N.html', 20).forEach(path => {
+loader.paths('ast-%N.html').forEach(path => {
   test(path, () => {
     const spec = loader.load(path);
     const actual = prettyJson(spec.TEMPLATE);

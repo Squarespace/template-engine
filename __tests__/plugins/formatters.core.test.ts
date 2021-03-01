@@ -2,7 +2,6 @@ import { join } from 'path';
 import { CORE_FORMATTERS as Core } from '../../src/plugins/formatters.core';
 import { Context, Partials } from '../../src/context';
 import { Engine } from '../../src/engine';
-import { pathseq } from '../helpers';
 import { TemplateTestLoader } from '../loader';
 import { Opcode as O } from '../../src/opcodes';
 import { RootCode } from '../../src/instructions';
@@ -143,7 +142,7 @@ test('apply max recursion depth', () => {
   expect(ctx.errors[0].message).toContain('recursion depth');
 });
 
-pathseq('f-apply-%N.html', 1).forEach(path => {
+loader.paths('f-apply-%N.html').forEach(path => {
   test(`apply - ${path}`, () => loader.execute(path));
 });
 
@@ -232,7 +231,7 @@ test('format', () => {
   expect(vars[0].get()).toEqual('The  is .');
 });
 
-pathseq('f-format-%N.html', 3).forEach(path => {
+loader.paths('f-format-%N.html').forEach(path => {
   test(`format - ${path}`, () => loader.execute(path));
 });
 
@@ -280,7 +279,7 @@ test('json', () => {
   expect(vars[0].get()).toEqual('["a",2,"c"]');
 });
 
-pathseq('f-json-%N.html', 5).forEach(path => {
+loader.paths('f-json-%N.html').forEach(path => {
   test(`json - ${path}`, () => loader.execute(path));
 });
 
@@ -290,11 +289,11 @@ test('json-pretty', () => {
   expect(vars[0].get()).toEqual('{\n  "a": [\n    1,\n    2\n  ]\n}');
 });
 
-pathseq('f-json-pretty-%N.html', 2).forEach(path => {
+loader.paths('f-json-pretty-%N.html').forEach(path => {
   test(`json pretty - ${path}`, () => loader.execute(path));
 });
 
-pathseq('f-lookup-%N.html', 1).forEach(path => {
+loader.paths('f-lookup-%N.html').forEach(path => {
   test(`lookup - ${path}`, () => loader.execute(path));
 });
 
@@ -335,15 +334,15 @@ test('mod', () => {
   expect(vars[0].get()).toEqual(0);
 });
 
-pathseq(`f-get-%N.html`, 5).forEach(path => {
+loader.paths(`f-get-%N.html`).forEach(path => {
   test(`get - ${path}`, () => loader.execute(path));
 });
 
-pathseq('f-macro-%N.html', 10).forEach(path => {
+loader.paths('f-macro-%N.html').forEach(path => {
   test(`apply macro - ${path}`, () => loader.execute(path));
 });
 
-pathseq('f-macro-ctx-%N.html', 1).forEach(path => {
+loader.paths('f-macro-ctx-%N.html').forEach(path => {
   test(`apply macro ctx - ${path}`, () => loader.execute(path));
 });
 
@@ -375,7 +374,7 @@ test('pluralize', () => {
   expect(vars[0].get()).toEqual('y');
 });
 
-pathseq(`f-prop-%N.html`, 3).forEach(path => {
+loader.paths(`f-prop-%N.html`).forEach(path => {
   test(`get - ${path}`, () => loader.execute(path));
 });
 

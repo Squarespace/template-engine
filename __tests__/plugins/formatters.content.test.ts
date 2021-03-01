@@ -2,7 +2,7 @@ import { join } from 'path';
 import { CONTENT_FORMATTERS as TABLE } from '../../src/plugins/formatters.content';
 import { Context } from '../../src/context';
 import { MISSING_NODE } from '../../src/node';
-import { pathseq, Image } from '../helpers';
+import { Image } from '../helpers';
 import { TemplateTestLoader } from '../loader';
 import { Variable } from '../../src/variable';
 
@@ -20,7 +20,11 @@ test('AbsUrl', () => {
   expect(vars[0].get()).toEqual('https://www.squarespace.com/foo/bar');
 });
 
-pathseq('f-audio-player-%N.html', 1).forEach((path) => {
+loader.paths('f-absurl-%N.html').forEach((path) => {
+  test(`AbsUrl - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-audio-player-%N.html').forEach((path) => {
   test(`audio-player - ${path}`, () => loader.execute(path));
 });
 
@@ -78,7 +82,7 @@ test('child image meta', () => {
   expect(vars[0].get()).toEqual('');
 });
 
-pathseq('f-child-image-meta-%N.html', 6).forEach((path) => {
+loader.paths('f-child-image-meta-%N.html').forEach((path) => {
   test(`child image meta - ${path}`, () => loader.execute(path));
 });
 
@@ -148,23 +152,23 @@ test('height', () => {
   expect(vars[0].node).toBe(MISSING_NODE);
 });
 
-pathseq('f-humanize-duration-%N.html', 1).forEach((path) => {
+loader.paths('f-humanize-duration-%N.html').forEach((path) => {
   test(`humanize duration - ${path}`, () => loader.execute(path));
 });
 
-pathseq('f-image-%N.html', 6).forEach((path) => {
+loader.paths('f-image-%N.html').forEach((path) => {
   test(`image - ${path}`, () => loader.execute(path));
 });
 
-pathseq('f-image-srcset-%N.html', 1).forEach((path) => {
+loader.paths('f-image-srcset-%N.html').forEach((path) => {
   test(`image srcset - ${path}`, () => loader.execute(path));
 });
 
-pathseq('f-image-color-%N.html', 5).forEach((path) => {
+loader.paths('f-image-color-%N.html').forEach((path) => {
   test(`image color - ${path}`, () => loader.execute(path));
 });
 
-pathseq('f-item-classes-%N.html', 3).forEach((path) => {
+loader.paths('f-item-classes-%N.html').forEach((path) => {
   test(`item classes - ${path}`, () => loader.execute(path));
 });
 
@@ -233,7 +237,7 @@ test('squarespace thumbnail for height', () => {
   });
 });
 
-pathseq('f-video-%N.html', 3).forEach((path) => {
+loader.paths('f-video-%N.html').forEach((path) => {
   test(`video - ${path}`, () => loader.execute(path));
 });
 

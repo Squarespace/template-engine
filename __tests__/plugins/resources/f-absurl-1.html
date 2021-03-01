@@ -1,0 +1,18 @@
+:JSON
+{
+    "base-url": "https://example.com/prefix",
+    "urls": [
+      "index",
+      "blog/new-article"
+    ]
+  }
+
+:TEMPLATE
+{.repeated section urls}
+  {@|AbsUrl}
+{.end}
+
+:OUTPUT
+  https://example.com/prefix/index
+
+  https://example.com/prefix/blog/new-article

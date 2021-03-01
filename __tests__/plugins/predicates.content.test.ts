@@ -1,5 +1,4 @@
 import { join } from 'path';
-import { pathseq } from '../helpers';
 import { framework } from '../cldr';
 import { TemplateTestLoader } from '../loader';
 import { CONTENT_PREDICATES as Content } from '../../src/plugins/predicates.content';
@@ -15,7 +14,7 @@ test('calendar view', () => {
   loader.execute('p-calendar-view.html');
 });
 
-pathseq('p-child-images-%N.html', 4).forEach(path => {
+loader.paths('p-child-images-%N.html').forEach(path => {
   test(`child images - ${path}`, () => loader.execute(path));
 });
 
