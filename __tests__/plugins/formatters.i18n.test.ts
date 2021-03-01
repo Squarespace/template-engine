@@ -80,6 +80,10 @@ const formatTimeSince = (cldr: CLDR | undefined, start: number | undefined, end:
   return vars[0].get();
 };
 
+loader.paths('f-decimal-%N.html').forEach(path => {
+  test(`decimal - ${path}`, () => loader.execute(path));
+});
+
 test('decimal', () => {
   let args: string[] = ['group'];
   expect(formatDecimal(EN, '12345.67811111', args)).toEqual('12,345.678');
@@ -122,6 +126,10 @@ test('money', () => {
   money = { value: '155900.799', currency: 'EUR' };
   const ctx: any = { website: { useCLDRMoneyFormat: true } };
   expect(formatMoney(EN, money, ['style:short'], ctx)).toEqual('€156K');
+});
+
+loader.paths('f-datetime-%N.html').forEach(path => {
+  test(`datetime - ${path}`, () => loader.execute(path));
 });
 
 test('datetime', () => {
@@ -172,6 +180,10 @@ test('japanese', () => {
 
   args = ['date:full'];
   expect(formatDatetime(JA, d, ZONE_NY, args)).toEqual('平成30年3月12日月曜日');
+});
+
+loader.paths('f-datetime-interval-%N.html').forEach(path => {
+  test(`datetime-interval - ${path}`, () => loader.execute(path));
 });
 
 test('datetime-interval', () => {

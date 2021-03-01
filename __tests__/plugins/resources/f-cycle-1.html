@@ -1,0 +1,27 @@
+:JSON
+{
+  "indices": [2, 1, 3]
+}
+
+:TEMPLATE
+{.repeated section indices}
+  {@|cycle foo bar baz quux}
+{.end}
+{.repeated section indices}
+  {@index|cycle A. B. C. D.} {@}
+{.end}
+
+
+:OUTPUT
+  bar
+
+  foo
+
+  baz
+
+
+  A. 2
+
+  B. 1
+
+  C. 3

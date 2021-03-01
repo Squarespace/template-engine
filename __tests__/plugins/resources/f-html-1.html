@@ -1,0 +1,12 @@
+:JSON
+{
+  "string": "\"< foo & bar >\""
+}
+
+:TEMPLATE
+{string}
+{string|html}
+ 
+:OUTPUT
+"< foo & bar >"
+"&lt; foo &amp; bar &gt;"

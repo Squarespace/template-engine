@@ -6,89 +6,119 @@ import { Context } from '../../src/context';
 
 const loader = new TemplateTestLoader(join(__dirname, 'resources'));
 
-test('background source', () => {
-  loader.execute('p-background-source.html');
+loader.paths('p-active-time-%N.html').forEach(path => {
+  test(`active-time - ${path}`, () => loader.execute(path));
 });
 
-test('calendar view', () => {
-  loader.execute('p-calendar-view.html');
+loader.paths('p-attachment-%N.html').forEach(path => {
+  test(`attachment - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('p-audio-%N.html').forEach(path => {
+  test(`audio - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('p-background-source-%N.html').forEach(path => {
+  test(`background-source - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('p-binary-%N.html').forEach(path => {
+  test(`binary - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('p-calendar-view-%N.html').forEach(path => {
+  test(`calendar-view - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('p-checkin-%N.html').forEach(path => {
+  test(`checkin - ${path}`, () => loader.execute(path));
 });
 
 loader.paths('p-child-images-%N.html').forEach(path => {
-  test(`child images - ${path}`, () => loader.execute(path));
+  test(`child-images - ${path}`, () => loader.execute(path));
 });
 
-test('clickable', () => {
-  loader.execute('p-clickable.html');
+loader.paths('p-clickable-%N.html').forEach(path => {
+  test(`clickable - ${path}`, () => loader.execute(path));
 });
 
-test('collection page', () => {
-  loader.execute('p-collection-page.html');
+loader.paths('p-collection-page-%N.html').forEach(path => {
+  test(`collection-page - ${path}`, () => loader.execute(path));
 });
 
-test('collection template page', () => {
-  loader.execute('p-collection-template-page.html');
+loader.paths('p-collection-template-page-%N.html').forEach(path => {
+  test(`collection-template-page - ${path}`, () => loader.execute(path));
 });
 
-test('collection', () => {
-  loader.execute('p-collection.html');
+loader.paths('p-collection-type-name-equals-%N.html').forEach(path => {
+  test(`collection-type-name-equals - ${path}`, () => loader.execute(path));
 });
 
-test('collection type name equals', () => {
-  loader.execute('p-collection-type-name-equals.html');
+loader.paths('p-collection-%N.html').forEach(path => {
+  test(`collection - ${path}`, () => loader.execute(path));
 });
 
-test('excerpt', () => {
-  loader.execute('p-excerpt.html');
+loader.paths('p-excerpt-%N.html').forEach(path => {
+  test(`excerpt - ${path}`, () => loader.execute(path));
 });
 
-test('external link', () => {
-  loader.execute('p-external-link.html');
+loader.paths('p-external-link-%N.html').forEach(path => {
+  test(`external-link - ${path}`, () => loader.execute(path));
 });
 
-test('folder', () => {
-  loader.execute('p-folder.html');
+loader.paths('p-folder-%N.html').forEach(path => {
+  test(`folder - ${path}`, () => loader.execute(path));
 });
 
-test('gallery autoplay', () => {
-  loader.execute('p-gallery-boolean.html');
+loader.paths('p-gallery-autoplay-%N.html').forEach(path => {
+  test(`gallery-autoplay - ${path}`, () => loader.execute(path));
 });
 
-test('gallery design', () => {
-  loader.execute('p-gallery-select.html');
+loader.paths('p-gallery-design-%N.html').forEach(path => {
+  test(`gallery-design - ${path}`, () => loader.execute(path));
 });
 
-test('gallery meta', () => {
-  loader.execute('p-gallery-meta.html');
+loader.paths('p-gallery-meta-%N.html').forEach(path => {
+  test(`gallery-meta - ${path}`, () => loader.execute(path));
 });
 
-test('has multiple', () => {
-  loader.execute('p-has-multiple.html');
+loader.paths('p-has-multiple-%N.html').forEach(path => {
+  test(`has-multiple - ${path}`, () => loader.execute(path));
 });
 
-test('index', () => {
-  loader.execute('p-index.html');
+loader.paths('p-index-%N.html').forEach(path => {
+  test(`index - ${path}`, () => loader.execute(path));
 });
 
-test('location', () => {
-  loader.execute('p-location.html');
+loader.paths('p-location-%N.html').forEach(path => {
+  test(`location - ${path}`, () => loader.execute(path));
 });
 
-test('main image', () => {
-  loader.execute('p-main-image.html');
+loader.paths('p-main-image-%N.html').forEach(path => {
+  test(`main-image - ${path}`, () => loader.execute(path));
 });
 
-test('passthrough', () => {
-  loader.execute('p-passthrough.html');
+loader.paths('p-passthrough-%N.html').forEach(path => {
+  test(`passthrough - ${path}`, () => loader.execute(path));
 });
 
-test('record types', () => {
-  loader.execute('p-record-type.html');
+loader.paths('p-record-type-%N.html').forEach(path => {
+  test(`record-type - ${path}`, () => loader.execute(path));
 });
 
-test('redirect', () => {
-  loader.execute('p-redirect.html');
+loader.paths('p-redirect-%N.html').forEach(path => {
+  test(`redirect - ${path}`, () => loader.execute(path));
 });
+
+loader.paths('p-service-name-email-%N.html').forEach(path => {
+  test(`service-name-email - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('p-show-past-events-%N.html').forEach(path => {
+  test(`show-past-events - ${path}`, () => loader.execute(path));
+});
+
+// ---
 
 test('same day', () => {
   const cldr = framework.get('en');
@@ -107,12 +137,4 @@ test('same day', () => {
 
   ctx = make(instant, instant - (86400 * 1000 * 2));
   expect(impl.apply([], ctx)).toEqual(false);
-});
-
-test('service name email', () => {
-  loader.execute('p-service-name-email.html');
-});
-
-test('show past events', () => {
-  loader.execute('p-show-past-events.html');
 });

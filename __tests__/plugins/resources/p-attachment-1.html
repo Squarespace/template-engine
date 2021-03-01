@@ -1,0 +1,17 @@
+:JSON
+{
+  "items": [
+    { "recordType": 3 },
+    { "recordType": 19 }
+  ]
+}
+
+:TEMPLATE
+{.repeated section items}
+  {recordType} {.attachment?}yes{.or}no{.end}
+{.end}
+
+:OUTPUT
+  3 no
+
+  19 yes

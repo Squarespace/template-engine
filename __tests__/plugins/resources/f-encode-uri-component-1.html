@@ -1,0 +1,19 @@
+:JSON
+{
+  "english": "Coffee & Tea",
+  "korean": "\ucee4\ud53c\uc640\u0020\ucc28"
+}
+
+:TEMPLATE
+{english}
+/show?en={english|encode-uri-component}
+
+{korean}
+/show?ko={korean|encode-uri-component}
+
+:OUTPUT
+Coffee & Tea
+/show?en=Coffee%20%26%20Tea
+
+커피와 차
+/show?ko=%EC%BB%A4%ED%94%BC%EC%99%80%20%EC%B0%A8

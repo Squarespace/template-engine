@@ -1,0 +1,17 @@
+:JSON
+{
+  "items": [
+    { "recordType": 3 },
+    { "recordType": 52 }
+  ]
+}
+
+:TEMPLATE
+{.repeated section items}
+  {recordType} {.checkin?}yes{.or}no{.end}
+{.end}
+
+:OUTPUT
+  3 no
+
+  52 yes

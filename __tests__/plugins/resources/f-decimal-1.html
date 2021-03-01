@@ -1,0 +1,16 @@
+:JSON
+{
+  "n": "123456.7890"
+}
+
+:TEMPLATE
+{n|decimal style:percent}
+{n|decimal style:short}
+{n|decimal maximumFractionDigits:1}
+{n|decimal maximumFractionDigits:1 round:down}
+
+:OUTPUT
+12,345,679%
+123K
+123,456.8
+123,456.7

@@ -3,8 +3,8 @@ import { TemplateTestLoader } from '../loader';
 
 const loader = new TemplateTestLoader(join(__dirname, 'resources'));
 
-test('has variants', () => {
-  loader.execute('p-has-variants.html');
+loader.paths('p-has-variants-%N.html').forEach(path => {
+  test(`has-variants - ${path}`, () => loader.execute(path));
 });
 
 test('on sale', () => {

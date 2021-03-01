@@ -28,6 +28,10 @@ loader.paths('f-audio-player-%N.html').forEach((path) => {
   test(`audio-player - ${path}`, () => loader.execute(path));
 });
 
+loader.paths('f-capitalize-%N.html').forEach((path) => {
+  test(`capitalize - ${path}`, () => loader.execute(path));
+});
+
 test('capitalize', () => {
   const impl = TABLE.capitalize;
   const vars = variables('abc');
@@ -100,7 +104,11 @@ test('cover image meta', () => {
   expect(vars[0].get()).toContain('data-src="http://squarespace.com/');
 });
 
-test('color weight', () => {
+loader.paths('f-color-weight-%N.html').forEach((path) => {
+  test(`color-weight - ${path}`, () => loader.execute(path));
+});
+
+test('color-weight', () => {
   const impl = TABLE['color-weight'];
 
   let vars = variables('#fff');
@@ -140,6 +148,10 @@ test('color weight', () => {
   expect(vars[0].node).toEqual(MISSING_NODE);
 });
 
+loader.paths('f-height-%N.html').forEach((path) => {
+  test(`height - ${path}`, () => loader.execute(path));
+});
+
 test('height', () => {
   const impl = TABLE.height;
 
@@ -158,6 +170,10 @@ loader.paths('f-humanize-duration-%N.html').forEach((path) => {
 
 loader.paths('f-image-%N.html').forEach((path) => {
   test(`image - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-image-meta-%N.html').forEach((path) => {
+  test(`image meta - ${path}`, () => loader.execute(path));
 });
 
 loader.paths('f-image-srcset-%N.html').forEach((path) => {

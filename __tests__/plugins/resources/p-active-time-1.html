@@ -1,0 +1,17 @@
+:JSON
+{
+  "items": [
+    { "recordType": 18 },
+    { "recordType": 31 }
+  ]
+}
+
+:TEMPLATE
+{.repeated section items}
+  {recordType} {.active-time?}yes{.or}no{.end}
+{.end}
+
+:OUTPUT
+  18 no
+
+  31 yes

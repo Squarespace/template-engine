@@ -3,10 +3,10 @@ import { TemplateTestLoader } from '../loader';
 
 const loader = new TemplateTestLoader(join(__dirname, 'resources'));
 
-test('comments', () => {
-  loader.execute('p-comments.html');
+loader.paths('p-comments-%N.html').forEach((path) => {
+  test(`comments - ${path}`, () => loader.execute(path));
 });
 
-test('disqus', () => {
-  loader.execute('p-disqus.html');
+loader.paths('p-disqus-%N.html').forEach((path) => {
+  test(`disqus - ${path}`, () => loader.execute(path));
 });

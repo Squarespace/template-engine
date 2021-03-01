@@ -1,0 +1,17 @@
+:JSON
+{
+  "items": [
+    { "recordType": 18 },
+    { "recordType": 7 }
+  ]
+}
+
+:TEMPLATE
+{.repeated section items}
+  {recordType} {.audio?}yes{.or}no{.end}
+{.end}
+
+:OUTPUT
+  18 no
+
+  7 yes

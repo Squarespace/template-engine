@@ -1,0 +1,37 @@
+:JSON
+{
+  "t": 1582571080000
+}
+
+:TEMPLATE
+{t|datetime}
+{t|datetime short}
+{t|datetime medium}
+{t|datetime long}
+{t|datetime full}
+
+{t|datetime date:short time:medium}
+{t|datetime date:full time:short}
+
+{t|datetime skeleton:yMMMEEEd}
+{t|datetime yMMMMdEEEE context:begin-sentence}
+{t|datetime skeleton:Bh}
+{t|datetime date:yMd time:hm}
+{t|datetime date:medium time:hm wrap:full}
+
+
+:OUTPUT
+February 24, 2020
+2/24/20, 2:04 PM
+Feb 24, 2020, 2:04:40 PM
+February 24, 2020 at 2:04:40 PM EST
+Monday, February 24, 2020 at 2:04:40 PM Eastern Standard Time
+
+2/24/20, 2:04:40 PM
+Monday, February 24, 2020 at 2:04 PM
+
+Mon, Feb 24, 2020
+Monday, February 24, 2020
+2 in the afternoon
+2/24/2020, 2:04 PM
+Feb 24, 2020 at 2:04 PM

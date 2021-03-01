@@ -1,0 +1,12 @@
+:JSON
+{
+  "message": "hello, this message contains spaces"
+}
+
+:TEMPLATE
+{message}
+{message|encode-space}
+
+:OUTPUT
+hello, this message contains spaces
+hello,&nbsp;this&nbsp;message&nbsp;contains&nbsp;spaces

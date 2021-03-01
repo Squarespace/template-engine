@@ -1,0 +1,21 @@
+:JSON
+{
+  "strings": [
+    "Coffee",
+    "Tea",
+    "Milk"
+  ]
+}
+
+:TEMPLATE
+{.repeated section strings}
+  {@} {@|capitalize}
+{.end}
+
+:OUTPUT
+  Coffee COFFEE
+
+  Tea TEA
+
+  Milk MILK
+

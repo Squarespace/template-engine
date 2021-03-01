@@ -146,6 +146,10 @@ loader.paths('f-apply-%N.html').forEach(path => {
   test(`apply - ${path}`, () => loader.execute(path));
 });
 
+loader.paths('f-count-%N.html').forEach(path => {
+  test(`count - ${path}`, () => loader.execute(path));
+});
+
 test('count', () => {
   let vars = variables([]);
   Core.count.apply([], vars, CTX);
@@ -176,6 +180,10 @@ test('count', () => {
   expect(vars[0].get()).toEqual(0);
 });
 
+loader.paths('f-cycle-%N.html').forEach(path => {
+  test(`cycle - ${path}`, () => loader.execute(path));
+});
+
 test('cycle', () => {
   const args = ['a', 'b', 'c'];
 
@@ -200,16 +208,28 @@ test('cycle', () => {
   expect(vars[0].get()).toEqual('a');
 });
 
+loader.paths('f-encode-space-%N.html').forEach(path => {
+  test(`encode-space - ${path}`, () => loader.execute(path));
+});
+
 test('encode-space', () => {
   const vars = variables(' \t\n ');
   Core['encode-space'].apply([], vars, CTX);
   expect(vars[0].get()).toEqual('&nbsp;&nbsp;&nbsp;&nbsp;');
 });
 
+loader.paths('f-encode-uri-%N.html').forEach(path => {
+  test(`encode-uri - ${path}`, () => loader.execute(path));
+});
+
 test('encode-uri', () => {
   const vars = variables('<=%>');
   Core['encode-uri'].apply([], vars, CTX);
   expect(vars[0].get()).toEqual('%3C=%25%3E');
+});
+
+loader.paths('f-encode-uri-component-%N.html').forEach(path => {
+  test(`encode-uri-component - ${path}`, () => loader.execute(path));
 });
 
 test('encode-uri-component', () => {
@@ -235,10 +255,18 @@ loader.paths('f-format-%N.html').forEach(path => {
   test(`format - ${path}`, () => loader.execute(path));
 });
 
+loader.paths('f-html-%N.html').forEach(path => {
+  test(`html - ${path}`, () => loader.execute(path));
+});
+
 test('html', () => {
   const vars = variables('"<foo & bar>"');
   Core.html.apply([], vars, CTX);
   expect(vars[0].get()).toEqual('"&lt;foo &amp; bar&gt;"');
+});
+
+loader.paths('f-htmlattr-%N.html').forEach(path => {
+  test(`htmlattr - ${path}`, () => loader.execute(path));
 });
 
 const htmlattr = (name: string) => {
@@ -248,6 +276,10 @@ const htmlattr = (name: string) => {
 };
 
 test('htmlattr', () => htmlattr('htmlattr'));
+
+loader.paths('f-htmltag-%N.html').forEach(path => {
+  test(`htmltag - ${path}`, () => loader.execute(path));
+});
 
 test('htmltag', () => htmlattr('htmltag'));
 

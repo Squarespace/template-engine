@@ -1,0 +1,29 @@
+:JSON
+{
+  "colors": [
+    "#fff",
+    "#aaa",
+    "#888",
+    "#444",
+    "#222",
+    "#000"
+  ]
+}
+
+:TEMPLATE
+{.repeated section colors}
+  {@}  {@|color-weight}
+{.end}
+
+:OUTPUT
+  #fff  light
+
+  #aaa  light
+
+  #888  light
+
+  #444  dark
+
+  #222  dark
+
+  #000  dark
