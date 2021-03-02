@@ -1,0 +1,16 @@
+:JSON
+{
+  "keys": ["a", "b", "c"]
+}
+
+:TEMPLATE
+{.repeated section keys}
+  {@|iter} {@}
+{.end}
+
+:OUTPUT
+  1 a
+
+  2 b
+
+  3 c

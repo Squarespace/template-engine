@@ -1,0 +1,32 @@
+:JSON
+{
+  "n": [0, 1, 2, 5]
+}
+
+:TEMPLATE
+{.repeated section n}
+  {@} {@|pluralize item items}
+{.end}
+
+{.repeated section n}
+  {@} comment{@|pluralize}, {@} success{@|pluralize es}
+{.end}
+
+:OUTPUT
+  0 items
+
+  1 item
+
+  2 items
+
+  5 items
+
+
+
+  0 comments, 0 successes
+
+  1 comment, 1 success
+
+  2 comments, 2 successes
+
+  5 comments, 5 successes

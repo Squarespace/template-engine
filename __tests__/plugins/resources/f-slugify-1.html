@@ -1,0 +1,20 @@
+:JSON
+{
+  "headlines": [
+    "International Moose Count Finally Underway",
+    "Cold Wave Linked to Temperatures",
+    "If Strike Isn't Settled Quickly, It May Last Awhile"
+  ]
+}
+
+:TEMPLATE
+{.repeated section headlines}
+  {@|slugify}
+{.end}
+
+:OUTPUT
+  international-moose-count-finally-underway
+
+  cold-wave-linked-to-temperatures
+
+  if-strike-isnt-settled-quickly-it-may-last-awhile

@@ -283,6 +283,10 @@ loader.paths('f-htmltag-%N.html').forEach(path => {
 
 test('htmltag', () => htmlattr('htmltag'));
 
+loader.paths('f-iter-%N.html').forEach(path => {
+  test(`iter - ${path}`, () => loader.execute(path));
+});
+
 test('iter', () => {
   const vars = variables(' ');
   const ctx = new Context({ a: [1, 2, 3] });
@@ -336,6 +340,10 @@ test('lookup', () => {
   expect(vars[0].get()).toEqual(123);
 });
 
+loader.paths('f-mod-%N.html').forEach(path => {
+  test(`mod - ${path}`, () => loader.execute(path));
+});
+
 test('mod', () => {
   const ctx = new Context({});
   let vars = variables(11);
@@ -378,10 +386,22 @@ loader.paths('f-macro-ctx-%N.html').forEach(path => {
   test(`apply macro ctx - ${path}`, () => loader.execute(path));
 });
 
+loader.paths('f-output-%N.html').forEach(path => {
+  test(`output - ${path}`, () => loader.execute(path));
+});
+
 test('output', () => {
   const vars = variables(' ');
   Core.output.apply(['a', 'b', 'c'], vars, CTX);
   expect(vars[0].get()).toEqual('a b c');
+});
+
+loader.paths('f-plural-%N.html').forEach(path => {
+  test(`plural - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-pluralize-%N.html').forEach(path => {
+  test(`pluralize - ${path}`, () => loader.execute(path));
 });
 
 test('pluralize', () => {
@@ -442,6 +462,10 @@ test('raw', () => {
   expect(vars[0].get()).toEqual('3.14159');
 });
 
+loader.paths(`f-round-%N.html`).forEach(path => {
+  test(`round - ${path}`, () => loader.execute(path));
+});
+
 test('round', () => {
   let vars = variables(1.44);
   Core.round.apply([], vars, CTX);
@@ -450,6 +474,10 @@ test('round', () => {
   vars = variables(1.6);
   Core.round.apply([], vars, CTX);
   expect(vars[0].get()).toEqual(2);
+});
+
+loader.paths(`f-safe-%N.html`).forEach(path => {
+  test(`safe - ${path}`, () => loader.execute(path));
 });
 
 test('safe', () => {
@@ -474,6 +502,10 @@ test('safe', () => {
   expect(vars[0].get()).toEqual('foo');
 });
 
+loader.paths(`f-slugify-%N.html`).forEach(path => {
+  test(`slugify - ${path}`, () => loader.execute(path));
+});
+
 test('slugify', () => {
   let vars = variables('Next Total Eclipse on 20th of March 2015');
   Core.slugify.apply([], vars, CTX);
@@ -486,6 +518,10 @@ test('slugify', () => {
   vars = variables('"1.2.3.4.5-()*&-foo.bar-baz');
   Core.slugify.apply([], vars, CTX);
   expect(vars[0].get()).toEqual('12345--foobar-baz');
+});
+
+loader.paths(`f-smartypants-%N.html`).forEach(path => {
+  test(`smartypants - ${path}`, () => loader.execute(path));
 });
 
 test('smartypants', () => {
@@ -502,6 +538,10 @@ test('smartypants', () => {
   expect(vars[0].get()).toEqual('I spoke to Larry\u2014the project\nlead\u2014about the issue');
 });
 
+loader.paths(`f-str-%N.html`).forEach(path => {
+  test(`str - ${path}`, () => loader.execute(path));
+});
+
 test('str', () => {
   let vars = variables(123.4);
   Core.str.apply([], vars, CTX);
@@ -510,6 +550,10 @@ test('str', () => {
   vars = variables({ foo: 1 });
   Core.str.apply([], vars, CTX);
   expect(vars[0].get()).toEqual('');
+});
+
+loader.paths(`f-truncate-%N.html`).forEach(path => {
+  test(`truncate - ${path}`, () => loader.execute(path));
 });
 
 test('truncate', () => {

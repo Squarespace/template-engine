@@ -106,6 +106,10 @@ loader.paths('p-record-type-%N.html').forEach(path => {
   test(`record-type - ${path}`, () => loader.execute(path));
 });
 
+loader.paths('p-promoted-%N.html').forEach(path => {
+  test(`promoted - ${path}`, () => loader.execute(path));
+});
+
 loader.paths('p-redirect-%N.html').forEach(path => {
   test(`redirect - ${path}`, () => loader.execute(path));
 });

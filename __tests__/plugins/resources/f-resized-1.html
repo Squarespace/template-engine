@@ -1,0 +1,25 @@
+:JSON
+{
+    "sizes": [
+      "250x175",
+      "400x100",
+      "800x400"
+    ]
+  }
+
+:TEMPLATE
+{.repeated section sizes}
+  {@}   {@|resizedHeightForWidth 50}   {@|resizedWidthForHeight 50}
+  {@}   {@|squarespaceThumbnailForHeight 50}   {@|squarespaceThumbnailForWidth 50}
+{.end}
+
+:OUTPUT
+  250x175   35   71
+  250x175   100w   100w
+
+  400x100   12   200
+  400x100   300w   100w
+
+  800x400   25   100
+  800x400   100w   100w
+  

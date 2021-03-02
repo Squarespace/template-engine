@@ -1,0 +1,19 @@
+:JSON
+{
+    "website": {
+        "timeZone": "America/New_York"
+    },
+    "ts": [
+        1613597165345
+    ]
+}
+
+:TEMPLATE
+{.repeated section ts}
+{@|date %Y %% %d}
+{@|date %Y-%m-%d %H:%M:%S %Z}
+{.end}
+
+:OUTPUT
+2021 % 17
+2021-02-17 16:26:05 EST

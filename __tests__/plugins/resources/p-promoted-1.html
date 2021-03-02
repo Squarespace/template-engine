@@ -1,0 +1,44 @@
+:JSON
+{
+    "items": [
+      { "promotedBlockType": "code" },
+      { "promotedBlockType": "embed" },
+      { "promotedBlockType": "form" },
+      { "promotedBlockType": "foursquare" },      
+      { "promotedBlockType": "image" },
+      { "promotedBlockType": "instagram" },
+      { "promotedBlockType": "link" },
+      { "promotedBlockType": "map" },
+      { "promotedBlockType": "quote" },
+      { "promotedBlockType": "twitter" },          
+      { "promotedBlockType": "video" }
+    ]
+  }
+
+:TEMPLATE
+{.repeated section items}
+{promotedBlockType} = {.promotedCODE?}code{.or}.{.end}{.promotedEMBED?}embed{.or}.{.end}{.promotedFORM?}form{.or}.{.end}{.promotedFOURSQUARE?}foursquare{.or}.{.end}{.promotedIMAGE?}image{.or}.{.end}{.promotedINSTAGRAM?}instagram{.or}.{.end}{.promotedLINK?}link{.or}.{.end}{.promotedMAP?}map{.or}.{.end}{.promotedQUOTE?}quote{.or}.{.end}{.promotedTWITTER?}twitter{.or}.{.end}{.promotedVIDEO?}video{.or}.{.end}
+{.end}
+
+:OUTPUT
+code = code..........
+
+embed = .embed.........
+
+form = ..form........
+
+foursquare = ...foursquare.......
+
+image = ....image......
+
+instagram = .....instagram.....
+
+link = ......link....
+
+map = .......map...
+
+quote = ........quote..
+
+twitter = .........twitter.
+
+video = ..........video

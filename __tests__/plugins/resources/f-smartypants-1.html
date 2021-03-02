@@ -1,0 +1,20 @@
+:JSON
+{
+  "snippets": [
+      "Yes, I've read both \"Don Quixote\" and \"A Tale of Two Cities\".",
+      "I spoke to Larry--the project lead--about the issue."
+  ]
+}
+
+:TEMPLATE
+{.repeated section snippets}
+  {@}
+  {@|smartypants}
+{.end}
+
+:OUTPUT
+  Yes, I've read both "Don Quixote" and "A Tale of Two Cities".
+  Yes, I’ve read both “Don Quixote” and “A Tale of Two Cities”.
+
+  I spoke to Larry--the project lead--about the issue.
+  I spoke to Larry—the project lead—about the issue.

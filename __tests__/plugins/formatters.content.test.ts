@@ -188,6 +188,10 @@ loader.paths('f-item-classes-%N.html').forEach((path) => {
   test(`item classes - ${path}`, () => loader.execute(path));
 });
 
+loader.paths('f-resized-%N.html').forEach((path) => {
+  test(`resized - ${path}`, () => loader.execute(path));
+});
+
 test('resize height for width', () => {
   const impl = TABLE.resizedHeightForWidth;
   const cases = [
@@ -255,6 +259,10 @@ test('squarespace thumbnail for height', () => {
 
 loader.paths('f-video-%N.html').forEach((path) => {
   test(`video - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-width-%N.html').forEach((path) => {
+  test(`width - ${path}`, () => loader.execute(path));
 });
 
 test('width', () => {

@@ -1,0 +1,17 @@
+:JSON
+{
+  "snippets": [
+    "<a href=\"/link\">link</a>",
+    "<b>bold string</b>"
+  ]
+}
+
+:TEMPLATE
+{.repeated section snippets}
+  {@|safe}
+{.end}
+
+:OUTPUT
+  link
+
+  bold string
