@@ -29,7 +29,7 @@ export class DateFormatter extends Formatter {
     const d = GregorianDate.fromUnixEpoch(instant, timezone);
 
     // Build format and apply
-    const value = formatDate(d, args[0]);
+    const value = formatDate(d, args.join(' '));
     first.set(value);
   }
 }
