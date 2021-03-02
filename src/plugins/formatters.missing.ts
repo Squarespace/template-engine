@@ -36,7 +36,6 @@ const NOIMPL = [
 const MISSING = [
   'product-price',
   'product-restock-notification',
-  'product-scarcity',
 ];
 
 export const NOIMPL_FORMATTERS: FormatterTable = NOIMPL.reduce((table, name) => {

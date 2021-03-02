@@ -27,6 +27,8 @@ import summaryFormFieldPhoneTemplate from './templates/summary-form-field-phone.
 import summaryFormFieldTimeTemplate from './templates/summary-form-field-time.json';
 import variantsSelectTemplate from './templates/variants-select.json';
 
+const ZERO = parseDecimal('0');
+
 export class AddToCartButtonFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
@@ -51,14 +53,13 @@ export class BookkeeperMoneyFormat extends Formatter {
 
     const region = cldr.General.locale().tag.region();
     let n = parseDecimal(first.node.asString());
-    if (n !== undefined) {
-      n = n.divide(100);
-      const currency = cldr.Numbers.getCurrencyForRegion(region);
-      const s = cldr.Numbers.formatCurrency(n, currency);
-      first.set(s);
-    } else {
-      first.set('');
+    if (n === undefined) {
+      n = ZERO!;
     }
+    n = n.divide(100);
+    const currency = cldr.Numbers.getCurrencyForRegion(region);
+    const s = cldr.Numbers.formatCurrency(n, currency);
+    first.set(s);
   }
 }
 
@@ -98,12 +99,8 @@ export class FromPriceFormatter extends Formatter {
     const price = commerceutil.getFromPrice(first.node);
     if (price) {
       const res = commerceutil.getLegacyPriceFromMoneyNode(price);
-      if (res) {
-        first.set(res.toString());
-        return;
-      }
+      first.set(res.toString());
     }
-    first.set('');
   }
 }
 
@@ -122,17 +119,16 @@ export class PercentageFormatFormatter extends Formatter {
     }
 
     const trim = args.filter((a) => a === 'trim').length > 0;
-    const n = parseDecimal(first.node.asString());
-    if (n !== undefined) {
-      const minimumFractionDigits = trim ? 0 : 2;
-      const r = cldr?.Numbers.formatDecimal(n, {
-        minimumFractionDigits,
-        maximumFractionDigits: 3,
-      });
-      first.set(r);
-    } else {
-      first.set('');
+    let n = parseDecimal(first.node.asString());
+    if (n === undefined) {
+      n = ZERO!;
     }
+    const minimumFractionDigits = trim ? 0 : 2;
+    const r = cldr?.Numbers.formatDecimal(n, {
+      minimumFractionDigits,
+      maximumFractionDigits: 3,
+    });
+    first.set(r);
   }
 }
 
@@ -142,12 +138,8 @@ export class NormalPriceFormatter extends Formatter {
     const price = commerceutil.getNormalPrice(first.node);
     if (price) {
       const res = commerceutil.getLegacyPriceFromMoneyNode(price);
-      if (res) {
-        first.set(res.toString());
-        return;
-      }
+      first.set(res.toString());
     }
-    first.set('');
   }
 }
 
@@ -210,9 +202,9 @@ export class ProductScarcityFormatter extends Formatter {
       productCtx.get('scarcityEnabled').asBoolean()
     ) {
       const obj: any = {
-        scarcityTemplateViews: productCtx.get('scarcityTemplateViews'),
-        scarcityText: productCtx.get('scarcityText'),
-        scarcityShownByDefault: productCtx.get('scarcityShownByDefault'),
+        scarcityTemplateViews: productCtx.get('scarcityTemplateViews').value,
+        scarcityText: productCtx.get('scarcityText').value,
+        scarcityShownByDefault: productCtx.get('scarcityShownByDefault').value,
       };
       const res = executeTemplate(
         ctx,
@@ -283,12 +275,8 @@ export class SalePriceFormatter extends Formatter {
     const price = commerceutil.getSalePrice(first.node);
     if (price) {
       const res = commerceutil.getLegacyPriceFromMoneyNode(price);
-      if (res) {
-        first.set(res.toString());
-        return;
-      }
+      first.set(res.toString());
     }
-    first.set('');
   }
 }
 
@@ -453,6 +441,7 @@ export const COMMERCE_FORMATTERS: FormatterTable = {
   'percentage-format': new PercentageFormatFormatter(),
   'product-checkout': new ProductCheckoutFormatter(),
   'product-quick-view': new ProductQuickViewFormatter(),
+  'product-scarcity': new ProductScarcityFormatter(),
   'product-status': new ProductStatusFormatter(),
   'quantity-input': new QuantityInputFormatter(),
   'sale-price': new SalePriceFormatter(),

@@ -82,6 +82,10 @@ loader.paths('f-product-status-%N.html').forEach((path) => {
   test(`product status - ${path}`, () => loader.execute(path));
 });
 
+loader.paths('f-product-scarcity-%N.html').forEach((path) => {
+  test(`product scarcity - ${path}`, () => loader.execute(path));
+});
+
 loader.paths('f-quantity-input-%N.html').forEach((path) => {
   test(`quantity input - ${path}`, () => loader.execute(path));
 });
@@ -118,6 +122,10 @@ loader.paths('f-summary-form-field-phone-%N.html').forEach((path) => {
 
 loader.paths('f-summary-form-field-time-%N.html').forEach((path) => {
   test(`summary form field time - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-summary-form-field-unk-%N.html').forEach((path) => {
+  test(`summary form field unk - ${path}`, () => loader.execute(path));
 });
 
 loader.paths('f-variant-descriptor-%N.html').forEach((path) => {

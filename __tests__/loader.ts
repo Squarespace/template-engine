@@ -139,7 +139,7 @@ export class TemplateTestLoader extends TestLoader {
     // i18n-enable the execution context
     const locale = (params || {}).locale || 'en';
     const now: number | undefined = (params || {}).now;
-    const cldr = framework.get(locale);
+    const cldr = locale === 'none' ? undefined : framework.get(locale);
 
     // execute the test case
     const { ctx } = compiler.execute({

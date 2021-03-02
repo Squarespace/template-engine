@@ -7,7 +7,7 @@ import { parseDecimal } from './util.i18n';
 const productTypePath = ['structuredContent', 'productType'];
 const variantsPath = ['structuredContent', 'variants'];
 
-const ZERO = parseDecimal('0');
+const ZERO: Decimal = parseDecimal('0')!;
 
 const DEFAULT_MONEY_NODE = new Node({
   'value': '0',
@@ -40,7 +40,7 @@ export const getAmountFromMoneyNode = (moneyNode?: Node) => {
   return !value ? ZERO : (parseDecimal(value) || ZERO);
 };
 
-export const getLegacyPriceFromMoneyNode = (moneyNode: Node) => {
+export const getLegacyPriceFromMoneyNode = (moneyNode: Node): Decimal => {
   const price = getAmountFromMoneyNode(moneyNode);
   return price ? price.movePoint(2) : ZERO;
 };
