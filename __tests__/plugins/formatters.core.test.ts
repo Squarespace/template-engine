@@ -465,9 +465,9 @@ test('safe', () => {
   Core.safe.apply([], vars, CTX);
   expect(vars[0].get()).toEqual({});
 
-  vars = variables({ a: '<div>foo</div>' });
+  vars = variables('<div>foo</div>');
   Core.safe.apply([], vars, CTX);
-  expect(vars[0].get()).toEqual('{"a":"foo"}');
+  expect(vars[0].get()).toEqual('foo');
 });
 
 test('slugify', () => {
@@ -544,8 +544,13 @@ test('truncate', () => {
   expect(vars[0].get()).toEqual('abc def ...');
 });
 
+loader.paths('f-url-encode-%N.html').forEach(path => {
+  test(`url-encode - ${path}`, () => loader.execute(path));
+});
+
 test('urlencode', () => {
   const vars = variables('\u201ca b\u201d');
   Core['url-encode'].apply([], vars, CTX);
   expect(vars[0].get()).toEqual('%E2%80%9Ca%20b%E2%80%9D');
 });
+

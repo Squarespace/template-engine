@@ -120,7 +120,10 @@ test('node get by key', () => {
 
 test('as string', () => {
   let n = new Node({ a: 1 });
-  expect(n.asString()).toEqual('{"a":1}');
+  expect(n.asString()).toEqual('');
+
+  n = new Node([1, 2, 3]);
+  expect(n.asString()).toEqual('');
 
   n = new Node(false);
   expect(n.asString()).toEqual('false');
@@ -225,7 +228,7 @@ test('comparisons', () => {
   expect(compare(true, {})).toEqual(1);
 
   expect(compare({}, {})).toEqual(0);
-  expect(compare('', {})).toEqual(-2);
+  expect(compare('', {})).toEqual(0);
   expect(compare({}, '')).toEqual(-1);
   expect(compare({}, [])).toEqual(-1);
   expect(compare([], {})).toEqual(-1);

@@ -103,7 +103,7 @@ class Node {
       return String(this.value);
 
     default:
-      return JSON.stringify(this.value);
+      return '';
     }
   }
 

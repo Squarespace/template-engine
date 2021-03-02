@@ -1,0 +1,21 @@
+:JSON
+{
+	"s": [
+    "“😍”",
+    "\u201ca b\u201d"
+  ]
+}
+
+:TEMPLATE
+{.repeated section s}
+  {@}
+  {@|url-encode}
+{.end}
+
+
+:OUTPUT
+  “😍”
+  %E2%80%9C%F0%9F%98%8D%E2%80%9D
+
+  “a b”
+  %E2%80%9Ca%20b%E2%80%9D
