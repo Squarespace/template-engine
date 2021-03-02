@@ -1,0 +1,25 @@
+:JSON
+{
+  "null": null,
+  "number": -15,
+  "boolean": false,
+  "string": "Central Park",
+  "object": { "color": "red", "price": "17.50" },
+  "array": [1, 2, "blue", 5]
+}
+
+:TEMPLATE
+{null|raw}
+{boolean|raw}
+{number|raw}
+{string|raw}
+{object|raw}
+{array|raw}
+
+:OUTPUT
+null
+false
+-15
+"Central Park"
+{"color":"red","price":"17.50"}
+[1,2,"blue",5]

@@ -283,7 +283,7 @@ export class PropFormatter extends Formatter {
 export class RawFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
-    first.set(first.node.asString());
+    first.set(JSON.stringify(first.node.value));
   }
 }
 

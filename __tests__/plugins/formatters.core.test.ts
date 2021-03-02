@@ -407,7 +407,7 @@ test('pluralize', () => {
 });
 
 loader.paths(`f-prop-%N.html`).forEach(path => {
-  test(`get - ${path}`, () => loader.execute(path));
+  test(`prop - ${path}`, () => loader.execute(path));
 });
 
 test('prop', () => {
@@ -430,6 +430,10 @@ test('prop', () => {
   vars = variables({});
   Core.prop.apply(['foo', 'bar'], vars, CTX);
   expect(vars[0].get()).toEqual(null);
+});
+
+loader.paths(`f-raw-%N.html`).forEach(path => {
+  test(`raw - ${path}`, () => loader.execute(path));
 });
 
 test('raw', () => {
