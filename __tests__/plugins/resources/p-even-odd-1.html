@@ -1,0 +1,26 @@
+:JSON
+{
+    "items": [
+        -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5,
+        1.2, -3.3
+    ]
+}
+
+:TEMPLATE
+{.repeated section items}
+{@} is {.even?}even{.end}{.odd?}odd{.end}{.end}
+
+:OUTPUT
+-5 is odd
+-4 is even
+-3 is odd
+-2 is even
+-1 is odd
+0 is even
+1 is odd
+2 is even
+3 is odd
+4 is even
+5 is odd
+1.2 is 
+-3.3 is 

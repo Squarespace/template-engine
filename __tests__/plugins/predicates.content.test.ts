@@ -66,6 +66,10 @@ loader.paths('p-external-link-%N.html').forEach(path => {
   test(`external-link - ${path}`, () => loader.execute(path));
 });
 
+loader.paths('p-external-video-%N.html').forEach(path => {
+  test(`external-video - ${path}`, () => loader.execute(path));
+});
+
 loader.paths('p-folder-%N.html').forEach(path => {
   test(`folder - ${path}`, () => loader.execute(path));
 });

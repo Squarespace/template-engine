@@ -1,5 +1,25 @@
+import { join } from 'path';
 import { Context } from '../../src/context';
 import { CORE_PREDICATES as Core } from '../../src/plugins/predicates.core';
+import { TemplateTestLoader } from '../loader';
+
+const loader = new TemplateTestLoader(join(__dirname, 'resources'));
+
+loader.paths('p-debug-%N.html').forEach(path => {
+  test(`debug - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('p-comparisons-%N.html').forEach(path => {
+  test(`comparisons - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('p-even-odd-%N.html').forEach(path => {
+  test(`even-odd - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('p-nth-%N.html').forEach(path => {
+  test(`nth - ${path}`, () => loader.execute(path));
+});
 
 test('debug?', () => {
   const impl = Core['debug?'];

@@ -1,0 +1,56 @@
+:JSON
+{
+  "numbers": [
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
+    1.5, 3.5,
+    -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12
+  ],
+  "letters": [
+     "A", "B", "C", "D", "E", "F", "G", "H"
+  ]
+}
+
+:TEMPLATE
+{.repeated section numbers}
+{@} {.nth? 4}yes{.or}no{.end}{.end}
+{.repeated section letters}
+{@} {.nth? @index0 3}yes{.or}no{.end}{.end}
+
+:OUTPUT
+
+0 yes
+1 no
+2 no
+3 no
+4 yes
+5 no
+6 no
+7 no
+8 yes
+9 no
+10 no
+11 no
+12 yes
+1.5 no
+3.5 no
+-1 no
+-2 no
+-3 no
+-4 yes
+-5 no
+-6 no
+-7 no
+-8 yes
+-9 no
+-10 no
+-11 no
+-12 yes
+
+A yes
+B no
+C no
+D yes
+E no
+F no
+G yes
+H no

@@ -59,7 +59,7 @@ export class EvenPredicate extends PredicatePlugin {
       node = ctx.resolve(names);
     }
     if (node.type === Type.NUMBER) {
-      return node.value % 2 === 0;
+      return Math.abs(node.value) % 2 === 0;
     }
     return false;
   }
@@ -129,7 +129,7 @@ export class NthPredicate extends PredicatePlugin {
       return false;
     }
 
-    return n % m === 0;
+    return Math.abs(n) % Math.abs(m) === 0;
   }
 }
 
@@ -141,7 +141,7 @@ export class OddPredicate extends PredicatePlugin {
       node = ctx.resolve(names);
     }
     if (node.type === Type.NUMBER) {
-      return node.value % 2 === 1;
+      return Math.abs(node.value) % 2 === 1;
     }
     return false;
   }

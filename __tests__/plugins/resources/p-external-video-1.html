@@ -1,0 +1,19 @@
+:JSON
+{
+  "items": [
+    { "recordType": 3 },
+    { "promotedBlockType": "link" },
+    { "recordType": 18 },
+    { "promotedBlockType": "video" }
+  ]
+}
+
+:TEMPLATE
+{.repeated section items}
+{@|json} {.external-video?}yes{.or}no{.end}{.end}
+
+:OUTPUT
+{"recordType":3} no
+{"promotedBlockType":"link"} no
+{"recordType":18} no
+{"promotedBlockType":"video"} yes

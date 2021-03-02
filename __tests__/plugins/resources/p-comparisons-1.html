@@ -1,0 +1,160 @@
+:JSON
+{
+    "a": 3,
+    "b": 4,
+    "c": 3,
+    "name": "Federal Express",
+    "numbers": [
+        -2, 0, 1, 3, 5, 6, 8
+    ],
+    "strings": [
+        "abc", "ABC", "def", "DEF", "ghi", "GHI"
+    ]
+}
+
+:TEMPLATE
+# equal
+a == b {.equal? a b}yes{.or}no{.end}
+a == c {.equal? a c}yes{.or}no{.end}
+b == 4 {.equal? b 4}yes{.or}no{.end}
+a == 4 {.equal? a 4}yes{.or}no{.end}
+a == "3" {.equal? a "3"}yes{.or}no{.end}
+a == "Federal Express" {.equal?:a:"Federal Express"}yes{.or}no{.end}
+name == "Federal Express" {.equal?:name:"Federal Express"}yes{.or}no{.end}
+
+# notEqual
+a != b {.notEqual? a b}yes{.or}no{.end}
+a != c {.notEqual? a c}yes{.or}no{.end}
+b != 4 {.notEqual? b 4}yes{.or}no{.end}
+a != 4 {.notEqual? a 4}yes{.or}no{.end}
+a != "3" {.notEqual? a "3"}yes{.or}no{.end}
+a != "Federal Express" {.notEqual?:a:"Federal Express"}yes{.or}no{.end}
+name != "Federal Express" {.notEqual?:name:"Federal Express"}yes{.or}no{.end}
+
+# greaterThan numbers
+{.repeated section numbers}
+{@} >= 3 {.greaterThan? @ 3}yes{.or}no{.end}{.end}
+
+# greaterThan strings
+{.repeated section strings}
+{@} >= 3 {.greaterThan? @ "bcd"}yes{.or}no{.end}{.end}
+
+# greaterThanOrEqual numbers
+{.repeated section numbers}
+{@} >= "def" {.greaterThanOrEqual? @ 3}yes{.or}no{.end}{.end}
+
+# greaterThanOrEqual strings
+{.repeated section strings}
+{@} >= "def" {.greaterThanOrEqual? @ "def"}yes{.or}no{.end}{.end}
+
+# lessThan numbers
+{.repeated section numbers}
+{@} >= 3 {.lessThan? @ 3}yes{.or}no{.end}{.end}
+
+# lessThan strings
+{.repeated section strings}
+{@} >= 3 {.lessThan? @ "bcd"}yes{.or}no{.end}{.end}
+
+# lessThanOrEqual numbers
+{.repeated section numbers}
+{@} >= 3 {.lessThanOrEqual? @ 3}yes{.or}no{.end}{.end}
+
+# lessThanOrEqual strings
+{.repeated section strings}
+{@} >= 3 {.lessThanOrEqual? @ "def"}yes{.or}no{.end}{.end}
+
+
+:OUTPUT
+# equal
+a == b no
+a == c yes
+b == 4 yes
+a == 4 no
+a == "3" no
+a == "Federal Express" no
+name == "Federal Express" yes
+
+# notEqual
+a != b yes
+a != c no
+b != 4 no
+a != 4 yes
+a != "3" yes
+a != "Federal Express" yes
+name != "Federal Express" no
+
+# greaterThan numbers
+
+-2 >= 3 no
+0 >= 3 no
+1 >= 3 no
+3 >= 3 no
+5 >= 3 yes
+6 >= 3 yes
+8 >= 3 yes
+
+# greaterThan strings
+
+abc >= 3 no
+ABC >= 3 no
+def >= 3 yes
+DEF >= 3 no
+ghi >= 3 yes
+GHI >= 3 no
+
+# greaterThanOrEqual numbers
+
+-2 >= "def" no
+0 >= "def" no
+1 >= "def" no
+3 >= "def" yes
+5 >= "def" yes
+6 >= "def" yes
+8 >= "def" yes
+
+# greaterThanOrEqual strings
+
+abc >= "def" no
+ABC >= "def" no
+def >= "def" yes
+DEF >= "def" no
+ghi >= "def" yes
+GHI >= "def" no
+
+# lessThan numbers
+
+-2 >= 3 yes
+0 >= 3 yes
+1 >= 3 yes
+3 >= 3 no
+5 >= 3 no
+6 >= 3 no
+8 >= 3 no
+
+# lessThan strings
+
+abc >= 3 yes
+ABC >= 3 yes
+def >= 3 no
+DEF >= 3 yes
+ghi >= 3 no
+GHI >= 3 yes
+
+# lessThanOrEqual numbers
+
+-2 >= 3 yes
+0 >= 3 yes
+1 >= 3 yes
+3 >= 3 yes
+5 >= 3 no
+6 >= 3 no
+8 >= 3 no
+
+# lessThanOrEqual strings
+
+abc >= 3 yes
+ABC >= 3 yes
+def >= 3 yes
+DEF >= 3 yes
+ghi >= 3 no
+GHI >= 3 yes

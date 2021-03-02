@@ -1,28 +1,80 @@
 :JSON
 {
-  "items": [
-    {"recordType": 8},
-    {"recordType": 2},
+  "first": [
     {"recordType": -1},
-    {"promotedBlockType": "video"},
-    {"recordType": 16},
-    {"recordType": 17}
+    {"recordType": 1},
+    {"recordType": 2},
+    {"recordType": 4}
+  ], 
+  "second": [
+    {"recordType": 5},
+    {"recordType": 7},
+    {"recordType": 8},
+    {"recordType": 11}
+  ], 
+  "third": [
+    {"recordType": 12},
+    {"recordType": 14},
+    {"recordType": 15},
+    {"recordType": 16}
+  ], 
+  "fourth": [
+    {"recordType": 17},
+    {"recordType": 18},
+    {"recordType": 19},
+    {"recordType": 20}
+  ], 
+  "fifth": [
+    {"recordType": 21},
+    {"recordType": 30},
+    {"recordType": 31},
+    {"recordType": 50}
+  ], 
+  "sixth": [
+    {"recordType": 52},
+    {"recordType": 54}
   ]
 }
 
 :TEMPLATE
-{.section items.0}{.video?}0{.end}{.end}
-{.section items.1}{.image?}1{.end}{.end}
-{.section items.2}{.image?}x{.or}2{.end}{.end}
-{.section items.3}{.video?}3{.end}{.promotedVIDEO?}3{.end}{.end}
-{.section items.4}{.css-asset?}4{.end}{.end}
-{.section items.5}{.css-asset?}x{.or}5{.end}{.end}
+{.repeated section first}
+{recordType} {.undefined?}undefined{.or}.{.end}{.text?}text{.or}.{.end}{.image?}image{.or}.{.end}{.quote?}quote{.or}.{.end}{.end}
+{.repeated section second}
+{recordType} {.link?}link{.or}.{.end}{.audio?}audio{.or}.{.end}{.video?}video{.or}.{.end}{.store-item?}store-item{.or}.{.end}{.end}
+{.repeated section third}
+{recordType} {.event?}event{.or}.{.end}{.gallery?}gallery{.or}.{.end}{.binary?}binary{.or}.{.end}{.css-asset?}css-asset{.or}.{.end}{.end}
+{.repeated section fourth}
+{recordType} {.tweak-asset?}tweak-asset{.or}.{.end}{.digital-good?}digital-good{.or}.{.end}{.attachment?}attachment{.or}.{.end}{.wordpress-export?}wordpress-export{.or}.{.end}{.end}
+{.repeated section fifth}
+{recordType} {.json-export?}json-export{.or}.{.end}{.site-search?}site-search{.or}.{.end}{.active-time?}active-time{.or}.{.end}{.tweet?}tweet{.or}.{.end}{.end}
+{.repeated section sixth}
+{recordType} {.checkin?}checkin{.or}.{.end}{.kbarticle?}kbarticle{.or}.{.end}{.end}
 
 :OUTPUT
-0
-1
-2
-33
-4
-5
+-1 undefined...
+1 .text..
+2 ..image.
+4 ...quote
 
+5 link...
+7 .audio..
+8 ..video.
+11 ...store-item
+
+12 event...
+14 .gallery..
+15 ..binary.
+16 ...css-asset
+
+17 tweak-asset...
+18 .digital-good..
+19 ..attachment.
+20 ...wordpress-export
+
+21 json-export...
+30 .site-search..
+31 ..active-time.
+50 ...tweet
+
+52 checkin.
+54 .kbarticle
