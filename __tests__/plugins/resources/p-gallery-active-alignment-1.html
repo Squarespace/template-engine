@@ -1,0 +1,33 @@
+:JSON
+{
+    "items": [
+      { "options": { "active-alignment": "left" }},
+      { "options": { "active-alignment": "right" }},
+      { "options": { }},
+      { "options": { "active-alignment": "center" }}
+    ]
+  }
+
+:TEMPLATE
+{.repeated section items}
+center {@index} {.gallery-active-alignment-center?}yes{.or}no{.end}{.end}
+{.repeated section items}
+left {@index} {.gallery-active-alignment-left?}yes{.or}no{.end}{.end}
+{.repeated section items}
+right {@index} {.gallery-active-alignment-right?}yes{.or}no{.end}{.end}
+
+:OUTPUT
+center 1 no
+center 2 no
+center 3 no
+center 4 yes
+
+left 1 yes
+left 2 no
+left 3 no
+left 4 no
+
+right 1 no
+right 2 yes
+right 3 no
+right 4 no

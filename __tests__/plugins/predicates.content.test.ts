@@ -74,8 +74,20 @@ loader.paths('p-folder-%N.html').forEach(path => {
   test(`folder - ${path}`, () => loader.execute(path));
 });
 
-loader.paths('p-gallery-autoplay-%N.html').forEach(path => {
-  test(`gallery-autoplay - ${path}`, () => loader.execute(path));
+loader.paths('p-gallery-active-alignment-%N.html').forEach(path => {
+  test(`gallery-active-alignment - ${path}`, () => loader.execute(path));
+});
+
+// loader.paths('p-gallery-autoplay-%N.html').forEach(path => {
+//   test(`gallery-autoplay - ${path}`, () => loader.execute(path));
+// });
+
+// loader.paths('p-gallery-auto-crop-%N.html').forEach(path => {
+//   test(`gallery-auto-crop - ${path}`, () => loader.execute(path));
+// });
+
+loader.paths('p-gallery-boolean-%N.html').forEach(path => {
+  test(`gallery-boolean - ${path}`, () => loader.execute(path));
 });
 
 loader.paths('p-gallery-design-%N.html').forEach(path => {

@@ -1,0 +1,28 @@
+:JSON
+{
+  "items": [
+    {"options": {"autoplay": true}},
+    {"options": {"auto-crop": true}},
+    {"options": {"controls": true}},
+    {"options": {"lightbox": true}},
+    {"options": {"show-meta": true}},
+    {"options": {"show-meta-on-hover": true}},
+    {"options": {"square-thumbs": true}},
+    {"options": {"thumbnails": true}},
+    {"options": {}}
+  ]
+}
+
+:TEMPLATE
+{.repeated section items}
+{.gallery-autoplay?}autoplay {@index}{.end}{.gallery-auto-crop?}auto-crop {@index}{.end}{.gallery-controls?}controls {@index}{.end}{.gallery-lightbox?}lightbox {@index}{.end}{.gallery-show-meta?}show-meta {@index}{.end}{.gallery-show-meta-on-hover?}show-meta-on-hover {@index}{.end}{.gallery-square-thumbs?}square-thumbs {@index}{.end}{.gallery-thumbnails?}thumbnails {@index}{.end}{.end}
+
+:OUTPUT
+autoplay 1
+auto-crop 2
+controls 3
+lightbox 4
+show-meta 5
+show-meta-on-hover 6
+square-thumbs 7
+thumbnails 8
