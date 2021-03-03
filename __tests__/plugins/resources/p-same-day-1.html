@@ -1,0 +1,17 @@
+:JSON
+{
+    "t": [
+        { "startDate": 1384518630000, "endDate": 1384515030000 },
+        { "startDate": 1384518630000, "endDate": 1384432230000 },
+        { "startDate": 1384518630000, "endDate": 1384605030000 }
+    ]
+}
+
+:TEMPLATE
+{.repeated section t}
+{@|json} {.same-day?}yes{.or}no{.end}{.end}
+
+:OUTPUT
+{"startDate":1384518630000,"endDate":1384515030000} yes
+{"startDate":1384518630000,"endDate":1384432230000} no
+{"startDate":1384518630000,"endDate":1384605030000} no

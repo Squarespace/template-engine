@@ -126,7 +126,9 @@ loader.paths('p-show-past-events-%N.html').forEach(path => {
   test(`show-past-events - ${path}`, () => loader.execute(path));
 });
 
-// ---
+loader.paths('p-same-day-%N.html').forEach(path => {
+  test(`same-day - ${path}`, () => loader.execute(path));
+});
 
 test('same day', () => {
   const cldr = framework.get('en');

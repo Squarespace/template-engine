@@ -72,14 +72,6 @@ const formatRelativeTime = (cldr: CLDR | undefined, start: number | undefined, v
   return vars[0].get();
 };
 
-const formatTimeSince = (cldr: CLDR | undefined, start: number | undefined, end: number, args: string[]) => {
-  const impl = TABLE.timesince as TimeSinceFormatter;
-  const ctx = new Context({}, { cldr, now: start });
-  const vars = variables(end);
-  impl.apply(args, vars, ctx);
-  return vars[0].get();
-};
-
 loader.paths('f-decimal-%N.html').forEach(path => {
   test(`decimal - ${path}`, () => loader.execute(path));
 });
@@ -314,6 +306,18 @@ test('relative time', () => {
   expect(formatRelativeTime(EN, base, variables('foo'), args)).toEqual('');
 });
 
+loader.paths('f-timesince-%N.html').forEach(path => {
+  test(`timesince - ${path}`, () => loader.execute(path));
+});
+
+const formatTimeSince = (cldr: CLDR | undefined, start: number | undefined, end: number, args: string[]) => {
+  const impl = TABLE.timesince as TimeSinceFormatter;
+  const ctx = new Context({}, { cldr, now: start });
+  const vars = variables(end);
+  impl.apply(args, vars, ctx);
+  return vars[0].get();
+};
+
 test('timesince', () => {
   const base = new Date().getTime();
   const start = EN.Calendars.toGregorianDate({ date: base });
@@ -321,23 +325,23 @@ test('timesince', () => {
   let e: number;
 
   e = start.add({ millis: 100 }).unixEpoch();
-  expect(formatTimeSince(EN, base, e, args)).toEqual('less than a minute ago');
+  expect(formatTimeSince(EN, base, e, args)).toContain('less than a minute ago');
 
   e = start.add({ year: -1.6 }).unixEpoch();
-  expect(formatTimeSince(EN, base, e, args)).toEqual('about a year ago');
+  expect(formatTimeSince(EN, base, e, args)).toContain('about a year ago');
 
   e = start.add({ month: -6 }).unixEpoch();
-  expect(formatTimeSince(EN, base, e, args)).toEqual('about 6 months ago');
+  expect(formatTimeSince(EN, base, e, args)).toContain('about 6 months ago');
 
   e = start.add({ day: -27 }).unixEpoch();
-  expect(formatTimeSince(EN, base, e, args)).toEqual('about 3 weeks ago');
+  expect(formatTimeSince(EN, base, e, args)).toContain('about 3 weeks ago');
 
   e = start.add({ hour: -27 }).unixEpoch();
-  expect(formatTimeSince(EN, base, e, args)).toEqual('about a day ago');
+  expect(formatTimeSince(EN, base, e, args)).toContain('about a day ago');
 
   e = start.add({ minute: -27 }).unixEpoch();
-  expect(formatTimeSince(EN, base, e, args)).toEqual('about 27 minutes ago');
+  expect(formatTimeSince(EN, base, e, args)).toContain('about 27 minutes ago');
 
   // base cldr produces empty output
-  expect(formatTimeSince(undefined, base, e, args)).toEqual('');
+  expect(formatTimeSince(undefined, base, e, args)).toEqual('Invalid date.');
 });

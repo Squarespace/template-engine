@@ -1,0 +1,14 @@
+:JSON
+{
+    "n": [0, 1, 2, 3]
+}
+
+:TEMPLATE
+{.repeated section n}
+{@} {.singular?}yes{.or}no{.end}{.end}
+
+:OUTPUT
+0 no
+1 yes
+2 no
+3 no

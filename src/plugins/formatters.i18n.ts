@@ -214,16 +214,17 @@ export class TimeSinceFormatter extends Formatter {
     const n = first.node.asNumber();
     const { cldr } = ctx;
     if (!cldr || !isFinite(n)) {
-      first.set('');
+      first.set('Invalid date.');
       return;
     }
-    const now = ctx.now === undefined ? new Date().getDate() : ctx.now;
+    const now = ctx.now === undefined ? new Date().getTime() : ctx.now;
     const base = cldr.Calendars.toGregorianDate({ date: now });
     const date = cldr.Calendars.toGregorianDate({ date: n });
 
     const delta = base.unixEpoch() - date.unixEpoch();
     const res = humanizeDate(delta, false);
-    first.set(res);
+    const html = `<span class="timesince" data-date="${n}">${res}</span>`
+    first.set(html);
   }
 }
 

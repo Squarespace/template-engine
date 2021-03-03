@@ -237,6 +237,10 @@ test('odd?', () => {
   expect(impl.apply(['a'], ctx)).toEqual(false);
 });
 
+loader.paths('p-plural-%N.html').forEach(path => {
+  test(`plural - ${path}`, () => loader.execute(path));
+});
+
 test('plural?', () => {
   const impl = Core['plural?'];
   let ctx = new Context('1');
@@ -247,6 +251,10 @@ test('plural?', () => {
 
   ctx = new Context({ a: 'foo' });
   expect(impl.apply([], ctx)).toEqual(false);
+});
+
+loader.paths('p-singular-%N.html').forEach(path => {
+  test(`singular - ${path}`, () => loader.execute(path));
 });
 
 test('singular?', () => {
