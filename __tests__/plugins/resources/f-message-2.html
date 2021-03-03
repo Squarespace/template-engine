@@ -1,0 +1,15 @@
+:JSON
+{
+  "msg": "{foo} {bar} {0} {1} {2} {x} {y}",
+  "foo": "FOO",
+  "bar": "BAR",
+  "baz": "BAZ",
+  "number": 123,
+  "string": "abc"
+}
+
+:TEMPLATE
+{msg|message foo bar baz x=number y=string}
+
+:OUTPUT
+FOO BAR BAZ 123 abc

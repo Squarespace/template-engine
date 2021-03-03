@@ -191,7 +191,7 @@ test('datetime-interval', () => {
 });
 
 loader.paths('f-message-%N.html').forEach(path => {
-  test(`comment count - ${path}`, () => loader.execute(path));
+  test(`message - ${path}`, () => loader.execute(path));
 });
 
 loader.paths('f-message-plural-%N.html').forEach(path => {

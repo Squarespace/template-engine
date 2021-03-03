@@ -44,7 +44,7 @@ export class MessageFormats {
     this.zoneId = zoneId;
   }
 
-  private formatters(): MessageFormatFuncMap {
+  formatters(): MessageFormatFuncMap {
     const currency = this.currency.bind(this);
     const decimal = this.decimal.bind(this);
     return {
@@ -65,6 +65,9 @@ export class MessageFormats {
       return '';
     }
     const node = args[0] as Node;
+    if (!node) {
+      return '';
+    }
     let decimalValue = node.path(['decimalValue']);
     let currencyCode = node.path(['currencyCode']);
     if (decimalValue.isMissing() || currencyCode.isMissing()) {
@@ -133,12 +136,8 @@ class ArgConverter extends DefaultMessageArgConverter {
       const node = arg as Node;
       const decimal = this.currency(node);
       if (!decimal.isMissing()) {
-        try {
-          const d = parseDecimal(decimal.asString())!;
-          return d ? d : this.zero;
-        } catch (e) {
-          return this.zero;
-        }
+        const d = parseDecimal(decimal.asString())!;
+        return d ? d : this.zero;
       }
       switch (node.type) {
         case Type.BOOLEAN:
@@ -151,13 +150,8 @@ class ArgConverter extends DefaultMessageArgConverter {
         case Type.NUMBER:
         case Type.STRING:
         default:
-          try {
-            const d = parseDecimal(node.value)!;
-            return d ? d : this.zero;
-          } catch (e) {
-            // fall through
-            return this.zero;
-          }
+          const d = parseDecimal(node.value)!;
+          return d ? d : this.zero;
       }
     }
     return super.asDecimal(arg);

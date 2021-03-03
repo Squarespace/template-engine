@@ -1,0 +1,28 @@
+:JSON
+{
+  "items": [
+    { "options": { "meta-position": "bottom-left" }},
+    { "options": { "meta-position": "bottom-right" }},
+    { "options": { "meta-position": "bottom" }},
+    { "options": { "meta-position": "top-left" }},
+    { "options": { "meta-position": "top-right" }},
+    { "options": { "meta-position": "top" }},
+    { "options": { }},
+    { "options": { "meta-position": "center" }}
+  ]
+}
+
+:TEMPLATE
+{.repeated section items}
+{.gallery-meta-position-bottom-left?}bottom-left{.end}{.gallery-meta-position-bottom-right?}bottom-right{.end}{.gallery-meta-position-bottom?}bottom{.end}{.gallery-meta-position-top-left?}top-left{.end}{.gallery-meta-position-top-right?}top-right{.end}{.gallery-meta-position-top?}top{.end}{.gallery-meta-position-center?}center{.end} {@index}{.end}
+
+:OUTPUT
+bottom-left 1
+bottom-right 2
+bottom 3
+top-left 4
+top-right 5
+top 6
+ 7
+center 8
+

@@ -1,0 +1,24 @@
+:JSON
+{
+  "msg1": "Hi, {name} {1} contains {2 plural one {# item} other {# items}}.",
+  "msg2": "The {0 selectordinal one{#st} two{#nd} few{#rd} other{#th}} item is a {1}.",
+  "person": {
+    "name": "Bob"
+  },
+  "items": ["Guitar", "Drum set", "Saxophone"],
+  "what": "your shopping cart",
+  "count": 3
+}
+
+:TEMPLATE
+{.var @count items|count}
+{msg1|message name=person.name what @count}
+{.repeated section items}
+ {msg2|message @index @}{.end}
+
+:OUTPUT
+Hi, Bob your shopping cart contains 3 items.
+
+ The 1st item is a Guitar.
+ The 2nd item is a Drum set.
+ The 3rd item is a Saxophone.

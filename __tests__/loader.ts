@@ -153,6 +153,11 @@ export class TemplateTestLoader extends TestLoader {
       enableInclude: true
     });
     const output = ctx.render();
+    if (ctx.errors) {
+      for (const err of ctx.errors) {
+        console.error(err);
+      }
+    }
     expect(output.trim()).toEqual(spec.OUTPUT);
   }
 }
