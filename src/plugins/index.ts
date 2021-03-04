@@ -23,7 +23,7 @@ import { CORE_FORMATTERS } from './formatters.core';
 // import { DATECLDR_FORMATTERS } from './formatters.datecldr';
 import { DATE_FORMATTERS } from './formatters.date';
 import { I18N_FORMATTERS } from './formatters.i18n';
-import { MISSING_FORMATTERS } from './formatters.missing';
+// import { MISSING_FORMATTERS } from './formatters.missing';
 import { SOCIAL_FORMATTERS } from './formatters.social';
 
 import { COMMERCE_PREDICATES } from './predicates.commerce';
@@ -42,7 +42,7 @@ export const Formatters: { [name: string]: Formatter } = {
   // ...DATECLDR_FORMATTERS,
   ...DATE_FORMATTERS,
   ...I18N_FORMATTERS,
-  ...MISSING_FORMATTERS,
+  // ...MISSING_FORMATTERS,
   ...SOCIAL_FORMATTERS,
 };
 

@@ -33,16 +33,15 @@ const NOIMPL = [
   'unit',
 ];
 
-const MISSING = [
-  'product-price',
-];
+// const MISSING = [
+// ];
 
 export const NOIMPL_FORMATTERS: FormatterTable = NOIMPL.reduce((table, name) => {
   table[name] = new NotImplementedFormatter();
   return table;
 }, {} as FormatterTable);
 
-export const MISSING_FORMATTERS: FormatterTable = MISSING.reduce((table, name) => {
-  table[name] = new MissingFormatter(name);
-  return table;
-}, {} as FormatterTable);
+// export const MISSING_FORMATTERS: FormatterTable = MISSING.reduce((table, name) => {
+//   table[name] = new MissingFormatter(name);
+//   return table;
+// }, {} as FormatterTable);

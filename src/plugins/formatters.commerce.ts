@@ -11,8 +11,6 @@ import * as stringutil from './util.string';
 import { Type } from '../types';
 import { parseDecimal } from './util.i18n';
 
-// import { DecimalFormatOptions } from '@phensley/cldr-core';
-
 // Template imports
 import addToCartBtnTemplate from './templates/add-to-cart-btn.json';
 import productCheckoutTemplate from './templates/product-checkout.json';
@@ -81,10 +79,7 @@ export class CartQuantityFormatter extends Formatter {
 
 export class CartSubtotalFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
-    // const first = vars[0];
-    // const cents = first.node.get('subtotalCents').asNumber();
-    // const text = `<span class="sqs-cart-subtotal">`;
-    // TODO: writeMoneyString
+    vars[0].set('deprecated, do not use');
   }
 }
 
@@ -157,7 +152,12 @@ export class ProductCheckoutFormatter extends Formatter {
   }
 }
 
-// TODO: product-price
+export class ProductPriceFormatter extends Formatter {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
+    // TODO: product-price impl
+    vars[0].set('not yet implemented');
+  }
+}
 
 export class ProductQuickViewFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
@@ -469,6 +469,7 @@ export const COMMERCE_FORMATTERS: FormatterTable = {
   'normal-price': new NormalPriceFormatter(),
   'percentage-format': new PercentageFormatFormatter(),
   'product-checkout': new ProductCheckoutFormatter(),
+  'product-price': new ProductPriceFormatter(),
   'product-quick-view': new ProductQuickViewFormatter(),
   'product-restock-notification': new ProductRestockNotificationFormatter(),
   'product-scarcity': new ProductScarcityFormatter(),
