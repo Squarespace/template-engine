@@ -71,12 +71,15 @@ loader.paths('f-product-quick-view-%N.html').forEach((path) => {
   test(`product quick view - ${path}`, () => loader.execute(path));
 });
 
-// TODO product-scarcity (depends on 'message' formatter which requires i18n branch)
-
 // TODO product-price
+
 // loader.paths('f-product-price-%N.html', 8).forEach((path) => {
 //   test(`product price - ${path}`, () => loader.execute(path));
 // });
+
+loader.paths('f-product-restock-notification-%N.html').forEach((path) => {
+  test(`product-restock-notification - ${path}`, () => loader.execute(path));
+});
 
 loader.paths('f-product-status-%N.html').forEach((path) => {
   test(`product status - ${path}`, () => loader.execute(path));

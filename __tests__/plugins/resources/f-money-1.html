@@ -1,0 +1,29 @@
+:JSON
+{
+  "usd": {
+    "decimalValue": "123456.7890",
+    "currencyCode": "USD"
+  },
+  "eur": {
+    "decimalValue": "123456.7890",
+    "currencyCode": "EUR"
+  }
+}
+
+:TEMPLATE
+{usd|money}
+{usd|money style:short}
+{usd|money style:name}
+
+{eur|money}
+{eur|money style:short}
+{eur|money style:name}
+
+:OUTPUT
+$123,456.79
+$123K
+123,456.79 US dollars
+
+€123,456.79
+€123K
+123,456.79 euros

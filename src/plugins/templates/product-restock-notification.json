@@ -1,0 +1,43 @@
+[17, 1, [
+  [6, "@productId", [["product", "id"]], 0],
+  [0, "\n"],
+  [6, "@buttonText", [["messages", "buttonText"]], 0],
+  [0, "\n"],
+  [6, "@CTAText", [["messages", "CTAText"]], 0],
+  [0, "\n"],
+  [6, "@placeholderText", [["messages", "placeholderText"]], 0],
+  [0, "\n"],
+  [6, "@mailingListDescription", [["messages", "mailingListDescription"]], 0],
+  [0, "\n\n"],
+  [4, ["views"], [
+      [0, "\n<div class=\"product-restock-notification\" data-product-id=\""],
+      [1, [["@productId"]], 0],
+      [0, "\" data-variant-id=\""],
+      [1, [["variantId"]], 0],
+      [0, "\""],
+      [8, [], [["hiddenByDefault"]], [
+          [0, " hidden"]
+        ], 3],
+      [0, ">\n  <span class=\"product-restock-cta\">"],
+      [1, [["@CTAText"]], [["htmltag"]]],
+      [0, "</span>\n  <form class=\"product-restock-form\" action=\"#\">\n    <input type=\"text\" x-autocompletetype=\"email\" spellcheck=\"false\" name=\"email\" placeholder=\""],
+      [1, [["@placeholderText"]], [["htmlattr"]]],
+      [0, "\">\n    <input class=\"sqs-editable-button\" type=\"submit\" value=\""],
+      [1, [["@buttonText"]], [["htmlattr"]]],
+      [0, "\">\n  </form>\n"],
+      [8, [], [["mailingListSignUpEnabled"]], [
+          [0, "  <label class=\"product-restock-mailing-list\"><input type=\"checkbox\" name=\"isJoinMailingList\""],
+          [8, [], [["mailingListOptInByDefault"]], [
+              [0, " checked"]
+            ], 3],
+          [0, ">"],
+          [1, [["@mailingListDescription"]], [["htmltag"]]],
+          [0, "</label>"]
+        ], 3],
+      [0, "\n"],
+      [8, [], [["captchaSiteKey"]], [
+          [0, "  <div class=\"captcha-container\"></div>"]
+        ], 3],
+      [0, "\n</div>\n"]
+    ], 3, []]
+], 18]

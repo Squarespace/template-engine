@@ -16,6 +16,7 @@ import { parseDecimal } from './util.i18n';
 // Template imports
 import addToCartBtnTemplate from './templates/add-to-cart-btn.json';
 import productCheckoutTemplate from './templates/product-checkout.json';
+import productRestockNotificationTemplate from './templates/product-restock-notification.json';
 import productScarcityTemplate from './templates/product-scarcity.json';
 import quantityInputTemplate from './templates/quantity-input.json';
 import summaryFormFieldAddressTemplate from './templates/summary-form-field-address.json';
@@ -182,6 +183,34 @@ export class ProductQuickViewFormatter extends Formatter {
     buf += text.isMissing() ? 'Quick View' : text.asString();
     buf += '</span>';
     first.set(buf);
+  }
+}
+
+export class ProductRestockNotificationFormatter extends Formatter {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
+    const websiteCtx = ctx.resolve(['website']);
+    const productCtx = ctx.resolve(['productMerchandisingContext']);
+    const first = vars[0];
+    const node = first.node;
+
+    const productId = [node.get('id').asString()];
+    const product = productCtx.path(productId);
+    const obj = {
+      product: node.value,
+      views: product.path(['restockNotificationViews']).value,
+      messages: product.path(['restockNotificationMessages']).value,
+      mailingListSignUpEnabled: product.path(['mailingListSignUpEnabled']).value,
+      mailingListOptInByDefault: product.path(['mailingListOptInByDefault']).value,
+      captchaSiteKey: websiteCtx.path(['captchaSettings', 'siteKey']).value
+    };
+
+    const res = executeTemplate(
+      ctx,
+      (productRestockNotificationTemplate as unknown) as RootCode,
+      new Node(obj),
+      false
+    );
+    first.set(res);
   }
 }
 
@@ -441,6 +470,7 @@ export const COMMERCE_FORMATTERS: FormatterTable = {
   'percentage-format': new PercentageFormatFormatter(),
   'product-checkout': new ProductCheckoutFormatter(),
   'product-quick-view': new ProductQuickViewFormatter(),
+  'product-restock-notification': new ProductRestockNotificationFormatter(),
   'product-scarcity': new ProductScarcityFormatter(),
   'product-status': new ProductStatusFormatter(),
   'quantity-input': new QuantityInputFormatter(),

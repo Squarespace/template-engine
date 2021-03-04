@@ -97,6 +97,10 @@ test('decimal', () => {
   expect(formatDecimal(EN, '"abcdef"', [])).toEqual('');
 });
 
+loader.paths('f-money-%N.html').forEach(path => {
+  test(`money - ${path}`, () => loader.execute(path));
+});
+
 test('money', () => {
   let args: string[] = [];
   let money: any = { decimalValue: '12345.67811111', currencyCode: 'USD' };
