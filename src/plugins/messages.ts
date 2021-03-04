@@ -85,7 +85,7 @@ export class MessageFormats {
   }
 
   private datetime(args: any[], options: string[]): string {
-    if (!args || !args.length) {
+    if (!args || !args.length || !args[0]) {
       return '';
     }
     const node = args[0] as Node;
@@ -99,7 +99,7 @@ export class MessageFormats {
   }
 
   private decimal(args: any[], options: string[]): string {
-    if (!args || !args.length) {
+    if (!args || !args.length || !args[0]) {
       return '';
     }
     const value = this.converter.asDecimal(args[0]);
@@ -108,7 +108,7 @@ export class MessageFormats {
   }
 
   private interval(args: any[], options: string[]): string {
-    if (!args || args.length < 2) {
+    if (!args || args.length < 2 || !args[0] || !args[1]) {
       return '';
     }
     const v1 = args[0].asNumber();
