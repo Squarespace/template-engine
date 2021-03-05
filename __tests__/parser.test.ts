@@ -1,15 +1,25 @@
 import { Assembler } from '../src/assembler';
 import { Matcher, MatcherImpl } from '../src/matcher';
 import { Parser } from '../src/parser';
+import { Context } from '../src/context';
 import { Opcode as O } from '../src/opcodes';
 import { Sink } from '../src/sink';
-import { Formatters, Predicates } from '../src/plugins';
+import { FormatterMap, Formatters, PredicateMap, Predicates } from '../src/plugins';
+import { Formatter } from '../src/plugin';
+import { Variable } from '../src/variable';
 
+class DummyFormatter extends Formatter {
+  apply(args: string[], vars: Variable[], ctx: Context) {}
+}
+
+const DUMMY = new DummyFormatter();
 const MATCHER = new MatcherImpl('');
 
-const parse = (str: string) => {
+const parse = (str: string, formatters: FormatterMap = {}, predicates: PredicateMap = {}) => {
   const assembler = new Assembler();
-  const parser = new Parser(str, assembler, MATCHER, Formatters, Predicates);
+  const parser = new Parser(str, assembler, MATCHER, 
+    {...formatters, ...Formatters }, 
+    { ...predicates, ...Predicates });
   parser.parse();
   return { assembler, parser, code: assembler.code() };
 };
@@ -416,9 +426,20 @@ test('section', () => {
 });
 
 test('variables', () => {
-  let { code } = parse('{a, b, c|foo d e|bar}');
+  let { code } = parse('{a, b, c|foo d e|bar}', { foo: DUMMY, bar: DUMMY });
   expect(code).toEqual([O.ROOT, 1, [
     [O.VARIABLE, [['a'], ['b'], ['c']], [['foo', [['d', 'e'], ' ']], ['bar']]]
+  ], O.EOF]);
+
+  ({ code } = parse('{a|foo|bar}', { foo: DUMMY, bar: DUMMY }));
+  expect(code).toEqual([O.ROOT, 1, [
+    [O.VARIABLE, [['a']], [['foo'], ['bar']]],
+  ], O.EOF]);
+
+  // missing formatter
+  ({ code } = parse('{a|foo|bar}', { foo: DUMMY }));
+  expect(code).toEqual([O.ROOT, 1, [
+    [O.TEXT, '{a|foo|bar}'],
   ], O.EOF]);
 
   ({ code } = parse('{values.Line1}'));

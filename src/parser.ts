@@ -198,7 +198,10 @@ export class Parser {
       return false;
     }
 
-    this.checkFormatters(formatters);
+    // Invalid formatter names borks the instruction
+    if (!this.checkFormatters(formatters)) {
+      return false;
+    }
     this.push(new Bindvar(definition, variables, formatters === null ? undefined : formatters));
     return true;
   }
@@ -498,7 +501,10 @@ export class Parser {
       return false;
     }
 
-    this.checkFormatters(formatters);
+    // Invalid formatter names borks the instruction
+    if (!this.checkFormatters(formatters)) {
+      return false;
+    }
     this.push(new VariableInst(variables, (formatters === null ? 0 : formatters) as FormatterCall[]));
     return true;
   }
@@ -599,14 +605,16 @@ export class Parser {
     return this.stateMain;
   }
 
-  checkFormatters(formatters: null | 0 | FormatterCall[]): void {
+  checkFormatters(formatters: null | 0 | FormatterCall[]): boolean {
     if (formatters) {
       for (const fmt of formatters) {
         if (!this.formatters[fmt[0]]) {
           this.sink.error(formatterUnknown(fmt[0]));
+          return false;
         }
       }
     }
+    return true;
   }
 
 }

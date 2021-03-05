@@ -34,8 +34,11 @@ import { MISSING_PREDICATES } from './predicates.missing';
 import { SLIDE_PREDICATES } from './predicates.slide';
 import { SOCIAL_PREDICATES } from './predicates.social';
 
+export type FormatterMap = { [name: string]: Formatter };
+export type PredicateMap = { [name: string]: PredicatePlugin };
+
 // Table of default formatter instances.
-export const Formatters: { [name: string]: Formatter } = {
+export const Formatters: FormatterMap = {
   ...COMMERCE_FORMATTERS,
   ...CONTENT_FORMATTERS,
   ...CORE_FORMATTERS,
@@ -47,7 +50,7 @@ export const Formatters: { [name: string]: Formatter } = {
 };
 
 // Table of default predicate instances.
-export const Predicates: { [name: string]: PredicatePlugin } = {
+export const Predicates: PredicateMap = {
   ...COMMERCE_PREDICATES,
   ...CONTENT_PREDICATES,
   ...CORE_PREDICATES,

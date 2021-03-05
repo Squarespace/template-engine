@@ -70,7 +70,7 @@ test('compiler api execute', () => {
     code: '{@|missing}',
     json: 'foo'
   }));
-  expect(ctx.render()).toEqual('foo');
+  expect(ctx.render()).toEqual('{@|missing}');
   expect(errors.length).toEqual(1);
   expect(errors[0].message).toContain(`'missing' is unknown`);
 
