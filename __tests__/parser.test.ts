@@ -4,7 +4,8 @@ import { Parser } from '../src/parser';
 import { Context } from '../src/context';
 import { Opcode as O } from '../src/opcodes';
 import { Sink } from '../src/sink';
-import { FormatterMap, Formatters, PredicateMap, Predicates } from '../src/plugins';
+import { FormatterMap, PredicateMap } from '../src/plugin';
+import { Formatters, Predicates } from '../src/plugins';
 import { Formatter } from '../src/plugin';
 import { Variable } from '../src/variable';
 
@@ -64,6 +65,10 @@ test('bindvar', () => {
 
   ({ code } = parse('{.var @foo a, b|html}'));
   expect(code).toEqual([O.ROOT, 1, [[O.BINDVAR, '@foo', [['a'], ['b']], [['html']]]], O.EOF]);
+
+  // missing formatter
+  ({ code } = parse('{.var @foo a, b|foo}'));
+  expect(code).toEqual([O.ROOT, 1, [[O.TEXT, '{.var @foo a, b|foo}']], O.EOF]);
 
   ({ code } = parse('{.var}'));
   expect(code).toEqual([O.ROOT, 1, [[O.TEXT, '{.var}']], O.EOF]);

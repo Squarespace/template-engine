@@ -24,3 +24,6 @@ export abstract class PredicatePlugin {
 export type PredicateTable = {
   [x: string]: PredicatePlugin;
 };
+
+export type FormatterMap = { [name: string]: Formatter };
+export type PredicateMap = { [name: string]: PredicatePlugin };

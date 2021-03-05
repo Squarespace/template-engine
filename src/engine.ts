@@ -21,14 +21,11 @@ import {
 } from './instructions';
 import { expressionParse, unexpectedError, partialMissing } from './errors';
 import { Variable } from './variable';
-import { Formatter, PredicatePlugin } from './plugin';
+import { Formatter, FormatterMap, PredicateMap, PredicatePlugin } from './plugin';
 import { isTruthy } from './node';
 import { tokenDebug, Expr } from './math';
 
 const DEBUG_ARROW = new Node(' -> ');
-
-export type FormatterMap = { [x: string]: Formatter };
-export type PredicateMap = { [x: string]: PredicatePlugin };
 
 type Bindings = { [x: string]: Node };
 

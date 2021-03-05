@@ -1,4 +1,4 @@
-import { Formatter, PredicatePlugin } from '../plugin';
+import { FormatterMap, PredicateMap } from '../plugin';
 
 export * from './formatters.commerce';
 export * from './formatters.content';
@@ -33,9 +33,6 @@ import { I18N_PREDICATES } from './predicates.i18n';
 import { MISSING_PREDICATES } from './predicates.missing';
 import { SLIDE_PREDICATES } from './predicates.slide';
 import { SOCIAL_PREDICATES } from './predicates.social';
-
-export type FormatterMap = { [name: string]: Formatter };
-export type PredicateMap = { [name: string]: PredicatePlugin };
 
 // Table of default formatter instances.
 export const Formatters: FormatterMap = {
