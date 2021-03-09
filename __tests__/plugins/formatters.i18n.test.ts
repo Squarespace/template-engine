@@ -117,6 +117,9 @@ test('money', () => {
 
   // Bad input
   expect(formatMoney(EN, '"abdef"', [])).toEqual('');
+  
+  const badmoney = { decimalValue: 'abdef', currencyCode: 'USD' };
+  expect(formatMoney(EN, badmoney, [])).toEqual('');
 
   // Use CLDR mode
   money = { value: '155900.799', currency: 'EUR' };
@@ -192,6 +195,10 @@ test('datetime-interval', () => {
 
   // Undefined cldr produces empty output
   expect(formatInterval(undefined, start, start + 2000, ZONE_NY, args)).toEqual('');
+
+  // invalid
+  expect(formatInterval(EN, start, Infinity, ZONE_NY, args)).toEqual('');
+  expect(formatInterval(EN, Infinity, start, ZONE_NY, args)).toEqual('');
 });
 
 loader.paths('f-message-%N.html').forEach(path => {

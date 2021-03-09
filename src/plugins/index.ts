@@ -24,6 +24,7 @@ import { CORE_FORMATTERS } from './formatters.core';
 import { DATE_FORMATTERS } from './formatters.date';
 import { I18N_FORMATTERS } from './formatters.i18n';
 // import { MISSING_FORMATTERS } from './formatters.missing';
+import { NOIMPL_FORMATTERS } from './formatters.missing';
 import { SOCIAL_FORMATTERS } from './formatters.social';
 
 import { COMMERCE_PREDICATES } from './predicates.commerce';
@@ -43,6 +44,7 @@ export const Formatters: FormatterMap = {
   ...DATE_FORMATTERS,
   ...I18N_FORMATTERS,
   // ...MISSING_FORMATTERS,
+  ...NOIMPL_FORMATTERS,
   ...SOCIAL_FORMATTERS,
 };
 

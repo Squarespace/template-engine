@@ -36,6 +36,10 @@ loader.paths('f-cart-quantity-%N.html').forEach((path) => {
   test(`cart quantity - ${path}`, () => loader.execute(path));
 });
 
+loader.paths('f-cart-subtotal-%N.html').forEach((path) => {
+  test(`cart quantity - ${path}`, () => loader.execute(path));
+});
+
 loader.paths('f-cart-url-%N.html').forEach((path) => {
   test(`cart url - ${path}`, () => loader.execute(path));
 });

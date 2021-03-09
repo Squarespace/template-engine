@@ -320,9 +320,13 @@ loader.paths('f-json-%N.html').forEach(path => {
 });
 
 test('json-pretty', () => {
-  const vars = variables({ a: [1, 2] });
+  let vars = variables({ a: [1, 2] });
   Core['json-pretty'].apply([], vars, CTX);
   expect(vars[0].get()).toEqual('{\n  "a": [\n    1,\n    2\n  ]\n}');
+
+  vars = variables(undefined);
+  Core['json-pretty'].apply([], vars, CTX);
+  expect(vars[0].get()).toEqual('');
 });
 
 loader.paths('f-json-pretty-%N.html').forEach(path => {
@@ -338,6 +342,9 @@ test('lookup', () => {
   const vars = variables({});
   Core.lookup.apply(['key'], vars, ctx);
   expect(vars[0].get()).toEqual(123);
+
+  Core.lookup.apply([''], vars, ctx);
+  expect(vars[0].get()).toEqual('');
 });
 
 loader.paths('f-mod-%N.html').forEach(path => {

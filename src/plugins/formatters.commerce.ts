@@ -100,11 +100,6 @@ export class FromPriceFormatter extends Formatter {
   }
 }
 
-// TODO: MoneyBaseFormatter base class
-// TODO: moneyFormat
-// TODO: money-format
-// TODO: money-string
-
 export class PercentageFormatFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];

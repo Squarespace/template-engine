@@ -1,22 +1,22 @@
 import { Formatter, FormatterTable } from '../plugin';
 import { Context } from '../context';
 import { Variable } from '../variable';
-import { TemplateError } from '../errors';
+// import { TemplateError } from '../errors';
 
-const missing = (name: string): TemplateError =>
-  ({ type: 'engine', message: `"${name}" formatter is not yet implemented` });
+// const missing = (name: string): TemplateError =>
+//   ({ type: 'engine', message: `"${name}" formatter is not yet implemented` });
 
-export class MissingFormatter extends Formatter {
-  private error: TemplateError;
-  constructor(name: string) {
-    super();
-    this.error = missing(name);
-  }
+// export class MissingFormatter extends Formatter {
+//   private error: TemplateError;
+//   constructor(name: string) {
+//     super();
+//     this.error = missing(name);
+//   }
 
-  apply(args: string[], vars: Variable[], ctx: Context): void {
-    ctx.error(this.error);
-  }
-}
+//   apply(args: string[], vars: Variable[], ctx: Context): void {
+//     ctx.error(this.error);
+//   }
+// }
 
 export class NotImplementedFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {

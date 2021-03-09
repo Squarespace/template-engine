@@ -199,7 +199,7 @@ export class ImageMetaSrcSetFormatter extends Formatter {
     const assetUrl = image.get('assetUrl').asString();
     let variants = image.get('systemDataVariants').asString().split(',');
     variants = variants.filter(v => v[v.length - 1] === 'w');
-    if (variants.length === 0) {
+    if (!variants.length) {
       return;
     }
 
