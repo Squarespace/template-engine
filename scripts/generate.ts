@@ -34,7 +34,7 @@ files.forEach((src: string) => {
 
   // Rebuild the destination.
   const source = fs.readFileSync(src, { encoding: 'utf-8' });
-  const { code, errors } = compiler.parse(source.trim());
+  const { code, errors } = compiler.parse(source);
   if (errors.length > 0) {
     throw new Error('Error(s) parsing template\n:' +
       errors.map(e => `[${e.type}] ${e.message}`).join('\n'));
