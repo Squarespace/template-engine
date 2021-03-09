@@ -94,16 +94,16 @@ const main = () => {
   const code = codepath.endsWith('.json') ? JSON.parse(coderaw) : compiler.parse(coderaw).code;
   if (args.dump || args.d) {
     if (args.pretty || args.P) {
-      console.log(prettyJson(code, '  '));
+      process.stdout.write(prettyJson(code, '  '));
     } else {
-      console.log(JSON.stringify(code));
+      process.stdout.write(JSON.stringify(code));
     }
     return;
 
   } else if (args.references || args.R) {
     const scanner = new ReferenceScanner();
     scanner.extract(code);
-    console.log(JSON.stringify(scanner.collect(), undefined, args.pretty || args.P ? 2 : 0));
+    process.stdout.write(JSON.stringify(scanner.collect(), undefined, args.pretty || args.P ? 2 : 0));
     return;
   }
 
@@ -111,7 +111,7 @@ const main = () => {
   const partials = partpath ? JSON.parse(read(partpath)) : {};
 
   const { ctx } = compiler.execute({ cldr, code, json, partials, enableExpr: true, enableInclude: true });
-  console.log(ctx.render());
+  process.stdout.write(ctx.render());
   if (ctx.errors) {
     for (const err of ctx.errors) {
       process.stderr.write(err.message + '\n');
