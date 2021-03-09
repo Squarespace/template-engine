@@ -120,7 +120,7 @@ export class MessageFormats {
   }
 }
 
-class ArgConverter extends DefaultMessageArgConverter {
+export class ArgConverter extends DefaultMessageArgConverter {
 
   private one: Decimal;
   private zero: Decimal;

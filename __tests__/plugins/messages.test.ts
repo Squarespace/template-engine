@@ -1,6 +1,7 @@
 import { framework } from '../cldr';
 import { Node } from '../../src/node';
-import { MessageFormats } from '../../src/plugins/messages';
+import { ArgConverter, MessageFormats } from '../../src/plugins/messages';
+import { Decimal } from '@phensley/cldr';
 
 test('message formats', () => {
     const num1 = new Node('12345.6789');
@@ -37,4 +38,26 @@ test('message formats', () => {
     expect(f['datetime-interval']([], [])).toEqual('');
     expect(f['datetime-interval'](undefined as any, [])).toEqual('');
     expect(f['datetime-interval']([date1, date2], [])).toEqual('Mar 3 – Apr 3, 2021');
+});
+
+test('custom converter', () => {
+    const conv = new ArgConverter();
+    expect(conv.asDecimal(1.23)).toEqual(new Decimal('1.23'));
+    expect(conv.asDecimal(new Node(false))).toEqual(new Decimal(0));
+    expect(conv.asDecimal(new Node(true))).toEqual(new Decimal(1));
+
+    const badmoney = { decimalValue: 'ABC', currencyCode: 'USD' };
+    expect(conv.asDecimal(new Node(badmoney))).toEqual(new Decimal('0'));
+
+    expect(conv.asString(1.23)).toEqual('1.23');
+    expect(conv.asString('a string')).toEqual('a string');
+    expect(conv.asString(new Node('a string'))).toEqual('a string');
+    expect(conv.asString(new Node(true))).toEqual('true');
+    expect(conv.asString(new Node(false))).toEqual('false');
+    expect(conv.asString(new Node(null))).toEqual('');
+    expect(conv.asString(new Node({ a: 1 }))).toEqual('');
+
+    const money = { decimalValue: '1.23', currencyCode: 'USD' };
+    expect(conv.asString(new Node(money))).toEqual('1.23');
+
 });

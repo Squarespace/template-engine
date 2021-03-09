@@ -2,10 +2,13 @@ import {
   currencyOptions,
   datetimeOptions,
   decimalOptions,
-  intervalOptions
+  intervalOptions,
+  relativetimeOptions
 } from '../../src/plugins/options';
 
 test('decimal options', () => {
+  expect(decimalOptions(null as unknown as string[])).toEqual({});
+  expect(decimalOptions(undefined as unknown as string[])).toEqual({});
   expect(decimalOptions([])).toEqual({});
   expect(decimalOptions(['style:short'])).toEqual({ style: 'short' });
   expect(decimalOptions(['style:standard'])).toEqual({ style: 'decimal' });
@@ -26,11 +29,16 @@ test('decimal options', () => {
   expect(decimalOptions(['minimumIntegerDigits:1000'])).toEqual({ minimumIntegerDigits: 50 });
 
   expect(decimalOptions(['minsig:3'])).toEqual({ minimumSignificantDigits: 3 });
+  expect(decimalOptions(['maxsig:3'])).toEqual({ maximumSignificantDigits: 3 });
+  expect(decimalOptions(['maxSig:3'])).toEqual({ maximumSignificantDigits: 3 });
   expect(decimalOptions(['maximumSignificantDigits:7'])).toEqual({ maximumSignificantDigits: 7 });
 
   expect(decimalOptions(['maxfrac:2'])).toEqual({ maximumFractionDigits: 2 });
   expect(decimalOptions(['minimumFractionDigits:5'])).toEqual({ minimumFractionDigits: 5 });
   expect(decimalOptions(['minFrac:2'])).toEqual({ minimumFractionDigits: 2 });
+  expect(decimalOptions(['minfrac:2'])).toEqual({ minimumFractionDigits: 2 });
+
+  expect(decimalOptions(['unknown:3'])).toEqual({});
 });
 
 test('currency options', () => {
@@ -60,6 +68,8 @@ test('datetime options', () => {
   expect(datetimeOptions(['skeleton:hmsv'])).toEqual({ skeleton: 'hmsv' });
 
   expect(datetimeOptions(['wrapper:full'])).toEqual({ wrap: 'full' });
+
+  expect(datetimeOptions(['unknown:foo'])).toEqual({});
 });
 
 test('interval options', () => {
@@ -74,4 +84,21 @@ test('interval options', () => {
 
   // ignore bare properties
   expect(intervalOptions(['context'])).toEqual({});
+
+  expect(intervalOptions(['unknown:foo'])).toEqual({});
+});
+
+test('relative time options', () => {
+  expect(relativetimeOptions(['context:middle-of-text'])).toEqual({ context: 'middle-of-text' });
+  expect(relativetimeOptions(['context:foo'])).toEqual({ });
+  expect(relativetimeOptions(['field:year'])).toEqual({ field: 'year' });
+  expect(relativetimeOptions(['field:foo'])).toEqual({ });
+  expect(relativetimeOptions(['dayOfWeek:true'])).toEqual({ dayOfWeek: true });
+  expect(relativetimeOptions(['numericOnly:true'])).toEqual({ numericOnly: true });
+  expect(relativetimeOptions(['alwaysNow:true'])).toEqual({ alwaysNow: true });
+  expect(relativetimeOptions(['width:wide'])).toEqual({ width: 'wide' });
+  expect(relativetimeOptions(['width:foo'])).toEqual({ });
+  expect(relativetimeOptions(['maxFrac:3'])).toEqual({ maximumFractionDigits: 3 });
+  
+  expect(relativetimeOptions(['unknown:foo'])).toEqual({});
 });
