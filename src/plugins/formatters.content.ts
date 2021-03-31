@@ -204,7 +204,7 @@ export class ImageMetaSrcSetFormatter extends Formatter {
     }
 
     const _variants = variants.map(v => `${assetUrl}?format=${v} ${v}`).join(',');
-    const text = ` srcset="${_variants}"`;
+    const text = ` srcset="${_variants},${assetUrl}?format=original"`;
     first.set(text);
   }
 }
