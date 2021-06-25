@@ -109,7 +109,7 @@ export class ImageFormatter extends Formatter {
     const cls = args.length === 1 ? args[0] : 'thumb-image';
 
     const id = node.get('id').asString();
-    const altText = escapeHtmlAttributes(getAltTextFromContentItem(node));
+    const altText = escapeHtmlAttributes(this.getAltText(ctx));
     const assetUrl = node.get('assetUrl').asString();
 
     let res = '<noscript>';
@@ -124,6 +124,21 @@ export class ImageFormatter extends Formatter {
     res += `data-image-id="${id}" `;
     res += 'data-type="image" />';
     first.set(res);
+  }
+
+  getAltText(ctx: Context): string {
+    // For image blocks, caption is stored on the block and not the item.
+    // need to reach out via the context to see if it exist first,
+    // before falling back on the data on the item
+    const alt = ctx.resolve(['info', 'altText']);
+    if (!alt.isMissing()) {
+      const text = alt.asString().trim();
+      if (text.length > 0) {
+        return text;
+      }
+    }
+
+    return getAltTextFromContentItem(ctx.node());
   }
 }
 

@@ -123,10 +123,6 @@ export class Image extends Struct<Image> {
   title(text: string): Image {
     return this.set(text, 'title');
   }
-
-  altText(text: string): Image {
-    return this.set(text, 'altText');
-  }
 }
 
 interface TestCase {

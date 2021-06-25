@@ -2,6 +2,8 @@ import { isTruthy, Node } from '../node';
 import { escapeHtmlAttributes, removeTags } from './util.string';
 import { Type } from '../types';
 
+const MAX_ALT_TEXT_LENGTH = 1000;
+
 export const getFocalPoint = (media: Node) => {
   const node = media.get('mediaFocalPoint');
   if (!node.isMissing()) {
@@ -13,9 +15,23 @@ export const getFocalPoint = (media: Node) => {
 };
 
 export const getAltTextFromContentItem = (item: Node) => {
-  const alt = item.get('altText');
-  if (isTruthy(alt)) {
-    return removeTags(alt.asString());
+  const title = item.get('title');
+  if (isTruthy(title)) {
+    return title.asString();
+  }
+
+  const body = item.get('body');
+  if (isTruthy(body)) {
+    const text = removeTags(body.asString());
+    const len = text.length;
+    if (len > 0) {
+      return text.substring(0, Math.min(len, MAX_ALT_TEXT_LENGTH));
+    }
+  }
+
+  const filename = item.get('filename');
+  if (isTruthy(filename)) {
+    return filename.asString();
   }
 
   return '';

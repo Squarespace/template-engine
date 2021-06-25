@@ -46,8 +46,7 @@ test('child image meta', () => {
     .title('foo')
     .originalSize('500x200')
     .set({ foo: 1 }, 'licensedAssetPreview')
-    .assetUrl('http://glonk.com/')
-    .altText('foo');
+    .assetUrl('http://glonk.com/');
 
   let vars = variables({ items: [image.get()] });
   impl.apply([], vars, CTX);
@@ -58,25 +57,23 @@ test('child image meta', () => {
   expect(vars[0].get()).toContain('data-image-focal-point="0.3,0.7"');
   expect(vars[0].get()).toContain('alt="foo"');
 
-  // alt text is now set explicitly.
-  // TODO: remove these legacy test cases once feature is released
-  // vars = variables({
-  //   items: [image.title('').get()],
-  // });
-  // impl.apply([], vars, CTX);
-  // expect(vars[0].get()).toContain('alt=""');
+  vars = variables({
+    items: [image.title('').get()],
+  });
+  impl.apply([], vars, CTX);
+  expect(vars[0].get()).toContain('alt=""');
 
-  // vars = variables({
-  //   items: [image.title('').set('bar', 'body').get()],
-  // });
-  // impl.apply([], vars, CTX);
-  // expect(vars[0].get()).toContain('alt="bar"');
+  vars = variables({
+    items: [image.title('').set('bar', 'body').get()],
+  });
+  impl.apply([], vars, CTX);
+  expect(vars[0].get()).toContain('alt="bar"');
 
-  // vars = variables({
-  //   items: [image.title('').set('baz', 'filename').get()],
-  // });
-  // impl.apply([], vars, CTX);
-  // expect(vars[0].get()).toContain('alt="baz"');
+  vars = variables({
+    items: [image.title('').set('baz', 'filename').get()],
+  });
+  impl.apply([], vars, CTX);
+  expect(vars[0].get()).toContain('alt="baz"');
 
   vars = variables({
     items: [image.set(undefined, 'mediaFocalPoint').get()],
