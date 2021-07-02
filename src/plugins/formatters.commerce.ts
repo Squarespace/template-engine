@@ -245,16 +245,22 @@ export class ProductStatusFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const node = first.node;
+
+    const id = node.get('id').asString();
+    const merchCtx = ctx.resolve(['productMerchandisingContext']);
+    let customSoldOutMessage: string = '';
+    if (id && !merchCtx.isMissing()) {
+      customSoldOutMessage = merchCtx.path([id, 'customSoldOutText']).asString();
+    }
+
     if (commerceutil.isSoldOut(node)) {
-      const key = ['localizedStrings', 'productSoldOutText'];
-      const text = ctx.resolve(key).asString();
+      const text = ctx.resolve(['localizedStrings', 'productSoldOutText']).asString();
       let buf = `<div class="product-mark sold-out">`;
-      buf += text || 'sold out';
+      buf += stringutil.escapeHtmlAttributes(customSoldOutMessage || text || 'sold out');
       buf += '</div>';
       first.set(buf);
     } else if (commerceutil.isOnSale(node)) {
-      const key = ['localizedStrings', 'productSaleText'];
-      const text = ctx.resolve(key).asString();
+      const text = ctx.resolve(['localizedStrings', 'productSaleText']).asString();
       let buf = `<div class="product-mark sale">`;
       buf += text || 'sale';
       buf += '</div>';
