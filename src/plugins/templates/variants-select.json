@@ -21,7 +21,7 @@
       [0, " data-animation-role=\"content\">"],
       [4, ["options"], [
           [0, "\n    <div class=\"variant-option\">\n    <div class=\"variant-option-title\">"],
-          [1, [["name"]], [["htmltag"]]],
+          [1, [["displayText"]], [["message", [["name:name"], " "]]], [["htmltag"]]],
           [0, ": </div>\n    <div class=\"variant-select-wrapper\">\n      <select aria-label=\""],
           [1, [["selectText"]], [["message", [["variantName:name"], " "]]]],
           [0, "\" data-variant-option-name=\""],
