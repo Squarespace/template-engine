@@ -142,3 +142,7 @@ loader.paths('f-variant-descriptor-%N.html').forEach((path) => {
 loader.paths('f-variants-select-%N.html').forEach((path) => {
   test(`variants select - ${path}`, () => loader.execute(path));
 });
+
+loader.paths('f-variants-select-subscription.html').forEach((path) => {
+  test(`variants select subscription - ${path}`, () => loader.execute(path));
+});
