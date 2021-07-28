@@ -20,6 +20,11 @@ test('variable splitting', () => {
   expect(splitVariable('0.1.2')).toEqual([0, 1, 2]);
 });
 
+test('large integer', () => {
+  const s = '333333333333333333333333333333';
+  expect(splitVariable(s)).toStrictEqual([s]);
+});
+
 test('variable truthiness', () => {
   expect(isTruthy(null)).toEqual(false);
   expect(isTruthy(undefined)).toEqual(false);

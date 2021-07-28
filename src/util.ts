@@ -13,7 +13,12 @@ export const splitVariable = (name: string) => {
   for (let i = 0; i < len; i++) {
     const part = parts[i] as string;
     if (ALL_DIGITS.test(part)) {
-      parts[i] = parseInt(part, 10);
+      let key = parseInt(part, 10);
+      // Ensure number fits into 32-bit signed integer range, otherwise
+      // treat as a string key
+      if (isFinite(key) && key <= 0x7fffffff) {
+        parts[i] = key;
+      }
     }
   }
   return parts;
