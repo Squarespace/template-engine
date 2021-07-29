@@ -29,8 +29,8 @@ test('variable truthiness', () => {
   expect(isTruthy(null)).toEqual(false);
   expect(isTruthy(undefined)).toEqual(false);
   expect(isTruthy(NaN)).toEqual(false);
-  expect(isTruthy(Infinity)).toEqual(false);
-  expect(isTruthy(-Infinity)).toEqual(false);
+  expect(isTruthy(Infinity)).toEqual(true);
+  expect(isTruthy(-Infinity)).toEqual(true);
 
   expect(isTruthy(false)).toEqual(false);
   expect(isTruthy(true)).toEqual(true);

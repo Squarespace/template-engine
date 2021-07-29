@@ -22,7 +22,7 @@ test('node is missing', () => {
   expect(n1.isMissing()).toEqual(true);
 
   const n2 = new Node(NaN);
-  expect(n2.isMissing()).toEqual(true);
+  expect(n2.isMissing()).toEqual(false);
 
   const n3 = new Node('abc');
   expect(n3.isMissing()).toEqual(false);
@@ -135,7 +135,7 @@ test('as string', () => {
   expect(n.asString()).toEqual('123');
 
   n = new Node(NaN);
-  expect(n.asString()).toEqual('');
+  expect(n.asString()).toEqual('NaN');
 
   n = new Node(null);
   expect(n.asString()).toEqual('');
@@ -173,7 +173,7 @@ test('as number', () => {
   expect(n.asNumber()).toEqual(0);
 
   n = new Node(NaN);
-  expect(n.asNumber()).toEqual(0);
+  expect(n.asNumber()).toEqual(NaN);
 });
 
 test('equals', () => {

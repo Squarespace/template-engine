@@ -29,7 +29,7 @@ export const of = (value: any) => {
     case 'boolean':
       return Type.BOOLEAN;
     case 'number':
-      return isFinite(value) ? Type.NUMBER : Type.MISSING;
+      return Type.NUMBER;
     default:
       return Type.MISSING;
   }

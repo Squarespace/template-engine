@@ -34,7 +34,7 @@ export class TestLoader {
    * Return all paths in directory that match the numbered pattern.
    */
   paths(pattern: string): string[] {
-    const rx = new RegExp(pattern.replace('%N', '\\d+'));
+    const rx = new RegExp('^' + pattern.replace('%N', '\\d+') + '$');
     const names = fs.readdirSync(this.directory);
     const res: string[] = [];
     for (const name of names) {

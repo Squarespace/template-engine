@@ -187,7 +187,7 @@ export const isTruthy = (n: Node | any) => {
   case Type.STRING:
     return value !== '';
   case Type.NUMBER:
-    return value !== 0;
+    return !isNaN(value) && value !== 0;
   case Type.BOOLEAN:
     return value;
   case Type.OBJECT:
