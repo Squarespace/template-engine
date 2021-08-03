@@ -1,13 +1,23 @@
 :TEMPLATE
-{.eval foo == bar && baz == quux}
+
+# mixed types
+{.eval 5 + a}
+{.eval a + 5}
+{.eval true + 2}
+
+# conversions
+{.eval 5 + num(a)}
 
 :JSON
 {
-    "foo": "123",
-    "bar": 123,
-    "baz": 0,
-    "quux": false
+    "a": "-6.5"
 }
 
 :OUTPUT
-true
+# mixed types
+5-6.5
+-6.55
+3
+
+# conversions
+-1.5

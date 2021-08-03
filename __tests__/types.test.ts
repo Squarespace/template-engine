@@ -2,9 +2,9 @@ import { nameOfType, of, Type } from '../src/types';
 
 test('types', () => {
   expect(of(undefined)).toBe(Type.MISSING);
-  expect(of(NaN)).toBe(Type.MISSING);
-  expect(of(Infinity)).toBe(Type.MISSING);
-  expect(of(-Infinity)).toBe(Type.MISSING);
+  expect(of(NaN)).toBe(Type.NUMBER);
+  expect(of(Infinity)).toBe(Type.NUMBER);
+  expect(of(-Infinity)).toBe(Type.NUMBER);
 
   const func = () => ({});
   expect(of(func)).toBe(Type.MISSING);

@@ -330,7 +330,7 @@ test('strings', () => {
   expect(reduce("'\\'", c)).toEqual(undefined);
 
   // unterminated
-  expect(reduce('"\\u000000', c)).toEqual(undefined);
+  expect(reduce('"\\U000000', c)).toEqual(undefined);
 
   // single-character escapes
   expect(reduce('"\\a\\b\\c\\n\\t\\r\\f"', c)).toEqual(new Node('abc\n\t\r\f'));
@@ -343,14 +343,14 @@ test('strings', () => {
 
   // unicode escapes
   expect(reduce('"\\u2019"', c)).toEqual(new Node('\u2019'));
-  expect(reduce('"\\u1f600"', c)).toEqual(new Node('\uD83D\uDE00'));
-  expect(reduce('"\\u01f600\\U01f600"', c)).toEqual(
+  expect(reduce('"\\U0001f600"', c)).toEqual(new Node('\uD83D\uDE00'));
+  expect(reduce('"\\U0001f600\\U0001f600"', c)).toEqual(
     new Node('\uD83D\uDE00\uD83D\uDE00')
   );
 
   // unicode escape out-of-range replacement
   expect(reduce('"\\u0003\\u000f\\u0019\"', c)).toEqual(new Node('   '));
-  expect(reduce('"\\u222222"', c)).toEqual(new Node(' '));
+  expect(reduce('"\\U00222222"', c)).toEqual(new Node(' '));
 
   // ascii control code replacement
   expect(reduce('"\\u0000\\u0001\\u0018\\u0019"', c)).toEqual(new Node('    '));
@@ -441,6 +441,12 @@ test('string errors', () => {
   expect(e.errors[0]).toContain('unicode escape');
 
   e = new Expr('"\\u123"');
+  expect(e.errors[0]).toContain('unicode escape');
+
+  e = new Expr('"\\U00123"');
+  expect(e.errors[0]).toContain('unicode escape');
+
+  e = new Expr('"\\U0012345."');
   expect(e.errors[0]).toContain('unicode escape');
 });
 
