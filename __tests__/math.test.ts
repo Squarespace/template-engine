@@ -319,6 +319,19 @@ test('unsupported operators', () => {
   expect(e.errors[0]).toContain('Unexpected operator');
 });
 
+test('references', () => {
+  const c: Context = context({a: 123});
+
+  expect(reduce('@', c)).toEqual(undefined);
+  expect(reduce('@.a', c)).toEqual(new Node(123));
+});
+
+test('invalid escapes', () => {
+  const c = context({});
+
+  expect(reduce("'\\UA0000000'", c)).toEqual(new Node(' '));
+});
+
 test('strings', () => {
   const c = context({});
 
