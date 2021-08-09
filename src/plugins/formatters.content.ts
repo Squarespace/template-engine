@@ -5,10 +5,10 @@ import { executeTemplate } from '../exec';
 import { Variable } from '../variable';
 import { RootCode } from '../instructions';
 
-import { RecordType } from './enums';
+import { RecordType, BlockType } from './enums';
 import { isOnSale, isSoldOut } from './util.commerce';
 import {
-  getAltTextFromContentItem,
+  computeAltTextFromContentItemFields,
   getFocalPoint,
   outputImageMeta,
   splitDimensions
@@ -50,7 +50,7 @@ export class ChildImageMetaFormatter extends Formatter {
     const first = vars[0];
     const index = args.length === 0 ? 0 : parseInt(args[0], 10);
     const child = first.node.path(['items', index]);
-    first.set(outputImageMeta(child, ''));
+    first.set(outputImageMeta(child));
   }
 }
 
@@ -58,7 +58,7 @@ export class CoverImageMetaFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const image = first.node.get('coverImage');
-    first.set(outputImageMeta(image, ''));
+    first.set(outputImageMeta(image));
   }
 }
 
@@ -127,18 +127,14 @@ export class ImageFormatter extends Formatter {
   }
 
   getAltText(ctx: Context): string {
-    // For image blocks, caption is stored on the block and not the item.
-    // need to reach out via the context to see if it exist first,
-    // before falling back on the data on the item
-    const alt = ctx.resolve(['info', 'altText']);
-    if (!alt.isMissing()) {
-      const text = alt.asString().trim();
-      if (text.length > 0) {
-        return text;
-      }
+    // Content items for image blocks were populated with an altText value with a migration.
+    // See CMS-33805. for those, the content item value should always be used even if it is empty.
+    const blockType = ctx.resolve(['blockType']);
+    if (!blockType.isMissing() && blockType.asNumber() == BlockType.IMAGE.code) {
+      const altText = ctx.node().path(['altText']);
+      return altText.asString().trim();
     }
-
-    return getAltTextFromContentItem(ctx.node());
+    return computeAltTextFromContentItemFields(ctx.node());
   }
 }
 
@@ -184,7 +180,7 @@ export class ImageMetaFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const image = first.node;
-    first.set(outputImageMeta(image, ''));
+    first.set(outputImageMeta(image));
   }
 }
 

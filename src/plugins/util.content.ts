@@ -14,7 +14,7 @@ export const getFocalPoint = (media: Node) => {
   return '0.5,0.5';
 };
 
-export const getAltTextFromContentItem = (item: Node) => {
+export const computeAltTextFromContentItemFields = (item: Node) => {
   const title = item.get('title');
   if (isTruthy(title)) {
     return title.asString();
@@ -97,7 +97,7 @@ export const isLicensedAssetPreview = (image: Node) => {
   return image.path(['licensedAssetPreview']).type === Type.OBJECT;
 };
 
-export const outputImageMeta = (image: Node, preferredAlt: string) => {
+export const outputImageMeta = (image: Node, preferredAlt?: string) => {
   if (image.isMissing()) {
     return '';
   }
@@ -107,7 +107,7 @@ export const outputImageMeta = (image: Node, preferredAlt: string) => {
   const origSize = image.get('originalSize').asString();
   const assetUrl = image.get('assetUrl').asString();
   const altText = escapeHtmlAttributes(
-    preferredAlt ? preferredAlt : getAltTextFromContentItem(image)
+    preferredAlt != undefined ? preferredAlt : computeAltTextFromContentItemFields(image)
   );
 
   let res = '';
