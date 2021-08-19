@@ -20,6 +20,8 @@ import { hexColorToInt } from './util.color';
 // Template imports
 import audioPlayerTemplate from './templates/audio-player.json';
 
+const SQUARESPACE_SIZES = ['100w', '300w', '500w', '750w', '1000w', '1500w', '2500w'];
+
 export class AbsUrlFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
@@ -199,8 +201,21 @@ export class ImageMetaSrcSetFormatter extends Formatter {
       return;
     }
 
+    let originalImageFormatVariant = '';
+    const lastVariant = variants[variants.length - 1];
+    if (lastVariant !== SQUARESPACE_SIZES[SQUARESPACE_SIZES.length - 1]) {
+      // If the largest variant is not the largest available resolution.
+      for (let i = SQUARESPACE_SIZES.length - 2; i >= 0; i--) {
+        if (lastVariant === SQUARESPACE_SIZES[i]) {
+          // Append the original image as the next size up
+          originalImageFormatVariant = `,${assetUrl}?format=original ${SQUARESPACE_SIZES[i + 1]}`;
+          break;
+        }
+      }
+    }
+
     const _variants = variants.map(v => `${assetUrl}?format=${v} ${v}`).join(',');
-    const text = ` srcset="${_variants},${assetUrl}?format=original"`;
+    const text = ` srcset="${_variants}${originalImageFormatVariant}"`;
     first.set(text);
   }
 }
