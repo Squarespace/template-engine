@@ -1108,6 +1108,7 @@ export class Expr {
           if (
             top &&
             top.type === ExprTokenType.VARIABLE &&
+            top.value &&
             top.value.length === 1
           ) {
             // Check if name corresponds to a valid built-in function.
@@ -1293,10 +1294,10 @@ export class Expr {
           if (value) {
             i = matcher.matchEnd;
 
-            if (value.length === 1 && typeof value[0] === 'string') {
+            if (value && value.length === 1 && typeof value[0] === 'string') {
               // Names for constants. These names can conflict with references to
-              // context variables on the immediate node, e.g. { "pi": "apple" }.
-              // To disambiguate, use references of the form "@.pi" or bind
+              // context variables on the immediate node, e.g. { "PI": "apple" }.
+              // To disambiguate, use references of the form "@.PI" or bind
               // local variables before calling the expression.
               const n = CONSTANTS[value[0]];
               if (n) {
@@ -1460,8 +1461,11 @@ export class Expr {
               return -1;
             }
 
-            // Decode range of chars as 4- or 8-digit hex number.
-            let code = parseInt(str.substring(i, k), 16);
+            // Decode range of chars as 4- or 8-digit hex number. It is possible
+            // for an 8-digit hex value to exceed the range of int, so we parse
+            // and constrain with a conditional.
+            const repr = str.substring(i, k);
+            let code = parseInt(repr, 16);
 
             // Eliminate unwanted ascii control bytes here. Also eliminate
             // out of range invalid Unicode characters.

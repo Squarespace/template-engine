@@ -503,6 +503,12 @@ test('assignment', () => {
   expect(e.tokens.elems).toEqual([num(1), ASN, num(1)]);
   e.build();
   expect(e.reduce(c)).toEqual(undefined);
+
+  // '@' cannot be assigned
+  e = new Expr("@ = 1");
+  expect(e.tokens.elems).toEqual([varn('@'), ASN, num(1)]);
+  e.build();
+  expect(e.reduce(c)).toEqual(undefined);
 });
 
 test('unary plus / minus', () => {
