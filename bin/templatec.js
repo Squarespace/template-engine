@@ -9,9 +9,26 @@ const { Compiler, ReferenceScanner } = require('../lib');
 const { prettyJson } = require('../lib/pretty');
 const { CLDRFramework } = require('@phensley/cldr');
 
+const cldrpath = '@phensley/cldr/packs';
+
+// try to locate the peer @phensley/cldr package
+const roots = [
+  join(__dirname, '../node_modules', cldrpath),
+  join(__dirname, '../..', cldrpath),
+  join(__dirname, '../../..', cldrpath),
+  join(__dirname, '../../../..', cldrpath)
+];
+
 const languageBundle = (tag) => {
-  const root = join(__dirname, '../node_modules/@phensley/cldr/packs');
-  if (!fs.existsSync(root)) {
+  let root = ''
+  for (let i = 0; i < roots.length; i++) {
+    const tmp = roots[i];
+    if (fs.existsSync(tmp)) {
+      root = tmp;
+      break;
+    }
+  }
+  if (!root) {
     throw new Error('Peer dependency @phensley/cldr must be installed!');
   }
   const locale = CLDRFramework.resolveLocale(tag);
