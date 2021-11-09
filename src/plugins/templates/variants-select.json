@@ -27,7 +27,7 @@
           [0, "\" data-variant-option-name=\""],
           [1, [["name"]], [["htmltag"]]],
           [0, "\">\n        <option value=\"\">"],
-          [1, [["selectText"]], [["message", [["variantName:name"], " "]]]],
+          [1, [["selectText"]], [["message", [["variantName:name"], " "]], ["htmltag"]]],
           [0, "</option>\n        "],
           [4, ["values"], [
               [0, "<option value=\""],
