@@ -16,7 +16,7 @@
   [6, "@subscribeText", [["localizedStrings", "productSubscribeText"]], 0],
   [0, "\n"],
   [6, "@isSubscribable", [["@content", "isSubscribable"]], 0],
-  [0, "\n\n<div class=\"sqs-add-to-cart-button-wrapper\" data-animation-role=\"button\">\n  <div class=\"sqs-add-to-cart-button sqs-suppress-edit-mode sqs-editable-button "],
+  [0, "\n\n<div class=\"sqs-add-to-cart-button-wrapper\" data-animation-role=\"button\">\n  <div class=\"sqs-add-to-cart-button sqs-suppress-edit-mode sqs-editable-button sqs-button-element--primary "],
   [8, [1], [["@fieldsFormId"], ["@fieldsForm"]], [
       [0, "use-form"]
     ], 3],
