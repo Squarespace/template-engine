@@ -4,7 +4,7 @@ import { escapeHtmlAttributes, removeTags } from './util.string';
 import { Type } from '../types';
 import { BlockType } from './enums';
 
-const MAX_ALT_TEXT_LENGTH = 1000;
+const MAX_ALT_TEXT_LENGTH = 250;
 
 export const getFocalPoint = (media: Node) => {
   const node = media.get('mediaFocalPoint');
