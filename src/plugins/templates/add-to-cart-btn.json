@@ -20,7 +20,7 @@
   [8, [1], [["@fieldsFormId"], ["@fieldsForm"]], [
       [0, "use-form"]
     ], 3],
-  [0, "\" role=\"button\" tabindex=\"0\" data-collection-id=\""],
+  [0, "\" role=\"button\" tabindex=\"0\" data-dynamic-strings data-collection-id=\""],
   [1, [["collectionId"]], 0],
   [0, "\" data-item-id=\""],
   [1, [["id"]], 0],
