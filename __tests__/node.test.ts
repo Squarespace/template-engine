@@ -93,7 +93,7 @@ test('node path resolution', () => {
   expect(n3.path([]).value).toEqual(o3);
   expect(n3.path([]).type).toEqual(Type.ARRAY);
 
-  expect(n3.path([0, 'a', 2]).value).toEqual( { b: [3, 4, 5] });
+  expect(n3.path([0, 'a', 2]).value).toEqual({ b: [3, 4, 5] });
   expect(n3.path([0, 'a', 2]).type).toEqual(Type.OBJECT);
 
   expect(n3.path([0, 'a', 2, 'b', 2]).value).toEqual(5);
