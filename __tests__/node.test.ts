@@ -1,5 +1,13 @@
+import { join } from 'path';
 import { MISSING_NODE, Node } from '../src/node';
 import { Type } from '../src/types';
+import { TemplateTestLoader } from './loader';
+
+const loader = new TemplateTestLoader(join(__dirname, 'resources'));
+
+loader.paths('props-%N.html').forEach((path) => {
+  test(path, () => loader.execute(path));
+});
 
 test('node is null', () => {
   const n1 = new Node(null);

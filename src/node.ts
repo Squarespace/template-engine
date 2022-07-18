@@ -148,16 +148,17 @@ class Node {
       // Ensure that when a JS object is dereferenced by the current name,
       // that all inherited properties / methods are hidden.
       if (
-        (type === Type.ARRAY || type === Type.OBJECT) &&
-        value.hasOwnProperty(name)
+        (type === Type.OBJECT && value.hasOwnProperty(name)) ||
+        (type === Type.ARRAY && typeof name === 'number')
       ) {
         value = value[name];
-        type = of(value);
       } else {
         return MISSING_NODE;
       }
+
+      type = of(value);
     }
-    return new Node(value, type);
+    return type === Type.MISSING ? MISSING_NODE : new Node(value, type);
   }
 
   get(key: string | number): Node {
