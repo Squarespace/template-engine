@@ -346,6 +346,10 @@ export class SquarespaceThumbnailForHeightFormatter extends Formatter {
   }
 }
 
+
+const numberToFixed = (num: number, places: number): String =>
+  Number.isInteger(num) ? String(num) : num.toFixed(places);
+
 export class WebsiteColorFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
@@ -356,7 +360,11 @@ export class WebsiteColorFormatter extends Formatter {
     const saturationNode = first.node.get('saturation');
     const lightnessNode = first.node.get('lightness');
 
-    if (hueNode.isMissing() || saturationNode.isMissing() || lightnessNode.isMissing()) {
+    if (
+      hueNode.isMissing() ||
+      saturationNode.isMissing() ||
+      lightnessNode.isMissing()
+    ) {
       first.set('Missing an H/S/L value.');
       return;
     }
@@ -403,15 +411,15 @@ export class WebsiteColorFormatter extends Formatter {
       res += 'hsl(';
     }
 
-    res += hue;
+    res += numberToFixed(hue, 1);
     res += ', ';
-    res += saturation;
+    res += numberToFixed(saturation, 1);
     res += '%, ';
-    res += lightness;
+    res += numberToFixed(lightness, 1);
 
     if (hasAlphaValue) {
       res += '%, ';
-      res += alpha;
+      res += numberToFixed(alpha!, 1);
       res += ')';
     } else {
       res += '%)';
