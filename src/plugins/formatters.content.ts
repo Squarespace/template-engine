@@ -347,8 +347,7 @@ export class SquarespaceThumbnailForHeightFormatter extends Formatter {
 }
 
 
-const numberToFixed = (num: number, places: number): String =>
-  Number.isInteger(num) ? String(num) : num.toFixed(places);
+const numberToFixed = (num: number, places: number): number => parseFloat(num.toFixed(places));
 
 export class WebsiteColorFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
