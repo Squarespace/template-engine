@@ -276,3 +276,7 @@ test('width', () => {
   impl.apply([], vars, CTX);
   expect(vars[0].node).toBe(MISSING_NODE);
 });
+
+loader.paths('f-website-color-%N.html').forEach((path) => {
+  test(`website-color - ${path}`, () => loader.execute(path));
+});

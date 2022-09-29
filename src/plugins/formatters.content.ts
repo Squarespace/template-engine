@@ -346,6 +346,81 @@ export class SquarespaceThumbnailForHeightFormatter extends Formatter {
   }
 }
 
+export class WebsiteColorFormatter extends Formatter {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
+    const first = vars[0];
+    let hasAlphaValue = false;
+    let errorMessage = '';
+
+    const hueNode = first.node.get('hue');
+    const saturationNode = first.node.get('saturation');
+    const lightnessNode = first.node.get('lightness');
+
+    if (hueNode.isMissing() || saturationNode.isMissing() || lightnessNode.isMissing()) {
+      first.set('Missing an H/S/L value.');
+      return;
+    }
+
+    const hue = hueNode.asNumber();
+    let saturation = saturationNode.asNumber();
+    let lightness = lightnessNode.asNumber();
+    const alphaNode = first.node.get('alpha');
+    let alpha = null;
+    if (!alphaNode.isMissing()) {
+      hasAlphaValue = true;
+      alpha = alphaNode.asNumber();
+    }
+
+    if (hue < 0 || hue > 360) {
+      errorMessage += 'Hue out of bounds. ';
+    }
+
+    if (saturation >= 0 && saturation <= 1) {
+      saturation *= 100;
+    } else {
+      errorMessage += 'Saturation out of bounds. ';
+    }
+
+    if (lightness >= 0 && lightness <= 1) {
+      lightness *= 100;
+    } else {
+      errorMessage += 'Lightness out of bounds. ';
+    }
+
+    if (alpha != null && (alpha < 0 || alpha > 1)) {
+      errorMessage += 'Alpha out of bounds.';
+    }
+
+    if (isTruthy(errorMessage)) {
+      first.set(errorMessage);
+      return;
+    }
+
+    let res = '';
+    if (hasAlphaValue) {
+      res += 'hsla(';
+    } else {
+      res += 'hsl(';
+    }
+
+    res += hue;
+    res += ', ';
+    res += saturation;
+    res += '%, ';
+    res += lightness;
+
+    if (hasAlphaValue) {
+      res += '%, ';
+      res += alpha;
+      res += ')';
+    } else {
+      res += '%)';
+    }
+
+    first.set(res);
+  }
+}
+
 export class WidthFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
@@ -443,6 +518,7 @@ export const CONTENT_FORMATTERS: FormatterTable = {
   'resizedWidthForHeight': new ResizedWidthForHeightFormatter(),
   'squarespaceThumbnailForHeight': new SquarespaceThumbnailForHeightFormatter(),
   'squarespaceThumbnailForWidth': new SquarespaceThumbnailForWidthFormatter(),
+  'website-color': new WebsiteColorFormatter(),
   'width': new WidthFormatter(),
   'video': new VideoFormatter(),
 };
