@@ -410,15 +410,15 @@ export class WebsiteColorFormatter extends Formatter {
       res += 'hsl(';
     }
 
-    res += numberToFixed(hue, 1);
+    res += numberToFixed(hue, 2);
     res += ', ';
-    res += numberToFixed(saturation, 1);
+    res += numberToFixed(saturation, 2);
     res += '%, ';
-    res += numberToFixed(lightness, 1);
+    res += numberToFixed(lightness, 2);
 
     if (hasAlphaValue) {
       res += '%, ';
-      res += numberToFixed(alpha!, 1);
+      res += numberToFixed(alpha!, 2);
       res += ')';
     } else {
       res += '%)';
