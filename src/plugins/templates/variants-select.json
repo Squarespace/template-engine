@@ -48,7 +48,7 @@
               [1, [["name"]], [["htmltag"]]],
               [0, "-"],
               [1, [["@"]], [["htmltag"]]],
-              [0, "\"/>\n      <label for=\"variant-option-"],
+              [0, "\"/>\n      <label class=\"sqs-button-element--secondary\" role=\"button\" tabindex=\"0\" for=\"variant-option-"],
               [1, [["name"]], [["htmltag"]]],
               [0, "-"],
               [1, [["@"]], [["htmltag"]]],
