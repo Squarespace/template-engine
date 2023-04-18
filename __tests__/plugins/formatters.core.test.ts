@@ -333,6 +333,46 @@ loader.paths('f-json-pretty-%N.html').forEach(path => {
   test(`json pretty - ${path}`, () => loader.execute(path));
 });
 
+test('key-by', () => {
+  let vars = variables([{ id: 1 }]);
+  Core['key-by'].apply([], vars, CTX);
+  expect(vars[0].get()).toEqual({});
+
+  vars = variables({});
+  Core['key-by'].apply(['id'], vars, CTX);
+  expect(vars[0].get()).toEqual({});
+
+  vars = variables([]);
+  Core['key-by'].apply(['id'], vars, CTX);
+  expect(vars[0].get()).toEqual({});
+
+  vars = variables([
+    { id: 1 },
+    { id: 2 },
+    { invalid: 4 },
+  ]);
+  Core['key-by'].apply(['id'], vars, CTX);
+  expect(vars[0].get()).toEqual({
+    1: { id: 1 },
+    2: { id: 2 },
+  });
+
+  vars = variables([
+    { test: [{ deep: 1 }] },
+    { test: [{ deep: 2 }] },
+  ]);
+  Core['key-by'].apply(['test.0.deep'], vars, CTX);
+  expect(vars[0].get()).toEqual({
+    1: { test: [{ deep: 1 }] },
+    2: { test: [{ deep: 2 }] },
+  });
+});
+
+loader.paths('f-key-by-%N.html').forEach(path => {
+  test(`key-by - ${path}`, () => loader.execute(path));
+});
+
+
 loader.paths('f-lookup-%N.html').forEach(path => {
   test(`lookup - ${path}`, () => loader.execute(path));
 });
