@@ -218,6 +218,28 @@ export class JsonPretty extends Formatter {
   }
 }
 
+export class KeyByFormatter extends Formatter {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
+    const first = vars[0];
+    const path = args[0];
+    const keyByMap: { [key: string]: any } = {};
+
+    if (first.node.type === Type.ARRAY && path) {
+      const splitPath = splitVariable(path);
+
+      for (const val of first.get()) {
+        const nodeAtPath = new Node(val).path(splitPath);
+
+        if (nodeAtPath.type !== Type.MISSING) {
+          keyByMap[nodeAtPath.value] = val;
+        }
+      }
+    }
+
+    first.set(keyByMap);
+  }
+}
+
 export class LookupFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
@@ -393,6 +415,7 @@ export const CORE_FORMATTERS: FormatterTable = {
   'iter': new IterFormatter(),
   'json': new JsonFormatter(),
   'json-pretty': new JsonPretty(),
+  'key-by': new KeyByFormatter(),
   'lookup': new LookupFormatter(),
   'mod': new ModFormatter(),
   'output': new OutputFormatter(),
