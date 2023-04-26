@@ -12,16 +12,11 @@
 
 
 :TEMPLATE
-{.var @ref references.1.id}
-
-{.var @obj objects|get @ref}
-Found {@obj.name}
-
-{.var @obj objects|get @ref @ref @ref @ref}
- Nope {@obj.name}
+{.repeated section references}
+  {.var @id @.id}{.var @key @.key}
+{@index}. {objects|get @id @key|json}{.end}
 
 :OUTPUT
-Found Saxophone
-
-
- Nope
+1. "Guitar"
+  
+2. "silver"
