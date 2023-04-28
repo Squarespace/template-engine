@@ -96,6 +96,23 @@ test('bindvar', () => {
   expect(code).toEqual([O.ROOT, 1, [[O.TEXT, '{.var @foo bar }']], O.EOF]);
 });
 
+test('break', () => {
+  let { code } = parse('a {.break} b');
+  expect(code).toEqual([
+    O.ROOT,
+    1,
+    [
+      [O.TEXT, 'a '],
+      [O.BREAK, ''],
+      [O.TEXT, ' b'],
+    ],
+    O.EOF,
+  ]);
+
+  ({ code } = parse('{.break bar}'));
+  expect(code).toEqual([O.ROOT, 1, [[O.BREAK, 'bar']], O.EOF]);
+});
+
 test('comments', () => {
   const { code } = parse('abc{# comment 1} {#comment 2}def');
   expect(code).toEqual([
@@ -291,6 +308,12 @@ test('inject', () => {
 
   ({ code } = parse('{.inject @foo a b c|}'));
   expect(code).toEqual([O.ROOT, 1, [[O.INJECT, '@foo', 'a', [['b', 'c|'], ' ']]], O.EOF]);
+});
+
+test('label', () => {
+  let { code } = parse('{.label foo}');
+
+  expect(code).toEqual([O.ROOT, 1, [[O.LABEL, 'foo']], O.EOF]);
 });
 
 test('macro', () => {

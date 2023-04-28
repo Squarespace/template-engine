@@ -405,6 +405,42 @@ export class Context {
   }
 
   /**
+   * Break out of either:
+   * 1. The first loop we encounter
+   * 2. The first matching label.
+   */
+  breakTo(label: string): void {
+    const len = this.stack.length - 1;
+
+    let index = -1;
+    for (let i = len; i >= 0; i--) {
+      const frame = this.stack[i];
+      if (label && label === frame.label) {
+        index = Math.min(len, i + 1);
+        break;
+      }
+      if (!label && frame.currentIndex !== -1) {
+        index = i;
+        break;
+      }
+    }
+
+    // Refuse to break and log an error if no matching label was found.
+    if (index === -1) {
+      return;
+    }
+
+    // If found, set all frames to break execution.
+    for (let i = len; i >= index; i--) {
+      this.stack[i].breakFlag = true;
+    }
+  }
+
+  setLabel(label: string): void {
+    this.parent().label = label;
+  }
+
+  /**
    * Resolve the name array against the stack frame, avoiding
    * matching the first frame's current node.
    */

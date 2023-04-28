@@ -37,6 +37,12 @@ export enum Opcode {
 
   // Include a macro / partial inline
   INCLUDE = 24,
+
+  // Break
+  BREAK = 25,
+
+  // Label
+  LABEL = 26,
 }
 
 const NAMES = {
@@ -66,6 +72,8 @@ const NAMES = {
   [Opcode.CTXVAR]: 'CTXVAR',
   [Opcode.EVAL]: 'EVAL',
   [Opcode.INCLUDE]: 'INCLUDE',
+  [Opcode.BREAK]: 'BREAK',
+  [Opcode.LABEL]: 'LABEL',
 };
 
 export const nameOfOpcode = (opcode: Opcode) => {

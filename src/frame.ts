@@ -5,6 +5,8 @@ import { Code } from './instructions';
  */
 export class Frame {
   currentIndex: number = -1;
+  breakFlag: boolean = false;
+  label?: string = undefined;
   stopResolution: boolean = false;
   private variables?: Map<string, Node>;
   private macros?: Map<string, Code>;

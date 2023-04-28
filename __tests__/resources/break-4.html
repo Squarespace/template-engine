@@ -1,0 +1,17 @@
+:TEMPLATE
+{.break foo}
+{.label foo}
+{.repeated section numbers}
+  {@}{.break bar}
+{.end}
+{.break bar}
+
+:JSON
+{"numbers": [1, 2, 3]}
+
+:OUTPUT
+1
+
+  2
+
+  3

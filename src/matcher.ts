@@ -8,9 +8,11 @@ import { hasStickyRegexp, MatcherProps, GlobalMatcherMixin, StickyMatcherMixin }
 // Table for fast mapping of instructions to their opcodes.
 const INSTRUCTIONS: { [x: string]: (string | Opcode)[] } = {
   a: ['lternates with', Opcode.ALTERNATES_WITH],
+  b: ['reak', Opcode.BREAK],
   c: ['tx', Opcode.CTXVAR],
   e: ['nd', Opcode.END, 'of', Opcode.EOF, 'val', Opcode.EVAL],
   i: ['f', Opcode.IF, 'nclude', Opcode.INCLUDE, 'nject', Opcode.INJECT],
+  l: ['abel', Opcode.LABEL],
   m: ['acro', Opcode.MACRO, 'eta-left', Opcode.META_LEFT, 'eta-right', Opcode.META_RIGHT],
   n: ['ewline', Opcode.NEWLINE],
   o: ['r', Opcode.OR_PREDICATE],
@@ -261,6 +263,13 @@ export class Matcher implements MatcherProps {
    */
   matchPredicate(): string | null {
     return this.match(this.predicate, this.start);
+  }
+
+  /**
+   * Match a word.
+   */
+  matchWord(): string | null {
+    return this.match(this.word, this.start);
   }
 
   /**

@@ -18,6 +18,8 @@ import {
   StructCode,
   TextCode,
   VariableCode,
+  BreakCode,
+  LabelCode,
 } from './instructions';
 import { expressionParse, unexpectedError, partialMissing } from './errors';
 import { Variable } from './variable';
@@ -80,6 +82,8 @@ export class Engine {
       this.executeCtxvar, // CTXVAR
       this.executeEval, // EVAL
       this.executeInclude, // INCLUDE
+      this.executeBreak, // BREAK
+      this.executeLabel, // LABEL
     ];
   }
 
@@ -112,6 +116,11 @@ export class Engine {
     }
     const size = block.length;
     for (let i = 0; i < size; i++) {
+      // If break flag is set, jump to end of block
+      if (ctx.frame().breakFlag) {
+        break;
+      }
+
       // Inlined execute() to save a stack frame.
       const inst = block[i];
       const opcode = typeof inst === 'number' ? inst : inst[0];
@@ -120,7 +129,7 @@ export class Engine {
         try {
           impl.call(this, inst, ctx);
         } catch (e) {
-          ctx.error(unexpectedError(e.name, nameOfOpcode(opcode), e.message));
+          ctx.error(unexpectedError((e as any).name, nameOfOpcode(opcode), (e as any).message));
         }
       }
     }
@@ -174,13 +183,17 @@ export class Engine {
     if (ctx.initIteration()) {
       const frame = ctx.frame();
       const len = ctx.node().value.length;
-      const lastIndex = len - 1;
+      // const lastIndex = len - 1;
       while (frame.currentIndex < len) {
+        if (frame.breakFlag) {
+          break;
+        }
+
         ctx.pushNext();
-        this.executeBlock(inst[2], ctx);
-        if (alternatesWith && alternatesWith.length && frame.currentIndex < lastIndex) {
+        if (alternatesWith && alternatesWith.length && frame.currentIndex > 0) {
           this.executeBlock(alternatesWith, ctx);
         }
+        this.executeBlock(inst[2], ctx);
         ctx.pop();
         frame.currentIndex++;
       }
@@ -234,6 +247,20 @@ export class Engine {
 
     this.applyFormatters(this.formatters, inst[3] || [], vars, ctx);
     ctx.setVar(name, vars[0]);
+  }
+
+  /**
+   * Break instruction.
+   */
+  executeBreak(inst: BreakCode, ctx: Context): void {
+    ctx.breakTo(inst[1]);
+  }
+
+  /**
+   * Label instruction.
+   */
+  executeLabel(inst: LabelCode, ctx: Context): void {
+    ctx.setLabel(inst[1]);
   }
 
   /**

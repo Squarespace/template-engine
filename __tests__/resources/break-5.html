@@ -1,0 +1,34 @@
+:TEMPLATE
+{.repeated section people}
+  {name|json}
+  {.eval @result = code == 17}
+  {.if @result}{.break missing-label}{.end}
+{.end}
+
+:JSON
+{"people": [
+  {"name": "Bob", "code": 5, "condition": 1},
+  {"name": "Joe", "code": 17, "condition": 1},
+  {"name": "Larry", "code": 3, "condition": 0},
+  {"name": "Howard", "code": 11, "condition": 1}
+]}
+
+:OUTPUT
+
+  "Bob"
+  
+  
+
+  "Joe"
+  
+  
+
+  "Larry"
+  
+  
+
+  "Howard"
+  
+  
+
+

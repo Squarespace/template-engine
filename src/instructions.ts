@@ -38,6 +38,11 @@ export interface BindvarCode {
   [3]: FAST_NULL | FormatterCall[];
 }
 
+export interface BreakCode {
+  [0]: Opcode.BREAK;
+  [1]: string;
+}
+
 export interface CommentCode {
   [0]: Opcode.COMMENT;
   [1]: string;
@@ -78,6 +83,11 @@ export interface InjectCode {
   [1]: string;
   [2]: string;
   [3]: Arguments | FAST_NULL;
+}
+
+export interface LabelCode {
+  [0]: Opcode.LABEL;
+  [1]: string;
 }
 
 export interface MacroCode {
@@ -144,12 +154,14 @@ export interface VariableCode {
 export type Code =
   | AtomCode
   | BindvarCode
+  | BreakCode
   | CommentCode
   | CtxvarCode
   | EvalCode
   | IfCode
   | IncludeCode
   | InjectCode
+  | LabelCode
   | MacroCode
   | OrPredicateCode
   | PredicateCode
@@ -221,6 +233,12 @@ export class Bindvar extends BaseInstruction {
   }
 }
 
+export class Break extends BaseInstruction {
+  constructor(label: string) {
+    super(Opcode.BREAK, [Opcode.BREAK, label]);
+  }
+}
+
 export class Comment extends BaseInstruction {
   constructor(text: string, multiline: number | boolean) {
     super(Opcode.COMMENT, [Opcode.COMMENT, text, multiline ? 1 : 0]);
@@ -251,6 +269,12 @@ export class If extends BaseInstruction implements BlockInstruction {
 
   setAlternate(inst: Instruction): void {
     (this.code as IfCode)[4] = getCode(inst);
+  }
+}
+
+export class Label extends BaseInstruction {
+  constructor(label: string) {
+    super(Opcode.LABEL, [Opcode.LABEL, label]);
   }
 }
 

@@ -1,0 +1,231 @@
+:TEMPLATE
+{.repeated section one}
+  {.label one}{.var @one @}{.var @twoList two}{.repeated section @twoList}
+    {.label two}{.var @two @}{.var @threeList three}{.repeated section @threeList}
+      {.var @three @}{.eval @word = (@one + @two) + @three}
+      {.eval @result1 = @word == "cor"; @result2 = @word === "bog"; @result3 = @word == "dar"}
+      {@word}
+      {.if @result1}break one
+        {.break one}NOOP{.end}
+      {.if @result2}break two
+        {.break two}NOOP{.end}
+      {.if @result3}break three
+        {.break}NOOP{.end}
+      {.alternates with}-----
+    {.end}
+    {.alternates with}=====
+  {.end}
+  {.alternates with}*****
+{.end}
+
+:JSON
+{
+  "one": ["b", "c", "d"],
+  "two": ["a", "e", "o"],
+  "three": ["g", "r", "t"]
+}
+
+:OUTPUT
+
+  
+    
+      
+      
+      bag
+      
+      
+      
+      -----
+    
+      
+      
+      bar
+      
+      
+      
+      -----
+    
+      
+      
+      bat
+      
+      
+      
+      
+    =====
+  
+    
+      
+      
+      beg
+      
+      
+      
+      -----
+    
+      
+      
+      ber
+      
+      
+      
+      -----
+    
+      
+      
+      bet
+      
+      
+      
+      
+    =====
+  
+    
+      
+      
+      bog
+      
+      break two
+        
+  *****
+
+  
+    
+      
+      
+      cag
+      
+      
+      
+      -----
+    
+      
+      
+      car
+      
+      
+      
+      -----
+    
+      
+      
+      cat
+      
+      
+      
+      
+    =====
+  
+    
+      
+      
+      ceg
+      
+      
+      
+      -----
+    
+      
+      
+      cer
+      
+      
+      
+      -----
+    
+      
+      
+      cet
+      
+      
+      
+      
+    =====
+  
+    
+      
+      
+      cog
+      
+      
+      
+      -----
+    
+      
+      
+      cor
+      break one
+        *****
+
+  
+    
+      
+      
+      dag
+      
+      
+      
+      -----
+    
+      
+      
+      dar
+      
+      
+      break three
+        
+    =====
+  
+    
+      
+      
+      deg
+      
+      
+      
+      -----
+    
+      
+      
+      der
+      
+      
+      
+      -----
+    
+      
+      
+      det
+      
+      
+      
+      
+    =====
+  
+    
+      
+      
+      dog
+      
+      
+      
+      -----
+    
+      
+      
+      dor
+      
+      
+      
+      -----
+    
+      
+      
+      dot
+      
+      
+      
+      
+    
+  
+

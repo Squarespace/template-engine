@@ -1,6 +1,6 @@
 import { Matcher } from './matcher';
 import { Sink } from './sink';
-import { FAST_NULL, Instruction, Include } from './instructions';
+import { FAST_NULL, Instruction, Include, Break, Label } from './instructions';
 import {
   Bindvar,
   Comment,
@@ -127,6 +127,9 @@ export class Parser {
       case Opcode.BINDVAR:
         return this.parseBindvar();
 
+      case Opcode.BREAK:
+        return this.parseBreak();
+
       case Opcode.CTXVAR:
         return this.parseCtxvar();
 
@@ -135,6 +138,9 @@ export class Parser {
 
       case Opcode.IF:
         return this.parseIf();
+
+      case Opcode.LABEL:
+        return this.parseLabel();
 
       case Opcode.INCLUDE:
         return this.parseInclude();
@@ -202,6 +208,23 @@ export class Parser {
       return false;
     }
     this.push(new Bindvar(definition, variables, formatters === null ? undefined : formatters));
+    return true;
+  }
+
+  parseBreak(): boolean {
+    const m = this.matcher;
+
+    // Parse optional label
+    let label: string | null = null;
+    if (m.matchSpace()) {
+      m.consume();
+      label = m.matchWord();
+      if (label !== null) {
+        m.consume();
+      }
+    }
+
+    this.push(new Break(label === null ? '' : label));
     return true;
   }
 
@@ -360,6 +383,22 @@ export class Parser {
     m.consume();
 
     this.push(new Inject(definition, path, args === null ? FAST_NULL : args));
+    return true;
+  }
+
+  parseLabel(): boolean {
+    const m = this.matcher;
+    if (!m.matchSpace()) {
+      return false;
+    }
+    m.consume();
+
+    const label = m.matchWord();
+    if (label === null) {
+      return false;
+    }
+
+    this.push(new Label(label));
     return true;
   }
 

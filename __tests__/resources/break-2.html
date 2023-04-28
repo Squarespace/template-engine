@@ -1,0 +1,87 @@
+:TEMPLATE
+{.var @people people}
+{.repeated section numbers}
+  {.label inner}{.var @people people}{.var @outerIndex @index}
+  {.repeated section @people}
+    {@outerIndex}.{@index}. {name|json}
+    {.eval @sum = code + @outerIndex; @innerBreak = @sum == 4 || @sum == 19}
+    {.if @innerBreak}
+      break!
+      {.break inner}
+    {.end}
+    {.alternates with}---
+  {.end}
+  only appears if we never break
+  {.alternates with}===
+{.end}
+
+:JSON
+{
+  "numbers": [1, 2, 3],
+  "people": [
+    {"name": "Bob", "code": 5, "condition": 1},
+    {"name": "Joe", "code": 17, "condition": 1},
+    {"name": "Larry", "code": 3, "condition": 0},
+    {"name": "Howard", "code": 11, "condition": 1}
+  ]
+}
+
+:OUTPUT
+
+
+
+  
+  
+    1.1. "Bob"
+    
+    
+    ---
+  
+    1.2. "Joe"
+    
+    
+    ---
+  
+    1.3. "Larry"
+    
+    
+      break!
+      ===
+
+  
+  
+    2.1. "Bob"
+    
+    
+    ---
+  
+    2.2. "Joe"
+    
+    
+      break!
+      ===
+
+  
+  
+    3.1. "Bob"
+    
+    
+    ---
+  
+    3.2. "Joe"
+    
+    
+    ---
+  
+    3.3. "Larry"
+    
+    
+    ---
+  
+    3.4. "Howard"
+    
+    
+    
+  only appears if we never break
+  
+

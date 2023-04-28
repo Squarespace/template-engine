@@ -1,0 +1,26 @@
+:TEMPLATE
+{.repeated section people}
+{.eval @condition = (code==11) || !condition}
+{@index}. {name|json} {code}
+break? {@condition}{.if @condition}{.break}{.end}
+{.end}
+
+:JSON
+{"people": [
+  {"name": "Bob", "code": 5, "condition": 1},
+  {"name": "Joe", "code": 17, "condition": 1},
+  {"name": "Larry", "code": 3, "condition": 0},
+  {"name": "Howard", "code": 11, "condition": 1}
+]}
+
+:OUTPUT
+1. "Bob" 5
+break? false
+
+
+2. "Joe" 17
+break? false
+
+
+3. "Larry" 3
+break? true
