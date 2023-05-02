@@ -35,7 +35,6 @@ const floorDiv = (n: number, d: number, r: [number]) => {
  * @alpha
  */
 export class GregorianDate extends CalendarDate {
-
   protected constructor(firstDay: number, minDays: number) {
     super(firstDay, minDays);
   }
@@ -96,7 +95,7 @@ export class GregorianDate extends CalendarDate {
     const y = eyear - 1;
     let jd = 365 * y + floor(y / 4) + (CalendarConstants.JD_GREGORIAN_EPOCH - 3);
     if (eyear >= CalendarConstants.JD_GREGORIAN_CUTOVER_YEAR) {
-      isLeap = isLeap && ((eyear % 100 !== 0) || (eyear % 400 === 0));
+      isLeap = isLeap && (eyear % 100 !== 0 || eyear % 400 === 0);
       jd += floor(y / 400) - floor(y / 100) + 2;
     }
     if (month !== 0) {
@@ -120,18 +119,18 @@ export class GregorianDate extends CalendarDate {
 const floor = Math.floor;
 
 const MONTH_COUNT = [
-  [  31,  31,   0,   0 ], // Jan
-  [  28,  29,  31,  31 ], // Feb
-  [  31,  31,  59,  60 ], // Mar
-  [  30,  30,  90,  91 ], // Apr
-  [  31,  31, 120, 121 ], // May
-  [  30,  30, 151, 152 ], // Jun
-  [  31,  31, 181, 182 ], // Jul
-  [  31,  31, 212, 213 ], // Aug
-  [  30,  30, 243, 244 ], // Sep
-  [  31,  31, 273, 274 ], // Oct
-  [  30,  30, 304, 305 ], // Nov
-  [  31,  31, 334, 335 ]  // Dec
+  [31, 31, 0, 0], // Jan
+  [28, 29, 31, 31], // Feb
+  [31, 31, 59, 60], // Mar
+  [30, 30, 90, 91], // Apr
+  [31, 31, 120, 121], // May
+  [30, 30, 151, 152], // Jun
+  [31, 31, 181, 182], // Jul
+  [31, 31, 212, 213], // Aug
+  [30, 30, 243, 244], // Sep
+  [31, 31, 273, 274], // Oct
+  [30, 30, 304, 305], // Nov
+  [31, 31, 334, 335], // Dec
 ];
 
 /**
@@ -201,7 +200,7 @@ const computeJulianFields = (f: number[]): void => {
 const leapGregorian = (y: number): boolean => {
   let r = y % 4 === 0;
   if (y >= CalendarConstants.JD_GREGORIAN_CUTOVER_YEAR) {
-    r = r && ((y % 100 !== 0) || (y % 400 === 0));
+    r = r && (y % 100 !== 0 || y % 400 === 0);
   }
   return r;
 };

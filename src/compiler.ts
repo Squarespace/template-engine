@@ -13,7 +13,7 @@ import { ExprOptions } from './math';
 
 const EMPTY_CODE: Code = [Opcode.ROOT, 1, [], Opcode.EOF];
 
-export interface CompilerProps extends EngineProps { }
+export interface CompilerProps extends EngineProps {}
 
 export type InjectsMap = { [path: string]: any };
 
@@ -43,7 +43,7 @@ const DefaultExecuteProps = {
   code: EMPTY_CODE,
   json: {},
   partials: {},
-  injects: {}
+  injects: {},
 };
 
 export interface ParseResult {
@@ -60,7 +60,6 @@ export interface ExecuteResult {
  * High level interface for parsing and executing templates.
  */
 export class Compiler {
-
   private engine: Engine;
 
   // Reuse single instance of Matcher across multiple parses, avoids
@@ -82,7 +81,7 @@ export class Compiler {
     parser.parse();
     return {
       code: assembler.code(),
-      errors: assembler.errors
+      errors: assembler.errors,
     };
   }
 
@@ -106,5 +105,4 @@ export class Compiler {
 
     return { ctx, errors };
   }
-
 }

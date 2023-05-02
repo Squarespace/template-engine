@@ -21,13 +21,13 @@ const scan = (raw: string): any => {
 
 test('basic', () => {
   let r = scan('Hello, {name}');
-  expect(r.variables).toEqual([{name: null}]);
+  expect(r.variables).toEqual([{ name: null }]);
 
   r = scan('{.section foo}{.section bar}{baz}{.end}{.end}');
-  expect(r.variables).toEqual([{foo: {bar: {baz: null}}}]);
+  expect(r.variables).toEqual([{ foo: { bar: { baz: null } } }]);
 
   r = scan('{.var @foo bar.baz.2.quux}');
-  expect(r.variables).toEqual([{'bar.baz.2.quux': null}]);
+  expect(r.variables).toEqual([{ 'bar.baz.2.quux': null }]);
 
   r = scan('{.ctx @c a=foo.bar b=baz.quux}');
   expect(r.variables).toEqual([{ 'foo.bar': null, 'baz.quux': null }]);
@@ -43,7 +43,7 @@ test('basic', () => {
 
   r = scan('{.repeated section foo}{bar}{.alternates with}---{.end}');
   expect(r.instructions).toEqual({ END: 1, REPEATED: 1, ROOT: 1, TEXT: 1, VARIABLE: 1 });
-  expect(r.variables).toEqual([{foo: {bar: null}}]);
+  expect(r.variables).toEqual([{ foo: { bar: null } }]);
   expect(r.textBytes).toEqual(3);
 
   r = scan('{foo|datetime}{bar|json}');
@@ -51,12 +51,12 @@ test('basic', () => {
   expect(r.variables).toEqual([{ foo: null, bar: null }]);
 
   r = scan('{foo}{foo.bar}{.section foo}{bar}{.end}');
-  expect(r.variables).toEqual([{ 'foo.bar': null, foo: { bar: null }}]);
+  expect(r.variables).toEqual([{ 'foo.bar': null, foo: { bar: null } }]);
 });
 
 test('dupe names', () => {
   const r = scan('{.section name}foo{.end}{.section name}bar{.end}');
-  expect(r.variables).toEqual([{name: {}}]);
+  expect(r.variables).toEqual([{ name: {} }]);
 });
 
 test('unexpected', () => {

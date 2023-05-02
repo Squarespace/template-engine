@@ -2,8 +2,7 @@ import { Expr, ExprOptions } from '../src/math';
 import { Context } from '../src/context';
 import { xmur3 } from './rng';
 
-const context = (o?: any, opts?: ExprOptions) =>
-  new Context(o || {}, { enableExpr: true, exprOpts: opts });
+const context = (o?: any, opts?: ExprOptions) => new Context(o || {}, { enableExpr: true, exprOpts: opts });
 
 const reduce = (s: string, ctx: Context) => {
   const e = new Expr(s);

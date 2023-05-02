@@ -9,8 +9,13 @@ import { Variable } from './variable';
  * and returning it. If privateContext is true variable resolution will be
  * blocked at the current stack frame.
  */
-export const executeTemplate = (ctx: Context, inst: RootCode | MacroCode, node: Node, privateContext: boolean,
-    argvar?: Variable) => {
+export const executeTemplate = (
+  ctx: Context,
+  inst: RootCode | MacroCode,
+  node: Node,
+  privateContext: boolean,
+  argvar?: Variable
+) => {
   const buf = ctx.swapBuffer();
   ctx.pushNode(node);
   ctx.stopResolution(privateContext);

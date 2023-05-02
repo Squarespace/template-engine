@@ -15,14 +15,24 @@ const CTX = new Context({});
 
 test('apply', () => {
   const engine = newEngine();
-  const inst: RootCode = [O.ROOT, 1, [
-    [O.TEXT, 'Hi, '],
-    [O.VARIABLE, [['person']], [['apply', [['person.html'], ' ']]]]
-  ], O.EOF];
-  const partial: RootCode = [O.ROOT, 1, [
-    [O.VARIABLE, [['name']], 0],
-    [O.VARIABLE, [['sym']], 0]
-  ], O.EOF];
+  const inst: RootCode = [
+    O.ROOT,
+    1,
+    [
+      [O.TEXT, 'Hi, '],
+      [O.VARIABLE, [['person']], [['apply', [['person.html'], ' ']]]],
+    ],
+    O.EOF,
+  ];
+  const partial: RootCode = [
+    O.ROOT,
+    1,
+    [
+      [O.VARIABLE, [['name']], 0],
+      [O.VARIABLE, [['sym']], 0],
+    ],
+    O.EOF,
+  ];
 
   const node = { person: { name: 'User Name' }, sym: '!!' };
   const ctx = new Context(node, { partials: { 'person.html': partial } });
@@ -32,14 +42,24 @@ test('apply', () => {
 
 test('apply private scope', () => {
   const engine = newEngine();
-  const inst: RootCode = [O.ROOT, 1, [
-    [O.TEXT, 'Hi, '],
-    [O.VARIABLE, [['person']], [['apply', [['person.html', 'private'], ' ']]]],
-  ], O.EOF];
-  const partial: RootCode = [O.ROOT, 1, [
-    [O.VARIABLE, [['name']], 0],
-    [O.VARIABLE, [['sym']], 0]
-  ], O.EOF];
+  const inst: RootCode = [
+    O.ROOT,
+    1,
+    [
+      [O.TEXT, 'Hi, '],
+      [O.VARIABLE, [['person']], [['apply', [['person.html', 'private'], ' ']]]],
+    ],
+    O.EOF,
+  ];
+  const partial: RootCode = [
+    O.ROOT,
+    1,
+    [
+      [O.VARIABLE, [['name']], 0],
+      [O.VARIABLE, [['sym']], 0],
+    ],
+    O.EOF,
+  ];
 
   const node = { person: { name: 'User Name' }, sym: '!!' };
   const ctx = new Context(node, { partials: { 'person.html': partial } });
@@ -49,14 +69,24 @@ test('apply private scope', () => {
 
 test('apply missing partial', () => {
   const engine = newEngine();
-  const inst: RootCode = [O.ROOT, 1, [
-    [O.TEXT, 'Hi, '],
-    [O.VARIABLE, [['person']], [['apply', [['missing.html'], ' ']]]],
-  ], O.EOF];
-  const partial: RootCode = [O.ROOT, 1, [
-    [O.VARIABLE, [['name']], 0],
-    [O.VARIABLE, [['sym']], 0]
-  ], O.EOF];
+  const inst: RootCode = [
+    O.ROOT,
+    1,
+    [
+      [O.TEXT, 'Hi, '],
+      [O.VARIABLE, [['person']], [['apply', [['missing.html'], ' ']]]],
+    ],
+    O.EOF,
+  ];
+  const partial: RootCode = [
+    O.ROOT,
+    1,
+    [
+      [O.VARIABLE, [['name']], 0],
+      [O.VARIABLE, [['sym']], 0],
+    ],
+    O.EOF,
+  ];
 
   const node = { person: { name: 'User Name' } };
   const ctx = new Context(node, { partials: { 'person.html': partial } });
@@ -69,14 +99,24 @@ test('apply missing partial', () => {
 
 test('apply no arguments', () => {
   const engine = newEngine();
-  const inst: RootCode = [O.ROOT, 1, [
-    [O.TEXT, 'Hi, '],
-    [O.VARIABLE, [['person']], [['apply']]],
-  ], O.EOF];
-  const partial: RootCode = [O.ROOT, 1, [
-    [O.VARIABLE, [['name']], 0],
-    [O.VARIABLE, [['sym']], 0]
-  ], O.EOF];
+  const inst: RootCode = [
+    O.ROOT,
+    1,
+    [
+      [O.TEXT, 'Hi, '],
+      [O.VARIABLE, [['person']], [['apply']]],
+    ],
+    O.EOF,
+  ];
+  const partial: RootCode = [
+    O.ROOT,
+    1,
+    [
+      [O.VARIABLE, [['name']], 0],
+      [O.VARIABLE, [['sym']], 0],
+    ],
+    O.EOF,
+  ];
 
   const node = { person: { name: 'User Name' } };
   const ctx = new Context(node, { partials: { 'person.html': partial } });
@@ -86,14 +126,19 @@ test('apply no arguments', () => {
 
 test('apply no parsefunc', () => {
   const engine = newEngine();
-  const inst: RootCode = [O.ROOT, 1, [
-    [O.TEXT, 'Hi, '],
-    [O.VARIABLE, [['person']], [['apply', [['person.html'], ' ']]]],
-  ], O.EOF];
+  const inst: RootCode = [
+    O.ROOT,
+    1,
+    [
+      [O.TEXT, 'Hi, '],
+      [O.VARIABLE, [['person']], [['apply', [['person.html'], ' ']]]],
+    ],
+    O.EOF,
+  ];
   const partials: Partials = {
-    'person.html': '{name}{sym}'
+    'person.html': '{name}{sym}',
   };
-  
+
   const node = { person: { name: 'User Name', sym: '!' } };
   // This context doesn't define a parse function, so has no way of parsing
   // a string into a partial template.
@@ -105,12 +150,8 @@ test('apply no parsefunc', () => {
 
 test('apply self recursion', () => {
   const engine = newEngine();
-  const inst: RootCode = [O.ROOT, 1, [
-    [O.VARIABLE, [['person']], [['apply', [['foo.html'], ' ']]]]
-  ], O.EOF];
-  const partial: RootCode = [O.ROOT, 1, [
-    [O.VARIABLE, [['@']], [['apply', [['foo.html'], ' ']]]]
-  ], O.EOF];
+  const inst: RootCode = [O.ROOT, 1, [[O.VARIABLE, [['person']], [['apply', [['foo.html'], ' ']]]]], O.EOF];
+  const partial: RootCode = [O.ROOT, 1, [[O.VARIABLE, [['@']], [['apply', [['foo.html'], ' ']]]]], O.EOF];
 
   const node = { person: { name: 'User Name' } };
   const ctx = new Context(node, { partials: { 'foo.html': partial } });
@@ -123,15 +164,11 @@ test('apply self recursion', () => {
 
 test('apply max recursion depth', () => {
   const engine = newEngine();
-  const inst: RootCode = [O.ROOT, 1, [
-    [O.VARIABLE, [['person']], [['apply', [['partial-0.html'], ' ']]]]
-  ], O.EOF];
+  const inst: RootCode = [O.ROOT, 1, [[O.VARIABLE, [['person']], [['apply', [['partial-0.html'], ' ']]]]], O.EOF];
 
   const partials: { [x: string]: RootCode } = {};
   for (let i = 0; i < 20; i++) {
-    partials[`partial-${i}.html`] = [O.ROOT, 1, [
-      [O.VARIABLE, [['@']], [['apply', [[`partial-${i + 1}.html`], ' ']]]]
-    ], O.EOF];
+    partials[`partial-${i}.html`] = [O.ROOT, 1, [[O.VARIABLE, [['@']], [['apply', [[`partial-${i + 1}.html`], ' ']]]]], O.EOF];
   }
 
   const node = { person: { name: 'User Name' } };
@@ -142,11 +179,11 @@ test('apply max recursion depth', () => {
   expect(ctx.errors[0].message).toContain('recursion depth');
 });
 
-loader.paths('f-apply-%N.html').forEach(path => {
+loader.paths('f-apply-%N.html').forEach((path) => {
   test(`apply - ${path}`, () => loader.execute(path));
 });
 
-loader.paths('f-count-%N.html').forEach(path => {
+loader.paths('f-count-%N.html').forEach((path) => {
   test(`count - ${path}`, () => loader.execute(path));
 });
 
@@ -180,7 +217,7 @@ test('count', () => {
   expect(vars[0].get()).toEqual(0);
 });
 
-loader.paths('f-cycle-%N.html').forEach(path => {
+loader.paths('f-cycle-%N.html').forEach((path) => {
   test(`cycle - ${path}`, () => loader.execute(path));
 });
 
@@ -208,7 +245,7 @@ test('cycle', () => {
   expect(vars[0].get()).toEqual('a');
 });
 
-loader.paths('f-encode-space-%N.html').forEach(path => {
+loader.paths('f-encode-space-%N.html').forEach((path) => {
   test(`encode-space - ${path}`, () => loader.execute(path));
 });
 
@@ -218,7 +255,7 @@ test('encode-space', () => {
   expect(vars[0].get()).toEqual('&nbsp;&nbsp;&nbsp;&nbsp;');
 });
 
-loader.paths('f-encode-uri-%N.html').forEach(path => {
+loader.paths('f-encode-uri-%N.html').forEach((path) => {
   test(`encode-uri - ${path}`, () => loader.execute(path));
 });
 
@@ -228,7 +265,7 @@ test('encode-uri', () => {
   expect(vars[0].get()).toEqual('%3C=%25%3E');
 });
 
-loader.paths('f-encode-uri-component-%N.html').forEach(path => {
+loader.paths('f-encode-uri-component-%N.html').forEach((path) => {
   test(`encode-uri-component - ${path}`, () => loader.execute(path));
 });
 
@@ -251,11 +288,11 @@ test('format', () => {
   expect(vars[0].get()).toEqual('The  is .');
 });
 
-loader.paths('f-format-%N.html').forEach(path => {
+loader.paths('f-format-%N.html').forEach((path) => {
   test(`format - ${path}`, () => loader.execute(path));
 });
 
-loader.paths('f-html-%N.html').forEach(path => {
+loader.paths('f-html-%N.html').forEach((path) => {
   test(`html - ${path}`, () => loader.execute(path));
 });
 
@@ -265,7 +302,7 @@ test('html', () => {
   expect(vars[0].get()).toEqual('"&lt;foo &amp; bar&gt;"');
 });
 
-loader.paths('f-htmlattr-%N.html').forEach(path => {
+loader.paths('f-htmlattr-%N.html').forEach((path) => {
   test(`htmlattr - ${path}`, () => loader.execute(path));
 });
 
@@ -277,13 +314,13 @@ const htmlattr = (name: string) => {
 
 test('htmlattr', () => htmlattr('htmlattr'));
 
-loader.paths('f-htmltag-%N.html').forEach(path => {
+loader.paths('f-htmltag-%N.html').forEach((path) => {
   test(`htmltag - ${path}`, () => loader.execute(path));
 });
 
 test('htmltag', () => htmlattr('htmltag'));
 
-loader.paths('f-iter-%N.html').forEach(path => {
+loader.paths('f-iter-%N.html').forEach((path) => {
   test(`iter - ${path}`, () => loader.execute(path));
 });
 
@@ -315,7 +352,7 @@ test('json', () => {
   expect(vars[0].get()).toEqual('["a",2,"c"]');
 });
 
-loader.paths('f-json-%N.html').forEach(path => {
+loader.paths('f-json-%N.html').forEach((path) => {
   test(`json - ${path}`, () => loader.execute(path));
 });
 
@@ -329,7 +366,7 @@ test('json-pretty', () => {
   expect(vars[0].get()).toEqual('');
 });
 
-loader.paths('f-json-pretty-%N.html').forEach(path => {
+loader.paths('f-json-pretty-%N.html').forEach((path) => {
   test(`json pretty - ${path}`, () => loader.execute(path));
 });
 
@@ -346,21 +383,14 @@ test('key-by', () => {
   Core['key-by'].apply(['id'], vars, CTX);
   expect(vars[0].get()).toEqual({});
 
-  vars = variables([
-    { id: 1 },
-    { id: 2 },
-    { invalid: 4 },
-  ]);
+  vars = variables([{ id: 1 }, { id: 2 }, { invalid: 4 }]);
   Core['key-by'].apply(['id'], vars, CTX);
   expect(vars[0].get()).toEqual({
     1: { id: 1 },
     2: { id: 2 },
   });
 
-  vars = variables([
-    { test: [{ deep: 1 }] },
-    { test: [{ deep: 2 }] },
-  ]);
+  vars = variables([{ test: [{ deep: 1 }] }, { test: [{ deep: 2 }] }]);
   Core['key-by'].apply(['test.0.deep'], vars, CTX);
   expect(vars[0].get()).toEqual({
     1: { test: [{ deep: 1 }] },
@@ -368,12 +398,11 @@ test('key-by', () => {
   });
 });
 
-loader.paths('f-key-by-%N.html').forEach(path => {
+loader.paths('f-key-by-%N.html').forEach((path) => {
   test(`key-by - ${path}`, () => loader.execute(path));
 });
 
-
-loader.paths('f-lookup-%N.html').forEach(path => {
+loader.paths('f-lookup-%N.html').forEach((path) => {
   test(`lookup - ${path}`, () => loader.execute(path));
 });
 
@@ -387,7 +416,7 @@ test('lookup', () => {
   expect(vars[0].get()).toEqual('');
 });
 
-loader.paths('f-mod-%N.html').forEach(path => {
+loader.paths('f-mod-%N.html').forEach((path) => {
   test(`mod - ${path}`, () => loader.execute(path));
 });
 
@@ -421,19 +450,19 @@ test('mod', () => {
   expect(vars[0].get()).toEqual(0);
 });
 
-loader.paths(`f-get-%N.html`).forEach(path => {
+loader.paths(`f-get-%N.html`).forEach((path) => {
   test(`get - ${path}`, () => loader.execute(path));
 });
 
-loader.paths('f-macro-%N.html').forEach(path => {
+loader.paths('f-macro-%N.html').forEach((path) => {
   test(`apply macro - ${path}`, () => loader.execute(path));
 });
 
-loader.paths('f-macro-ctx-%N.html').forEach(path => {
+loader.paths('f-macro-ctx-%N.html').forEach((path) => {
   test(`apply macro ctx - ${path}`, () => loader.execute(path));
 });
 
-loader.paths('f-output-%N.html').forEach(path => {
+loader.paths('f-output-%N.html').forEach((path) => {
   test(`output - ${path}`, () => loader.execute(path));
 });
 
@@ -443,11 +472,11 @@ test('output', () => {
   expect(vars[0].get()).toEqual('a b c');
 });
 
-loader.paths('f-plural-%N.html').forEach(path => {
+loader.paths('f-plural-%N.html').forEach((path) => {
   test(`plural - ${path}`, () => loader.execute(path));
 });
 
-loader.paths('f-pluralize-%N.html').forEach(path => {
+loader.paths('f-pluralize-%N.html').forEach((path) => {
   test(`pluralize - ${path}`, () => loader.execute(path));
 });
 
@@ -473,7 +502,7 @@ test('pluralize', () => {
   expect(vars[0].get()).toEqual('y');
 });
 
-loader.paths(`f-prop-%N.html`).forEach(path => {
+loader.paths(`f-prop-%N.html`).forEach((path) => {
   test(`prop - ${path}`, () => loader.execute(path));
 });
 
@@ -499,7 +528,7 @@ test('prop', () => {
   expect(vars[0].get()).toEqual(null);
 });
 
-loader.paths(`f-raw-%N.html`).forEach(path => {
+loader.paths(`f-raw-%N.html`).forEach((path) => {
   test(`raw - ${path}`, () => loader.execute(path));
 });
 
@@ -509,7 +538,7 @@ test('raw', () => {
   expect(vars[0].get()).toEqual('3.14159');
 });
 
-loader.paths(`f-round-%N.html`).forEach(path => {
+loader.paths(`f-round-%N.html`).forEach((path) => {
   test(`round - ${path}`, () => loader.execute(path));
 });
 
@@ -523,7 +552,7 @@ test('round', () => {
   expect(vars[0].get()).toEqual(2);
 });
 
-loader.paths(`f-safe-%N.html`).forEach(path => {
+loader.paths(`f-safe-%N.html`).forEach((path) => {
   test(`safe - ${path}`, () => loader.execute(path));
 });
 
@@ -549,7 +578,7 @@ test('safe', () => {
   expect(vars[0].get()).toEqual('foo');
 });
 
-loader.paths(`f-slugify-%N.html`).forEach(path => {
+loader.paths(`f-slugify-%N.html`).forEach((path) => {
   test(`slugify - ${path}`, () => loader.execute(path));
 });
 
@@ -567,12 +596,12 @@ test('slugify', () => {
   expect(vars[0].get()).toEqual('12345--foobar-baz');
 });
 
-loader.paths(`f-smartypants-%N.html`).forEach(path => {
+loader.paths(`f-smartypants-%N.html`).forEach((path) => {
   test(`smartypants - ${path}`, () => loader.execute(path));
 });
 
 test('smartypants', () => {
-  let vars = variables('Fred\'s and Joe\'s');
+  let vars = variables("Fred's and Joe's");
   Core.smartypants.apply([], vars, CTX);
   expect(vars[0].get()).toEqual('Fred\u2019s and Joe\u2019s');
 
@@ -585,7 +614,7 @@ test('smartypants', () => {
   expect(vars[0].get()).toEqual('I spoke to Larry\u2014the project\nlead\u2014about the issue');
 });
 
-loader.paths(`f-str-%N.html`).forEach(path => {
+loader.paths(`f-str-%N.html`).forEach((path) => {
   test(`str - ${path}`, () => loader.execute(path));
 });
 
@@ -599,7 +628,7 @@ test('str', () => {
   expect(vars[0].get()).toEqual('');
 });
 
-loader.paths(`f-truncate-%N.html`).forEach(path => {
+loader.paths(`f-truncate-%N.html`).forEach((path) => {
   test(`truncate - ${path}`, () => loader.execute(path));
 });
 
@@ -639,7 +668,7 @@ test('truncate', () => {
   expect(vars[0].get()).toEqual('abc def ...');
 });
 
-loader.paths('f-url-encode-%N.html').forEach(path => {
+loader.paths('f-url-encode-%N.html').forEach((path) => {
   test(`url-encode - ${path}`, () => loader.execute(path));
 });
 
@@ -648,4 +677,3 @@ test('urlencode', () => {
   Core['url-encode'].apply([], vars, CTX);
   expect(vars[0].get()).toEqual('%E2%80%9Ca%20b%E2%80%9D');
 });
-

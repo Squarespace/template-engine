@@ -3,26 +3,21 @@ import { Opcode } from './opcodes';
 import * as patterns from './patterns';
 import { Arguments, FormatterCall, Operator } from './instructions';
 import { splitVariable } from './util';
-import {
-  hasStickyRegexp,
-  MatcherProps,
-  GlobalMatcherMixin,
-  StickyMatcherMixin,
-} from './matchers';
+import { hasStickyRegexp, MatcherProps, GlobalMatcherMixin, StickyMatcherMixin } from './matchers';
 
 // Table for fast mapping of instructions to their opcodes.
 const INSTRUCTIONS: { [x: string]: (string | Opcode)[] } = {
-  'a': ['lternates with', Opcode.ALTERNATES_WITH],
-  'c': ['tx', Opcode.CTXVAR],
-  'e': ['nd', Opcode.END, 'of', Opcode.EOF, 'val', Opcode.EVAL],
-  'i': ['f', Opcode.IF, 'nclude', Opcode.INCLUDE, 'nject', Opcode.INJECT],
-  'm': ['acro', Opcode.MACRO, 'eta-left', Opcode.META_LEFT, 'eta-right', Opcode.META_RIGHT],
-  'n': ['ewline', Opcode.NEWLINE],
-  'o': ['r', Opcode.OR_PREDICATE],
-  'r': ['epeated section', Opcode.REPEATED],
-  's': ['ection', Opcode.SECTION, 'pace', Opcode.SPACE],
-  't': ['ab', Opcode.TAB],
-  'v': ['ar', Opcode.BINDVAR]
+  a: ['lternates with', Opcode.ALTERNATES_WITH],
+  c: ['tx', Opcode.CTXVAR],
+  e: ['nd', Opcode.END, 'of', Opcode.EOF, 'val', Opcode.EVAL],
+  i: ['f', Opcode.IF, 'nclude', Opcode.INCLUDE, 'nject', Opcode.INJECT],
+  m: ['acro', Opcode.MACRO, 'eta-left', Opcode.META_LEFT, 'eta-right', Opcode.META_RIGHT],
+  n: ['ewline', Opcode.NEWLINE],
+  o: ['r', Opcode.OR_PREDICATE],
+  r: ['epeated section', Opcode.REPEATED],
+  s: ['ection', Opcode.SECTION, 'pace', Opcode.SPACE],
+  t: ['ab', Opcode.TAB],
+  v: ['ar', Opcode.BINDVAR],
 };
 
 export type RegExpCompiler = (s: string) => RegExp;
@@ -173,7 +168,7 @@ export class Matcher implements MatcherProps {
       // Parse and append formatter with arguments.
       const delim = rawArgs[0];
       const args = rawArgs.slice(1).split(delim);
-      return (args.length === 1 && !args[0]) ? [[], delim] : [args, delim];
+      return args.length === 1 && !args[0] ? [[], delim] : [args, delim];
     }
     return null;
   }

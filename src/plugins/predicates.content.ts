@@ -159,9 +159,7 @@ export class IndexPredicate extends PredicatePlugin {
     }
     const folder = collection.get('folder');
     const behavior = collection.get('folderBehavior');
-    return isTruthy(folder) &&
-      behavior.type === Type.NUMBER &&
-      behavior.asNumber() === FolderBehavior.INDEX.code;
+    return isTruthy(folder) && behavior.type === Type.NUMBER && behavior.asNumber() === FolderBehavior.INDEX.code;
   }
 }
 
@@ -209,8 +207,7 @@ export class PromotedRecordTypePredicate extends PredicatePlugin {
 
   apply(args: string[], ctx: Context): boolean {
     const node = ctx.node();
-    return node.get('recordType').asNumber() === this.code ||
-      node.get('promotedBlockType').asString() === this.promotedBlockType;
+    return node.get('recordType').asNumber() === this.code || node.get('promotedBlockType').asString() === this.promotedBlockType;
   }
 }
 
@@ -280,53 +277,66 @@ export const CONTENT_PREDICATES: PredicateTable = {
   'show-past-events?': new ShowPastEventsPredicate(),
 };
 
-const GALLERY_DESIGN_SELECT = [
-  'grid', 'slideshow', 'slider', 'stacked'
-];
+const GALLERY_DESIGN_SELECT = ['grid', 'slideshow', 'slider', 'stacked'];
 
-const META_POSITION_SELECT = [
-  'top', 'top-left', 'top-right', 'center', 'bottom', 'bottom-left', 'bottom-right'
-];
+const META_POSITION_SELECT = ['top', 'top-left', 'top-right', 'center', 'bottom', 'bottom-left', 'bottom-right'];
 
-const ACTIVE_ALIGNMENT_SELECT = [
-  'center', 'left', 'right'
-];
+const ACTIVE_ALIGNMENT_SELECT = ['center', 'left', 'right'];
 
 const GALLERY_BOOLEAN = [
-  'autoplay', 'auto-crop', 'controls', 'lightbox', 'square-thumbs', 'show-meta',
-  'show-meta-on-hover', 'thumbnails'
+  'autoplay',
+  'auto-crop',
+  'controls',
+  'lightbox',
+  'square-thumbs',
+  'show-meta',
+  'show-meta-on-hover',
+  'thumbnails',
 ];
 
 const PROMOTED_RECORD_PREDICATES = new Set([
-  RecordType.VIDEO, RecordType.IMAGE, RecordType.QUOTE, RecordType.LINK, RecordType.GALLERY,
+  RecordType.VIDEO,
+  RecordType.IMAGE,
+  RecordType.QUOTE,
+  RecordType.LINK,
+  RecordType.GALLERY,
 ]);
 
 const PROMOTED_BLOCK_TYPES = [
-  'map', 'embed', 'image', 'code', 'quote', 'twitter', 'link', 'video', 'foursquare',
-  'instagram', 'form'
+  'map',
+  'embed',
+  'image',
+  'code',
+  'quote',
+  'twitter',
+  'link',
+  'video',
+  'foursquare',
+  'instagram',
+  'form',
 ];
 
-GALLERY_DESIGN_SELECT.forEach(name => {
+GALLERY_DESIGN_SELECT.forEach((name) => {
   const identifier = `gallery-design-${name}?`;
   CONTENT_PREDICATES[identifier] = new GallerySelectPredicate('design', name);
 });
 
-META_POSITION_SELECT.forEach(name => {
+META_POSITION_SELECT.forEach((name) => {
   const identifier = `gallery-meta-position-${name}?`;
   CONTENT_PREDICATES[identifier] = new GallerySelectPredicate('meta-position', name);
 });
 
-ACTIVE_ALIGNMENT_SELECT.forEach(name => {
+ACTIVE_ALIGNMENT_SELECT.forEach((name) => {
   const identifier = `gallery-active-alignment-${name}?`;
   CONTENT_PREDICATES[identifier] = new GallerySelectPredicate('active-alignment', name);
 });
 
-GALLERY_BOOLEAN.forEach(option => {
+GALLERY_BOOLEAN.forEach((option) => {
   const identifier = `gallery-${option}?`;
   CONTENT_PREDICATES[identifier] = new GalleryBooleanPredicate(option);
 });
 
-RecordType.values().forEach(type => {
+RecordType.values().forEach((type) => {
   if (PROMOTED_RECORD_PREDICATES.has(type)) {
     return;
   }
@@ -341,12 +351,12 @@ CONTENT_PREDICATES['quote?'] = new PromotedRecordTypePredicate(RecordType.QUOTE,
 CONTENT_PREDICATES['link?'] = new PromotedRecordTypePredicate(RecordType.LINK, 'link');
 CONTENT_PREDICATES['gallery?'] = new PromotedRecordTypePredicate(RecordType.GALLERY, 'gallery');
 
-PROMOTED_BLOCK_TYPES.forEach(type => {
+PROMOTED_BLOCK_TYPES.forEach((type) => {
   const identifier = `promoted${type.toUpperCase()}?`;
   CONTENT_PREDICATES[identifier] = new PromotedBlockTypePredicate(type);
 });
 
-BackgroundSource.values().forEach(type => {
+BackgroundSource.values().forEach((type) => {
   const identifier = `background-source-${type.name}?`;
   CONTENT_PREDICATES[identifier] = new BackgroundSourcePredicate(type);
 });

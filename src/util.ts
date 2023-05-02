@@ -73,7 +73,6 @@ export const deepEquals = (o1: any, o2: any) => {
           return false;
         }
       }
-
     } else {
       // Compare keys across both objects.
       for (const k in a) {
@@ -163,15 +162,15 @@ export const deepMerge = (dst: any, ...sources: any[]): any => {
 export const deepCopy = (obj: any): any => {
   const type = of(obj);
   switch (type) {
-  case Type.ARRAY:
-    return obj.map((e: any) => deepCopy(e));
-  case Type.OBJECT:
-    return Object.keys(obj).reduce((o: any, k: string): any => {
-      o[k] = deepCopy(obj[k]);
-      return o;
-    }, {});
-  default:
-    return obj;
+    case Type.ARRAY:
+      return obj.map((e: any) => deepCopy(e));
+    case Type.OBJECT:
+      return Object.keys(obj).reduce((o: any, k: string): any => {
+        o[k] = deepCopy(obj[k]);
+        return o;
+      }, {});
+    default:
+      return obj;
   }
 };
 

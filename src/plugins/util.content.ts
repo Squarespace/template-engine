@@ -25,7 +25,7 @@ export const getAltText = (ctx: Context, image: Node): string => {
     return altText.asString().trim();
   }
   return computeAltTextFromContentItemFields(image);
-}
+};
 
 export const computeAltTextFromContentItemFields = (item: Node) => {
   const title = item.get('title');
@@ -75,28 +75,28 @@ export const humanizeDatePlural = (value: number, type: string) => {
 
 export const humanizeDate = (delta: number, showSeconds: boolean) => {
   delta /= 1000 | 0;
-  const days = delta / 86400 | 0;
-  const years = days / 365 | 0;
+  const days = (delta / 86400) | 0;
+  const years = (days / 365) | 0;
   if (years > 0) {
     return humanizeDatePlural(years, 'year');
   }
-  const months = days / 30 | 0;
+  const months = (days / 30) | 0;
   if (months > 0) {
     return humanizeDatePlural(months, 'month');
   }
-  const weeks = days / 7 | 0;
+  const weeks = (days / 7) | 0;
   if (weeks > 0) {
     return humanizeDatePlural(weeks, 'week');
   }
   if (days > 0) {
     return humanizeDatePlural(days, 'day');
   }
-  delta -= (days * 86400);
-  const hours = delta / 3600 | 0;
+  delta -= days * 86400;
+  const hours = (delta / 3600) | 0;
   if (hours > 0) {
     return humanizeDatePlural(hours, 'hour');
   }
-  const mins = delta / 60 | 0;
+  const mins = (delta / 60) | 0;
   if (mins > 0) {
     return humanizeDatePlural(mins, 'minute');
   }
@@ -119,9 +119,7 @@ export const outputImageMeta = (image: Node, ctx: Context, preferredAlt?: string
   const focalPoint = getFocalPoint(image);
   const origSize = image.get('originalSize').asString();
   const assetUrl = image.get('assetUrl').asString();
-  const altText = escapeHtmlAttributes(
-    preferredAlt != undefined ? preferredAlt : getAltText(ctx, image)
-  );
+  const altText = escapeHtmlAttributes(preferredAlt != undefined ? preferredAlt : getAltText(ctx, image));
 
   let res = '';
   if (isLicensedAssetPreview(image)) {

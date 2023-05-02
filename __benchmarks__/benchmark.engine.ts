@@ -2,7 +2,6 @@ import { makeSuite, pad } from './util';
 import { Compiler } from '../src';
 import { repeat } from '../src/util';
 
-
 const executeSuite = makeSuite('Execute');
 
 const compiler = new Compiler();
@@ -12,7 +11,7 @@ const padding = 32;
 let base: string;
 
 base = pad(padding, '{.eval 17.5 * max(-2, 3) == "a"}', 'x');
-iterations.forEach(n => {
+iterations.forEach((n) => {
   const source = repeat(n, base);
   const desc = `- eval ${n} (${source.length} chars)`;
   const { code } = compiler.parse(source);
@@ -24,7 +23,7 @@ iterations.forEach(n => {
 });
 
 base = pad(padding, 'fooooooooooooooooooooo', 'x');
-iterations.forEach(n => {
+iterations.forEach((n) => {
   const source = repeat(n, base);
   const desc = `- text ${n} (${source.length} chars)`;
   const { code } = compiler.parse(source);
@@ -36,7 +35,7 @@ iterations.forEach(n => {
 });
 
 base = pad(padding, 'fooooooooooooooooooooo{a}', 'x');
-iterations.forEach(n => {
+iterations.forEach((n) => {
   const source = repeat(n, base);
   const desc = `- text + var ${n} (${source.length} chars)`;
   const { code } = compiler.parse(source);
@@ -47,9 +46,8 @@ iterations.forEach(n => {
   });
 });
 
-
 base = pad(padding, '{a|html}{b}{a|html|json}{b}{c}', 'x');
-iterations.forEach(n => {
+iterations.forEach((n) => {
   const source = repeat(n, base);
   const desc = `- vars ${n} (${source.length} chars)`;
   const { code } = compiler.parse(source);
@@ -60,9 +58,8 @@ iterations.forEach(n => {
   });
 });
 
-
 base = pad(padding, '{.section a}{b}{.end}', 'x');
-iterations.forEach(n => {
+iterations.forEach((n) => {
   const source = repeat(n, base);
   const desc = `- section ${n} (${source.length} chars)`;
   const { code } = compiler.parse(source);
@@ -73,9 +70,8 @@ iterations.forEach(n => {
   });
 });
 
-
 base = pad(padding, '{.repeated section a}{b}{.end}', 'x');
-iterations.forEach(n => {
+iterations.forEach((n) => {
   const source = repeat(n, base);
   const desc = `- repeated ${n} (${source.length} chars)`;
   const { code } = compiler.parse(source);
@@ -86,9 +82,8 @@ iterations.forEach(n => {
   });
 });
 
-
 base = pad(padding, '{.var @foo a.b.c}{@foo.d|json}', 'x');
-iterations.forEach(n => {
+iterations.forEach((n) => {
   const source = repeat(n, base);
   const desc = `- bindvar ${n} (${source.length} chars)`;
   const { code } = compiler.parse(source);
@@ -99,6 +94,4 @@ iterations.forEach(n => {
   });
 });
 
-export {
-  executeSuite,
-};
+export { executeSuite };

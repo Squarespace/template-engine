@@ -14,11 +14,11 @@ import commentsTemplate from './templates/comments.json';
 import likeButtonTemplate from './templates/like-button.json';
 import { makeSocialButton } from './util.social';
 
-const TWITTER_LINKS_REGEX = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\\/%=~_|])/ig;
+const TWITTER_LINKS_REGEX = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\\/%=~_|])/gi;
 const TWITTER_LINKS_REPLACEMENT = '<a target="new" href="$1">$1</a>';
-const TWITTER_TWEETS_REGEX = /(^| )@([a-z0-9_]+)/ig;
+const TWITTER_TWEETS_REGEX = /(^| )@([a-z0-9_]+)/gi;
 const TWITTER_TWEETS_REPLACEMENT = '$1<a target="new" href="https://twitter.com/$2/">@$2</a>';
-const TWITTER_HASHTAG_REGEX = /(^| )#([a-z0-9_]+)/ig;
+const TWITTER_HASHTAG_REGEX = /(^| )#([a-z0-9_]+)/gi;
 
 export class ActivateTwitterLinksFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
@@ -81,7 +81,7 @@ const getLocationString = (node: Node) => {
   const address2 = node.get('addressLine2').asString().trim();
   const country = node.get('addressCountry').asString().trim();
 
-  return [address1, address2, country].filter(s => s.length > 0).join(', ');
+  return [address1, address2, country].filter((s) => s.length > 0).join(', ');
 };
 
 export class GoogleCalendarUrlFormatter extends Formatter {
@@ -161,7 +161,7 @@ export const SOCIAL_FORMATTERS: FormatterTable = {
   'activate-twitter-links': new ActivateTwitterLinksFormatter(),
   'comment-count': new CommentCountFormatter(),
   'comment-link': new CommentLinkFormatter(),
-  'comments': new CommentsFormatter(),
+  comments: new CommentsFormatter(),
   'google-calendar-url': new GoogleCalendarUrlFormatter(),
   'like-button': new LikeButtonFormatter(),
   'social-button': new SocialButtonFormatter(),

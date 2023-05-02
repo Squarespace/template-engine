@@ -179,7 +179,7 @@ export const formatDate = (d: GregorianDate, fmt: string) => {
 
       // %q     quarter of year (1..4)
       case 'q': {
-        const q = ((d.month() - 1) / 3 | 0) + 1;
+        const q = (((d.month() - 1) / 3) | 0) + 1;
         out = `${q}`;
         break;
       }
@@ -232,7 +232,7 @@ export const formatDate = (d: GregorianDate, fmt: string) => {
       case 'v':
         out = formatDate(d, '%e-%b-%Y');
         break;
-    
+
       // %V     ISO week number, with Monday as first day of week (01..53)
       case 'V':
         out = pad(`${d.weekOfYearISO()}`, '0', 2);
@@ -254,7 +254,7 @@ export const formatDate = (d: GregorianDate, fmt: string) => {
         break;
 
       // %X     locale's time representation (e.g., 23:13:48)
-      case 'X': 
+      case 'X':
         out = formatDate(d, '%I:%M:%S %p');
         break;
 
@@ -284,12 +284,10 @@ export const formatDate = (d: GregorianDate, fmt: string) => {
         out = d.timeZoneAbbr();
         break;
 
-
       // NOT IMPLEMENTED:
       // %:z    +hh:mm numeric time zone (e.g., -04:00)
       // %::z   +hh:mm:ss numeric time zone (e.g., -04:00:00)
       // %:::z  numeric time zone with : to necessary precision (e.g., -04, +05:30)
-
     }
 
     if (out) {
@@ -313,7 +311,7 @@ const getTZC = (offset: number): [boolean, number, number] => {
     offset *= -1;
   }
   offset /= 60000;
-  const hours = offset / 60 | 0;
+  const hours = (offset / 60) | 0;
   const minutes = offset % 60;
   return [negative, hours, minutes];
 };
@@ -332,9 +330,7 @@ export const pad = (s: string, ch: string, n: number) => {
 const SHORT_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const LONG_DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-const SHORT_MONTHS = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-];
+const SHORT_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 const LONG_MONTHS = [
   'January',
@@ -348,5 +344,5 @@ const LONG_MONTHS = [
   'September',
   'October',
   'November',
-  'December'
+  'December',
 ];

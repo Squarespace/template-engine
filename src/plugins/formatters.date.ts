@@ -35,5 +35,5 @@ export class DateFormatter extends Formatter {
 }
 
 export const DATE_FORMATTERS: FormatterTable = {
-  'date': new DateFormatter()
+  date: new DateFormatter(),
 };

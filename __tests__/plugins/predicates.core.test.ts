@@ -5,19 +5,19 @@ import { TemplateTestLoader } from '../loader';
 
 const loader = new TemplateTestLoader(join(__dirname, 'resources'));
 
-loader.paths('p-debug-%N.html').forEach(path => {
+loader.paths('p-debug-%N.html').forEach((path) => {
   test(`debug - ${path}`, () => loader.execute(path));
 });
 
-loader.paths('p-comparisons-%N.html').forEach(path => {
+loader.paths('p-comparisons-%N.html').forEach((path) => {
   test(`comparisons - ${path}`, () => loader.execute(path));
 });
 
-loader.paths('p-even-odd-%N.html').forEach(path => {
+loader.paths('p-even-odd-%N.html').forEach((path) => {
   test(`even-odd - ${path}`, () => loader.execute(path));
 });
 
-loader.paths('p-nth-%N.html').forEach(path => {
+loader.paths('p-nth-%N.html').forEach((path) => {
   test(`nth - ${path}`, () => loader.execute(path));
 });
 
@@ -237,7 +237,7 @@ test('odd?', () => {
   expect(impl.apply(['a'], ctx)).toEqual(false);
 });
 
-loader.paths('p-plural-%N.html').forEach(path => {
+loader.paths('p-plural-%N.html').forEach((path) => {
   test(`plural - ${path}`, () => loader.execute(path));
 });
 
@@ -253,7 +253,7 @@ test('plural?', () => {
   expect(impl.apply([], ctx)).toEqual(false);
 });
 
-loader.paths('p-singular-%N.html').forEach(path => {
+loader.paths('p-singular-%N.html').forEach((path) => {
   test(`singular - ${path}`, () => loader.execute(path));
 });
 

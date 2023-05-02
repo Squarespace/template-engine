@@ -8,20 +8,11 @@ import {
   stateEOFNotReached,
   transitionFromEOF,
   unclosed,
-  TemplateError
+  TemplateError,
 } from './errors';
 import { Opcode } from './opcodes';
 import { Sink } from './sink';
-import {
-  getType,
-  BlockInstruction,
-  Code,
-  CompositeInstruction,
-  Instruction,
-  OrPredicate,
-  Repeated,
-  Root
-} from './instructions';
+import { getType, BlockInstruction, Code, CompositeInstruction, Instruction, OrPredicate, Repeated, Root } from './instructions';
 
 type AssemblerState = (type: Opcode, inst: Instruction, push: boolean) => AssemblerState;
 
@@ -30,7 +21,6 @@ type AssemblerState = (type: Opcode, inst: Instruction, push: boolean) => Assemb
  * As individual instructions are parsed they are fed to this state machine.
  */
 export class Assembler extends Sink {
-
   public errors: TemplateError[] = [];
   public root: Root = new Root();
 
@@ -50,18 +40,18 @@ export class Assembler extends Sink {
   accept(inst: Instruction): void {
     const type = getType(inst);
     switch (type) {
-    case Opcode.IF:
-    case Opcode.MACRO:
-    case Opcode.PREDICATE:
-    case Opcode.REPEATED:
-    case Opcode.SECTION:
-    case Opcode.STRUCT:
-      this.state = this.state.call(this, type, inst, true);
-      break;
+      case Opcode.IF:
+      case Opcode.MACRO:
+      case Opcode.PREDICATE:
+      case Opcode.REPEATED:
+      case Opcode.SECTION:
+      case Opcode.STRUCT:
+        this.state = this.state.call(this, type, inst, true);
+        break;
 
-    default:
-      this.state = this.state.call(this, type, inst, false);
-      break;
+      default:
+        this.state = this.state.call(this, type, inst, false);
+        break;
     }
   }
 
@@ -130,23 +120,23 @@ export class Assembler extends Sink {
    */
   stateFor(type: Opcode): AssemblerState {
     switch (type) {
-    case Opcode.IF:
-      return this.stateIf;
-    case Opcode.MACRO:
-    case Opcode.STRUCT:
-      return this.stateBlock;
-    case Opcode.OR_PREDICATE:
-      return this.stateOrPredicate;
-    case Opcode.PREDICATE:
-      return this.statePredicate;
-    case Opcode.REPEATED:
-      return this.stateRepeated;
-    case Opcode.ROOT:
-      return this.stateRoot;
-    case Opcode.SECTION:
-      return this.stateSection;
-    default:
-      throw new Error(JSON.stringify(nonBlockState(type)));
+      case Opcode.IF:
+        return this.stateIf;
+      case Opcode.MACRO:
+      case Opcode.STRUCT:
+        return this.stateBlock;
+      case Opcode.OR_PREDICATE:
+        return this.stateOrPredicate;
+      case Opcode.PREDICATE:
+        return this.statePredicate;
+      case Opcode.REPEATED:
+        return this.stateRepeated;
+      case Opcode.ROOT:
+        return this.stateRoot;
+      case Opcode.SECTION:
+        return this.stateSection;
+      default:
+        throw new Error(JSON.stringify(nonBlockState(type)));
     }
   }
 
@@ -172,26 +162,26 @@ export class Assembler extends Sink {
       return this.pushConsequent(type, inst);
     }
     switch (type) {
-    case Opcode.EOF:
-      this.error(eofInBlock(this.current!));
-      break;
+      case Opcode.EOF:
+        this.error(eofInBlock(this.current!));
+        break;
 
-    case Opcode.ALTERNATES_WITH:
-      this.error(notAllowedInBlock(inst, this.current!));
-      break;
+      case Opcode.ALTERNATES_WITH:
+        this.error(notAllowedInBlock(inst, this.current!));
+        break;
 
-    case Opcode.OR_PREDICATE:
-      this.setAlternate(inst);
-      this.current = inst;
-      return this.stateOrPredicate;
+      case Opcode.OR_PREDICATE:
+        this.setAlternate(inst);
+        this.current = inst;
+        return this.stateOrPredicate;
 
-    case Opcode.END:
-      this.setAlternate(inst);
-      return this.pop();
+      case Opcode.END:
+        this.setAlternate(inst);
+        return this.pop();
 
-    default:
-      (this.current as Repeated).setAlternatesWith(inst);
-      break;
+      default:
+        (this.current as Repeated).setAlternatesWith(inst);
+        break;
     }
     return this.stateAlternatesWith;
   }
@@ -204,22 +194,22 @@ export class Assembler extends Sink {
       return this.pushConsequent(type, inst);
     }
     switch (type) {
-    case Opcode.EOF:
-      this.error(eofInBlock(this.current!));
-      break;
+      case Opcode.EOF:
+        this.error(eofInBlock(this.current!));
+        break;
 
-    case Opcode.ALTERNATES_WITH:
-    case Opcode.OR_PREDICATE:
-      this.error(notAllowedInBlock(inst, this.current!));
-      break;
+      case Opcode.ALTERNATES_WITH:
+      case Opcode.OR_PREDICATE:
+        this.error(notAllowedInBlock(inst, this.current!));
+        break;
 
-    case Opcode.END:
-      // Note: block instructions only have a consequent, no alternate.
-      return this.pop();
+      case Opcode.END:
+        // Note: block instructions only have a consequent, no alternate.
+        return this.pop();
 
-    default:
-      this.addConsequent(inst);
-      break;
+      default:
+        this.addConsequent(inst);
+        break;
     }
     return this.stateBlock;
   }
@@ -248,26 +238,26 @@ export class Assembler extends Sink {
       return this.pushConsequent(type, inst);
     }
     switch (type) {
-    case Opcode.EOF:
-      this.error(eofInBlock(this.current!));
-      break;
+      case Opcode.EOF:
+        this.error(eofInBlock(this.current!));
+        break;
 
-    case Opcode.ALTERNATES_WITH:
-      this.error(notAllowedInBlock(inst, this.current!));
-      break;
+      case Opcode.ALTERNATES_WITH:
+        this.error(notAllowedInBlock(inst, this.current!));
+        break;
 
-    case Opcode.END:
-      this.setAlternate(inst);
-      return this.pop();
+      case Opcode.END:
+        this.setAlternate(inst);
+        return this.pop();
 
-    case Opcode.OR_PREDICATE:
-      this.setAlternate(inst);
-      this.current = inst;
-      return this.stateOrPredicate;
+      case Opcode.OR_PREDICATE:
+        this.setAlternate(inst);
+        this.current = inst;
+        return this.stateOrPredicate;
 
-    default:
-      this.addConsequent(inst);
-      break;
+      default:
+        this.addConsequent(inst);
+        break;
     }
     return this.stateIf;
   }
@@ -280,33 +270,33 @@ export class Assembler extends Sink {
       return this.pushConsequent(type, inst);
     }
     switch (type) {
-    case Opcode.EOF:
-      this.error(eofInBlock(this.current!));
-      break;
+      case Opcode.EOF:
+        this.error(eofInBlock(this.current!));
+        break;
 
-    case Opcode.ALTERNATES_WITH:
-      this.error(notAllowedInBlock(inst, this.current!));
-      break;
+      case Opcode.ALTERNATES_WITH:
+        this.error(notAllowedInBlock(inst, this.current!));
+        break;
 
-    case Opcode.END:
-      this.setAlternate(inst);
-      return this.pop();
+      case Opcode.END:
+        this.setAlternate(inst);
+        return this.pop();
 
-    case Opcode.OR_PREDICATE: {
-      // Any OR following another OR that has no predicate is dead code.
-      const parentType = getType(this.current!);
-      if (parentType === Opcode.OR_PREDICATE && !(this.current as OrPredicate).hasPredicate()) {
-        this.error(deadCode(inst));
+      case Opcode.OR_PREDICATE: {
+        // Any OR following another OR that has no predicate is dead code.
+        const parentType = getType(this.current!);
+        if (parentType === Opcode.OR_PREDICATE && !(this.current as OrPredicate).hasPredicate()) {
+          this.error(deadCode(inst));
+          break;
+        }
+        this.setAlternate(inst);
+        this.current = inst;
         break;
       }
-      this.setAlternate(inst);
-      this.current = inst;
-      break;
-    }
 
-    default:
-      this.addConsequent(inst);
-      break;
+      default:
+        this.addConsequent(inst);
+        break;
     }
     return this.stateOrPredicate;
   }
@@ -319,26 +309,26 @@ export class Assembler extends Sink {
       return this.pushConsequent(type, inst);
     }
     switch (type) {
-    case Opcode.EOF:
-      this.error(eofInBlock(this.current!));
-      break;
+      case Opcode.EOF:
+        this.error(eofInBlock(this.current!));
+        break;
 
-    case Opcode.ALTERNATES_WITH:
-      this.error(notAllowedInBlock(inst, this.current!));
-      break;
+      case Opcode.ALTERNATES_WITH:
+        this.error(notAllowedInBlock(inst, this.current!));
+        break;
 
-    case Opcode.END:
-      this.setAlternate(inst);
-      return this.pop();
+      case Opcode.END:
+        this.setAlternate(inst);
+        return this.pop();
 
-    case Opcode.OR_PREDICATE:
-      this.setAlternate(inst);
-      this.current = inst;
-      return this.stateOrPredicate;
+      case Opcode.OR_PREDICATE:
+        this.setAlternate(inst);
+        this.current = inst;
+        return this.stateOrPredicate;
 
-    default:
-      this.addConsequent(inst);
-      break;
+      default:
+        this.addConsequent(inst);
+        break;
     }
     return this.statePredicate;
   }
@@ -351,25 +341,25 @@ export class Assembler extends Sink {
       return this.pushConsequent(type, inst);
     }
     switch (type) {
-    case Opcode.EOF:
-      this.error(eofInBlock(this.current!));
-      break;
+      case Opcode.EOF:
+        this.error(eofInBlock(this.current!));
+        break;
 
-    case Opcode.END:
-      this.setAlternate(inst);
-      return this.pop();
+      case Opcode.END:
+        this.setAlternate(inst);
+        return this.pop();
 
-    case Opcode.OR_PREDICATE:
-      this.setAlternate(inst);
-      this.current = inst;
-      return this.stateOrPredicate;
+      case Opcode.OR_PREDICATE:
+        this.setAlternate(inst);
+        this.current = inst;
+        return this.stateOrPredicate;
 
-    case Opcode.ALTERNATES_WITH:
-      return this.stateAlternatesWith;
+      case Opcode.ALTERNATES_WITH:
+        return this.stateAlternatesWith;
 
-    default:
-      this.addConsequent(inst);
-      break;
+      default:
+        this.addConsequent(inst);
+        break;
     }
     return this.stateRepeated;
   }
@@ -382,18 +372,18 @@ export class Assembler extends Sink {
       return this.pushConsequent(type, inst);
     }
     switch (type) {
-    case Opcode.EOF:
-      this.setAlternate(inst);
-      return this.stateEOF;
+      case Opcode.EOF:
+        this.setAlternate(inst);
+        return this.stateEOF;
 
-    case Opcode.END:
-    case Opcode.ALTERNATES_WITH:
-    case Opcode.OR_PREDICATE:
-      this.error(notAllowedAtRoot(inst));
-      break;
+      case Opcode.END:
+      case Opcode.ALTERNATES_WITH:
+      case Opcode.OR_PREDICATE:
+        this.error(notAllowedAtRoot(inst));
+        break;
 
-    default:
-      this.addConsequent(inst);
+      default:
+        this.addConsequent(inst);
     }
     return this.stateRoot;
   }
@@ -406,28 +396,27 @@ export class Assembler extends Sink {
       return this.pushConsequent(type, inst);
     }
     switch (type) {
-    case Opcode.EOF:
-      this.error(eofInBlock(this.current!));
-      break;
+      case Opcode.EOF:
+        this.error(eofInBlock(this.current!));
+        break;
 
-    case Opcode.ALTERNATES_WITH:
-      this.error(notAllowedInBlock(inst, this.current!));
-      break;
+      case Opcode.ALTERNATES_WITH:
+        this.error(notAllowedInBlock(inst, this.current!));
+        break;
 
-    case Opcode.END:
-      this.setAlternate(inst);
-      return this.pop();
+      case Opcode.END:
+        this.setAlternate(inst);
+        return this.pop();
 
-    case Opcode.OR_PREDICATE:
-      this.setAlternate(inst);
-      this.current = inst;
-      return this.stateOrPredicate;
+      case Opcode.OR_PREDICATE:
+        this.setAlternate(inst);
+        this.current = inst;
+        return this.stateOrPredicate;
 
-    default:
-      this.addConsequent(inst);
-      break;
+      default:
+        this.addConsequent(inst);
+        break;
     }
     return this.stateSection;
   }
-
 }

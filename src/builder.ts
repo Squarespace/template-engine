@@ -43,7 +43,7 @@ export class CodeBuilder {
     return {
       assembler: this.assembler,
       root: this.assembler.root,
-      errors: this.assembler.errors
+      errors: this.assembler.errors,
     };
   }
 
@@ -151,5 +151,4 @@ export class CodeBuilder {
     this.assembler.accept(new VariableInst(variables, formatters));
     return this;
   }
-
 }

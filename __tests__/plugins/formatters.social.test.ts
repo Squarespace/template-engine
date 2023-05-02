@@ -20,38 +20,38 @@ test('activate twitter links', () => {
   expect(result).toContain('<a target="new" href="https://twitter.com/hashtag/Bar?src=hash">#Bar</a>');
 });
 
-loader.paths('f-activate-twitter-links-%N.html').forEach(path => {
+loader.paths('f-activate-twitter-links-%N.html').forEach((path) => {
   test(`${path}`, () => loader.execute(path));
 });
 
-loader.paths('f-comment-count-%N.html').forEach(path => {
+loader.paths('f-comment-count-%N.html').forEach((path) => {
   test(`comment count - ${path}`, () => loader.execute(path));
 });
 
-loader.paths('f-comment-link-%N.html').forEach(path => {
+loader.paths('f-comment-link-%N.html').forEach((path) => {
   test(`comment link - ${path}`, () => loader.execute(path));
 });
 
-loader.paths('f-comments-%N.html').forEach(path => {
+loader.paths('f-comments-%N.html').forEach((path) => {
   test(`comments - ${path}`, () => loader.execute(path));
 });
 
-loader.paths('f-like-button-%N.html').forEach(path => {
+loader.paths('f-like-button-%N.html').forEach((path) => {
   test(`like button - ${path}`, () => loader.execute(path));
 });
 
-loader.paths('f-google-calendar-url-%N.html').forEach(path => {
+loader.paths('f-google-calendar-url-%N.html').forEach((path) => {
   test(`google calendar url - ${path}`, () => loader.execute(path));
 });
 
-loader.paths('f-social-button-%N.html').forEach(path => {
+loader.paths('f-social-button-%N.html').forEach((path) => {
   test(`social button - ${path}`, () => loader.execute(path));
 });
 
-loader.paths('f-social-button-inline-%N.html').forEach(path => {
+loader.paths('f-social-button-inline-%N.html').forEach((path) => {
   test(`social button inline - ${path}`, () => loader.execute(path));
 });
 
-loader.paths('f-twitter-follow-button-%N.html').forEach(path => {
+loader.paths('f-twitter-follow-button-%N.html').forEach((path) => {
   test(`twitter follow button - ${path}`, () => loader.execute(path));
 });

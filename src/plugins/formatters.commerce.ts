@@ -31,12 +31,7 @@ const ZERO = parseDecimal('0');
 export class AddToCartButtonFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
-    const text = executeTemplate(
-      ctx,
-      (addToCartBtnTemplate as unknown) as RootCode,
-      first.node,
-      false
-    );
+    const text = executeTemplate(ctx, addToCartBtnTemplate as unknown as RootCode, first.node, false);
     first.set(text);
   }
 }
@@ -137,12 +132,7 @@ export class NormalPriceFormatter extends Formatter {
 export class ProductCheckoutFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
-    const text = executeTemplate(
-      ctx,
-      (productCheckoutTemplate as unknown) as RootCode,
-      first.node,
-      false
-    );
+    const text = executeTemplate(ctx, productCheckoutTemplate as unknown as RootCode, first.node, false);
     first.set(text);
   }
 }
@@ -196,15 +186,10 @@ export class ProductRestockNotificationFormatter extends Formatter {
       messages: product.path(['restockNotificationMessages']).value,
       mailingListSignUpEnabled: product.path(['mailingListSignUpEnabled']).value,
       mailingListOptInByDefault: product.path(['mailingListOptInByDefault']).value,
-      captchaSiteKey: websiteCtx.path(['captchaSettings', 'siteKey']).value
+      captchaSiteKey: websiteCtx.path(['captchaSettings', 'siteKey']).value,
     };
 
-    const res = executeTemplate(
-      ctx,
-      (productRestockNotificationTemplate as unknown) as RootCode,
-      new Node(obj),
-      false
-    );
+    const res = executeTemplate(ctx, productRestockNotificationTemplate as unknown as RootCode, new Node(obj), false);
     first.set(res);
   }
 }
@@ -221,21 +206,13 @@ export class ProductScarcityFormatter extends Formatter {
     const id = product.get('id').asString();
     const productCtx = merchCtx.get(id);
 
-    if (
-      !productCtx.isMissing() &&
-      productCtx.get('scarcityEnabled').asBoolean()
-    ) {
+    if (!productCtx.isMissing() && productCtx.get('scarcityEnabled').asBoolean()) {
       const obj: any = {
         scarcityTemplateViews: productCtx.get('scarcityTemplateViews').value,
         scarcityText: productCtx.get('scarcityText').value,
         scarcityShownByDefault: productCtx.get('scarcityShownByDefault').value,
       };
-      const res = executeTemplate(
-        ctx,
-        (productScarcityTemplate as unknown) as RootCode,
-        new Node(obj),
-        false
-      );
+      const res = executeTemplate(ctx, productScarcityTemplate as unknown as RootCode, new Node(obj), false);
       first.set(res);
     }
   }
@@ -279,22 +256,14 @@ export class QuantityInputFormatter extends Formatter {
     const settings = ctx.resolve(['websiteSettings']);
     const multipleQuantityAllowed =
       (type === ProductType.PHYSICAL ||
-        (type === ProductType.SERVICE &&
-          commerceutil.isMultipleQuantityAllowedForServices(settings))) &&
+        (type === ProductType.SERVICE && commerceutil.isMultipleQuantityAllowedForServices(settings))) &&
       !commerceutil.isSubscribable(node);
-    const hide =
-      !multipleQuantityAllowed ||
-      commerceutil.getTotalStockRemaining(node) <= 1;
+    const hide = !multipleQuantityAllowed || commerceutil.getTotalStockRemaining(node) <= 1;
     if (hide) {
       first.set(MISSING_NODE);
       return;
     }
-    const res = executeTemplate(
-      ctx,
-      (quantityInputTemplate as unknown) as RootCode,
-      node,
-      false
-    );
+    const res = executeTemplate(ctx, quantityInputTemplate as unknown as RootCode, node, false);
     first.set(res);
   }
 }
@@ -334,15 +303,10 @@ export class VariantsSelectFormatter extends Formatter {
       item: first.node.value,
       options,
       selectText,
-      displayText
+      displayText,
     });
 
-    const text = executeTemplate(
-      ctx,
-      (variantsSelectTemplate as unknown) as RootCode,
-      node,
-      false
-    );
+    const text = executeTemplate(ctx, variantsSelectTemplate as unknown as RootCode, node, false);
     first.set(text);
   }
 
@@ -355,9 +319,7 @@ export class VariantsSelectFormatter extends Formatter {
     // TODO: still need to implement message formatting in typescript compiler
     let fallback = 'Value';
     if (productType === ProductType.GIFT_CARD) {
-      text = ctx
-          .resolve(['localizedStrings', 'giftCardValueDisplayText'])
-          .asString();
+      text = ctx.resolve(['localizedStrings', 'giftCardValueDisplayText']).asString();
     } else {
       fallback = '{name}';
     }
@@ -373,13 +335,9 @@ export class VariantsSelectFormatter extends Formatter {
     // TODO: still need to implement message formatting in typescript compiler
     let fallback = 'Select Value';
     if (productType === ProductType.GIFT_CARD) {
-      text = ctx
-        .resolve(['localizedStrings', 'giftCardVariantSelectText'])
-        .asString();
+      text = ctx.resolve(['localizedStrings', 'giftCardVariantSelectText']).asString();
     } else {
-      text = ctx
-        .resolve(['localizedStrings', 'productVariantSelectText'])
-        .asString();
+      text = ctx.resolve(['localizedStrings', 'productVariantSelectText']).asString();
       fallback = 'Select {variantName}';
     }
     return stringutil.defaultIfEmpty(text, fallback);
@@ -393,22 +351,14 @@ const KEY_NEUTRAL = KEY_PREFIX + 'Neutral';
 const KEY_AGREE = KEY_PREFIX + 'Agree';
 const KEY_STRONGLY_AGREE = KEY_PREFIX + 'StronglyAgree';
 
-const localizeOrDefault = (
-  strings: Node,
-  key: string,
-  defaultValue: string
-) => {
+const localizeOrDefault = (strings: Node, key: string, defaultValue: string) => {
   const node = strings.get(key);
   return node.type === Type.STRING ? node.value : defaultValue;
 };
 
 const buildAnswerMap = (strings: Node) => {
   return {
-    '-2': localizeOrDefault(
-      strings,
-      KEY_STRONGLY_DISAGREE,
-      'Strongly Disagree'
-    ),
+    '-2': localizeOrDefault(strings, KEY_STRONGLY_DISAGREE, 'Strongly Disagree'),
     '-1': localizeOrDefault(strings, KEY_DISAGREE, 'Disagree'),
     '0': localizeOrDefault(strings, KEY_NEUTRAL, 'Neutral'),
     '1': localizeOrDefault(strings, KEY_AGREE, 'Agree'),
@@ -430,13 +380,13 @@ const convertLikert = (values: any, answerMap: any) => {
 };
 
 const SUMMARY_FORM_FIELD_TEMPLATE_MAP: { [x: string]: RootCode } = {
-  address: (summaryFormFieldAddressTemplate as unknown) as RootCode,
-  checkbox: (summaryFormFieldCheckboxTemplate as unknown) as RootCode,
-  date: (summaryFormFieldDateTemplate as unknown) as RootCode,
-  likert: (summaryFormFieldLikertTemplate as unknown) as RootCode,
-  name: (summaryFormFieldNameTemplate as unknown) as RootCode,
-  phone: (summaryFormFieldPhoneTemplate as unknown) as RootCode,
-  time: (summaryFormFieldTimeTemplate as unknown) as RootCode,
+  address: summaryFormFieldAddressTemplate as unknown as RootCode,
+  checkbox: summaryFormFieldCheckboxTemplate as unknown as RootCode,
+  date: summaryFormFieldDateTemplate as unknown as RootCode,
+  likert: summaryFormFieldLikertTemplate as unknown as RootCode,
+  name: summaryFormFieldNameTemplate as unknown as RootCode,
+  phone: summaryFormFieldPhoneTemplate as unknown as RootCode,
+  time: summaryFormFieldTimeTemplate as unknown as RootCode,
 };
 
 export class SummaryFormFieldFormatter extends Formatter {
@@ -469,10 +419,7 @@ export class SummaryFormFieldFormatter extends Formatter {
     if (isTruthy(value)) {
       buf += value;
     } else {
-      const text = localizedStrings
-        .get('productSummaryFormNoAnswerText')
-        .asString()
-        .trim();
+      const text = localizedStrings.get('productSummaryFormNoAnswerText').asString().trim();
       buf += text === '' ? 'N/A' : text;
     }
     buf += '\n</div>';

@@ -129,7 +129,7 @@ export class EncodeUriComponentFormatter extends Formatter {
 export class FormatFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
-    const values = args.map(arg => {
+    const values = args.map((arg) => {
       const names = splitVariable(arg);
       const node = ctx.resolve(names, first.node);
       return node.type === Type.NULL || node.type === Type.MISSING ? '' : node.value;
@@ -151,10 +151,12 @@ export class GetFormatter extends Formatter {
       if (node.type === Type.MISSING) {
         tmp = MISSING_NODE;
       } else {
-
         const resolved: (number | string)[] =
-          node.type === Type.ARRAY ? (node.value as (number | string)[]) :
-            node.type === Type.NUMBER ? [node.asNumber()] : [node.asString()];
+          node.type === Type.ARRAY
+            ? (node.value as (number | string)[])
+            : node.type === Type.NUMBER
+            ? [node.asNumber()]
+            : [node.asString()];
 
         tmp = tmp.path(resolved);
       }
@@ -174,7 +176,7 @@ export class HtmlFormatter extends Formatter {
     const value = first.node.replace({
       '&': '&amp;',
       '<': '&lt;',
-      '>': '&gt;'
+      '>': '&gt;',
     });
     first.set(value);
   }
@@ -401,32 +403,32 @@ export class UrlEncodeFormatter extends Formatter {
 }
 
 export const CORE_FORMATTERS: FormatterTable = {
-  'apply': new ApplyFormatter(),
-  'count': new CountFormatter(),
-  'cycle': new CycleFormatter(),
+  apply: new ApplyFormatter(),
+  count: new CountFormatter(),
+  cycle: new CycleFormatter(),
   'encode-space': new EncodeSpaceFormatter(),
   'encode-uri': new EncodeUriFormatter(),
   'encode-uri-component': new EncodeUriComponentFormatter(),
-  'format': new FormatFormatter(),
-  'get': new GetFormatter(),
-  'html': new HtmlFormatter(),
-  'htmlattr': new HtmlAttrFormatter(),
-  'htmltag': new HtmlAttrFormatter(), // same as "htmlattr"
-  'iter': new IterFormatter(),
-  'json': new JsonFormatter(),
+  format: new FormatFormatter(),
+  get: new GetFormatter(),
+  html: new HtmlFormatter(),
+  htmlattr: new HtmlAttrFormatter(),
+  htmltag: new HtmlAttrFormatter(), // same as "htmlattr"
+  iter: new IterFormatter(),
+  json: new JsonFormatter(),
   'json-pretty': new JsonPretty(),
   'key-by': new KeyByFormatter(),
-  'lookup': new LookupFormatter(),
-  'mod': new ModFormatter(),
-  'output': new OutputFormatter(),
-  'pluralize': new PluralizeFormatter(),
-  'prop': new PropFormatter(),
-  'raw': new RawFormatter(),
-  'round': new RoundFormatter(),
-  'safe': new SafeFormatter(),
-  'slugify': new SlugifyFormatter(),
-  'smartypants': new SmartyPantsFormatter(),
-  'str': new StrFormatter(),
-  'truncate': new TruncateFormatter(),
+  lookup: new LookupFormatter(),
+  mod: new ModFormatter(),
+  output: new OutputFormatter(),
+  pluralize: new PluralizeFormatter(),
+  prop: new PropFormatter(),
+  raw: new RawFormatter(),
+  round: new RoundFormatter(),
+  safe: new SafeFormatter(),
+  slugify: new SlugifyFormatter(),
+  smartypants: new SmartyPantsFormatter(),
+  str: new StrFormatter(),
+  truncate: new TruncateFormatter(),
   'url-encode': new UrlEncodeFormatter(),
 };

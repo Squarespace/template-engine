@@ -5,7 +5,6 @@ import { SliceType } from './enums';
 // TODO: current-type?  should be generalized.
 
 export class CurrentTypePredicate extends PredicatePlugin {
-
   apply(args: string[], ctx: Context): boolean {
     const expected = ctx.node().get('currentType').asNumber() | 0;
     const type = SliceType.fromName(args[0]);
@@ -14,5 +13,5 @@ export class CurrentTypePredicate extends PredicatePlugin {
 }
 
 export const SLIDE_PREDICATES: PredicateTable = {
-  'current-type?': new CurrentTypePredicate()
+  'current-type?': new CurrentTypePredicate(),
 };

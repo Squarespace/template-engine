@@ -4,14 +4,12 @@ import { Code } from './instructions';
  * Stack frame.
  */
 export class Frame {
-
   currentIndex: number = -1;
   stopResolution: boolean = false;
   private variables?: Map<string, Node>;
   private macros?: Map<string, Code>;
 
-  constructor(readonly node: Node) {
-  }
+  constructor(readonly node: Node) {}
 
   /**
    * Adds a variable to this frame.

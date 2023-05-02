@@ -24,7 +24,7 @@ export const enum DayOfWeek {
   WEDNESDAY = 4,
   THURSDAY = 5,
   FRIDAY = 6,
-  SATURDAY = 7
+  SATURDAY = 7,
 }
 
 export const enum DateField {
@@ -54,7 +54,7 @@ export const enum DateField {
   IS_LEAP,
   IS_DST,
   ISO_YEAR_WOY,
-  ISO_WEEK_OF_YEAR // 24
+  ISO_WEEK_OF_YEAR, // 24
 }
 
 // 24 fields

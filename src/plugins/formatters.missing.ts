@@ -24,14 +24,7 @@ export class NotImplementedFormatter extends Formatter {
   }
 }
 
-const NOIMPL = [
-  'datetimefield',
-  'i18n-money-format',
-  'money-format',
-  'money-string',
-  'moneyFormat',
-  'unit',
-];
+const NOIMPL = ['datetimefield', 'i18n-money-format', 'money-format', 'money-string', 'moneyFormat', 'unit'];
 
 // const MISSING = [
 // ];

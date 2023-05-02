@@ -18,13 +18,13 @@ type Methods =
   | 'matchVariables'
   | 'matchFormatters';
 
-type matcher = new(s: string) => StickyMatcher | GlobalMatcher;
+type matcher = new (s: string) => StickyMatcher | GlobalMatcher;
 
 const matcher = (impl: matcher, method: Methods) => {
   return (str: string, start: number = 0): any => {
     const m = new impl(str);
     m.set(start ? start : 0, str.length);
-    const meth: (() => any) = m[method];
+    const meth: () => any = m[method];
     const result = meth.call(m);
     m.consume();
     return m.complete() ? result : null;
@@ -33,7 +33,7 @@ const matcher = (impl: matcher, method: Methods) => {
 
 const MATCHERS = [
   { name: 'fast', impl: StickyMatcher },
-  { name: 'slow', impl: GlobalMatcher }
+  { name: 'slow', impl: GlobalMatcher },
 ];
 
 for (const o of MATCHERS) {
@@ -46,7 +46,6 @@ for (const o of MATCHERS) {
 
     expect(match('}foo}bar')).toEqual(null);
     expect(match('|abc|def')).toEqual([['abc', 'def'], '|']);
-
   });
 }
 
@@ -84,7 +83,6 @@ for (const o of MATCHERS) {
 
 for (const o of MATCHERS) {
   test(`${o.name} bindvar sequencing`, () => {
-
     const str = '.var @foo bar|html|baz a b c';
     const m = new o.impl(str);
     m.set(1, str.length);
@@ -130,8 +128,18 @@ for (const o of MATCHERS) {
     expect(match(' a', 1)).toEqual([[], [['a']]]);
     expect(match('a')).toEqual([[], [['a']]]);
     expect(match('a || b')).toEqual([[0], [['a'], ['b']]]);
-    expect(match('a && b || c')).toEqual([[1, 0], [['a'], ['b'], ['c']]]);
-    expect(match('a.b && b.c || c.d')).toEqual([[1, 0], [['a', 'b'], ['b', 'c'], ['c', 'd']]]);
+    expect(match('a && b || c')).toEqual([
+      [1, 0],
+      [['a'], ['b'], ['c']],
+    ]);
+    expect(match('a.b && b.c || c.d')).toEqual([
+      [1, 0],
+      [
+        ['a', 'b'],
+        ['b', 'c'],
+        ['c', 'd'],
+      ],
+    ]);
     expect(match('a & b')).toEqual(null);
     expect(match('a &&& b')).toEqual(null);
     expect(match('a ||')).toEqual(null);
@@ -233,7 +241,10 @@ for (const o of MATCHERS) {
     expect(match('foo  ,  bar  ,  baz')).toEqual([['foo'], ['bar'], ['baz']]);
     expect(match('@foo,bar')).toEqual([['@foo'], ['bar']]);
     expect(match('$foo,$bar')).toEqual([['$foo'], ['$bar']]);
-    expect(match('0.a,1.b')).toEqual([[0, 'a'], [1, 'b']]);
+    expect(match('0.a,1.b')).toEqual([
+      [0, 'a'],
+      [1, 'b'],
+    ]);
     expect(match('!')).toEqual(null);
     expect(match('foo,$')).toEqual(null);
     expect(match('foo,!!')).toEqual(null);
@@ -253,11 +264,7 @@ for (const o of MATCHERS) {
 
     // Arguments
     expect(match('|foo a')).toEqual([['foo', [['a'], ' ']]]);
-    expect(match('|foo a b|bar c|baz')).toEqual([
-      ['foo', [['a', 'b'], ' ']],
-      ['bar', [['c'], ' ']],
-      ['baz']
-    ]);
+    expect(match('|foo a b|bar c|baz')).toEqual([['foo', [['a', 'b'], ' ']], ['bar', [['c'], ' ']], ['baz']]);
 
     expect(match('|')).toEqual(null);
     expect(match('html')).toEqual(null);

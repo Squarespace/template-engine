@@ -22,7 +22,7 @@ test('buffer append', () => {
 });
 
 test('invalid push', () => {
-  const ctx = new Context( { a: { b: 1 } });
+  const ctx = new Context({ a: { b: 1 } });
   ctx.pushSection([]);
   expect(ctx.frame().node).toBe(MISSING_NODE);
 });
@@ -53,7 +53,7 @@ test('push / pop', () => {
 });
 
 test('parent', () => {
-  const o = { a: { b: 2 }};
+  const o = { a: { b: 2 } };
   const ctx = new Context(o);
 
   // root frame's parent is itself
@@ -77,7 +77,7 @@ test('variable resolution', () => {
 });
 
 test('resolve arg', () => {
-  const o = { a: { b: [1, 2, 3] }};
+  const o = { a: { b: [1, 2, 3] } };
   const ctx = new Context(o);
 
   expect(ctx.resolveArg(['a', 'b']).value).toEqual([1, 2, 3]);
@@ -151,9 +151,7 @@ test('set variable', () => {
 
 test('set macro', () => {
   const ctx = new Context({});
-  const inst: Code = [Opcode.ROOT, 1, [
-    [Opcode.TEXT, 'Hi']
-  ], Opcode.EOF];
+  const inst: Code = [Opcode.ROOT, 1, [[Opcode.TEXT, 'Hi']], Opcode.EOF];
   ctx.setMacro('foo', inst);
   expect(ctx.getPartial('foo')).toEqual(inst);
 });

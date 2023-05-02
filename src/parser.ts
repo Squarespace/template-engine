@@ -27,7 +27,6 @@ type ParserState = () => ParserState | null;
  * Parse a template and send instructions to the given sink.
  */
 export class Parser {
-
   private idx: number;
   private len: number;
 
@@ -36,8 +35,8 @@ export class Parser {
     private sink: Sink,
     private matcher: Matcher,
     private formatters: FormatterTable = {},
-    private predicates: PredicateTable = {}) {
-
+    private predicates: PredicateTable = {}
+  ) {
     if (!(sink instanceof Sink)) {
       throw new Error('Argument "sink" must be a Sink instance.');
     }
@@ -109,53 +108,53 @@ export class Parser {
 
     // Parse the rest of the instruction.
     switch (op) {
-    case Opcode.ALTERNATES_WITH:
-    case Opcode.END:
-    case Opcode.EOF:
-    case Opcode.META_LEFT:
-    case Opcode.META_RIGHT:
-    case Opcode.NEWLINE:
-    case Opcode.SPACE:
-    case Opcode.TAB: {
-      // Ensure there are no trailing characters.
-      if (m.complete()) {
-        this.push(op);
-        return true;
+      case Opcode.ALTERNATES_WITH:
+      case Opcode.END:
+      case Opcode.EOF:
+      case Opcode.META_LEFT:
+      case Opcode.META_RIGHT:
+      case Opcode.NEWLINE:
+      case Opcode.SPACE:
+      case Opcode.TAB: {
+        // Ensure there are no trailing characters.
+        if (m.complete()) {
+          this.push(op);
+          return true;
+        }
+        return false;
       }
-      return false;
-    }
 
-    case Opcode.BINDVAR:
-      return this.parseBindvar();
+      case Opcode.BINDVAR:
+        return this.parseBindvar();
 
-    case Opcode.CTXVAR:
-      return this.parseCtxvar();
+      case Opcode.CTXVAR:
+        return this.parseCtxvar();
 
-    case Opcode.EVAL:
-      return this.parseEval();
+      case Opcode.EVAL:
+        return this.parseEval();
 
-    case Opcode.IF:
-      return this.parseIf();
+      case Opcode.IF:
+        return this.parseIf();
 
-    case Opcode.INCLUDE:
-      return this.parseInclude();
+      case Opcode.INCLUDE:
+        return this.parseInclude();
 
-    case Opcode.INJECT:
-      return this.parseInject();
+      case Opcode.INJECT:
+        return this.parseInject();
 
-    case Opcode.MACRO:
-      return this.parseMacro();
+      case Opcode.MACRO:
+        return this.parseMacro();
 
-    case Opcode.OR_PREDICATE:
-      return this.parsePredicate(Opcode.OR_PREDICATE);
+      case Opcode.OR_PREDICATE:
+        return this.parsePredicate(Opcode.OR_PREDICATE);
 
-    case Opcode.REPEATED:
-    case Opcode.SECTION:
-      return this.parseSection(op);
+      case Opcode.REPEATED:
+      case Opcode.SECTION:
+        return this.parseSection(op);
 
-    /* istanbul ignore next */
-    default:
-      throw new Error('Severe error, unknown instruction, most likely a parser bug.');
+      /* istanbul ignore next */
+      default:
+        throw new Error('Severe error, unknown instruction, most likely a parser bug.');
     }
   }
 
@@ -556,7 +555,6 @@ export class Parser {
         if (ch === '{') {
           // Found a further '{', move start of range to that position.
           start = i;
-
         } else if (ch === '}') {
           // Flush any intervening text.
           this.flushText(save, start);
@@ -616,5 +614,4 @@ export class Parser {
     }
     return true;
   }
-
 }

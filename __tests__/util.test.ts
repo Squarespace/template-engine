@@ -1,13 +1,5 @@
 import { isTruthy, Node } from '../src/node';
-import {
-  deepCopy,
-  deepEquals,
-  deepMerge,
-  isJsonStart,
-  repeat,
-  splitVariable,
-  stringCompare,
-} from '../src/util';
+import { deepCopy, deepEquals, deepMerge, isJsonStart, repeat, splitVariable, stringCompare } from '../src/util';
 import { removeTags } from '../src/plugins/util.string';
 
 test('variable splitting', () => {
@@ -77,9 +69,7 @@ test('deep equals', () => {
   expect(deepEquals(o, o)).toEqual(true);
   expect(deepEquals(o, { a: 1, b: [3, { c: false }, null] })).toEqual(false);
   expect(deepEquals(o, { a: 1 })).toEqual(false);
-  expect(deepEquals(o, { a: 1, b: [2, { c: false }, null], d: 3 })).toEqual(
-    false
-  );
+  expect(deepEquals(o, { a: 1, b: [2, { c: false }, null], d: 3 })).toEqual(false);
   expect(deepEquals(o, { a: 1, b: [] })).toEqual(false);
 
   o = { a: { b: { c: { d: 789 } } } };

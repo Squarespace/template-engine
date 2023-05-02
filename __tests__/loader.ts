@@ -26,9 +26,7 @@ interface DecoderMap {
  * Loads test case files relative to the __tests__ directory.
  */
 export class TestLoader {
-
-  constructor(private directory: string, private decoders: Partial<DecoderMap>) {
-  }
+  constructor(private directory: string, private decoders: Partial<DecoderMap>) {}
 
   /**
    * Return all paths in directory that match the numbered pattern.
@@ -95,8 +93,7 @@ export const parseTemplate = (str: string) => {
   parser.parse();
   const errors = assembler.errors;
   if (errors.length > 0) {
-    throw new Error('Error(s) parsing template\n:' +
-      errors.map(e => `[${e.type}] ${e.message}`).join('\n'));
+    throw new Error('Error(s) parsing template\n:' + errors.map((e) => `[${e.type}] ${e.message}`).join('\n'));
   }
   return assembler.code();
 };
@@ -106,7 +103,7 @@ export const parseTemplate = (str: string) => {
  */
 export const parseMap = (str: string, func: (v: any) => any): any => {
   const obj = JSON.parse(str);
-  Object.keys(obj).forEach(k => {
+  Object.keys(obj).forEach((k) => {
     const v = obj[k];
     obj[k] = func(v);
   });
@@ -119,7 +116,6 @@ const compiler = new Compiler();
  * Helper to load template compilation test cases.
  */
 export class TemplateTestLoader extends TestLoader {
-
   constructor(directory: string) {
     super(directory, {
       JSON: JSON.parse,
@@ -128,7 +124,7 @@ export class TemplateTestLoader extends TestLoader {
       PARTIALS: (s: string) => parseMap(s, parseTemplate),
       TEMPLATE: parseTemplate,
       OUTPUT: (s: string) => s.trim(),
-      PRETTY: (s: string) => s.trim()
+      PRETTY: (s: string) => s.trim(),
     });
   }
 
@@ -150,7 +146,7 @@ export class TemplateTestLoader extends TestLoader {
       partials: spec.PARTIALS,
       injects: spec.INJECT,
       enableExpr: true,
-      enableInclude: true
+      enableInclude: true,
     });
     const output = ctx.render();
     if (ctx.errors) {

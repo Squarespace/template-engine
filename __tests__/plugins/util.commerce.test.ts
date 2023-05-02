@@ -12,17 +12,13 @@ const jsonLoader = new TestLoader(join(__dirname, 'resources'), { '*': JSON.pars
 test('from price', () => {
   const product = PRODUCT.type(ProductType.SERVICE);
 
-  let item = product.variants([
-    { priceMoney: { value: '100.0' } },
-    { priceMoney: { value: '200.0' } }]).node();
+  let item = product.variants([{ priceMoney: { value: '100.0' } }, { priceMoney: { value: '200.0' } }]).node();
   let price = commerceutil.getFromPrice(item);
   expect(price).toEqual(new Node({ value: '100.0' }));
 
-  item = product.variants([
-    { priceMoney: { value: '1000' } },
-    { priceMoney: { value: '750' } },
-    { priceMoney: { value: '1500' } }
-  ]).node();
+  item = product
+    .variants([{ priceMoney: { value: '1000' } }, { priceMoney: { value: '750' } }, { priceMoney: { value: '1500' } }])
+    .node();
   price = commerceutil.getFromPrice(item);
   expect(price).toEqual(new Node({ value: '750' }));
 
@@ -37,7 +33,7 @@ test('from price', () => {
 
 const GET_ITEM_VARIANT_OPTIONS_SPEC = jsonLoader.load('get-item-variant-options.json');
 
-expectedTests('get item variant options', GET_ITEM_VARIANT_OPTIONS_SPEC).forEach(t => {
+expectedTests('get item variant options', GET_ITEM_VARIANT_OPTIONS_SPEC).forEach((t) => {
   test(t.name, () => {
     const actual = commerceutil.getItemVariantOptions(new Node(t.input));
     expect(actual).toEqual(t.expected);
@@ -62,7 +58,7 @@ test('has variants', () => {
 
 const HAS_VARIANTS_SPEC = jsonLoader.load('has-variants.json');
 
-predicateTests('has variants', HAS_VARIANTS_SPEC).forEach(t => {
+predicateTests('has variants', HAS_VARIANTS_SPEC).forEach((t) => {
   test(t.name, () => {
     const actual = commerceutil.hasVariants(new Node(t.input));
     expect(actual).toEqual(t.expected);
@@ -72,19 +68,22 @@ predicateTests('has variants', HAS_VARIANTS_SPEC).forEach(t => {
 test('has varied prices', () => {
   const product = PRODUCT.type(ProductType.PHYSICAL);
 
-  [ProductType.PHYSICAL, ProductType.GIFT_CARD, ProductType.SERVICE].forEach(type => {
-    let item = product.type(type).variants([
-      { price: 100.0, qtyInStock: 10 },
-      { price: 200.0, qtyInStock: 15 }
-    ]).node();
+  [ProductType.PHYSICAL, ProductType.GIFT_CARD, ProductType.SERVICE].forEach((type) => {
+    let item = product
+      .type(type)
+      .variants([
+        { price: 100.0, qtyInStock: 10 },
+        { price: 200.0, qtyInStock: 15 },
+      ])
+      .node();
 
     let result = commerceutil.hasVariedPrices(item);
     expect(result).toEqual(true);
 
-    item = product.type(type).variants([
-      { price: 100.0 },
-      { price: 100.0 }
-    ]).node();
+    item = product
+      .type(type)
+      .variants([{ price: 100.0 }, { price: 100.0 }])
+      .node();
 
     result = commerceutil.hasVariedPrices(item);
     expect(result).toEqual(false);
@@ -97,7 +96,7 @@ test('has varied prices', () => {
 
 const HAS_VARIED_PRICES_SPEC = jsonLoader.load('has-varied-prices.json');
 
-predicateTests('has varied prices external', HAS_VARIED_PRICES_SPEC).forEach(t => {
+predicateTests('has varied prices external', HAS_VARIED_PRICES_SPEC).forEach((t) => {
   test(t.name, () => {
     const actual = commerceutil.hasVariedPrices(new Node(t.input));
     expect(actual).toEqual(t.expected);
@@ -107,11 +106,13 @@ predicateTests('has varied prices external', HAS_VARIED_PRICES_SPEC).forEach(t =
 test('is on sale', () => {
   const product = PRODUCT.type(ProductType.PHYSICAL);
 
-  let item = product.variants([
-    { priceMoney: { value: '100.0' } },
-    { priceMoney: { value: '200.0' } },
-    { onSale: true, priceMoney: { value: '50.0' } }
-  ]).node();
+  let item = product
+    .variants([
+      { priceMoney: { value: '100.0' } },
+      { priceMoney: { value: '200.0' } },
+      { onSale: true, priceMoney: { value: '50.0' } },
+    ])
+    .node();
 
   let result = commerceutil.isOnSale(item);
   expect(result).toEqual(true);
@@ -128,7 +129,7 @@ test('is on sale', () => {
   result = commerceutil.isOnSale(item);
   expect(result).toEqual(true);
 
-  [ProductType.GIFT_CARD, ProductType.UNDEFINED].forEach(type => {
+  [ProductType.GIFT_CARD, ProductType.UNDEFINED].forEach((type) => {
     item = PRODUCT.type(type).node();
     result = commerceutil.isOnSale(item);
     expect(result).toEqual(false);
@@ -138,18 +139,12 @@ test('is on sale', () => {
 test('is sold out', () => {
   const product = PRODUCT.type(ProductType.PHYSICAL);
 
-  let item = product.variants([
-    { qtyInStock: 0 },
-    { qtyInStock: 1 },
-  ]).node();
+  let item = product.variants([{ qtyInStock: 0 }, { qtyInStock: 1 }]).node();
 
   let result = commerceutil.isSoldOut(item);
   expect(result).toEqual(false);
 
-  item = product.variants([
-    { qtyInStock: 0 },
-    { qtyInStock: 0 }
-  ]).node();
+  item = product.variants([{ qtyInStock: 0 }, { qtyInStock: 0 }]).node();
 
   result = commerceutil.isSoldOut(item);
   expect(result).toEqual(true);
@@ -158,7 +153,7 @@ test('is sold out', () => {
   result = commerceutil.isSoldOut(item);
   expect(result).toEqual(true);
 
-  [ProductType.DIGITAL, ProductType.GIFT_CARD].forEach(type => {
+  [ProductType.DIGITAL, ProductType.GIFT_CARD].forEach((type) => {
     item = PRODUCT.type(type).node();
     result = commerceutil.isSoldOut(item);
     expect(result).toEqual(false);
@@ -172,10 +167,7 @@ test('is sold out', () => {
 test('normal price', () => {
   const product = PRODUCT.type(ProductType.SERVICE);
 
-  let item = product.variants([
-    { priceMoney: { value: '100.0' } },
-    { priceMoney: { value: '200.0' } }
-  ]).node();
+  let item = product.variants([{ priceMoney: { value: '100.0' } }, { priceMoney: { value: '200.0' } }]).node();
   let price = commerceutil.getNormalPrice(item);
   expect(price).toEqual(new Node({ value: '200.0' }));
 
@@ -192,17 +184,11 @@ test('product type', () => {
 test('sale price', () => {
   const product = PRODUCT.type(ProductType.SERVICE);
 
-  let item = product.variants([
-    { priceMoney: { value: '100.0' } },
-    { priceMoney: { value: '200.0' } }
-  ]).node();
+  let item = product.variants([{ priceMoney: { value: '100.0' } }, { priceMoney: { value: '200.0' } }]).node();
   let price = commerceutil.getSalePrice(item);
   expect(price).toEqual(new Node({ value: '0', currency: 'USD' }));
 
-  item = product.variants([
-    { priceMoney: { value: '100.0' } },
-    { onSale: true, salePriceMoney: { value: '75.0' } }
-  ]).node();
+  item = product.variants([{ priceMoney: { value: '100.0' } }, { onSale: true, salePriceMoney: { value: '75.0' } }]).node();
   price = commerceutil.getSalePrice(item);
   expect(price).toEqual(new Node({ value: '75.0' }));
 
@@ -214,18 +200,22 @@ test('sale price', () => {
 test('total stock remaining', () => {
   const product = PRODUCT.type(ProductType.PHYSICAL);
 
-  let item = product.variants([
-    { price: 100.0, qtyInStock: 10 },
-    { price: 200.0, qtyInStock: 15 }
-  ]).node();
+  let item = product
+    .variants([
+      { price: 100.0, qtyInStock: 10 },
+      { price: 200.0, qtyInStock: 15 },
+    ])
+    .node();
 
   let total = commerceutil.getTotalStockRemaining(item);
   expect(total).toEqual(25);
 
-  item = product.variants([
-    { unlimited: true, price: 10.0 },
-    { price: 15.0, qtyInStock: 7 }
-  ]).node();
+  item = product
+    .variants([
+      { unlimited: true, price: 10.0 },
+      { price: 15.0, qtyInStock: 7 },
+    ])
+    .node();
 
   total = commerceutil.getTotalStockRemaining(item);
   expect(total).toEqual(Number.MAX_SAFE_INTEGER);
@@ -237,7 +227,7 @@ test('total stock remaining', () => {
 
 const MULTIPLE_QUANTITY_ALLOWED_SPEC = jsonLoader.load('is-multi-quantity-allowed-for-services.json');
 
-predicateTests('multiple quantity allowed for services', MULTIPLE_QUANTITY_ALLOWED_SPEC).forEach(t => {
+predicateTests('multiple quantity allowed for services', MULTIPLE_QUANTITY_ALLOWED_SPEC).forEach((t) => {
   test(t.name, () => {
     const actual = commerceutil.isMultipleQuantityAllowedForServices(new Node(t.input));
     expect(actual).toEqual(t.expected);

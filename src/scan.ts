@@ -9,12 +9,11 @@ import {
   RootCode,
   SectionCode,
   TextCode,
-  VariableCode
+  VariableCode,
 } from './instructions';
 import { nameOfOpcode, Opcode } from './opcodes';
 
 class Data {
-
   readonly variables: any[] = [{}];
   readonly instructions: Map<string, number> = new Map();
   readonly formatters: Map<string, number> = new Map();
@@ -22,7 +21,6 @@ class Data {
 
   currentNode: any = this.variables[0];
   textBytes: number = 0;
-
 }
 
 export interface References {
@@ -35,17 +33,15 @@ export interface References {
 
 const ref = (r: Reference) => r.join('.');
 
-const increment = (map: Map<string, number>, key: string) =>
-  map.set(key, (map.get(key) || 0) + 1);
+const increment = (map: Map<string, number>, key: string) => map.set(key, (map.get(key) || 0) + 1);
 
 const convert = (map: Map<string, number>): any => {
   const r: any = {};
-  map.forEach((v: number, k: string) => r[k] = v);
+  map.forEach((v: number, k: string) => (r[k] = v));
   return r;
 };
 
 export class ReferenceScanner {
-
   private refs: Data = new Data();
 
   collect(): References {
@@ -54,7 +50,7 @@ export class ReferenceScanner {
       formatters: convert(this.refs.formatters),
       predicates: convert(this.refs.predicates),
       textBytes: this.refs.textBytes,
-      variables: this.refs.variables
+      variables: this.refs.variables,
     };
   }
 
@@ -67,7 +63,7 @@ export class ReferenceScanner {
     this.instruction(opcode);
     switch (opcode) {
       case Opcode.BINDVAR: {
-        const i = (inst as BindvarCode);
+        const i = inst as BindvarCode;
         for (const name of i[2]) {
           this.variable(name.join('.'));
         }
@@ -75,7 +71,7 @@ export class ReferenceScanner {
       }
 
       case Opcode.CTXVAR: {
-        const i = (inst as CtxvarCode);
+        const i = inst as CtxvarCode;
         for (const binding of i[2]) {
           this.variable(binding[1].join('.'));
         }
@@ -83,14 +79,14 @@ export class ReferenceScanner {
       }
 
       case Opcode.MACRO: {
-        const i = (inst as MacroCode);
+        const i = inst as MacroCode;
         this.block(i[2]);
         break;
       }
 
       case Opcode.PREDICATE:
       case Opcode.OR_PREDICATE: {
-        const i = (inst as PredicateCode);
+        const i = inst as PredicateCode;
         if (typeof i[1] === 'string') {
           this.predicate(i[1]);
         }
@@ -100,7 +96,7 @@ export class ReferenceScanner {
       }
 
       case Opcode.REPEATED: {
-        const i = (inst as RepeatedCode);
+        const i = inst as RepeatedCode;
         this.push(ref(i[1]));
         this.block(i[2]);
         this.extract(i[3]);
@@ -114,7 +110,7 @@ export class ReferenceScanner {
         break;
 
       case Opcode.SECTION: {
-        const i = (inst as SectionCode);
+        const i = inst as SectionCode;
         this.push(ref(i[1]));
         this.block(i[2]);
         this.extract(i[3]);
@@ -127,11 +123,11 @@ export class ReferenceScanner {
         break;
 
       case Opcode.VARIABLE: {
-        const i = (inst as VariableCode);
+        const i = inst as VariableCode;
         for (const r of i[1]) {
           this.variable(r.join('.'));
         }
-        for (const call of (i[2] || [])) {
+        for (const call of i[2] || []) {
           this.formatter(call[0]);
         }
       }
@@ -182,5 +178,4 @@ export class ReferenceScanner {
     this.refs.variables.pop();
     this.refs.currentNode = this.refs.variables[this.refs.variables.length - 1];
   }
-
 }

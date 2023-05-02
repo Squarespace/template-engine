@@ -37,9 +37,7 @@ const STRUCTURE = [
  * Produces a readable JSON representation of an instruction tree.
  */
 class Pretty {
-
-  constructor(private indent: string) {
-  }
+  constructor(private indent: string) {}
 
   format(inst: Code): string {
     return this.formatInstruction(inst, 0);
@@ -57,7 +55,7 @@ class Pretty {
     // All other instructions must be arrays at this point.
     if (!Array.isArray(inst)) {
       return '';
-    }    
+    }
 
     const structure = STRUCTURE[inst[0]];
     if (structure === null) {
@@ -111,7 +109,6 @@ class Pretty {
     }
     return res + '\n' + repeat(depth - 1, this.indent) + ']';
   }
-
 }
 
 export const prettyJson = (inst: Code, indent = '  ') => {

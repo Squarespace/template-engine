@@ -1,10 +1,6 @@
 import { CLDR } from '@phensley/cldr-core';
 
-import {
-  partialParseFail,
-  partialRecursion,
-  TemplateError,
-} from './errors';
+import { partialParseFail, partialRecursion, TemplateError } from './errors';
 import { Frame } from './frame';
 import { MISSING_NODE, Node } from './node';
 import { Opcode } from './opcodes';
@@ -24,7 +20,6 @@ type ParsedPartials = { [name: string]: Code };
  * Options to configure an execution of the compiler.
  */
 export interface ContextProps {
-
   /**
    * Partial template mapping.
    */
@@ -368,9 +363,7 @@ export class Context {
     // the assembler is valid, this should never happen. Treat as a severe error.
     // If can (of course) occur when compiling a hand-created invalid instruction tree.
     if (this.stack.length === 0) {
-      throw new Error(
-        'Too many Context.pop() calls, attempt to pop the root frame!!!'
-      );
+      throw new Error('Too many Context.pop() calls, attempt to pop the root frame!!!');
     }
   }
 

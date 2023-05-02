@@ -6,8 +6,7 @@ import { nameOfType, of, Type } from '../src/types';
  * Helper to simplify manipulating deep structures during testing.
  */
 export abstract class Struct<T> {
-  constructor(private obj: any) {
-  }
+  constructor(private obj: any) {}
 
   /**
    * Override to build instances of subclasses.
@@ -61,14 +60,13 @@ export abstract class Struct<T> {
     }
     return this.build(obj);
   }
-
 }
 
 const blankProduct = {
   structuredContent: {
     productType: -1,
-    variants: []
-  }
+    variants: [],
+  },
 };
 
 /**
@@ -96,7 +94,7 @@ const blankImage: any = {
   originalSize: '',
   assetUrl: '',
   title: '',
-  mediaFocalPoint: {}
+  mediaFocalPoint: {},
 };
 
 export class Image extends Struct<Image> {
@@ -136,11 +134,13 @@ interface TestCase {
  */
 export const expectedTests = (name: string, spec: any) => {
   const cases: TestCase[] = [];
-  Object.keys(spec).filter(k => !k.endsWith('-expected')).forEach(k => {
-    const input = spec[k];
-    const expected = spec[k + '-expected'];
-    cases.push({ name: `${name} - ${k}`, input, expected });
-  });
+  Object.keys(spec)
+    .filter((k) => !k.endsWith('-expected'))
+    .forEach((k) => {
+      const input = spec[k];
+      const expected = spec[k + '-expected'];
+      cases.push({ name: `${name} - ${k}`, input, expected });
+    });
   return cases;
 };
 
@@ -149,7 +149,7 @@ export const expectedTests = (name: string, spec: any) => {
  */
 export const predicateTests = (name: string, spec: any) => {
   const cases: TestCase[] = [];
-  Object.keys(spec).forEach(k => {
+  Object.keys(spec).forEach((k) => {
     const input = spec[k];
     const expected = k.endsWith('-true');
     cases.push({ name: `${name} - ${k}`, input, expected });

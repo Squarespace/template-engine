@@ -5,7 +5,7 @@ export enum Type {
   NUMBER = 3,
   STRING = 4,
   BOOLEAN = 5,
-  NULL = 6
+  NULL = 6,
 }
 
 const NAMES = {
@@ -15,7 +15,7 @@ const NAMES = {
   [Type.NUMBER]: 'NUMBER',
   [Type.STRING]: 'STRING',
   [Type.BOOLEAN]: 'BOOLEAN',
-  [Type.NULL]: 'NULL'
+  [Type.NULL]: 'NULL',
 };
 
 export const nameOfType = (type: Type) => NAMES[type];

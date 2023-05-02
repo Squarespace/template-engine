@@ -9,14 +9,16 @@ const loader = new TemplateTestLoader(join(__dirname, 'resources'));
 
 const variables = (...n: any[]) => n.map((v, i) => new Variable('var' + i, v));
 
-loader.paths('f-date-%N.html').forEach(path => {
+loader.paths('f-date-%N.html').forEach((path) => {
   test(`date - ${path}`, () => loader.execute(path));
 });
 
 test('date', () => {
   const en = framework.get('en');
 
-  const tz = (s: string) => { return { website: { timeZone: s } }; };
+  const tz = (s: string) => {
+    return { website: { timeZone: s } };
+  };
   const losAngeles = tz('America/Los_Angeles');
   const paris = tz('Europe/Paris');
   const may2013 = 1368406800000;
@@ -36,7 +38,7 @@ test('date', () => {
   expect(vars[0].get()).toEqual('Sun, May 12, 2013 6:00:00 PM PDT');
 
   ctx = new Context(losAngeles, { cldr: en });
-  vars = variables(may2013 - (86400000 * 5));
+  vars = variables(may2013 - 86400000 * 5);
   TABLE.date.apply(['%c'], vars, ctx);
   expect(vars[0].get()).toEqual('Tue, May 7, 2013 6:00:00 PM PDT');
 

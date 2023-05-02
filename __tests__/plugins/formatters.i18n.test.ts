@@ -2,11 +2,7 @@ import { join } from 'path';
 import { CLDR } from '@phensley/cldr';
 import { framework } from '../cldr';
 import { Context } from '../../src/context';
-import {
-  I18N_FORMATTERS as TABLE,
-  RelativeTimeFormatter,
-  TimeSinceFormatter
-} from '../../src/plugins/formatters.i18n';
+import { I18N_FORMATTERS as TABLE, RelativeTimeFormatter, TimeSinceFormatter } from '../../src/plugins/formatters.i18n';
 import { Variable } from '../../src/variable';
 import { TemplateTestLoader } from '../loader';
 
@@ -72,7 +68,7 @@ const formatRelativeTime = (cldr: CLDR | undefined, start: number | undefined, v
   return vars[0].get();
 };
 
-loader.paths('f-decimal-%N.html').forEach(path => {
+loader.paths('f-decimal-%N.html').forEach((path) => {
   test(`decimal - ${path}`, () => loader.execute(path));
 });
 
@@ -97,7 +93,7 @@ test('decimal', () => {
   expect(formatDecimal(EN, '"abcdef"', [])).toEqual('');
 });
 
-loader.paths('f-money-%N.html').forEach(path => {
+loader.paths('f-money-%N.html').forEach((path) => {
   test(`money - ${path}`, () => loader.execute(path));
 });
 
@@ -117,7 +113,7 @@ test('money', () => {
 
   // Bad input
   expect(formatMoney(EN, '"abdef"', [])).toEqual('');
-  
+
   const badmoney = { decimalValue: 'abdef', currencyCode: 'USD' };
   expect(formatMoney(EN, badmoney, [])).toEqual('');
 
@@ -127,7 +123,7 @@ test('money', () => {
   expect(formatMoney(EN, money, ['style:short'], ctx)).toEqual('€156K');
 });
 
-loader.paths('f-datetime-%N.html').forEach(path => {
+loader.paths('f-datetime-%N.html').forEach((path) => {
   test(`datetime - ${path}`, () => loader.execute(path));
 });
 
@@ -139,10 +135,10 @@ test('datetime', () => {
   expect(formatDatetime(DE, d, ZONE_NY, args)).toEqual('12. März 2018');
 
   args = ['date:full', 'time:full'];
-  expect(formatDatetime(EN, d, ZONE_NY, args))
-    .toEqual('Monday, March 12, 2018 at 1:48:54 PM Eastern Daylight Time');
-  expect(formatDatetime(DE, d, ZONE_NY, args))
-    .toEqual('Montag, 12. März 2018 um 13:48:54 Nordamerikanische Ostküsten-Sommerzeit');
+  expect(formatDatetime(EN, d, ZONE_NY, args)).toEqual('Monday, March 12, 2018 at 1:48:54 PM Eastern Daylight Time');
+  expect(formatDatetime(DE, d, ZONE_NY, args)).toEqual(
+    'Montag, 12. März 2018 um 13:48:54 Nordamerikanische Ostküsten-Sommerzeit'
+  );
 
   args = ['time:medium'];
   expect(formatDatetime(EN, d, ZONE_LON, args)).toEqual('5:48:54 PM');
@@ -181,7 +177,7 @@ test('japanese', () => {
   expect(formatDatetime(JA, d, ZONE_NY, args)).toEqual('平成30年3月12日月曜日');
 });
 
-loader.paths('f-datetime-interval-%N.html').forEach(path => {
+loader.paths('f-datetime-interval-%N.html').forEach((path) => {
   test(`datetime-interval - ${path}`, () => loader.execute(path));
 });
 
@@ -201,11 +197,11 @@ test('datetime-interval', () => {
   expect(formatInterval(EN, Infinity, start, ZONE_NY, args)).toEqual('');
 });
 
-loader.paths('f-message-%N.html').forEach(path => {
+loader.paths('f-message-%N.html').forEach((path) => {
   test(`message - ${path}`, () => loader.execute(path));
 });
 
-loader.paths('f-message-plural-%N.html').forEach(path => {
+loader.paths('f-message-plural-%N.html').forEach((path) => {
   test(`message plural - ${path}`, () => loader.execute(path));
 });
 
@@ -222,28 +218,23 @@ test('message', () => {
 
   ctx = { amount: { decimalValue: '12345.6789', currencyCode: 'USD' } };
   args = ['amount'];
-  expect(formatMessage(EN, 'amt {0 currency}', args, ctx))
-    .toEqual('amt $12,345.68');
+  expect(formatMessage(EN, 'amt {0 currency}', args, ctx)).toEqual('amt $12,345.68');
 
   ctx = { epoch: 1582648395000 };
   args = ['epoch'];
-  expect(formatMessage(EN, 'date {0 datetime}', args, ctx))
-    .toEqual('date February 25, 2020');
+  expect(formatMessage(EN, 'date {0 datetime}', args, ctx)).toEqual('date February 25, 2020');
 
   ctx = { website: { timeZone: 'America/Los_Angeles' }, epoch: 1582648395000 };
   args = ['epoch'];
-  expect(formatMessage(EN, 'date {0 datetime time:full}', args, ctx))
-    .toEqual('date 8:33:15 AM Pacific Standard Time');
+  expect(formatMessage(EN, 'date {0 datetime time:full}', args, ctx)).toEqual('date 8:33:15 AM Pacific Standard Time');
 
   ctx = { n: '123456.789' };
   args = ['n'];
-  expect(formatMessage(EN, 'num {0 decimal maximumFractionDigits:1}', args, ctx))
-    .toEqual('num 123,456.8');
+  expect(formatMessage(EN, 'num {0 decimal maximumFractionDigits:1}', args, ctx)).toEqual('num 123,456.8');
 
   ctx = { s: 1582648395000, e: 1583748395000 };
   args = ['s', 'e'];
-  expect(formatMessage(EN, 'inv {0;1 datetime-interval}', args, ctx))
-    .toEqual('inv Feb 25 – Mar 9, 2020');
+  expect(formatMessage(EN, 'inv {0;1 datetime-interval}', args, ctx)).toEqual('inv Feb 25 – Mar 9, 2020');
 
   // Undefined cldr produces empty output
   expect(formatMessage(undefined, '{0}', args, ctx)).toEqual('');
@@ -255,7 +246,7 @@ test('message', () => {
   expect(formatMessage(EN, '{0 datetime}', args, ctx)).toEqual('');
 });
 
-loader.paths('f-relative-time-%N.html').forEach(path => {
+loader.paths('f-relative-time-%N.html').forEach((path) => {
   test(`relative time - ${path}`, () => loader.execute(path));
 });
 
@@ -317,7 +308,7 @@ test('relative time', () => {
   expect(formatRelativeTime(EN, base, variables('foo'), args)).toEqual('');
 });
 
-loader.paths('f-timesince-%N.html').forEach(path => {
+loader.paths('f-timesince-%N.html').forEach((path) => {
   test(`timesince - ${path}`, () => loader.execute(path));
 });
 

@@ -4,7 +4,7 @@ type Animal = EnumValue<'Animal'>;
 const Animal = enum_('Animal', {
   CAT: [1, 'Cat'],
   DOG: [2, 'Dog'],
-  FISH: [3, 'Fish']
+  FISH: [3, 'Fish'],
 });
 
 test('basics', () => {
@@ -29,7 +29,7 @@ test('typed', () => {
 
 test('distinct', () => {
   const Other = enum_('Animal', {
-    CAT: [1, 'Cat']
+    CAT: [1, 'Cat'],
   });
 
   expect(Animal.CAT).not.toBe(Other.CAT);
@@ -38,7 +38,7 @@ test('distinct', () => {
 
 test('is-a', () => {
   const Other = enum_('Other', {
-    CAT: [1, 'Cat']
+    CAT: [1, 'Cat'],
   });
 
   expect(Animal.is(Animal.CAT)).toEqual(true);
@@ -49,25 +49,23 @@ test('is-a', () => {
 });
 
 test('unique codes', () => {
-  expect(() => enum_('Other', {
-    FOO: [1, 'Foo'],
-    BAR: [2, 'Bar'],
-    BAZ: [1, 'Baz']
-  })).toThrow(Error);
+  expect(() =>
+    enum_('Other', {
+      FOO: [1, 'Foo'],
+      BAR: [2, 'Bar'],
+      BAZ: [1, 'Baz'],
+    })
+  ).toThrow(Error);
 });
 
 test('values', () => {
-  expect(Animal.values()).toEqual([
-    Animal.CAT, Animal.DOG, Animal.FISH
-  ]);
+  expect(Animal.values()).toEqual([Animal.CAT, Animal.DOG, Animal.FISH]);
 
   const Other = enum_('Other', {
     FOO: [17, 'Foo'],
     BAR: [-3, 'Bar'],
     QUUX: [10, 'Quux'],
-    BAZ: [-123, 'Baz']
+    BAZ: [-123, 'Baz'],
   });
-  expect(Other.values()).toEqual([
-    Other.BAZ, Other.BAR, Other.QUUX, Other.FOO
-  ]);
+  expect(Other.values()).toEqual([Other.BAZ, Other.BAR, Other.QUUX, Other.FOO]);
 });

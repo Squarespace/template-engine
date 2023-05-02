@@ -33,7 +33,7 @@ const zoneAlias = {
   'SystemV/PST8': 'Pacific/Pitcairn',
   'SystemV/PST8PDT': 'America/Los_Angeles',
   'SystemV/YST9': 'Pacific/Gambier',
-  'SystemV/YST9YDT': 'America/Anchorage'
+  'SystemV/YST9YDT': 'America/Anchorage',
 };
 
 const timeZoneAliases: { [x: string]: string } = {
@@ -41,7 +41,7 @@ const timeZoneAliases: { [x: string]: string } = {
   ...zoneAlias,
 
   'Canada/East-Saskatchewan': 'America/Regina',
-  'Etc/Unknown': 'Factory'
+  'Etc/Unknown': 'Factory',
 };
 
 /**
@@ -50,12 +50,10 @@ const timeZoneAliases: { [x: string]: string } = {
 export const substituteZoneAlias = (id: string): string => timeZoneAliases[id] || id;
 
 export const zoneInfoFromUTC = (zoneid: string, utc: number): ZoneInfo => {
-
   let tzinfo = TZ.fromUTC(zoneid, utc);
   if (tzinfo === undefined) {
     tzinfo = TZ.utcZone();
   }
 
   return tzinfo;
-
 };

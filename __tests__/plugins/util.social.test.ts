@@ -3,8 +3,8 @@ import { getFirstMatchingNode, makeSocialButton } from '../../src/plugins/util.s
 
 test('get first matching node', () => {
   const node = new Node({
-    'foo': 1,
-    'bar': 2
+    foo: 1,
+    bar: 2,
   });
   expect(getFirstMatchingNode(node, 'foo', 'bar').value).toEqual(1);
   expect(getFirstMatchingNode(node, 'bar', 'foo').value).toEqual(2);

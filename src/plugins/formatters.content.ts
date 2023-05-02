@@ -7,12 +7,7 @@ import { RootCode } from '../instructions';
 
 import { RecordType } from './enums';
 import { isOnSale, isSoldOut } from './util.commerce';
-import {
-  getAltText,
-  getFocalPoint,
-  outputImageMeta,
-  splitDimensions
-} from './util.content';
+import { getAltText, getFocalPoint, outputImageMeta, splitDimensions } from './util.content';
 import { pad } from './util.date';
 import { escapeHtmlAttributes, slugify } from './util.string';
 import { hexColorToInt } from './util.color';
@@ -64,7 +59,7 @@ export class CoverImageMetaFormatter extends Formatter {
   }
 }
 
-const HALFBRIGHT = 0xFFFFFF / 2;
+const HALFBRIGHT = 0xffffff / 2;
 
 export class ColorWeightFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
@@ -96,9 +91,9 @@ export class HeightFormatter extends Formatter {
 export class HumanizeDurationFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
-    const ms = first.node.asNumber() / 1000 | 0;
-    const mins = ms / 60 | 0;
-    const secs = ms - (mins * 60);
+    const ms = (first.node.asNumber() / 1000) | 0;
+    const mins = (ms / 60) | 0;
+    const secs = ms - mins * 60;
     const res = `${mins}:${pad(`${secs}`, '0', 2)}`;
     first.set(res);
   }
@@ -127,12 +122,9 @@ export class ImageFormatter extends Formatter {
     res += 'data-type="image" />';
     first.set(res);
   }
-
 }
 
-const IMAGE_COLOR_POSITIONS = [
-  'topLeft', 'topRight', 'bottomLeft', 'bottomRight', 'center'
-];
+const IMAGE_COLOR_POSITIONS = ['topLeft', 'topRight', 'bottomLeft', 'bottomRight', 'center'];
 
 export class ImageColorFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
@@ -186,7 +178,7 @@ export class ImageMetaSrcSetFormatter extends Formatter {
 
     const assetUrl = image.get('assetUrl').asString();
     let variants = image.get('systemDataVariants').asString().split(',');
-    variants = variants.filter(v => v[v.length - 1] === 'w');
+    variants = variants.filter((v) => v[v.length - 1] === 'w');
     if (!variants.length) {
       return;
     }
@@ -204,7 +196,7 @@ export class ImageMetaSrcSetFormatter extends Formatter {
       }
     }
 
-    const _variants = variants.map(v => `${assetUrl}?format=${v} ${v}`).join(',');
+    const _variants = variants.map((v) => `${assetUrl}?format=${v} ${v}`).join(',');
     const text = ` srcset="${_variants}${originalImageFormatVariant}"`;
     first.set(text);
   }
@@ -346,7 +338,6 @@ export class SquarespaceThumbnailForHeightFormatter extends Formatter {
   }
 }
 
-
 const numberToFixed = (num: number, places: number): number => parseFloat(num.toFixed(places));
 
 export class WebsiteColorFormatter extends Formatter {
@@ -359,11 +350,7 @@ export class WebsiteColorFormatter extends Formatter {
     const saturationNode = first.node.get('saturation');
     const lightnessNode = first.node.get('lightness');
 
-    if (
-      hueNode.isMissing() ||
-      saturationNode.isMissing() ||
-      lightnessNode.isMissing()
-    ) {
+    if (hueNode.isMissing() || saturationNode.isMissing() || lightnessNode.isMissing()) {
       first.set('Missing an H/S/L value.');
       return;
     }
@@ -508,24 +495,24 @@ export class VideoFormatter extends Formatter {
 }
 
 export const CONTENT_FORMATTERS: FormatterTable = {
-  'AbsUrl': new AbsUrlFormatter(),
+  AbsUrl: new AbsUrlFormatter(),
   'audio-player': new AudioPlayerFormatter(),
-  'capitalize': new CapitalizeFormatter(),
+  capitalize: new CapitalizeFormatter(),
   'child-image-meta': new ChildImageMetaFormatter(),
   'cover-image-meta': new CoverImageMetaFormatter(),
   'color-weight': new ColorWeightFormatter(),
-  'height': new HeightFormatter(),
-  'humanizeDuration': new HumanizeDurationFormatter(),
-  'image': new ImageFormatter(),
+  height: new HeightFormatter(),
+  humanizeDuration: new HumanizeDurationFormatter(),
+  image: new ImageFormatter(),
   'image-color': new ImageColorFormatter(),
   'image-meta': new ImageMetaFormatter(),
   'image-srcset': new ImageMetaSrcSetFormatter(),
   'item-classes': new ItemClassesFormatter(),
-  'resizedHeightForWidth': new ResizedHeightForWidthFormatter(),
-  'resizedWidthForHeight': new ResizedWidthForHeightFormatter(),
-  'squarespaceThumbnailForHeight': new SquarespaceThumbnailForHeightFormatter(),
-  'squarespaceThumbnailForWidth': new SquarespaceThumbnailForWidthFormatter(),
+  resizedHeightForWidth: new ResizedHeightForWidthFormatter(),
+  resizedWidthForHeight: new ResizedWidthForHeightFormatter(),
+  squarespaceThumbnailForHeight: new SquarespaceThumbnailForHeightFormatter(),
+  squarespaceThumbnailForWidth: new SquarespaceThumbnailForWidthFormatter(),
   'website-color': new WebsiteColorFormatter(),
-  'width': new WidthFormatter(),
-  'video': new VideoFormatter(),
+  width: new WidthFormatter(),
+  video: new VideoFormatter(),
 };

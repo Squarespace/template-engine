@@ -54,11 +54,7 @@ export const escapeScriptTags = (str: string) => {
 
 const ELLIPSIS = '...';
 
-export const truncate = (
-  str: string,
-  maxLen: number,
-  ellipsis: string = ELLIPSIS
-) => {
+export const truncate = (str: string, maxLen: number, ellipsis: string = ELLIPSIS) => {
   if (str.length <= maxLen) {
     return str;
   }
@@ -66,14 +62,7 @@ export const truncate = (
   let end = maxLen;
   for (let i = maxLen - 1; i >= 0; i--) {
     const ch = str[i];
-    if (
-      ch === ' ' ||
-      ch === '\n' ||
-      ch === '\t' ||
-      ch === '\u000b' ||
-      ch === '\r' ||
-      ch === '\f'
-    ) {
+    if (ch === ' ' || ch === '\n' || ch === '\t' || ch === '\u000b' || ch === '\r' || ch === '\f') {
       end = i + 1;
       break;
     }
@@ -81,5 +70,4 @@ export const truncate = (
   return str.substring(0, end) + ellipsis;
 };
 
-export const defaultIfEmpty = (str: string, fallback: string) =>
-  str === null || !str ? fallback : str;
+export const defaultIfEmpty = (str: string, fallback: string) => (str === null || !str ? fallback : str);

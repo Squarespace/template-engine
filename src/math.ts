@@ -3,12 +3,7 @@ import { Node } from './node';
 import { Variable } from './variable';
 import { splitVariable } from './util';
 import { Type } from './types';
-import {
-  MatcherProps,
-  hasStickyRegexp,
-  StickyMatcherMixin,
-  GlobalMatcherMixin,
-} from './matchers';
+import { MatcherProps, hasStickyRegexp, StickyMatcherMixin, GlobalMatcherMixin } from './matchers';
 import { variableReference } from './patterns';
 import { expressionReduce } from './errors';
 
@@ -92,7 +87,7 @@ class ExprMatcher implements MatcherProps {
    */
   /* istanbul ignore next */
   compile(s: string): RegExp {
-    return (null as unknown) as RegExp;
+    return null as unknown as RegExp;
   }
   /**
    * Overridden in mixin.
@@ -124,9 +119,7 @@ export class StickyExprMatcher extends StickyMatcherMixin(ExprMatcher) {}
 export class GlobalExprMatcher extends GlobalMatcherMixin(ExprMatcher) {}
 
 /* istanbul ignore next */
-export const ExprMatcherImpl = hasStickyRegexp
-  ? StickyExprMatcher
-  : GlobalExprMatcher;
+export const ExprMatcherImpl = hasStickyRegexp ? StickyExprMatcher : GlobalExprMatcher;
 
 const E_INVALID_HEX = `Invalid 2-char hex escape found`;
 const E_INVALID_UNICODE = `Invalid unicode escape found`;
@@ -203,15 +196,7 @@ export interface OperatorToken {
 
 export type LiteralToken = NullToken | NumberToken | BooleanToken | StringToken;
 
-export type Token =
-  | NullToken
-  | NumberToken
-  | BooleanToken
-  | StringToken
-  | CallToken
-  | VarToken
-  | OperatorToken
-  | ArgsToken;
+export type Token = NullToken | NumberToken | BooleanToken | StringToken | CallToken | VarToken | OperatorToken | ArgsToken;
 
 const ch = (s: string, i: number) => (i < s.length ? s[i] : '');
 
@@ -259,12 +244,7 @@ const OPERATORS: { [typ: number]: Operator } = {};
 /**
  * Register an operator and construct and return its token.
  */
-const _op = (
-  type: OperatorType,
-  prec: number,
-  assoc: Assoc,
-  desc: string
-): OperatorToken => {
+const _op = (type: OperatorType, prec: number, assoc: Assoc, desc: string): OperatorToken => {
   const o: Operator = { type, prec, assoc, desc };
   OPERATORS[type] = o;
   return { type: ExprTokenType.OPERATOR, value: o };
@@ -302,18 +282,8 @@ export const SHR = _op(OperatorType.SHR, 13, Assoc.LEFT, 'right shift');
 // compare
 export const LT = _op(OperatorType.LT, 12, Assoc.LEFT, 'less than');
 export const GT = _op(OperatorType.GT, 12, Assoc.LEFT, 'greater than');
-export const LTEQ = _op(
-  OperatorType.LTEQ,
-  12,
-  Assoc.LEFT,
-  'less than or equal'
-);
-export const GTEQ = _op(
-  OperatorType.GTEQ,
-  12,
-  Assoc.LEFT,
-  'greater than or equal'
-);
+export const LTEQ = _op(OperatorType.LTEQ, 12, Assoc.LEFT, 'less than or equal');
+export const GTEQ = _op(OperatorType.GTEQ, 12, Assoc.LEFT, 'greater than or equal');
 
 // equality, strict and loose
 export const EQ = _op(OperatorType.EQ, 11, Assoc.LEFT, 'equality');
@@ -420,7 +390,7 @@ const asnum = (t: Token): number => {
           // check for a hexadecimal sequence
           const c = ch(t.value, i + 1);
           if (c === 'x' || c === 'X') {
-            // test for a valid hex sequence and find the bound, then 
+            // test for a valid hex sequence and find the bound, then
             // call parseInt to parse the full number including the sign
             j = hex(t.value, i + 2, len);
             return j === len ? parseInt(t.value, 16) : NaN;
@@ -500,10 +470,7 @@ const asstr = (t: Token): string => {
  * Ensure a token is a literal. Resolves variable references against the
  * provided context and casts result to a token.
  */
-const asliteral = (
-  ctx: Context,
-  t: Token | undefined
-): LiteralToken | undefined => {
+const asliteral = (ctx: Context, t: Token | undefined): LiteralToken | undefined => {
   if (t) {
     switch (t.type) {
       // Resolve a variable against the stack and convert the result to a token
@@ -585,16 +552,12 @@ const CONSTANTS: { [name: string]: LiteralToken | undefined } = {
 /**
  * Convert all tokens to numbers.
  */
-const allnum = (tk: Token[]): NumberToken[] =>
-  tk.map((t) => (t.type === ExprTokenType.NUMBER ? t : num(asnum(t))));
+const allnum = (tk: Token[]): NumberToken[] => tk.map((t) => (t.type === ExprTokenType.NUMBER ? t : num(asnum(t))));
 
 /**
  * Apply a predicate to pairs of elements and return the one that passes.
  */
-const select = <T extends LiteralToken>(
-  p: (a: T, b: T) => boolean,
-  tk: T[]
-): T | undefined => {
+const select = <T extends LiteralToken>(p: (a: T, b: T) => boolean, tk: T[]): T | undefined => {
   if (tk.length === 0) {
     return undefined;
   }
@@ -613,13 +576,11 @@ const FUNCTIONS: { [name: string]: FunctionDef | undefined } = {
   /**
    * Maximum number.
    */
-  max: (...tk: LiteralToken[]) =>
-    select((a, b) => a.value > b.value, allnum(tk)),
+  max: (...tk: LiteralToken[]) => select((a, b) => a.value > b.value, allnum(tk)),
   /**
    * Minimum number.
    */
-  min: (...tk: LiteralToken[]) =>
-    select((a, b) => a.value < b.value, allnum(tk)),
+  min: (...tk: LiteralToken[]) => select((a, b) => a.value < b.value, allnum(tk)),
   /**
    * Absolute value of the first argument.
    */
@@ -767,9 +728,7 @@ export class Expr {
           const fimpl = FUNCTIONS[t.value]!;
           const r = fimpl(...args);
           if (!r) {
-            ctx.error(
-              expressionReduce(this.raw, `Error calling function ${t.value}`)
-            );
+            ctx.error(expressionReduce(this.raw, `Error calling function ${t.value}`));
             break loop;
           }
           stack.push(r);
@@ -804,18 +763,10 @@ export class Expr {
               const b = asliteral(ctx, stack.pop());
               const a = stack.pop();
               // Make sure the arguments to the assignment are valid
-              if (
-                a !== undefined &&
-                a.type === ExprTokenType.VARIABLE &&
-                b !== undefined
-              ) {
+              if (a !== undefined && a.type === ExprTokenType.VARIABLE && b !== undefined) {
                 const name = a.value;
                 // Make sure the variable is a definition
-                if (
-                  name.length === 1 &&
-                  typeof name[0] === 'string' &&
-                  name[0][0] === '@'
-                ) {
+                if (name.length === 1 && typeof name[0] === 'string' && name[0][0] === '@') {
                   // Set the variable in the context.
                   ctx.setVar(name[0], new Variable(name[0], new Node(b.value)));
                 }
@@ -837,9 +788,7 @@ export class Expr {
           // Validate operator args are present and valid
           if (a === undefined || b === undefined) {
             // Invalid arguments to operator, bail out.
-            ctx.error(
-              expressionReduce(this.raw, `Invalid arguments to operator ${t.value.desc}`)
-            );
+            ctx.error(expressionReduce(this.raw, `Invalid arguments to operator ${t.value.desc}`));
             break loop;
           }
 
@@ -853,23 +802,12 @@ export class Expr {
               break;
             case OperatorType.ADD:
               // Numeric addition or string concatenation.
-              if (
-                a.type === ExprTokenType.STRING ||
-                b.type === ExprTokenType.STRING
-              ) {
+              if (a.type === ExprTokenType.STRING || b.type === ExprTokenType.STRING) {
                 // Ensure a concatenated string won't exceed the configured limit, if any
                 const _a = asstr(a);
                 const _b = asstr(b);
-                if (
-                  this.maxStringLen > 0 &&
-                  _a.length + _b.length > this.maxStringLen
-                ) {
-                  ctx.error(
-                    expressionReduce(
-                      this.raw,
-                      `Concatenation would exceed maximum string length ${this.maxStringLen}`
-                    )
-                  );
+                if (this.maxStringLen > 0 && _a.length + _b.length > this.maxStringLen) {
+                  ctx.error(expressionReduce(this.raw, `Concatenation would exceed maximum string length ${this.maxStringLen}`));
                   break loop;
                 }
                 r = str(_a + _b);
@@ -937,7 +875,7 @@ export class Expr {
               this.errors.push(`${E_UNEXPECTED_OPERATOR} ${t.value.desc}`);
               stack.top = undefined;
               break loop;
-            }
+          }
           stack.push(r!);
         }
       }
@@ -955,9 +893,7 @@ export class Expr {
       }
 
       // The token was an unexpected type, which is an error
-      ctx.error(
-        expressionReduce(this.raw, `Reduce error: unexpected token on stack`)
-      );
+      ctx.error(expressionReduce(this.raw, `Reduce error: unexpected token on stack`));
     }
     return undefined;
   }
@@ -1000,11 +936,7 @@ export class Expr {
               // Argument separator outputs all non-operators until we hit
               // a left parenthesis
               let { top } = ops;
-              while (
-                top &&
-                (top.type !== ExprTokenType.OPERATOR ||
-                  top.value.type !== OperatorType.LPRN)
-              ) {
+              while (top && (top.type !== ExprTokenType.OPERATOR || top.value.type !== OperatorType.LPRN)) {
                 out.push(ops.pop()!);
                 ({ top } = ops);
               }
@@ -1015,11 +947,7 @@ export class Expr {
               // Output all non-operator tokens until we hit the matching
               // left parenthesis.
               let { top } = ops;
-              while (
-                top &&
-                (top.type !== ExprTokenType.OPERATOR ||
-                  top.value.type !== OperatorType.LPRN)
-              ) {
+              while (top && (top.type !== ExprTokenType.OPERATOR || top.value.type !== OperatorType.LPRN)) {
                 out.push(ops.pop()!);
                 ({ top } = ops);
               }
@@ -1049,9 +977,7 @@ export class Expr {
                 top &&
                 (top.type !== ExprTokenType.OPERATOR ||
                   (top.value.type !== OperatorType.LPRN &&
-                    (top.value.prec > t.value.prec ||
-                      (top.value.prec === t.value.prec &&
-                        top.value.assoc === Assoc.LEFT))))
+                    (top.value.prec > t.value.prec || (top.value.prec === t.value.prec && top.value.assoc === Assoc.LEFT))))
               ) {
                 out.push(ops.pop()!);
                 ({ top } = ops);
@@ -1094,23 +1020,14 @@ export class Expr {
         case OperatorType.SUB:
         case OperatorType.ADD: {
           const { top } = this.tokens;
-          if (
-            !top ||
-            (top.type === ExprTokenType.OPERATOR &&
-              top.value.type !== OperatorType.RPRN)
-          ) {
+          if (!top || (top.type === ExprTokenType.OPERATOR && top.value.type !== OperatorType.RPRN)) {
             t = type === OperatorType.SUB ? MINUS : PLUS;
           }
           break;
         }
         case OperatorType.LPRN: {
           const { top } = this.tokens;
-          if (
-            top &&
-            top.type === ExprTokenType.VARIABLE &&
-            top.value &&
-            top.value.length === 1
-          ) {
+          if (top && top.type === ExprTokenType.VARIABLE && top.value && top.value.length === 1) {
             // Check if name corresponds to a valid built-in function.
             const name = top.value[0];
             if (FUNCTIONS[name]) {
@@ -1129,9 +1046,7 @@ export class Expr {
     }
     this.tokens.push(t);
     if (this.maxTokens > 0 && this.tokens.length > this.maxTokens) {
-      this.errors.push(
-        `Expression exceeds the maximum number of allowed tokens: ${this.maxTokens}`
-      );
+      this.errors.push(`Expression exceeds the maximum number of allowed tokens: ${this.maxTokens}`);
     }
   }
 
@@ -1314,9 +1229,7 @@ export class Expr {
           }
 
           // input character we can't handle
-          this.errors.push(
-            `Unexpected ${charName(c0)} at ${i}: ${JSON.stringify(c0)}`
-          );
+          this.errors.push(`Unexpected ${charName(c0)} at ${i}: ${JSON.stringify(c0)}`);
           i = -1;
           break;
         }
@@ -1443,7 +1356,7 @@ export class Expr {
             continue;
           }
 
-          // Unicode character escape 4 or 8 digits '\u0000' or '\U00000000' 
+          // Unicode character escape 4 or 8 digits '\u0000' or '\U00000000'
           case 'u':
           case 'U': {
             // Skip over escape
@@ -1469,11 +1382,7 @@ export class Expr {
 
             // Eliminate unwanted ascii control bytes here. Also eliminate
             // out of range invalid Unicode characters.
-            if (
-              code <= 0x08 ||
-              (code >= 0x0e && code < 0x20) ||
-              code > 0x10ffff
-            ) {
+            if (code <= 0x08 || (code >= 0x0e && code < 0x20) || code > 0x10ffff) {
               // emit replacement char
               s += ' ';
             } else if (code > 0xffff) {
@@ -1513,9 +1422,7 @@ export class Expr {
       switch (c) {
         case '\n':
         case '\r':
-          this.errors.push(
-            `Illegal bare ${charName(c)} character in string literal`
-          );
+          this.errors.push(`Illegal bare ${charName(c)} character in string literal`);
           return -1;
       }
 
@@ -1628,11 +1535,7 @@ const hex = (str: string, i: number, len: number): number => {
   let j = i;
   while (j < len) {
     const c = str[j];
-    if (
-      (c >= '0' && c <= '9') ||
-      (c >= 'a' && c <= 'f') ||
-      (c >= 'A' && c <= 'F')
-    ) {
+    if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')) {
       j++;
       continue;
     }

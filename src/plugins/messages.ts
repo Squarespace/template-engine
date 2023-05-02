@@ -19,7 +19,6 @@ const DEFAULT_ZONE = 'America/New_York';
  * Customized message formatter with i18n tags.
  */
 export class MessageFormats {
-
   readonly converter: ArgConverter;
   readonly formatter: MessageFormatter;
   private zoneId: string = DEFAULT_ZONE;
@@ -35,7 +34,7 @@ export class MessageFormats {
       converter: this.converter,
       formatters: this.formatters(),
       language: bundle.language(),
-      region: bundle.region()
+      region: bundle.region(),
     };
     this.formatter = new MessageFormatter(opts);
   }
@@ -53,7 +52,7 @@ export class MessageFormats {
       'datetime-interval': this.interval.bind(this),
       datetime: this.datetime.bind(this),
       number: decimal,
-      decimal: decimal
+      decimal: decimal,
     };
   }
 
@@ -121,7 +120,6 @@ export class MessageFormats {
 }
 
 export class ArgConverter extends DefaultMessageArgConverter {
-
   private one: Decimal;
   private zero: Decimal;
 

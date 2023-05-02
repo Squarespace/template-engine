@@ -4,7 +4,6 @@ import { Event, Suite } from 'benchmark';
 import beautify from 'beautify-benchmark';
 import chalk from 'chalk';
 
-
 /**
  * Constructs a benchmark suite, setting a few lifecycle handlers.
  */

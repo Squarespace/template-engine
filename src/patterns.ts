@@ -1,4 +1,3 @@
-
 const alt = (...segments: string[]) => segments.join('|');
 const join = (...segments: string[]) => segments.join('');
 
@@ -18,11 +17,7 @@ export const operator = '&&|\\|\\|';
 /**
  * Segment in a dotted variable reference.
  */
-const segment = alt(
-  digits,
-  '(?:@|\\$)?' + word,
-  '@'
-);
+const segment = alt(digits, '(?:@|\\$)?' + word, '@');
 
 /**
  * Path used for INJECT and MACRO instructions. Examples:
@@ -51,10 +46,7 @@ export const predicate = word + '\\?';
  *    @foo.bar
  *    $foo.bar
  */
-export const variableReference = join(
-  '(?:' + segment + ')',
-  '(?:\\.(?:' + segment + '))*'
-);
+export const variableReference = join('(?:' + segment + ')', '(?:\\.(?:' + segment + '))*');
 
 /**
  * Variable definition. Examples:

@@ -6,7 +6,7 @@ import { Opcode as O } from '../src/opcodes';
 
 const loader = new TestLoader(join(__dirname, 'resources'), {
   TEMPLATE: (s: string) => parseTemplate(s.trim()),
-  JSON: (s: string) => s.trim()
+  JSON: (s: string) => s.trim(),
 });
 
 test('basic', () => {
@@ -27,7 +27,7 @@ test('indent', () => {
 test('malformed', () => {
   let template: Code;
   let actual: string;
-  
+
   template = [O.ROOT, 1, undefined, O.EOF] as unknown as Code;
   actual = prettyJson(template);
   expect(actual).toEqual('[17, 1, [], 18]');
@@ -41,7 +41,7 @@ test('malformed', () => {
   expect(actual).toEqual('');
 });
 
-loader.paths('ast-%N.html').forEach(path => {
+loader.paths('ast-%N.html').forEach((path) => {
   test(path, () => {
     const spec = loader.load(path);
     const actual = prettyJson(spec.TEMPLATE);

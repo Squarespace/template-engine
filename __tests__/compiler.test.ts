@@ -29,9 +29,7 @@ test('compiler custom formatter', () => {
     dummy: new Dummy(),
   };
 
-  let code: Code = [O.ROOT, 1, [
-    [O.VARIABLE, [['a']], [['dummy']]]
-  ], O.EOF];
+  let code: Code = [O.ROOT, 1, [[O.VARIABLE, [['a']], [['dummy']]]], O.EOF];
 
   const json = { a: 'world' };
   const compiler = new Compiler({ formatters });
@@ -49,10 +47,8 @@ test('compiler custom formatter', () => {
 
 test('compiler mixed partials raw/parsed recursion error', () => {
   const partials: Partials = {
-    foo: [O.ROOT, 1, [
-      [O.VARIABLE, [['@']], [['apply', [['bar'], ' ']]]]
-    ], O.EOF],
-    bar: '{@|apply foo}'
+    foo: [O.ROOT, 1, [[O.VARIABLE, [['@']], [['apply', [['bar'], ' ']]]]], O.EOF],
+    bar: '{@|apply foo}',
   };
   const code = '{num|apply foo}';
   const json = { num: 123 };
@@ -67,7 +63,7 @@ test('compiler raw partials', () => {
   const partials = {
     foo: '{@|apply bar}',
     bar: '{@|apply baz}',
-    baz: '{@} baz'
+    baz: '{@} baz',
   };
   const code = '{num|apply foo}';
   const json = { num: 123 };
@@ -79,7 +75,7 @@ test('compiler raw partials', () => {
 
 test('compiler partials error reporting', () => {
   const partials = {
-    foo: '{.end}'
+    foo: '{.end}',
   };
   const code = '{num|apply foo}';
   const json = { num: 123 };

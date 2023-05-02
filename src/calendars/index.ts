@@ -1,4 +1,3 @@
-
 /**
   Calendar code extracted from https://github.com/phensley/cldr-engine/
 

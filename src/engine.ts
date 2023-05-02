@@ -44,7 +44,6 @@ export interface EngineProps {
  * multiple concurrent compiles.
  */
 export class Engine {
-
   impls: Hook[];
   private formatters: FormatterMap;
   private predicates: PredicateMap;
@@ -113,7 +112,6 @@ export class Engine {
     }
     const size = block.length;
     for (let i = 0; i < size; i++) {
-
       // Inlined execute() to save a stack frame.
       const inst = block[i];
       const opcode = typeof inst === 'number' ? inst : inst[0];
@@ -187,7 +185,6 @@ export class Engine {
         frame.currentIndex++;
       }
       ctx.pop();
-
     } else {
       ctx.pop();
       this.execute(inst[3], ctx);
@@ -292,7 +289,7 @@ export class Engine {
 
       // Check if the expression has a parse error and emit it.
       if (expr.errors.length) {
-        expr.errors.map(e => ctx.error(expressionParse(raw, e)));
+        expr.errors.map((e) => ctx.error(expressionParse(raw, e)));
       }
 
       // Cache the assembled expression
@@ -302,8 +299,7 @@ export class Engine {
 
     if (inst.debug) {
       // Emit the assembled expressions
-      const msg = `EVAL=[${expr.expr.map(
-        e => '[' + e.map(tokenDebug).join(' ') + ']').join(', ')}]`;
+      const msg = `EVAL=[${expr.expr.map((e) => '[' + e.map(tokenDebug).join(' ') + ']').join(', ')}]`;
       ctx.emitNode(new Node(msg));
     }
 
@@ -394,7 +390,7 @@ export class Engine {
 
   /**
    * Include instruction.
-   * 
+   *
    * inst[1]  - name of macro or partial to include
    * inst[2]  - optional arguments
    */
@@ -510,5 +506,4 @@ export class Engine {
       formatter.apply(args, vars, ctx);
     }
   }
-
 }

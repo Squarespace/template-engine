@@ -3,7 +3,7 @@ import {
   datetimeOptions,
   decimalOptions,
   intervalOptions,
-  relativetimeOptions
+  relativetimeOptions,
 } from '../../src/plugins/options';
 
 test('decimal options', () => {
@@ -90,15 +90,15 @@ test('interval options', () => {
 
 test('relative time options', () => {
   expect(relativetimeOptions(['context:middle-of-text'])).toEqual({ context: 'middle-of-text' });
-  expect(relativetimeOptions(['context:foo'])).toEqual({ });
+  expect(relativetimeOptions(['context:foo'])).toEqual({});
   expect(relativetimeOptions(['field:year'])).toEqual({ field: 'year' });
-  expect(relativetimeOptions(['field:foo'])).toEqual({ });
+  expect(relativetimeOptions(['field:foo'])).toEqual({});
   expect(relativetimeOptions(['dayOfWeek:true'])).toEqual({ dayOfWeek: true });
   expect(relativetimeOptions(['numericOnly:true'])).toEqual({ numericOnly: true });
   expect(relativetimeOptions(['alwaysNow:true'])).toEqual({ alwaysNow: true });
   expect(relativetimeOptions(['width:wide'])).toEqual({ width: 'wide' });
-  expect(relativetimeOptions(['width:foo'])).toEqual({ });
+  expect(relativetimeOptions(['width:foo'])).toEqual({});
   expect(relativetimeOptions(['maxFrac:3'])).toEqual({ maximumFractionDigits: 3 });
-  
+
   expect(relativetimeOptions(['unknown:foo'])).toEqual({});
 });

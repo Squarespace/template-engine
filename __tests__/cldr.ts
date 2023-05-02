@@ -19,5 +19,5 @@ const languageBundle = (tag: string) => {
 };
 
 export const framework: CLDRFramework = new CLDRFramework({
-  loader: tag => languageBundle(tag)
+  loader: (tag) => languageBundle(tag),
 });

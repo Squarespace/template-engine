@@ -28,8 +28,7 @@ import {
 import { splitVariable } from '../src/util';
 import { Variable } from '../src/variable';
 
-const context = (o?: any, opts?: ExprOptions) =>
-  new Context(o || {}, { enableExpr: true, exprOpts: opts });
+const context = (o?: any, opts?: ExprOptions) => new Context(o || {}, { enableExpr: true, exprOpts: opts });
 
 const reduce = (s: string, ctx: Context) => {
   const e = new Expr(s);
@@ -46,7 +45,11 @@ const build = (s: string) => {
 const parse = (s: string) => new Expr(s).tokens.elems;
 
 const debug = (s: string) =>
-  '[' + build(s).map(e => '[' + e.map(tokenDebug).join(' ') + ']').join(', ') + ']';
+  '[' +
+  build(s)
+    .map((e) => '[' + e.map(tokenDebug).join(' ') + ']')
+    .join(', ') +
+  ']';
 
 const call = (value: string) => ({ type: ExprTokenType.CALL, value });
 const varn = (value: string): VarToken => ({
@@ -72,7 +75,7 @@ test('basics', () => {
   expect(reduce(e, c)).toEqual(undefined);
 
   // if no operators are applied, the result is the top of the RPN stack
-  e = '1 2 3 4 5'
+  e = '1 2 3 4 5';
   expect(parse(e)).toEqual([num(1), num(2), num(3), num(4), num(5)]);
   expect(build(e)).toEqual([[num(1), num(2), num(3), num(4), num(5)]]);
   expect(reduce(e, c)).toEqual(new Node(5));
@@ -145,9 +148,7 @@ test('basics', () => {
     RPRN,
     RPRN,
   ]);
-  expect(build(e)).toEqual([
-    [num(1), num(2), num(7), num(3), num(4), DIV, SUB, MUL, ADD],
-  ]);
+  expect(build(e)).toEqual([[num(1), num(2), num(7), num(3), num(4), DIV, SUB, MUL, ADD]]);
   expect(reduce(e, c)).toEqual(new Node(13.5));
 
   e = '7+8;4';
@@ -186,14 +187,10 @@ test('basics', () => {
 });
 
 test('debug', () => {
-  expect(debug('@a = 2 * 3 / max(c, d)'))
-    .toEqual('[[@a 2 3 <multiply> <args> c d max() <divide> <assign>]]');
-  expect(debug(`"foo" !== "bar"`))
-    .toEqual('[["foo" "bar" <strict inequality>]]');
-  expect(debug('null == false || null != true'))
-    .toEqual('[[null false <equality> null true <inequality> <logical or>]]');
-  expect(tokenDebug({ type: 100 }))
-    .toEqual('<unk>');
+  expect(debug('@a = 2 * 3 / max(c, d)')).toEqual('[[@a 2 3 <multiply> <args> c d max() <divide> <assign>]]');
+  expect(debug(`"foo" !== "bar"`)).toEqual('[["foo" "bar" <strict inequality>]]');
+  expect(debug('null == false || null != true')).toEqual('[[null false <equality> null true <inequality> <logical or>]]');
+  expect(tokenDebug({ type: 100 })).toEqual('<unk>');
   expect(tokenDebug(undefined)).toEqual('undefined');
 });
 
@@ -201,7 +198,7 @@ test('limits', () => {
   let e: Expr;
   let r: Node | undefined;
   let c: Context;
-  const o = {foo: "123456789"};
+  const o = { foo: '123456789' };
 
   const opts: ExprOptions = {
     maxStringLen: 10,
@@ -320,7 +317,7 @@ test('unsupported operators', () => {
 });
 
 test('references', () => {
-  const c: Context = context({a: 123});
+  const c: Context = context({ a: 123 });
 
   expect(reduce('@', c)).toEqual(undefined);
   expect(reduce('@.a', c)).toEqual(new Node(123));
@@ -336,7 +333,7 @@ test('strings', () => {
   const c = context({});
 
   expect(reduce("'bar'", c)).toEqual(new Node('bar'));
-  expect(reduce('"\\\"bar\\\""', c)).toEqual(new Node('"bar"'));
+  expect(reduce('"\\"bar\\""', c)).toEqual(new Node('"bar"'));
 
   // incomplete escapes
   expect(reduce("'\\", c)).toEqual(undefined);
@@ -357,12 +354,10 @@ test('strings', () => {
   // unicode escapes
   expect(reduce('"\\u2019"', c)).toEqual(new Node('\u2019'));
   expect(reduce('"\\U0001f600"', c)).toEqual(new Node('\uD83D\uDE00'));
-  expect(reduce('"\\U0001f600\\U0001f600"', c)).toEqual(
-    new Node('\uD83D\uDE00\uD83D\uDE00')
-  );
+  expect(reduce('"\\U0001f600\\U0001f600"', c)).toEqual(new Node('\uD83D\uDE00\uD83D\uDE00'));
 
   // unicode escape out-of-range replacement
-  expect(reduce('"\\u0003\\u000f\\u0019\"', c)).toEqual(new Node('   '));
+  expect(reduce('"\\u0003\\u000f\\u0019"', c)).toEqual(new Node('   '));
   expect(reduce('"\\U00222222"', c)).toEqual(new Node(' '));
 
   // ascii control code replacement
@@ -381,12 +376,8 @@ test('numbers', () => {
 
   expect(reduce('0x01', c)).toEqual(new Node(0x01));
   expect(reduce('0x012345678', c)).toEqual(new Node(0x012345678));
-  expect(reduce('0x111111111111111111111', c)).toEqual(
-    new Node(1.2895208742556044e+24)
-  );
-  expect(reduce('0x11111111111111111', c)).toEqual(
-    new Node(1.9676527011956855e+19)
-  )
+  expect(reduce('0x111111111111111111111', c)).toEqual(new Node(1.2895208742556044e24));
+  expect(reduce('0x11111111111111111', c)).toEqual(new Node(1.9676527011956855e19));
 
   expect(reduce('1e20', c)).toEqual(new Node(1e20));
   expect(reduce('1e22', c)).toEqual(new Node(1e22));
@@ -505,7 +496,7 @@ test('assignment', () => {
   expect(e.reduce(c)).toEqual(undefined);
 
   // '@' cannot be assigned
-  e = new Expr("@ = 1");
+  e = new Expr('@ = 1');
   expect(e.tokens.elems).toEqual([varn('@'), ASN, num(1)]);
   e.build();
   expect(e.reduce(c)).toEqual(undefined);
@@ -879,7 +870,7 @@ test('type conversions', () => {
     n0: '-0x1234',
     n1: '-1.2e21',
     n2: '--1.2',
-    n3: '--0x1234'
+    n3: '--0x1234',
   });
 
   expect(reduce('str()', c)).toEqual(undefined);
@@ -927,28 +918,28 @@ test('number formatting', () => {
   const c = context({});
 
   // large magnitude
-  expect(reduce("str(1e20)", c)).toEqual(new Node("100000000000000000000"));
-  expect(reduce("str(1e21)", c)).toEqual(new Node("1e+21"));
-  expect(reduce("str(1e300)", c)).toEqual(new Node("1e+300"));
+  expect(reduce('str(1e20)', c)).toEqual(new Node('100000000000000000000'));
+  expect(reduce('str(1e21)', c)).toEqual(new Node('1e+21'));
+  expect(reduce('str(1e300)', c)).toEqual(new Node('1e+300'));
 
   // small magnitude
-  expect(reduce("str(1e-5)", c)).toEqual(new Node("0.00001"));
-  expect(reduce("str(1e-6)", c)).toEqual(new Node("0.000001"));
-  expect(reduce("str(1e-7)", c)).toEqual(new Node("1e-7"));
-  expect(reduce("str(1e-20)", c)).toEqual(new Node("1e-20"));
-  expect(reduce("str(1e-21)", c)).toEqual(new Node("1e-21"));
-  expect(reduce("str(1e-300)", c)).toEqual(new Node("1e-300"));
+  expect(reduce('str(1e-5)', c)).toEqual(new Node('0.00001'));
+  expect(reduce('str(1e-6)', c)).toEqual(new Node('0.000001'));
+  expect(reduce('str(1e-7)', c)).toEqual(new Node('1e-7'));
+  expect(reduce('str(1e-20)', c)).toEqual(new Node('1e-20'));
+  expect(reduce('str(1e-21)', c)).toEqual(new Node('1e-21'));
+  expect(reduce('str(1e-300)', c)).toEqual(new Node('1e-300'));
 
   // negative large magnitude
-  expect(reduce("str(-1e20)", c)).toEqual(new Node("-100000000000000000000"));
-  expect(reduce("str(-1e21)", c)).toEqual(new Node("-1e+21"));
-  expect(reduce("str(-1e300)", c)).toEqual(new Node("-1e+300"));
+  expect(reduce('str(-1e20)', c)).toEqual(new Node('-100000000000000000000'));
+  expect(reduce('str(-1e21)', c)).toEqual(new Node('-1e+21'));
+  expect(reduce('str(-1e300)', c)).toEqual(new Node('-1e+300'));
 
   // negative small magnitude
-  expect(reduce("str(-1e-5)", c)).toEqual(new Node("-0.00001"));
-  expect(reduce("str(-1e-6)", c)).toEqual(new Node("-0.000001"));
-  expect(reduce("str(-1e-7)", c)).toEqual(new Node("-1e-7"));
-  expect(reduce("str(-1e-20)", c)).toEqual(new Node("-1e-20"));
-  expect(reduce("str(-1e-21)", c)).toEqual(new Node("-1e-21"));
-  expect(reduce("str(-1e-300)", c)).toEqual(new Node("-1e-300"));
+  expect(reduce('str(-1e-5)', c)).toEqual(new Node('-0.00001'));
+  expect(reduce('str(-1e-6)', c)).toEqual(new Node('-0.000001'));
+  expect(reduce('str(-1e-7)', c)).toEqual(new Node('-1e-7'));
+  expect(reduce('str(-1e-20)', c)).toEqual(new Node('-1e-20'));
+  expect(reduce('str(-1e-21)', c)).toEqual(new Node('-1e-21'));
+  expect(reduce('str(-1e-300)', c)).toEqual(new Node('-1e-300'));
 });

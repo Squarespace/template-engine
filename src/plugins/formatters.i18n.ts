@@ -7,13 +7,7 @@ import { isTruthy } from '../node';
 import { Formatter } from '../plugin';
 import { getTimeZone } from './util.timezone';
 import { parseDecimal } from './util.i18n';
-import {
-  currencyOptions,
-  datetimeOptions,
-  decimalOptions,
-  intervalOptions,
-  relativetimeOptions
-} from './options';
+import { currencyOptions, datetimeOptions, decimalOptions, intervalOptions, relativetimeOptions } from './options';
 import { splitVariable } from '../util';
 import { humanizeDate } from './util.content';
 
@@ -112,7 +106,7 @@ export class MessageFormatterImpl extends Formatter {
 
     const positional: any[] = [];
     const keyword: { [name: string]: any } = {};
-    args.forEach(arg => {
+    args.forEach((arg) => {
       const i = delimiter(arg);
       if (i === -1) {
         const _arg = ctx.resolve(splitVariable(arg), node);
@@ -137,11 +131,9 @@ export class MessageFormatterImpl extends Formatter {
   }
 }
 
-const useCLDRMode = (ctx: Context) =>
-  isTruthy(ctx.resolve(['website', 'useCLDRMoneyFormat']));
+const useCLDRMode = (ctx: Context) => isTruthy(ctx.resolve(['website', 'useCLDRMoneyFormat']));
 
 export class MoneyFormatter extends Formatter {
-
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const node = first.node;
@@ -176,11 +168,9 @@ export class MoneyFormatter extends Formatter {
       first.set('');
     }
   }
-
 }
 
 export class RelativeTimeFormatter extends Formatter {
-
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const { cldr } = ctx;
@@ -208,7 +198,6 @@ export class RelativeTimeFormatter extends Formatter {
 }
 
 export class TimeSinceFormatter extends Formatter {
-
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const n = first.node.asNumber();
@@ -223,7 +212,7 @@ export class TimeSinceFormatter extends Formatter {
 
     const delta = base.unixEpoch() - date.unixEpoch();
     const res = humanizeDate(delta, false);
-    const html = `<span class="timesince" data-date="${n}">${res}</span>`
+    const html = `<span class="timesince" data-date="${n}">${res}</span>`;
     first.set(html);
   }
 }
@@ -238,5 +227,5 @@ export const I18N_FORMATTERS: FormatterTable = {
   money: new MoneyFormatter(),
   plural: new MessageFormatterImpl(),
   'relative-time': new RelativeTimeFormatter(),
-  timesince: new TimeSinceFormatter()
+  timesince: new TimeSinceFormatter(),
 };

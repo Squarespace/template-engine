@@ -171,13 +171,12 @@ export type Code =
   | Opcode.TAB
 
   // placeholder for null blocks
-  | FAST_NULL
-  ;
+  | FAST_NULL;
 
 const empty = (): Code[] => [];
 
 export class BaseInstruction {
-  constructor(readonly type: Opcode, readonly code: Code) { }
+  constructor(readonly type: Opcode, readonly code: Code) {}
 }
 
 export type Instruction =
@@ -189,8 +188,7 @@ export type Instruction =
   | Opcode.NEWLINE
   | Opcode.SPACE
   | Opcode.TAB
-  | BaseInstruction
-  ;
+  | BaseInstruction;
 
 export interface CompositeInstruction {
   addConsequent(inst: Instruction): void;
@@ -204,10 +202,9 @@ export const getType = (inst: Instruction | Opcode) => {
   return inst instanceof BaseInstruction ? inst.type : inst;
 };
 
-export const getCode = (inst: Instruction) =>
-  inst instanceof BaseInstruction ? inst.code : inst;
+export const getCode = (inst: Instruction) => (inst instanceof BaseInstruction ? inst.code : inst);
 
-export const orNull = (v?: any[]) => v === undefined ? FAST_NULL : v;
+export const orNull = (v?: any[]) => (v === undefined ? FAST_NULL : v);
 
 /**
  * Holds a JSON-encodable, opaque value.
@@ -281,8 +278,7 @@ export class Macro extends BaseInstruction implements CompositeInstruction {
 
 export class OrPredicate extends BaseInstruction {
   constructor(name?: string | number, args?: Arguments | FAST_NULL) {
-    super(Opcode.OR_PREDICATE,
-      [Opcode.OR_PREDICATE, name ? name : 0, args ? args : FAST_NULL, empty(), undefined]);
+    super(Opcode.OR_PREDICATE, [Opcode.OR_PREDICATE, name ? name : 0, args ? args : FAST_NULL, empty(), undefined]);
   }
 
   hasPredicate(): boolean {
@@ -300,8 +296,7 @@ export class OrPredicate extends BaseInstruction {
 
 export class Predicate extends BaseInstruction implements BlockInstruction {
   constructor(name: string, args: Arguments | FAST_NULL) {
-    super(Opcode.PREDICATE,
-      [Opcode.PREDICATE, name, args, [], undefined]);
+    super(Opcode.PREDICATE, [Opcode.PREDICATE, name, args, [], undefined]);
   }
 
   addConsequent(inst: Instruction): void {
@@ -364,7 +359,6 @@ export class Section extends BaseInstruction implements BlockInstruction {
  * array of child nodes.
  */
 export class Struct extends BaseInstruction implements CompositeInstruction {
-
   constructor(opaque: any) {
     super(Opcode.STRUCT, [Opcode.STRUCT, opaque, []]);
   }

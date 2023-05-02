@@ -12,43 +12,36 @@ import {
   NumberFormatOptions,
   RelativeTimeFormatOptions,
   RoundingModeType,
-  TimePeriodField
+  TimePeriodField,
 } from '@phensley/cldr-core';
 
 // Arbitrary value just to have an upper limit.
 const CLAMP_MAX = 50;
 
 const DECIMAL_STYLE = new Set<DecimalFormatStyleType>([
-  'decimal', 'short', 'long', 'scientific', 'percent', 'percent-scaled', 'permille', 'permille-scaled'
+  'decimal',
+  'short',
+  'long',
+  'scientific',
+  'percent',
+  'percent-scaled',
+  'permille',
+  'permille-scaled',
 ]);
 
-const CURRENCY_STYLE = new Set<CurrencyFormatStyleType>([
-  'symbol', 'accounting', 'code', 'name', 'short'
-]);
+const CURRENCY_STYLE = new Set<CurrencyFormatStyleType>(['symbol', 'accounting', 'code', 'name', 'short']);
 
-const CURRENCY_WIDTH = new Set<CurrencySymbolWidthType>([
-  'default', 'narrow'
-]);
+const CURRENCY_WIDTH = new Set<CurrencySymbolWidthType>(['default', 'narrow']);
 
-const ROUNDING_MODE = new Set<RoundingModeType>([
-  'up', 'down', 'ceiling', 'floor', 'half-up', 'half-down', 'half-even'
-]);
+const ROUNDING_MODE = new Set<RoundingModeType>(['up', 'down', 'ceiling', 'floor', 'half-up', 'half-down', 'half-even']);
 
-const FORMAT_WIDTH = new Set<FormatWidthType>([
-  'short', 'medium', 'long', 'full'
-]);
+const FORMAT_WIDTH = new Set<FormatWidthType>(['short', 'medium', 'long', 'full']);
 
-const CONTEXT_TYPE = new Set<ContextType>([
-  'middle-of-text', 'begin-sentence', 'standalone', 'ui-list-or-menu'
-]);
+const CONTEXT_TYPE = new Set<ContextType>(['middle-of-text', 'begin-sentence', 'standalone', 'ui-list-or-menu']);
 
-const TIMEPERIOD_FIELD = new Set<TimePeriodField>([
-  'year', 'month', 'week', 'day', 'hour', 'minute', 'second', 'millis'
-]);
+const TIMEPERIOD_FIELD = new Set<TimePeriodField>(['year', 'month', 'week', 'day', 'hour', 'minute', 'second', 'millis']);
 
-const DATEFIELD_WIDTH = new Set<DateFieldWidthType>([
-  'short', 'narrow', 'wide'
-]);
+const DATEFIELD_WIDTH = new Set<DateFieldWidthType>(['short', 'narrow', 'wide']);
 
 export type Parser<T> = (arg: string, val: string, opts: T) => void;
 
@@ -328,8 +321,7 @@ const relativetimeOption = (arg: string, val: string, options: RelativeTimeForma
   }
 };
 
-const clamp = (n: number, min: number, max: number) =>
-  n < min ? min : (n > max ? max : n);
+const clamp = (n: number, min: number, max: number) => (n < min ? min : n > max ? max : n);
 
 const int = (v: string) => {
   const n = parseInt(v, 10);

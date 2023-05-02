@@ -18,15 +18,20 @@ const parse = (str: string) => {
 test('parse and execute', () => {
   const { assembler, code } = parse('a{b}c{## comment\ncomment ##}d{e}f');
 
-  expect(code).toEqual([O.ROOT, 1, [
-    [O.TEXT, 'a'],
-    [O.VARIABLE, [['b']], 0],
-    [O.TEXT, 'c'],
-    [O.COMMENT, ' comment\ncomment ', 1],
-    [O.TEXT, 'd'],
-    [O.VARIABLE, [['e']], 0],
-    [O.TEXT, 'f']
-  ], O.EOF]);
+  expect(code).toEqual([
+    O.ROOT,
+    1,
+    [
+      [O.TEXT, 'a'],
+      [O.VARIABLE, [['b']], 0],
+      [O.TEXT, 'c'],
+      [O.COMMENT, ' comment\ncomment ', 1],
+      [O.TEXT, 'd'],
+      [O.VARIABLE, [['e']], 0],
+      [O.TEXT, 'f'],
+    ],
+    O.EOF,
+  ]);
 
   const ctx = new Context({ b: '...', e: '---' });
   const engine = new Engine();

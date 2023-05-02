@@ -12,11 +12,7 @@ const loader = new TemplateTestLoader(join(__dirname, 'resources'));
 
 const variables = (...n: any[]) => n.map((v, i) => new Variable('var' + i, v));
 
-const formatPercentage = (
-  cldr: CLDR | undefined,
-  n: string,
-  args: string[]
-) => {
+const formatPercentage = (cldr: CLDR | undefined, n: string, args: string[]) => {
   const impl = TABLE['percentage-format'];
   const ctx = new Context({}, { cldr });
   const vars = variables(n);

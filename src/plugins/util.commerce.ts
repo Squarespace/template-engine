@@ -10,8 +10,8 @@ const variantsPath = ['structuredContent', 'variants'];
 const ZERO: Decimal = parseDecimal('0')!;
 
 const DEFAULT_MONEY_NODE = new Node({
-  'value': '0',
-  'currency': 'USD'
+  value: '0',
+  currency: 'USD',
 });
 
 export const getProductType = (item: Node) => {
@@ -37,7 +37,7 @@ export const getAmountFromMoneyNode = (moneyNode?: Node) => {
     return ZERO;
   }
   const value = moneyNode.path(['value']).asString();
-  return !value ? ZERO : (parseDecimal(value) || ZERO);
+  return !value ? ZERO : parseDecimal(value) || ZERO;
 };
 
 export const getLegacyPriceFromMoneyNode = (moneyNode: Node): Decimal => {
@@ -59,9 +59,7 @@ export const getFromPrice = (item: Node): Node | undefined => {
         return DEFAULT_MONEY_NODE;
       }
       const first = variants.get(0);
-      let moneyNode = isTruthy(first.path(['onSale']))
-        ? first.path(['salePriceMoney'])
-        : first.path(['priceMoney']);
+      let moneyNode = isTruthy(first.path(['onSale'])) ? first.path(['salePriceMoney']) : first.path(['priceMoney']);
       let price = getAmountFromMoneyNode(moneyNode);
       if (price === undefined) {
         return undefined;
@@ -69,9 +67,7 @@ export const getFromPrice = (item: Node): Node | undefined => {
 
       for (let i = 1; i < variants.size(); i++) {
         const v = variants.get(i);
-        const currentNode = isTruthy(v.path(['onSale']))
-          ? v.path(['salePriceMoney'])
-          : v.path(['priceMoney']);
+        const currentNode = isTruthy(v.path(['onSale'])) ? v.path(['salePriceMoney']) : v.path(['priceMoney']);
         const current = getAmountFromMoneyNode(currentNode)!;
         if (current && current.compare(price) < 0) {
           price = current;
@@ -284,8 +280,7 @@ export const isSoldOut = (item: Node) => {
   }
 };
 
-export const isSubscribable = (item: Node): boolean =>
-  item.path(['structuredContent', 'isSubscribable']).asBoolean();
+export const isSubscribable = (item: Node): boolean => item.path(['structuredContent', 'isSubscribable']).asBoolean();
 
 // TODO: writeMoneyString
 

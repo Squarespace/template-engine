@@ -6,9 +6,7 @@ import * as patterns from '../src/patterns';
  * Pattern matching by RegExp sticky.
  */
 class FastPatterns {
-
-  constructor(private raw: string) {
-  }
+  constructor(private raw: string) {}
 
   match(str: string, start: number = 0): null | string {
     const pattern = new RegExp(this.raw, 'y');
@@ -22,12 +20,9 @@ class FastPatterns {
  * Pattern matching by RegExp global + anchor-to-start + substring.
  */
 class SlowPatterns {
-
-  constructor(private raw: string) {
-  }
+  constructor(private raw: string) {}
 
   match(str: string, start: number = 0): string | null {
-
     const pattern = new RegExp('^' + this.raw, 'g');
     if (this.test(pattern, str, start)) {
       const end = start + pattern.lastIndex;
@@ -49,7 +44,7 @@ class SlowPatterns {
 
 const get = (pattern: string) => [
   { name: 'fast', impl: new FastPatterns(pattern) },
-  { name: 'slow', impl: new SlowPatterns(pattern) }
+  { name: 'slow', impl: new SlowPatterns(pattern) },
 ];
 
 for (const o of get(patterns.operator)) {
@@ -103,7 +98,6 @@ for (const o of get(patterns.variableReference)) {
     expect(p.match('.0')).toEqual(null);
     expect(p.match('0.')).toEqual(null);
     expect(p.match('abc.')).toEqual(null);
-
   });
 }
 
@@ -131,6 +125,5 @@ for (const o of get(patterns.predicate)) {
     expect(p.match('0?')).toEqual(null);
     expect(p.match('equals')).toEqual(null);
     expect(p.match('foo.bar')).toEqual(null);
-
   });
 }
