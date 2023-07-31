@@ -119,8 +119,10 @@ export class Engine {
       if (impl) {
         try {
           impl.call(this, inst, ctx);
-        } catch (e) {
-          ctx.error(unexpectedError(e.name, nameOfOpcode(opcode), e.message));
+        } catch (e: unknown) {
+          if (e instanceof Error) {
+            ctx.error(unexpectedError(e.name, nameOfOpcode(opcode), e.message));
+          }
         }
       }
     }
