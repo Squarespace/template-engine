@@ -34,5 +34,5 @@ test('types', () => {
 
 test('type names', () => {
   expect(nameOfType(Type.MISSING)).toEqual('MISSING');
-  expect(nameOfType(-5)).toEqual(undefined);
+  expect(nameOfType(-5 as unknown as Type)).toEqual(undefined);
 });

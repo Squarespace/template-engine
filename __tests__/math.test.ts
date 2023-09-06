@@ -24,6 +24,7 @@ import {
   SEQ,
   VarToken,
   ExprOptions,
+  Token,
 } from '../src/math';
 import { splitVariable } from '../src/util';
 import { Variable } from '../src/variable';
@@ -190,7 +191,7 @@ test('debug', () => {
   expect(debug('@a = 2 * 3 / max(c, d)')).toEqual('[[@a 2 3 <multiply> <args> c d max() <divide> <assign>]]');
   expect(debug(`"foo" !== "bar"`)).toEqual('[["foo" "bar" <strict inequality>]]');
   expect(debug('null == false || null != true')).toEqual('[[null false <equality> null true <inequality> <logical or>]]');
-  expect(tokenDebug({ type: 100 })).toEqual('<unk>');
+  expect(tokenDebug({ type: 100 } as unknown as Token)).toEqual('<unk>');
   expect(tokenDebug(undefined)).toEqual('undefined');
 });
 

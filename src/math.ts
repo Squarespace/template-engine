@@ -109,6 +109,7 @@ class ExprMatcher implements MatcherProps {
  * Flags for parsing decimal numbers.
  */
 const enum NF {
+  NONE = 0, // no flags set
   DOT = 1, // decimal point, can only occur once
   E = 2, // exponent, can only occur once
   EDIG = 4, // digit immediately after E
@@ -1456,7 +1457,7 @@ const decimal = (str: string, i: number, len: number): number => {
   let j = i;
 
   // flags tracking state
-  let f: NF = 0;
+  let f: NF = NF.NONE;
 
   // we are guaranteed to parse at least one digit here
   loop: while (j < len) {
