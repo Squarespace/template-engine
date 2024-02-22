@@ -76,13 +76,6 @@ test('variable resolution', () => {
   ctx.pop();
 });
 
-test('resolve arg', () => {
-  const o = { a: { b: [1, 2, 3] } };
-  const ctx = new Context(o);
-
-  expect(ctx.resolveArg(['a', 'b']).value).toEqual([1, 2, 3]);
-});
-
 test('lookup stack', () => {
   const o1 = { a: { b: [1, 2, { c: [4, 5] }] }, d: [6, 7] };
   const ctx = new Context(o1);

@@ -97,7 +97,6 @@ const delimiter = (s: string): number => {
 export class MessageFormatterImpl extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
-    const node = first.node;
     const cldr = ctx.cldr;
     if (!cldr) {
       first.set('');
@@ -107,14 +106,15 @@ export class MessageFormatterImpl extends Formatter {
     const positional: any[] = [];
     const keyword: { [name: string]: any } = {};
     args.forEach((arg) => {
+      const parent = ctx.frame().parent;
       const i = delimiter(arg);
       if (i === -1) {
-        const _arg = ctx.resolve(splitVariable(arg), node);
+        const _arg = ctx.resolveFrom(splitVariable(arg), parent ? parent : ctx.frame());
         positional.push(_arg);
       } else {
         const key = arg.slice(0, i);
         const val = arg.slice(i + 1);
-        const _val = ctx.resolve(splitVariable(val), node);
+        const _val = ctx.resolveFrom(splitVariable(val), parent ? parent : ctx.frame());
         // Index the argument both as a keyword and positional
         keyword[key] = _val;
         positional.push(_val);

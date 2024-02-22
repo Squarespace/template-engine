@@ -344,14 +344,16 @@ export class Context {
     if (len > 1) {
       node = node.path(names.slice(1));
     }
-    this.stack.push(new Frame(node));
+    const parent = this.frame();
+    this.stack.push(new Frame(node, parent));
   }
 
   /**
    * Push a node explicitly onto the stack (no resolution).
    */
   pushNode(node: Node): void {
-    this.stack.push(new Frame(node));
+    const parent = this.frame();
+    this.stack.push(new Frame(node, parent));
   }
 
   /**
@@ -405,25 +407,29 @@ export class Context {
   }
 
   /**
-   * Resolve the name array against the stack frame, avoiding
-   * matching the first frame's current node.
+   * Resolve the name array against the current stack frame.
    */
-  resolveArg(names: (string | number)[]): Node {
-    return this.resolve(names, this.frame().node);
+  resolve(names: (string | number)[]): Node {
+    return this.resolveFrom(names, this.frame());
   }
 
   /**
-   * Resolve the name array against the stack frame. If no frame is defined
-   * it uses the current frame.
+   * Resolve the name array against the given stack frame.
    */
-  resolve(names: (string | number)[], skipFirst?: Node): Node {
+  resolveFrom(names: (string | number)[], startingFrame: Frame): Node {
     const len = names.length;
     if (len === 0) {
       return MISSING_NODE;
     }
-    let node = this.lookupStack(names[0], skipFirst);
-    if (len > 1) {
-      node = node.path(names.slice(1));
+    if (len === 1 && names[0] === '@') {
+      return startingFrame.node;
+    }
+    let node = this.lookupStack(names[0]);
+    for (let i = 1; i < names.length; i++) {
+      if (node.isMissing() || node.isNull()) {
+        return MISSING_NODE;
+      }
+      node = node.path([names[i]]);
     }
     return node;
   }
