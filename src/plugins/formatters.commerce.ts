@@ -144,6 +144,16 @@ export class ProductPriceFormatter extends Formatter {
   }
 }
 
+export class SubscriptionPriceFormatter extends Formatter {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
+    // Because ProductPriceFormatter has been missing impl for a while now
+    // I think it's ok if we don't implement SubscriptionPriceFormatter
+    // because both formatters would be used together and I don't see
+    // when these formatters would ever be rendered client.
+    // TODO: subscription-price impl if ProductPriceFormatter (above) is also implemented.
+    vars[0].set('not yet implemented');
+  }}
+
 export class ProductQuickViewFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
@@ -438,6 +448,7 @@ export const COMMERCE_FORMATTERS: FormatterTable = {
   'percentage-format': new PercentageFormatFormatter(),
   'product-checkout': new ProductCheckoutFormatter(),
   'product-price': new ProductPriceFormatter(),
+  'subscription-price': new SubscriptionPriceFormatter(),
   'product-quick-view': new ProductQuickViewFormatter(),
   'product-restock-notification': new ProductRestockNotificationFormatter(),
   'product-scarcity': new ProductScarcityFormatter(),
