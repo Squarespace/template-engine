@@ -16,6 +16,12 @@
   [6, "@subscribeText", [["localizedStrings", "productSubscribeText"]], 0],
   [0, "\n"],
   [6, "@isSubscribable", [["@content", "isSubscribable"]], 0],
+  [0, "\n"],
+  [6, "@productSubscriptionOptions", [["structuredContent", "productSubscriptionOptions"]], 0],
+  [0, "\n"],
+  [6, "@subsOTPOptionsCount", [["structuredContent", "productSubscriptionOptions"]], [["count"]]],
+  [0, "\n"],
+  [23, "@hasProductSubsOptionAndIsSubscribable = @subsOTPOptionsCount && @isSubscribable"],
   [0, "\n\n<div class=\"sqs-add-to-cart-button-wrapper\" data-animation-role=\"button\">\n  <div class=\"sqs-add-to-cart-button sqs-suppress-edit-mode sqs-editable-button sqs-button-element--primary "],
   [8, [1], [["@fieldsFormId"], ["@fieldsForm"]], [
       [0, "use-form"]
@@ -56,6 +62,11 @@
   [8, [1], [["@fieldsFormId"], ["@fieldsForm"]], [
       [0, "data-form=\""],
       [1, [["@fieldsForm"]], [["json"], ["htmlattr"]]],
+      [0, "\""]
+    ], 3],
+  [8, [], [["@hasProductSubsOptionAndIsSubscribable"]], [
+      [0, "data-subscription-option-id=\""],
+      [1, [["@productSubscriptionOptions", 0, "id"]], 0],
       [0, "\""]
     ], 3],
   [0, ">\n    <div class=\"sqs-add-to-cart-button-inner\">"],
