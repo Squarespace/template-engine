@@ -1,4 +1,5 @@
 import {
+  CalendarType,
   ContextType,
   CurrencyFormatOptions,
   CurrencyFormatStyleType,
@@ -60,18 +61,27 @@ export const currencyOptions = (args: string[]): CurrencyFormatOptions => {
 export const datetimeOptions = (args: string[]): DateFormatOptions => {
   const opts: DateFormatOptions = {};
   parse(args, opts, datetimeOption);
+  if (!opts.ca) {
+    opts.ca = 'gregory';
+  }
   return opts;
 };
 
 export const intervalOptions = (args: string[]): DateIntervalFormatOptions => {
   const opts: DateIntervalFormatOptions = {};
   parse(args, opts, intervalOption);
+  if (!opts.ca) {
+    opts.ca = 'gregory';
+  }
   return opts;
 };
 
 export const relativetimeOptions = (args: string[]): RelativeTimeFormatOptions => {
   const opts: RelativeTimeFormatOptions = {};
   parse(args, opts, relativetimeOption);
+  if (!opts.ca) {
+    opts.ca = 'gregory';
+  }
   return opts;
 };
 
@@ -207,6 +217,10 @@ const datetimeOption = (arg: string, val: string, options: DateFormatOptions) =>
   }
 
   switch (arg) {
+    case 'calendar':
+      options.ca = selectCalendar(val);
+      break;
+
     case 'context':
       if (CONTEXT_TYPE.has(val as ContextType)) {
         options.context = val as ContextType;
@@ -245,6 +259,21 @@ const datetimeOption = (arg: string, val: string, options: DateFormatOptions) =>
 
     default:
       break;
+  }
+};
+
+const selectCalendar = (s: string): CalendarType | undefined => {
+  switch (s) {
+    case 'gregorian':
+      return 'gregory';
+    case 'buddhist':
+    case 'gregory':
+    case 'iso8601':
+    case 'persian':
+    case 'japanese':
+      return s;
+    default:
+      return undefined;
   }
 };
 

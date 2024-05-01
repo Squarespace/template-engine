@@ -53,52 +53,52 @@ test('currency options', () => {
 });
 
 test('datetime options', () => {
-  expect(datetimeOptions([])).toEqual({});
-  expect(datetimeOptions(['date'])).toEqual({ date: 'short' });
-  expect(datetimeOptions(['time'])).toEqual({ time: 'short' });
-  expect(datetimeOptions(['short'])).toEqual({ datetime: 'short' });
-  expect(datetimeOptions(['yMMMd'])).toEqual({ skeleton: 'yMMMd' });
+  expect(datetimeOptions([])).toEqual({ ca: 'gregory' });
+  expect(datetimeOptions(['date'])).toEqual({ date: 'short', ca: 'gregory' });
+  expect(datetimeOptions(['time'])).toEqual({ time: 'short', ca: 'gregory' });
+  expect(datetimeOptions(['short'])).toEqual({ datetime: 'short', ca: 'gregory' });
+  expect(datetimeOptions(['yMMMd'])).toEqual({ skeleton: 'yMMMd', ca: 'gregory' });
 
-  expect(datetimeOptions(['date:full'])).toEqual({ date: 'full' });
-  expect(datetimeOptions(['time:full'])).toEqual({ time: 'full' });
-  expect(datetimeOptions(['datetime:full'])).toEqual({ datetime: 'full' });
+  expect(datetimeOptions(['date:full'])).toEqual({ date: 'full', ca: 'gregory' });
+  expect(datetimeOptions(['time:full'])).toEqual({ time: 'full', ca: 'gregory' });
+  expect(datetimeOptions(['datetime:full'])).toEqual({ datetime: 'full', ca: 'gregory' });
 
-  expect(datetimeOptions(['context:begin-sentence'])).toEqual({ context: 'begin-sentence' });
+  expect(datetimeOptions(['context:begin-sentence'])).toEqual({ context: 'begin-sentence', ca: 'gregory' });
 
-  expect(datetimeOptions(['skeleton:hmsv'])).toEqual({ skeleton: 'hmsv' });
+  expect(datetimeOptions(['skeleton:hmsv'])).toEqual({ skeleton: 'hmsv', ca: 'gregory' });
 
-  expect(datetimeOptions(['wrapper:full'])).toEqual({ wrap: 'full' });
+  expect(datetimeOptions(['wrapper:full'])).toEqual({ wrap: 'full', ca: 'gregory' });
 
-  expect(datetimeOptions(['unknown:foo'])).toEqual({});
+  expect(datetimeOptions(['unknown:foo'])).toEqual({ ca: 'gregory' });
 });
 
 test('interval options', () => {
-  expect(intervalOptions([])).toEqual({});
-  expect(intervalOptions(['yMMMd'])).toEqual({ skeleton: 'yMMMd' });
-  expect(intervalOptions(['skeleton:yMMMd'])).toEqual({ skeleton: 'yMMMd' });
+  expect(intervalOptions([])).toEqual({ ca: 'gregory' });
+  expect(intervalOptions(['yMMMd'])).toEqual({ skeleton: 'yMMMd', ca: 'gregory' });
+  expect(intervalOptions(['skeleton:yMMMd'])).toEqual({ skeleton: 'yMMMd', ca: 'gregory' });
 
-  expect(intervalOptions(['date:yMMMd'])).toEqual({ date: 'yMMMd' });
-  expect(intervalOptions(['time:Bh'])).toEqual({ time: 'Bh' });
+  expect(intervalOptions(['date:yMMMd'])).toEqual({ date: 'yMMMd', ca: 'gregory' });
+  expect(intervalOptions(['time:Bh'])).toEqual({ time: 'Bh', ca: 'gregory' });
 
-  expect(intervalOptions(['context:begin-sentence'])).toEqual({ context: 'begin-sentence' });
+  expect(intervalOptions(['context:begin-sentence'])).toEqual({ context: 'begin-sentence', ca: 'gregory' });
 
   // ignore bare properties
-  expect(intervalOptions(['context'])).toEqual({});
+  expect(intervalOptions(['context'])).toEqual({ ca: 'gregory' });
 
-  expect(intervalOptions(['unknown:foo'])).toEqual({});
+  expect(intervalOptions(['unknown:foo'])).toEqual({ ca: 'gregory' });
 });
 
 test('relative time options', () => {
-  expect(relativetimeOptions(['context:middle-of-text'])).toEqual({ context: 'middle-of-text' });
-  expect(relativetimeOptions(['context:foo'])).toEqual({});
-  expect(relativetimeOptions(['field:year'])).toEqual({ field: 'year' });
-  expect(relativetimeOptions(['field:foo'])).toEqual({});
-  expect(relativetimeOptions(['dayOfWeek:true'])).toEqual({ dayOfWeek: true });
-  expect(relativetimeOptions(['numericOnly:true'])).toEqual({ numericOnly: true });
-  expect(relativetimeOptions(['alwaysNow:true'])).toEqual({ alwaysNow: true });
-  expect(relativetimeOptions(['width:wide'])).toEqual({ width: 'wide' });
-  expect(relativetimeOptions(['width:foo'])).toEqual({});
-  expect(relativetimeOptions(['maxFrac:3'])).toEqual({ maximumFractionDigits: 3 });
+  expect(relativetimeOptions(['context:middle-of-text'])).toEqual({ context: 'middle-of-text', ca: 'gregory' });
+  expect(relativetimeOptions(['context:foo'])).toEqual({ ca: 'gregory' });
+  expect(relativetimeOptions(['field:year'])).toEqual({ field: 'year', ca: 'gregory' });
+  expect(relativetimeOptions(['field:foo'])).toEqual({ ca: 'gregory' });
+  expect(relativetimeOptions(['dayOfWeek:true'])).toEqual({ dayOfWeek: true, ca: 'gregory' });
+  expect(relativetimeOptions(['numericOnly:true'])).toEqual({ numericOnly: true, ca: 'gregory' });
+  expect(relativetimeOptions(['alwaysNow:true'])).toEqual({ alwaysNow: true, ca: 'gregory' });
+  expect(relativetimeOptions(['width:wide'])).toEqual({ width: 'wide', ca: 'gregory' });
+  expect(relativetimeOptions(['width:foo'])).toEqual({ ca: 'gregory' });
+  expect(relativetimeOptions(['maxFrac:3'])).toEqual({ maximumFractionDigits: 3, ca: 'gregory' });
 
-  expect(relativetimeOptions(['unknown:foo'])).toEqual({});
+  expect(relativetimeOptions(['unknown:foo'])).toEqual({ ca: 'gregory' });
 });

@@ -168,13 +168,16 @@ test('japanese', () => {
   // March 12, 2018 5:48:54 PM UTC
   const d = '1520876934000';
   let args: string[] = [];
+  expect(formatDatetime(JA, d, ZONE_NY, args)).toEqual('2018年3月12日');
+
+  args = ['calendar:japanese'];
   expect(formatDatetime(JA, d, ZONE_NY, args)).toEqual('平成30年3月12日');
 
   args = ['date:short'];
-  expect(formatDatetime(JA, d, ZONE_NY, args)).toEqual('H30/3/12');
+  expect(formatDatetime(JA, d, ZONE_NY, args)).toEqual('2018/03/12');
 
   args = ['date:full'];
-  expect(formatDatetime(JA, d, ZONE_NY, args)).toEqual('平成30年3月12日月曜日');
+  expect(formatDatetime(JA, d, ZONE_NY, args)).toEqual('2018年3月12日月曜日');
 });
 
 loader.paths('f-datetime-interval-%N.html').forEach((path) => {
