@@ -14,7 +14,7 @@ export const executeTemplate = (
   inst: RootCode | MacroCode,
   node: Node,
   privateContext: boolean,
-  argvar?: Variable
+  argvar?: Variable,
 ) => {
   const buf = ctx.swapBuffer();
   ctx.pushNode(node);

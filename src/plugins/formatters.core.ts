@@ -156,8 +156,8 @@ export class GetFormatter extends Formatter {
           node.type === Type.ARRAY
             ? (node.value as (number | string)[])
             : node.type === Type.NUMBER
-            ? [node.asNumber()]
-            : [node.asString()];
+              ? [node.asNumber()]
+              : [node.asString()];
 
         tmp = tmp.path(resolved);
       }

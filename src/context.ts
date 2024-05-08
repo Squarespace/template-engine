@@ -421,10 +421,14 @@ export class Context {
     if (len === 0) {
       return MISSING_NODE;
     }
-    if (len === 1 && names[0] === '@') {
-      return startingFrame.node;
-    }
-    let node = this.lookupStack(names[0]);
+
+    // When '@' is used, we need to always evaluate to the current frame's node,
+    // so we call resolveName against startingFrame. Otherwise we look up the
+    // stack to scan for the variable binding. This ensures we always call
+    // resolveName so that subclasses can detect the resolution.
+    let node =
+      len >= 1 && names[0] === '@' ? this.resolveName(names[0], startingFrame) : this.lookupStack(names[0], startingFrame);
+
     for (let i = 1; i < names.length; i++) {
       if (node.isMissing() || node.isNull()) {
         return MISSING_NODE;
@@ -438,21 +442,17 @@ export class Context {
    * Look up the stack looking for the first name that resolves successfully.
    * If a frame is marked "stopResolution" we bail out at that point.
    */
-  lookupStack(name: string | number, skipFirst?: Node): Node {
-    const len = this.stack.length - 1;
-    for (let i = len; i >= 0; i--) {
-      const frame = this.stack[i];
+  lookupStack(name: string | number, startingFrame?: Frame): Node {
+    let frame = startingFrame === undefined ? this.frame() : startingFrame;
+    while (frame !== undefined) {
       const node = this.resolveName(name, frame);
-      if (i === len && node === skipFirst) {
-        continue;
-      }
-      if (node.type !== Type.MISSING) {
+      if (!node.isMissing()) {
         return node;
       }
-
       if (frame.stopResolution) {
         break;
       }
+      frame = frame.parent!;
     }
     return MISSING_NODE;
   }

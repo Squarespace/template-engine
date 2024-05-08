@@ -4,6 +4,13 @@ import { Variable } from '../src/variable';
 import { Opcode } from '../src/opcodes';
 import { Code } from '../src/instructions';
 
+test('resolve arg', () => {
+  const o = { a: { b: [1, 2, 3] } };
+  const ctx = new Context(o);
+
+  expect(ctx.resolve(['a', 'b']).value).toEqual([1, 2, 3]);
+});
+
 test('node constructor', () => {
   const ctx = new Context(new Node(123));
   expect(ctx.node()).toEqual(new Node(123));
