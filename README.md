@@ -30,4 +30,4 @@ This project is a new implementation of the Squarespace template syntax with the
 
 ### License
 
-[Apache 2.0](https://tldrlegal.com/license/apache-license-2.0-(apache-2.0))
+See [Apache License version 2.0](https://tldrlegal.com/license/apache-license-2.0-(apache-2.0)) for details.
