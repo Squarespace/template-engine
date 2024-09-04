@@ -35,14 +35,14 @@
     "url": "https://github.com/Squarespace/template-engine.git"
   },
   "dependencies": {
-    "@phensley/timezone": "~1.2.16",
+    "@phensley/timezone": "~1.2.17",
     "utf8": "^3.0.0"
   },
   "peerDependencies": {
-    "@phensley/cldr-core": "~1.2.16"
+    "@phensley/cldr-core": "~1.2.17"
   },
   "devDependencies": {
-    "@phensley/cldr": "~1.2.16",
+    "@phensley/cldr": "~1.2.17",
     "@rollup/plugin-commonjs": "^11.1.0",
     "@rollup/plugin-json": "^4.0.3",
     "@rollup/plugin-node-resolve": "^7.1.3",
