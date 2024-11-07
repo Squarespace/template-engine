@@ -131,7 +131,7 @@ export class MessageFormatterImpl extends Formatter {
   }
 }
 
-const useCLDRMode = (ctx: Context) => isTruthy(ctx.resolve(['website', 'useCLDRMoneyFormat']));
+const useCLDRMode = (ctx: Context) => isTruthy(ctx.resolve(['featureFlags', 'useCLDRMoneyFormat']));
 
 export class MoneyFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {

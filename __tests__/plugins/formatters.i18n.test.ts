@@ -119,7 +119,7 @@ test('money', () => {
 
   // Use CLDR mode
   money = { value: '155900.799', currency: 'EUR' };
-  const ctx: any = { website: { useCLDRMoneyFormat: true } };
+  const ctx: any = { featureFlags: { useCLDRMoneyFormat: true } };
   expect(formatMoney(EN, money, ['style:short'], ctx)).toEqual('€156K');
 });
 
