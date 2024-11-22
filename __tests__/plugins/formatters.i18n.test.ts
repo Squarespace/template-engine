@@ -119,8 +119,13 @@ test('money', () => {
 
   // Use CLDR mode
   money = { value: '155900.799', currency: 'EUR' };
-  const ctx: any = { featureFlags: { useCLDRMoneyFormat: true } };
+  let ctx: any = { featureFlags: { useCLDRMoneyFormat: true } };
   expect(formatMoney(EN, money, ['style:short'], ctx)).toEqual('€156K');
+
+  // New money format fails unless in CLDR mode
+  money = { value: '155900.799', currency: 'EUR' };
+  ctx = { featureFlags: { useCLDRMoneyFormat: false } };
+  expect(formatMoney(EN, money, ['style:short'], ctx)).toEqual('');
 });
 
 loader.paths('f-datetime-%N.html').forEach((path) => {
@@ -137,7 +142,7 @@ test('datetime', () => {
   args = ['date:full', 'time:full'];
   expect(formatDatetime(EN, d, ZONE_NY, args)).toEqual('Monday, March 12, 2018 at 1:48:54 PM Eastern Daylight Time');
   expect(formatDatetime(DE, d, ZONE_NY, args)).toEqual(
-    'Montag, 12. März 2018 um 13:48:54 Nordamerikanische Ostküsten-Sommerzeit'
+    'Montag, 12. März 2018 um 13:48:54 Nordamerikanische Ostküsten-Sommerzeit',
   );
 
   args = ['time:medium'];
