@@ -1,0 +1,38 @@
+[17, 1, [
+  [6, "@originalPriceText", [["localizedStrings", "originalPriceText"]], 0],
+  [0, "\n"],
+  [6, "@salePriceText", [["localizedStrings", "salePriceText"]], 0],
+  [0, "\n"],
+  [11, "\n  CommerceFormatter will provide from-price, sale-price and normal-price.\n  The below will render from-price first if it exists (> 1 variants),\n  sale-price next if from price doesn't exists,\n  normal-price if both from-price and sale-price doesn't exists.\n", 1],
+  [0, "\n<div class=\"subscription-price\">\n"],
+  [8, [], [["formattedFromPrice"]], [
+      [1, [["fromText"]], [["message", [["fromPrice:formattedFromPrice"], " "]]]],
+      [0, "\n"]
+    ], [7, 0, 0, [
+      [8, [], [["formattedSubscriptionSalePrice"]], [
+          [0, "<span class=\"visually-hidden v6-visually-hidden\">"],
+          [8, [], [["@salePriceText"]], [
+              [1, [["@salePriceText"]], [["htmltag"]]]
+            ], [7, 0, 0, [
+              [0, "Sale Price:"]
+            ], 3]],
+          [0, "</span>"],
+          [1, [["formattedSubscriptionSalePriceText"]], [["message", [["price:formattedSubscriptionSalePrice"], " "]]]],
+          15,
+          [0, "<span class=\"visually-hidden v6-visually-hidden\">"],
+          [8, [], [["@originalPriceText"]], [
+              [1, [["@originalPriceText"]], [["htmltag"]]]
+            ], [7, 0, 0, [
+              [0, "Original Price:"]
+            ], 3]],
+          [0, "</span><span class=\"original-price\">"],
+          [1, [["formattedNormalSubscriptionPriceText"]], [["message", [["price:formattedNormalSubscriptionPrice"], " "]]]],
+          [0, "</span>\n"]
+        ], [7, 0, 0, [
+          [8, [], [["formattedNormalSubscriptionPrice"]], [
+              [1, [["formattedNormalSubscriptionPriceText"]], [["message", [["price:formattedNormalSubscriptionPrice"], " "]]]]
+            ], 3]
+        ], 3]]
+    ], 3]],
+  [0, "\n</div>"]
+], 18]

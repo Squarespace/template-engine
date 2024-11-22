@@ -3,10 +3,9 @@ import { CurrencyType } from '@phensley/cldr-core';
 import { Context } from '../context';
 import { Variable } from '../variable';
 import { FormatterTable } from '../plugin';
-import { isTruthy } from '../node';
 import { Formatter } from '../plugin';
 import { getTimeZone } from './util.timezone';
-import { parseDecimal } from './util.i18n';
+import { parseDecimal, useCLDRMode } from './util.i18n';
 import { currencyOptions, datetimeOptions, decimalOptions, intervalOptions, relativetimeOptions } from './options';
 import { splitVariable } from '../util';
 import { humanizeDate } from './util.content';
@@ -130,8 +129,6 @@ export class MessageFormatterImpl extends Formatter {
     first.set(result);
   }
 }
-
-const useCLDRMode = (ctx: Context) => isTruthy(ctx.resolve(['featureFlags', 'useCLDRMoneyFormat']));
 
 export class MoneyFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {

@@ -1,8 +1,10 @@
-import { Decimal } from '@phensley/cldr-core';
+import { CurrencyType, Decimal } from '@phensley/cldr-core';
 import { isTruthy, Node } from '../node';
 import { ProductType } from './enums';
 import { Type } from '../types';
-import { parseDecimal } from './util.i18n';
+import { parseDecimal, useCLDRMode } from './util.i18n';
+import { Context } from 'src/context';
+import { currencyOptions } from './options';
 
 const productTypePath = ['structuredContent', 'productType'];
 const variantsPath = ['structuredContent', 'variants'];
@@ -40,9 +42,84 @@ export const getAmountFromMoneyNode = (moneyNode?: Node) => {
   return !value ? ZERO : parseDecimal(value) || ZERO;
 };
 
+export const getCurrencyFromMoneyNode = (moneyNode: Node): CurrencyType => {
+  const currencyNode = moneyNode.path(['currency']);
+  const currency = !currencyNode.isMissing() ?
+    currencyNode.asString().trim() :
+    DEFAULT_MONEY_NODE.path(['currency']).asString();
+
+  return currency as CurrencyType;
+};
+
 export const getLegacyPriceFromMoneyNode = (moneyNode: Node): Decimal => {
   const price = getAmountFromMoneyNode(moneyNode);
   return price ? price.movePoint(2) : ZERO;
+};
+
+export const getMoneyString = (moneyNode: Node, args: string[], ctx: Context): string => {
+  if (useCLDRMode(ctx)) {
+    const amount = getAmountFromMoneyNode(moneyNode);
+    const currencyCode = getCurrencyFromMoneyNode(moneyNode);
+  
+    return ctx.cldr?.Numbers.formatCurrency(amount, currencyCode, currencyOptions(args)) ?? '';
+  } else {
+    const legacyAmount = getLegacyPriceFromMoneyNode(moneyNode);
+    const numberFormatter = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2 });
+    const formattedAmount = numberFormatter.format(parseFloat(legacyAmount.toString()) / 100);
+
+    return `<span class="sqs-money-native">${formattedAmount}</span>`;
+  }
+};
+
+export const getSubscriptionMoneyFromFirstPricingOptions = (pricingOptions: Node): Node => {
+  if (pricingOptions == null || pricingOptions.size() == 0) {
+    return DEFAULT_MONEY_NODE;
+  }
+
+  const node = pricingOptions.get(0);
+
+  return isTruthy(node.path(['onSale']))
+    ? node.path(['salePriceMoney'])
+    : node.path(['priceMoney']);
+};
+
+export const getPricingOptionsAmongLowestVariant = (item: Node): Node | null => {
+  const productType = getProductType(item);
+  const structuredContent = item.path(['structuredContent']);
+  
+  switch (productType) {
+    case ProductType.PHYSICAL:
+    case ProductType.SERVICE:
+      const variants = structuredContent.path(['variants']);
+      if (variants.size() === 0) {
+        return null;
+      }
+
+      const first = variants.get(0);
+      const moneyNode = isTruthy(first.path(['onSale']))
+        ? first.path(['salePriceMoney'])
+        : first.path(['priceMoney']);
+
+      let pricingOptions = first.path(['pricingOptions']);
+      let price = getAmountFromMoneyNode(moneyNode);
+
+      for (let i = 1; i < variants.size(); i++) {
+        const variant = variants.get(i);
+        const variantMoneyNode = isTruthy(variant.path(['onSale']))
+          ? variant.path(['salePriceMoney'])
+          : variant.path(['priceMoney']);
+        const variantPrice = getAmountFromMoneyNode(variantMoneyNode);
+
+        if (variantPrice.compare(price) < 0) {
+          pricingOptions = variant.path(['pricingOptions']);
+          price = variantPrice;
+        }
+      }
+
+      return pricingOptions;
+    default:
+      return null;
+  }
 };
 
 export const getFromPrice = (item: Node): Node | undefined => {

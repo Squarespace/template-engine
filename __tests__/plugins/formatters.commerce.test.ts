@@ -142,3 +142,31 @@ loader.paths('f-variants-select-%N.html').forEach((path) => {
 loader.paths('f-variants-select-subscription.html').forEach((path) => {
   test(`variants select subscription - ${path}`, () => loader.execute(path));
 });
+
+loader.paths('f-subscription-price-multiple-variants-and-multiple-pricing-options.html').forEach((path) => {
+  test(`subscription price multiple variants and multiple pricing options - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-subscription-price-multiple-variants-from-price.html').forEach((path) => {
+  test(`subscription price multiple variants from price - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-subscription-price-on-sale-variants-pricing-options.html').forEach((path) => {
+  test(`subscription price on sale variants pricing options - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-subscription-price-one-on-sale-pricing-option.html').forEach((path) => {
+  test(`subscription price one on sale pricing option - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-subscription-price-one-pricing-option.html').forEach((path) => {
+  test(`subscription price one pricing option - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-subscription-price-variants-with-same-pricing.html').forEach((path) => {
+  test(`subscription price variants with same pricing - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-subscription-price-no-pricing-options.html').forEach((path) => {
+  test(`subscription price no pricing options - ${path}`, () => loader.execute(path));
+});
