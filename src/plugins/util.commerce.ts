@@ -64,7 +64,7 @@ export const getMoneyString = (moneyNode: Node, args: string[], ctx: Context): s
     return ctx.cldr?.Numbers.formatCurrency(amount, currencyCode, currencyOptions(args)) ?? '';
   } else {
     const legacyAmount = getLegacyPriceFromMoneyNode(moneyNode);
-    const numberFormatter = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2 });
+    const numberFormatter = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const formattedAmount = numberFormatter.format(parseFloat(legacyAmount.toString()) / 100);
 
     return `<span class="sqs-money-native">${formattedAmount}</span>`;
