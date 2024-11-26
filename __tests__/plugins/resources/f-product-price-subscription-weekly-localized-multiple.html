@@ -1,0 +1,35 @@
+:PARAMS
+{
+  "locale": "en-US"
+}
+
+:JSON
+{
+  "structuredContent": {
+  "productType": 1,
+  "isSubscribable" : "true",
+  "subscriptionPlan" : {
+    "billingPeriod" : {
+      "unit" : "WEEK",
+      "value" : 5
+    }
+  },
+  "variants": [
+      {
+        "price": 10000, "priceMoney": { "value": "100" }
+      }
+    ]
+  },
+
+  "localizedStrings": {
+    "productPrice__singlePrice__nWeekly__indefinite" : "{price} every {billingPeriodValue} months Other Super Translated"
+  }
+}
+
+:TEMPLATE
+{@|product-price}
+
+:OUTPUT
+<div class="product-price">
+<span class="sqs-money-native">100.00</span> every 5 months Other Super Translated
+</div>
