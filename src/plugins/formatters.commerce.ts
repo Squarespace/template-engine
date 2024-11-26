@@ -1,3 +1,4 @@
+import capitalize from 'lodash/capitalize';
 import { Context } from '../context';
 import { ProductType } from './enums';
 import { Node } from '../node';
@@ -14,6 +15,7 @@ import { parseDecimal } from './util.i18n';
 // Template imports
 import addToCartBtnTemplate from './templates/add-to-cart-btn.json';
 import productCheckoutTemplate from './templates/product-checkout.json';
+import productPriceTemplate from './templates/product-price.json';
 import productRestockNotificationTemplate from './templates/product-restock-notification.json';
 import productScarcityTemplate from './templates/product-scarcity.json';
 import quantityInputTemplate from './templates/quantity-input.json';
@@ -28,6 +30,7 @@ import summaryFormFieldTimeTemplate from './templates/summary-form-field-time.js
 import variantsSelectTemplate from './templates/variants-select.json';
 
 const ZERO = parseDecimal('0');
+const PRODUCT_PRICE_FROM_TEXT_PATH = ['localizedStrings', 'productPriceFromText'];
 
 export class AddToCartButtonFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
@@ -138,10 +141,191 @@ export class ProductCheckoutFormatter extends Formatter {
   }
 }
 
+type ProductPriceTemplateData = {
+  fromText?: string;
+  formattedFromPrice?: string;
+  formattedSalePriceText?: string;
+  formattedSalePrice?: string;
+  formattedNormalPriceText?: string;
+  formattedNormalPrice?: string;
+  billingPeriodValue?: number;
+  duration?: number;
+};
+
 export class ProductPriceFormatter extends Formatter {
+  private static BILLING_PERIOD_MONTHLY = 'MONTH';
+  private static BILLING_PERIOD_WEEKLY = 'WEEK';
+  private static BILLING_PERIOD_YEARLY = 'YEAR';
+  private static PER_YEAR = {
+    [this.BILLING_PERIOD_WEEKLY]: 52,
+    [this.BILLING_PERIOD_MONTHLY]: 12,
+  };
+
   apply(args: string[], vars: Variable[], ctx: Context): void {
-    // TODO: product-price impl
-    vars[0].set('not yet implemented');
+    const first = vars[0];
+    const { node } = first;
+    const templateData: ProductPriceTemplateData = {};
+
+    if (commerceutil.isSubscribable(node)) {
+      this.resolveTemplateVariablesForSubscriptionProduct(args, ctx, node, templateData);
+    } else if (commerceutil.getProductType(node) !== ProductType.UNDEFINED) {
+      this.resolveTemplateVariablesForOTPProduct(args, ctx, node, templateData);
+    }
+
+    const priceInfo = executeTemplate(
+      ctx,
+      productPriceTemplate as unknown as RootCode,
+      new Node(templateData),
+      true,
+    );
+    first.set(priceInfo);
+  }
+
+  resolveTemplateVariablesForOTPProduct(
+    args: string[],
+    ctx: Context,
+    productNode: Node,
+    templateData: ProductPriceTemplateData,
+  ) {
+    if (commerceutil.hasVariedPrices(productNode)) {
+      const productPriceFromTextNode = ctx.resolve(PRODUCT_PRICE_FROM_TEXT_PATH);
+
+      templateData.fromText = !productPriceFromTextNode.isMissing() ?
+          productPriceFromTextNode.asString() :
+          'from {fromPrice}';
+      templateData.formattedFromPrice = commerceutil.getMoneyString(commerceutil.getFromPrice(productNode), args, ctx);
+    }
+
+    if (commerceutil.isOnSale(productNode)) {
+      templateData.formattedSalePriceText = '{price}';
+      templateData.formattedSalePrice = commerceutil.getMoneyString(commerceutil.getSalePrice(productNode), args, ctx);
+    }
+
+    templateData.formattedNormalPriceText = '{price}';
+    templateData.formattedNormalPrice = commerceutil.getMoneyString(commerceutil.getNormalPrice(productNode), args, ctx);
+  }
+
+  resolveTemplateVariablesForSubscriptionProduct(
+    args: string[],
+    ctx: Context,
+    productNode: Node,
+    templateData: ProductPriceTemplateData,
+  ) {
+    const billingPeriodNode = this.getSubscriptionPlanBillingPeriodNode(productNode);
+
+    if (billingPeriodNode.isMissing()) {
+      const productPriceUnavailableTextNode = ctx.resolve(['localizedStrings', 'productPriceUnavailable']);
+      
+      templateData.fromText = !productPriceUnavailableTextNode.isMissing() ?
+        productPriceUnavailableTextNode.asString() :
+        'Unavailable';
+      templateData.formattedFromPrice = 'true';
+      return;
+    }
+
+    const hasMultiplePrices = commerceutil.hasVariedPrices(productNode);
+    const billingPeriodValue = this.getValueFromSubscriptionPlanBillingPeriod(billingPeriodNode);
+    const billingPeriodUnit = this.getUnitFromSubscriptionPlanBillingPeriod(billingPeriodNode);
+
+    let durationValue = billingPeriodValue * this.getNumBillingCyclesFromSubscriptionPlanNode(productNode);
+    let durationUnit = billingPeriodUnit;
+
+    const { PER_YEAR } = ProductPriceFormatter;
+
+    // If the duration is a multiple of 52 weeks or 12 months, convert to years.
+    // Otherwise, use the billing period unit for the duration unit.
+    if (durationValue > 0 && PER_YEAR[durationUnit] && durationValue % PER_YEAR[durationUnit] === 0) {
+      durationValue /= PER_YEAR[durationUnit];
+      durationUnit = ProductPriceFormatter.BILLING_PERIOD_YEARLY;
+    }
+
+    templateData.billingPeriodValue = billingPeriodValue;
+    templateData.duration = durationValue;
+
+    // This string needs to match the correct translation template in v6 products-2.0-en-US.json.
+    let localizedStringKey = 'productPrice__' +
+      `${hasMultiplePrices ? 'multiplePrices' : 'singlePrice'}__` +
+      `${billingPeriodValue === 1 ? '1' : 'n'}${capitalize(billingPeriodUnit)}ly__`;
+
+    if (durationValue == 0) {
+      localizedStringKey += 'indefinite';
+    } else {
+      localizedStringKey += `limited__${durationValue === 1 ? '1' : 'n'}${capitalize(durationUnit)}s`;
+    }
+
+    const localizedStringNode = ctx.resolve(['localizedStrings', localizedStringKey]);
+    const templateForPrice = !localizedStringNode.isMissing() ?
+      localizedStringNode.asString() :
+      this.defaultSubscriptionPriceString(productNode);
+
+    if (hasMultiplePrices) {
+      templateData.fromText = templateForPrice;
+      templateData.formattedFromPrice = commerceutil.getMoneyString(commerceutil.getFromPrice(productNode), args, ctx);
+    }
+
+    if (commerceutil.isOnSale(productNode)) {
+      templateData.formattedSalePriceText = templateForPrice;
+      templateData.formattedSalePrice = commerceutil.getMoneyString(commerceutil.getSalePrice(productNode), args, ctx);
+    }
+
+    templateData.formattedNormalPriceText = templateForPrice;
+    templateData.formattedNormalPrice = commerceutil.getMoneyString(commerceutil.getNormalPrice(productNode), args, ctx);
+  }
+
+  // TODO: This is shitty. The formatter should, if necessary, look up the English string and use it.
+  // NOTE: ^ This TODO was taken from the corresponding function in CommerceFormatters in template-compiler:
+  // https://github.com/Squarespace/template-compiler/blob/main/core/src/main/java/com/squarespace/template/plugins/platform/CommerceFormatters.java/#L438
+  defaultSubscriptionPriceString(productNode: Node) {
+    const billingPeriodNode = this.getSubscriptionPlanBillingPeriodNode(productNode);
+
+    const hasMultiplePrices = commerceutil.hasVariedPrices(productNode);
+    const billingPeriodValue = this.getValueFromSubscriptionPlanBillingPeriod(billingPeriodNode);
+    const billingPeriodPlural = billingPeriodValue > 1;
+    const billingPeriodUnit = this.getUnitFromSubscriptionPlanBillingPeriod(billingPeriodNode);
+    const numBillingCycles = this.getNumBillingCyclesFromSubscriptionPlanNode(productNode);
+    let durationValue = billingPeriodValue * numBillingCycles;
+    let durationUnit = billingPeriodUnit;
+
+    const { PER_YEAR } = ProductPriceFormatter;
+
+    // If the duration is a multiple of 52 weeks or 12 months, convert to years.
+    // Otherwise, use the billing period unit for the duration unit.
+    if (durationValue > 0 && PER_YEAR[durationUnit] && durationValue % PER_YEAR[durationUnit] === 0) {
+      durationValue /= PER_YEAR[durationUnit];
+      durationUnit = ProductPriceFormatter.BILLING_PERIOD_YEARLY;
+    }
+
+    let subPriceString = (hasMultiplePrices ? 'from ' : '') +
+      '{price} every ' +
+      (billingPeriodPlural ? '{billingPeriodValue} ' : '') +
+      billingPeriodUnit.toLowerCase() +
+      (billingPeriodPlural ? 's' : '');
+
+    if (numBillingCycles > 0) {
+      subPriceString += ' for {duration} ' +
+        durationUnit.toLowerCase() +
+        (durationValue === 1 ? '' : 's');
+    }
+
+    return subPriceString;
+  }
+
+  getSubscriptionPlanBillingPeriodNode(item: Node) {
+    // BillingPeriod is represented as {value, unit} and is the period of time in between recurring billings
+    // e.g. {2, MONTH} means a subscriber is billed once every 2 months
+    return item.path(['structuredContent', 'subscriptionPlan', 'billingPeriod']);
+  }
+
+  getUnitFromSubscriptionPlanBillingPeriod(billingPeriodNode: Node) {
+    return billingPeriodNode.path(['unit']).asString();
+  }
+
+  getValueFromSubscriptionPlanBillingPeriod(billingPeriodNode: Node) {
+    return billingPeriodNode.path(['value']).asNumber();
+  }
+
+  getNumBillingCyclesFromSubscriptionPlanNode(item: Node) {
+    return item.path(['structuredContent', 'subscriptionPlan', 'numBillingCycles']).asNumber();
   }
 }
 
@@ -166,7 +350,7 @@ export class SubscriptionPriceFormatter extends Formatter {
         // That's because this block here is the from {price} so the from price needs to be the lowest possible price
         // taking into if a variant is onSale.
         const subscriptionFromPricingNode = commerceutil.getSubscriptionMoneyFromFirstPricingOptions(pricingOptions);
-        const productPriceFromTextNode = ctx.resolve(['localizedStrings', 'productPriceFromText']);
+        const productPriceFromTextNode = ctx.resolve(PRODUCT_PRICE_FROM_TEXT_PATH);
 
         subscriptionResults.fromText = !productPriceFromTextNode.isMissing() ?
           productPriceFromTextNode.asString() :
