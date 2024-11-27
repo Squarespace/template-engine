@@ -1,6 +1,11 @@
 import { replaceMappedChars } from '../util';
 
 /**
+ * Capitalize first letter of a string and lowercase the rest.
+ */
+export const capitalizeFirst = (str: string) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+
+/**
  * Strip text between '<' and '>' from string.
  */
 export const removeTags = (str: string) => {

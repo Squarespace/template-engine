@@ -44,9 +44,7 @@ export const getAmountFromMoneyNode = (moneyNode?: Node) => {
 
 export const getCurrencyFromMoneyNode = (moneyNode: Node): CurrencyType => {
   const currencyNode = moneyNode.path(['currency']);
-  const currency = !currencyNode.isMissing() ?
-    currencyNode.asString().trim() :
-    DEFAULT_MONEY_NODE.path(['currency']).asString();
+  const currency = !currencyNode.isMissing() ? currencyNode.asString().trim() : DEFAULT_MONEY_NODE.path(['currency']).asString();
 
   return currency as CurrencyType;
 };
@@ -60,7 +58,7 @@ export const getMoneyString = (moneyNode: Node, args: string[], ctx: Context): s
   if (useCLDRMode(ctx)) {
     const amount = getAmountFromMoneyNode(moneyNode);
     const currencyCode = getCurrencyFromMoneyNode(moneyNode);
-  
+
     return ctx.cldr?.Numbers.formatCurrency(amount, currencyCode, currencyOptions(args)) ?? '';
   } else {
     const legacyAmount = getLegacyPriceFromMoneyNode(moneyNode);
@@ -78,15 +76,13 @@ export const getSubscriptionMoneyFromFirstPricingOptions = (pricingOptions: Node
 
   const node = pricingOptions.get(0);
 
-  return isTruthy(node.path(['onSale']))
-    ? node.path(['salePriceMoney'])
-    : node.path(['priceMoney']);
+  return isTruthy(node.path(['onSale'])) ? node.path(['salePriceMoney']) : node.path(['priceMoney']);
 };
 
 export const getPricingOptionsAmongLowestVariant = (item: Node): Node | null => {
   const productType = getProductType(item);
   const structuredContent = item.path(['structuredContent']);
-  
+
   switch (productType) {
     case ProductType.PHYSICAL:
     case ProductType.SERVICE:
@@ -96,9 +92,7 @@ export const getPricingOptionsAmongLowestVariant = (item: Node): Node | null => 
       }
 
       const first = variants.get(0);
-      const moneyNode = isTruthy(first.path(['onSale']))
-        ? first.path(['salePriceMoney'])
-        : first.path(['priceMoney']);
+      const moneyNode = isTruthy(first.path(['onSale'])) ? first.path(['salePriceMoney']) : first.path(['priceMoney']);
 
       let pricingOptions = first.path(['pricingOptions']);
       let price = getAmountFromMoneyNode(moneyNode);
