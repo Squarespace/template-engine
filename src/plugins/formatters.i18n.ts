@@ -5,7 +5,7 @@ import { Variable } from '../variable';
 import { FormatterTable } from '../plugin';
 import { Formatter } from '../plugin';
 import { getTimeZone } from './util.timezone';
-import { parseDecimal, useCLDRMode } from './util.i18n';
+import { parseDecimal } from './util.i18n';
 import { currencyOptions, datetimeOptions, decimalOptions, intervalOptions, relativetimeOptions } from './options';
 import { splitVariable } from '../util';
 import { humanizeDate } from './util.content';
