@@ -117,15 +117,10 @@ test('money', () => {
   const badmoney = { decimalValue: 'abdef', currencyCode: 'USD' };
   expect(formatMoney(EN, badmoney, [])).toEqual('');
 
-  // Use CLDR mode
+  // Use value and currency instead of decimalValue and currencyCode
   money = { value: '155900.799', currency: 'EUR' };
-  let ctx: any = { featureFlags: { useCLDRMoneyFormat: true } };
+  let ctx: any = {};
   expect(formatMoney(EN, money, ['style:short'], ctx)).toEqual('€156K');
-
-  // New money format fails unless in CLDR mode
-  money = { value: '155900.799', currency: 'EUR' };
-  ctx = { featureFlags: { useCLDRMoneyFormat: false } };
-  expect(formatMoney(EN, money, ['style:short'], ctx)).toEqual('');
 });
 
 loader.paths('f-datetime-%N.html').forEach((path) => {

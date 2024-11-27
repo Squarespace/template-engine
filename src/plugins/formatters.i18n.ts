@@ -3,7 +3,6 @@ import { CurrencyType } from '@phensley/cldr-core';
 import { Context } from '../context';
 import { Variable } from '../variable';
 import { FormatterTable } from '../plugin';
-import { isTruthy } from '../node';
 import { Formatter } from '../plugin';
 import { getTimeZone } from './util.timezone';
 import { parseDecimal } from './util.i18n';
@@ -131,8 +130,6 @@ export class MessageFormatterImpl extends Formatter {
   }
 }
 
-const useCLDRMode = (ctx: Context) => isTruthy(ctx.resolve(['featureFlags', 'useCLDRMoneyFormat']));
-
 export class MoneyFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
@@ -140,10 +137,8 @@ export class MoneyFormatter extends Formatter {
     let decimalValue = node.path(['decimalValue']);
     let currencyNode = node.path(['currencyCode']);
     if (decimalValue.isMissing() || currencyNode.isMissing()) {
-      if (useCLDRMode(ctx)) {
-        decimalValue = node.path(['value']);
-        currencyNode = node.path(['currency']);
-      }
+      decimalValue = node.path(['value']);
+      currencyNode = node.path(['currency']);
 
       // No valid money node found.
       if (decimalValue.isMissing() || currencyNode.isMissing()) {
