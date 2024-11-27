@@ -17,6 +17,7 @@ import productCheckoutTemplate from './templates/product-checkout.json';
 import productRestockNotificationTemplate from './templates/product-restock-notification.json';
 import productScarcityTemplate from './templates/product-scarcity.json';
 import quantityInputTemplate from './templates/quantity-input.json';
+import subscriptionPriceTemplate from './templates/subscription-price.json';
 import summaryFormFieldAddressTemplate from './templates/summary-form-field-address.json';
 import summaryFormFieldCheckboxTemplate from './templates/summary-form-field-checkbox.json';
 import summaryFormFieldDateTemplate from './templates/summary-form-field-date.json';
@@ -146,13 +147,62 @@ export class ProductPriceFormatter extends Formatter {
 
 export class SubscriptionPriceFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
-    // Because ProductPriceFormatter has been missing impl for a while now
-    // I think it's ok if we don't implement SubscriptionPriceFormatter
-    // because both formatters would be used together and I don't see
-    // when these formatters would ever be rendered client.
-    // TODO: subscription-price impl if ProductPriceFormatter (above) is also implemented.
-    vars[0].set('not yet implemented');
-  }}
+    const first = vars[0];
+    const { node } = first;
+    const subscriptionResults: {
+      fromText?: string;
+      formattedFromPrice?: string;
+      formattedSubscriptionSalePriceText?: string;
+      formattedSubscriptionSalePrice?: string;
+      formattedNormalSubscriptionPriceText?: string;
+      formattedNormalSubscriptionPrice?: string;
+    } = {};
+
+    const pricingOptions = commerceutil.getPricingOptionsAmongLowestVariant(node);
+
+    if (pricingOptions != null && pricingOptions.size() > 0) {
+      if (commerceutil.hasVariedPrices(node)) {
+        // This will return either salePriceMoney or priceMoney depending on whether the onSale is true or false.
+        // That's because this block here is the from {price} so the from price needs to be the lowest possible price
+        // taking into if a variant is onSale.
+        const subscriptionFromPricingNode = commerceutil.getSubscriptionMoneyFromFirstPricingOptions(pricingOptions);
+        const productPriceFromTextNode = ctx.resolve(['localizedStrings', 'productPriceFromText']);
+
+        subscriptionResults.fromText = !productPriceFromTextNode.isMissing() ?
+          productPriceFromTextNode.asString() :
+          'from {fromPrice}';
+        subscriptionResults.formattedFromPrice = commerceutil.getMoneyString(subscriptionFromPricingNode, args, ctx);
+      }
+
+      const firstPricingOption = pricingOptions.get(0);
+      const isFirstPricingOptionOnSale = isTruthy(firstPricingOption.path(['onSale']));
+
+      if (isFirstPricingOptionOnSale) {
+        subscriptionResults.formattedSubscriptionSalePriceText = '{price}';
+        subscriptionResults.formattedSubscriptionSalePrice = this.getSalePriceMoney(firstPricingOption, args, ctx);
+      }
+
+      subscriptionResults.formattedNormalSubscriptionPriceText = '{price}';
+      subscriptionResults.formattedNormalSubscriptionPrice = this.getPriceMoney(firstPricingOption, args, ctx);
+    }
+
+    const subscriptionPriceInfo = executeTemplate(
+      ctx,
+      subscriptionPriceTemplate as unknown as RootCode,
+      new Node(subscriptionResults),
+      true,
+    );
+    first.set(subscriptionPriceInfo);
+  }
+
+  getSalePriceMoney(pricingOption: Node, args: string[], ctx: Context) {
+    return commerceutil.getMoneyString(pricingOption.path(['salePriceMoney']), args, ctx);
+  }
+
+  getPriceMoney(pricingOption: Node, args: string[], ctx: Context) {
+    return commerceutil.getMoneyString(pricingOption.path(['priceMoney']), args, ctx);
+  }
+}
 
 export class ProductQuickViewFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
