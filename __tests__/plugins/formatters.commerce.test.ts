@@ -71,12 +71,6 @@ loader.paths('f-product-quick-view-%N.html').forEach((path) => {
   test(`product quick view - ${path}`, () => loader.execute(path));
 });
 
-// TODO product-price
-
-// loader.paths('f-product-price-%N.html', 8).forEach((path) => {
-//   test(`product price - ${path}`, () => loader.execute(path));
-// });
-
 loader.paths('f-product-restock-notification-%N.html').forEach((path) => {
   test(`product-restock-notification - ${path}`, () => loader.execute(path));
 });
@@ -169,4 +163,140 @@ loader.paths('f-subscription-price-variants-with-same-pricing.html').forEach((pa
 
 loader.paths('f-subscription-price-no-pricing-options.html').forEach((path) => {
   test(`subscription price no pricing options - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-product-price-%N.html').forEach((path) => {
+  test(`product price - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-product-price-subscription-weekly.html').forEach((path) => {
+  test(`product price subscription weekly - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-product-price-subscription-bi-weekly.html').forEach((path) => {
+  test(`product price subscription bi-weekly - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-product-price-subscription-monthly.html').forEach((path) => {
+  test(`product price subscription monthly - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-product-price-subscription-bi-monthly.html').forEach((path) => {
+  test(`product price subscription bi-monthly - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-product-price-subscription-from-weekly.html').forEach((path) => {
+  test(`product price subscription from weekly - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-product-price-subscription-from-bi-weekly.html').forEach((path) => {
+  test(`product price subscription from bi-weekly - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-product-price-subscription-from-monthly.html').forEach((path) => {
+  test(`product price subscription from monthly - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-product-price-subscription-from-bi-monthly.html').forEach((path) => {
+  test(`product price subscription from bi-monthly - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-product-price-subscription-from-weekly-on-sale.html').forEach((path) => {
+  test(`product price subscription from weekly on-sale - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-product-price-subscription-on-sale-bi-monthly.html').forEach((path) => {
+  test(`product price subscription on-sale bi-monthly - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-product-price-subscription-on-sale-bi-weekly.html').forEach((path) => {
+  test(`product price subscription on-sale bi-weekly - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-product-price-subscription-on-sale-monthly.html').forEach((path) => {
+  test(`product price subscription on-sale monthly - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-product-price-subscription-on-sale-weekly.html').forEach((path) => {
+  test(`product price subscription on-sale weekly - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-product-price-subscription-weekly-localized.html').forEach((path) => {
+  test(`product price subscription weekly localized - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-product-price-subscription-weekly-localized-multiple.html').forEach((path) => {
+  test(`product price subscription weekly localized multiple - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-product-price-finite-subscription-weekly.html').forEach((path) => {
+  test(`product price finite subscription weekly - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-product-price-finite-subscription-bi-weekly.html').forEach((path) => {
+  test(`product price finite subscription bi-weekly - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-product-price-finite-subscription-monthly.html').forEach((path) => {
+  test(`product price finite subscription monthly - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-product-price-finite-subscription-bi-monthly.html').forEach((path) => {
+  test(`product price finite subscription bi-monthly - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-product-price-finite-subscription-bi-weekly-for-a-year.html').forEach((path) => {
+  test(`product price finite subscription bi-weekly for a year - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-product-price-finite-subscription-monthly-for-a-year.html').forEach((path) => {
+  test(`product price finite subscription monthly for a year - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-product-price-finite-subscription-from-weekly.html').forEach((path) => {
+  test(`product price finite subscription from weekly - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-product-price-finite-subscription-from-bi-weekly.html').forEach((path) => {
+  test(`product price finite subscription from bi-weekly - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-product-price-finite-subscription-from-monthly.html').forEach((path) => {
+  test(`product price finite subscription from monthly - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-product-price-finite-subscription-from-bi-monthly.html').forEach((path) => {
+  test(`product price finite subscription from bi-monthly - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-product-price-finite-subscription-from-weekly-on-sale.html').forEach((path) => {
+  test(`product price finite subscription from weekly on-sale - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-product-price-finite-subscription-on-sale-bi-monthly.html').forEach((path) => {
+  test(`product price finite subscription on-sale bi-monthly - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-product-price-finite-subscription-on-sale-bi-weekly.html').forEach((path) => {
+  test(`product price finite subscription on-sale bi-weekly - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-product-price-finite-subscription-on-sale-monthly.html').forEach((path) => {
+  test(`product price finite subscription on-sale monthly - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-product-price-finite-subscription-on-sale-weekly.html').forEach((path) => {
+  test(`product price finite subscription on-sale weekly - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-product-price-finite-subscription-weekly-localized.html').forEach((path) => {
+  test(`product price finite subscription weekly localized - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-product-price-finite-subscription-weekly-localized-multiple.html').forEach((path) => {
+  test(`product price finite subscription weekly localized multiple - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-product-price-subscription-weekly-plan-unavailable.html').forEach((path) => {
+  test(`product price subscription weekly plan unavailable - ${path}`, () => loader.execute(path));
 });

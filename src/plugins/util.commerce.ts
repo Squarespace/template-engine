@@ -91,7 +91,7 @@ export const getPricingOptionsAmongLowestVariant = (item: Node): Node | null => 
     case ProductType.PHYSICAL:
     case ProductType.SERVICE:
       const variants = structuredContent.path(['variants']);
-      if (variants.size() === 0) {
+      if (variants.type !== Type.ARRAY || variants.size() === 0) {
         return null;
       }
 
@@ -122,7 +122,8 @@ export const getPricingOptionsAmongLowestVariant = (item: Node): Node | null => 
   }
 };
 
-export const getFromPrice = (item: Node): Node | undefined => {
+// NOTE: This is a port of getLowestPriceAmongVariants from template-compiler
+export const getFromPrice = (item: Node): Node => {
   const type = getProductType(item);
   const content = item.get('structuredContent');
 
@@ -138,9 +139,6 @@ export const getFromPrice = (item: Node): Node | undefined => {
       const first = variants.get(0);
       let moneyNode = isTruthy(first.path(['onSale'])) ? first.path(['salePriceMoney']) : first.path(['priceMoney']);
       let price = getAmountFromMoneyNode(moneyNode);
-      if (price === undefined) {
-        return undefined;
-      }
 
       for (let i = 1; i < variants.size(); i++) {
         const v = variants.get(i);
@@ -164,7 +162,8 @@ export const getFromPrice = (item: Node): Node | undefined => {
   }
 };
 
-export const getNormalPrice = (item: Node): Node | undefined => {
+// NOTE: This is a port of getHighestPriceAmongVariants from template-compiler
+export const getNormalPrice = (item: Node): Node => {
   const type = getProductType(item);
   const content = item.get('structuredContent');
 
@@ -177,16 +176,13 @@ export const getNormalPrice = (item: Node): Node | undefined => {
       if (variants.type !== Type.ARRAY || size === 0) {
         return DEFAULT_MONEY_NODE;
       }
-      let moneyNode = variants.get(0);
+      let moneyNode = variants.get(0).path(['priceMoney']);
       let price = getAmountFromMoneyNode(moneyNode);
-      if (price === undefined) {
-        return undefined;
-      }
 
       for (let i = 1; i < variants.size(); i++) {
         const currentNode = variants.get(i).path(['priceMoney']);
         const curr = getAmountFromMoneyNode(currentNode)!;
-        if (curr && curr.compare(price) > 0) {
+        if (curr.compare(price) > 0) {
           price = curr;
           moneyNode = currentNode;
         }
@@ -204,7 +200,8 @@ export const getNormalPrice = (item: Node): Node | undefined => {
   }
 };
 
-export const getSalePrice = (item: Node): Node | undefined => {
+// NOTE: This is a port of getSalePriceMoneyNode from template-compiler
+export const getSalePrice = (item: Node): Node => {
   const type = getProductType(item);
   const content = item.get('structuredContent');
 
@@ -232,7 +229,7 @@ export const getSalePrice = (item: Node): Node | undefined => {
           }
         }
       }
-      return salePrice ? saleNode : DEFAULT_MONEY_NODE;
+      return saleNode ?? DEFAULT_MONEY_NODE;
     }
 
     case ProductType.DIGITAL: {

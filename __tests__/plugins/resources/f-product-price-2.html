@@ -3,8 +3,8 @@
   "structuredContent": {
     "productType": 1,
     "variants": [
-      {"price": 10000},
-      {"onSale": true, "salePrice": 5000}
+      {"price": 10000, "priceMoney": { "value": "100" } },
+      {"onSale": true, "salePrice": 5000, "salePriceMoney": { "value": "50" } }
     ]
   }
 }
@@ -13,4 +13,7 @@
 {@|product-price}
 
 :OUTPUT
-<div class="product-price">from <span class="sqs-money-native">50.00</span></div>
+<div class="product-price">
+from <span class="sqs-money-native">50.00</span>
+
+</div>
