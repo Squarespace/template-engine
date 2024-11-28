@@ -1,4 +1,3 @@
-import capitalize from 'lodash/capitalize';
 import { Context } from '../context';
 import { ProductType } from './enums';
 import { Node } from '../node';
@@ -245,12 +244,12 @@ export class ProductPriceFormatter extends Formatter {
     // This string needs to match the correct translation template in v6 products-2.0-en-US.json.
     let localizedStringKey = 'productPrice__' +
       `${hasMultiplePrices ? 'multiplePrices' : 'singlePrice'}__` +
-      `${billingPeriodValue === 1 ? '1' : 'n'}${capitalize(billingPeriodUnit)}ly__`;
+      `${billingPeriodValue === 1 ? '1' : 'n'}${stringutil.capitalizeFirst(billingPeriodUnit)}ly__`;
 
     if (durationValue == 0) {
       localizedStringKey += 'indefinite';
     } else {
-      localizedStringKey += `limited__${durationValue === 1 ? '1' : 'n'}${capitalize(durationUnit)}s`;
+      localizedStringKey += `limited__${durationValue === 1 ? '1' : 'n'}${stringutil.capitalizeFirst(durationUnit)}s`;
     }
 
     const localizedStringNode = ctx.resolve(['localizedStrings', localizedStringKey]);
