@@ -210,7 +210,7 @@ test('count', () => {
 
   vars = variables('hello');
   Core.count.apply([], vars, CTX);
-  expect(vars[0].get()).toEqual(0);
+  expect(vars[0].get()).toEqual(5);
 
   vars = variables(true);
   Core.count.apply([], vars, CTX);

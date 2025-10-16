@@ -81,7 +81,7 @@ export class CountFormatter extends Formatter {
     const node = first.node;
     if (node.type === Type.OBJECT) {
       first.set(Object.keys(node.value).length);
-    } else if (node.type === Type.ARRAY) {
+    } else if (node.type === Type.ARRAY || node.type === Type.STRING) {
       first.set(node.value.length);
     } else {
       first.set(0);
