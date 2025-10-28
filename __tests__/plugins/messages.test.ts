@@ -37,7 +37,7 @@ test('message formats', () => {
 
   expect(f['datetime-interval']([], [])).toEqual('');
   expect(f['datetime-interval'](undefined as any, [])).toEqual('');
-  expect(f['datetime-interval']([date1, date2], [])).toEqual('Mar 3 – Apr 3, 2021');
+  expect(f['datetime-interval']([date1, date2], [])).toEqual('Mar 3 – Apr 3, 2021');
 });
 
 test('custom converter', () => {

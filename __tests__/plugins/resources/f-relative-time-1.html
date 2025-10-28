@@ -18,12 +18,15 @@
 
 :TEMPLATE
 {.repeated section dates}
-{start, end|relative-time}{.end}
+{start, end|relative-time}
+{start, end|relative-time allowWeeks:true}{.end}
 {.repeated section timestamps}
 {@|relative-time context:begin-sentence}{.end}
 
 :OUTPUT
+in 12 days
 in 2 weeks
+in 2 hours
 in 2 hours
 
 In 2 hours

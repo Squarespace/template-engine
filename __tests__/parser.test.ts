@@ -30,7 +30,7 @@ const parser = (str: string) => {
 
 test('initialization failures', () => {
   const matcher = undefined as unknown as Matcher;
-  expect(() => new Parser('hello', {} as Sink, matcher)).toThrowError();
+  expect(() => new Parser('hello', {} as Sink, matcher)).toThrow();
 });
 
 test('degenerate cases', () => {

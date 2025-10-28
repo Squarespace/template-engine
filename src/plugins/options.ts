@@ -336,6 +336,9 @@ const relativetimeOption = (arg: string, val: string, options: RelativeTimeForma
     case 'numericOnly':
       options.numericOnly = val === 'true';
       break;
+    case 'allowWeeks':
+      options.allowWeeks = val === 'true';
+      break;
     case 'alwaysNow':
       options.alwaysNow = val === 'true';
       break;

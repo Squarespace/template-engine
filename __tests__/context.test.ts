@@ -160,7 +160,7 @@ test('too many pops', () => {
   const ctx = new Context({ a: 1 });
   ctx.pushSection(['a']);
   ctx.pop();
-  expect(() => ctx.pop()).toThrowError(Error);
+  expect(() => ctx.pop()).toThrow(Error);
 });
 
 test('resolve missing', () => {

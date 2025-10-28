@@ -135,15 +135,15 @@ test('datetime', () => {
   expect(formatDatetime(DE, d, ZONE_NY, args)).toEqual('12. März 2018');
 
   args = ['date:full', 'time:full'];
-  expect(formatDatetime(EN, d, ZONE_NY, args)).toEqual('Monday, March 12, 2018 at 1:48:54 PM Eastern Daylight Time');
+  expect(formatDatetime(EN, d, ZONE_NY, args)).toEqual('Monday, March 12, 2018 at 1:48:54 PM Eastern Daylight Time');
   expect(formatDatetime(DE, d, ZONE_NY, args)).toEqual(
     'Montag, 12. März 2018 um 13:48:54 Nordamerikanische Ostküsten-Sommerzeit',
   );
 
   args = ['time:medium'];
-  expect(formatDatetime(EN, d, ZONE_LON, args)).toEqual('5:48:54 PM');
-  expect(formatDatetime(EN, d, ZONE_NY, args)).toEqual('1:48:54 PM');
-  expect(formatDatetime(EN, d, ZONE_LA, args)).toEqual('10:48:54 AM');
+  expect(formatDatetime(EN, d, ZONE_LON, args)).toEqual('5:48:54 PM');
+  expect(formatDatetime(EN, d, ZONE_NY, args)).toEqual('1:48:54 PM');
+  expect(formatDatetime(EN, d, ZONE_LA, args)).toEqual('10:48:54 AM');
 
   // Mixed date/time and skeleton
   args = ['date:medium', 'time:Bh'];
@@ -188,9 +188,9 @@ test('datetime-interval', () => {
   // March 12, 2018 5:48:54 PM UTC
   const start = 1520876934000;
   const args: string[] = [];
-  expect(formatInterval(EN, start, start + 2000, ZONE_NY, args)).toEqual('1:48:54 PM');
-  expect(formatInterval(EN, start, start + 12000, ZONE_NY, args)).toEqual('1:48 – 1:49 PM');
-  expect(formatInterval(EN, start, start + ONE_DAY_MS, ZONE_NY, args)).toEqual('Mar 12 – 13, 2018');
+  expect(formatInterval(EN, start, start + 2000, ZONE_NY, args)).toEqual('1:48 PM');
+  expect(formatInterval(EN, start, start + 12000, ZONE_NY, args)).toEqual('1:48 – 1:49 PM');
+  expect(formatInterval(EN, start, start + ONE_DAY_MS, ZONE_NY, args)).toEqual('Mar 12 – 13, 2018');
 
   // Undefined cldr produces empty output
   expect(formatInterval(undefined, start, start + 2000, ZONE_NY, args)).toEqual('');
@@ -229,7 +229,7 @@ test('message', () => {
 
   ctx = { website: { timeZone: 'America/Los_Angeles' }, epoch: 1582648395000 };
   args = ['epoch'];
-  expect(formatMessage(EN, 'date {0 datetime time:full}', args, ctx)).toEqual('date 8:33:15 AM Pacific Standard Time');
+  expect(formatMessage(EN, 'date {0 datetime time:full}', args, ctx)).toEqual('date 8:33:15 AM Pacific Standard Time');
 
   ctx = { n: '123456.789' };
   args = ['n'];
@@ -237,7 +237,7 @@ test('message', () => {
 
   ctx = { s: 1582648395000, e: 1583748395000 };
   args = ['s', 'e'];
-  expect(formatMessage(EN, 'inv {0;1 datetime-interval}', args, ctx)).toEqual('inv Feb 25 – Mar 9, 2020');
+  expect(formatMessage(EN, 'inv {0;1 datetime-interval}', args, ctx)).toEqual('inv Feb 25 – Mar 9, 2020');
 
   // Undefined cldr produces empty output
   expect(formatMessage(undefined, '{0}', args, ctx)).toEqual('');
@@ -269,7 +269,7 @@ test('relative time', () => {
   e = start.add({ millis: -100 }).unixEpoch();
   expect(formatRelativeTime(EN, base, variables(e), ['numericOnly:true'])).toEqual('0 seconds ago');
 
-  e = start.add({ year: -1.6 }).unixEpoch();
+  e = start.add({ year: -2 }).unixEpoch();
   expect(formatRelativeTime(EN, base, variables(e), args)).toEqual('2 years ago');
   expect(formatRelativeTime(DE, base, variables(e), args)).toEqual('Vor 2 Jahren');
   expect(formatRelativeTime(ES, base, variables(e), args)).toEqual('Hace 2 años');
@@ -284,11 +284,16 @@ test('relative time', () => {
   expect(formatRelativeTime(EN, undefined, variables(base, e), args)).toEqual('6 months ago');
 
   e = start.add({ day: -27 }).unixEpoch();
-  expect(formatRelativeTime(EN, base, variables(e), args)).toEqual('4 weeks ago');
-  expect(formatRelativeTime(DE, base, variables(e), args)).toEqual('Vor 4 Wochen');
-  expect(formatRelativeTime(ES, base, variables(e), args)).toEqual('Hace 4 semanas');
+  const weekargs = [...args, 'allowWeeks:true'];
+  expect(formatRelativeTime(EN, base, variables(e), weekargs)).toEqual('4 weeks ago');
+  expect(formatRelativeTime(DE, base, variables(e), weekargs)).toEqual('Vor 4 Wochen');
+  expect(formatRelativeTime(ES, base, variables(e), weekargs)).toEqual('Hace 4 semanas');
+  expect(formatRelativeTime(EN, undefined, variables(base, e), weekargs)).toEqual('4 weeks ago');
 
-  expect(formatRelativeTime(EN, undefined, variables(base, e), args)).toEqual('4 weeks ago');
+  expect(formatRelativeTime(EN, base, variables(e), args)).toEqual('27 days ago');
+  expect(formatRelativeTime(DE, base, variables(e), args)).toEqual('Vor 27 Tagen');
+  expect(formatRelativeTime(ES, base, variables(e), args)).toEqual('Hace 27 días');
+  expect(formatRelativeTime(EN, undefined, variables(base, e), args)).toEqual('27 days ago');
 
   e = start.add({ hour: -27 }).unixEpoch();
   expect(formatRelativeTime(EN, base, variables(e), args)).toEqual('Yesterday');
