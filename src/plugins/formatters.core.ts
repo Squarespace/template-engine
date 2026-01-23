@@ -243,6 +243,17 @@ export class KeyByFormatter extends Formatter {
   }
 }
 
+const NEWLINE = /\n/g;
+
+export class LineBreaksFormatter extends Formatter {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
+    const first = vars[0];
+    const value = first.node.asString();
+    const replacement = value.replace(NEWLINE, '<br/>');
+    first.set(replacement);
+  }
+}
+
 export class LookupFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
@@ -419,6 +430,7 @@ export const CORE_FORMATTERS: FormatterTable = {
   json: new JsonFormatter(),
   'json-pretty': new JsonPretty(),
   'key-by': new KeyByFormatter(),
+  'line-breaks': new LineBreaksFormatter(),
   lookup: new LookupFormatter(),
   mod: new ModFormatter(),
   output: new OutputFormatter(),
