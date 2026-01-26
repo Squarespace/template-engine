@@ -462,6 +462,26 @@ loader.paths('f-macro-ctx-%N.html').forEach((path) => {
   test(`apply macro ctx - ${path}`, () => loader.execute(path));
 });
 
+test('line-breaks', () => {
+  const ctx = new Context({});
+
+  let vars = variables('');
+  Core['line-breaks'].apply([], vars, ctx);
+  expect(vars[0].get()).toEqual('');
+
+  vars = variables('  \n  ');
+  Core['line-breaks'].apply([], vars, ctx);
+  expect(vars[0].get()).toEqual('  <br/>  ');
+
+  vars = variables('A\nB\n\n\nC\nD');
+  Core['line-breaks'].apply([], vars, ctx);
+  expect(vars[0].get()).toEqual('A<br/>B<br/><br/><br/>C<br/>D');
+});
+
+loader.paths('f-line-breaks-%N.html').forEach((path) => {
+  test(`line-breaks - ${path}`, () => loader.execute(path));
+});
+
 loader.paths('f-output-%N.html').forEach((path) => {
   test(`output - ${path}`, () => loader.execute(path));
 });
