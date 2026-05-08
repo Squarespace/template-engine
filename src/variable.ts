@@ -5,7 +5,10 @@ import { Node } from './node';
  * multiple values through a formatter chain.
  */
 export class Variable {
-  constructor(readonly name: string, public node: Node) {
+  constructor(
+    readonly name: string,
+    public node: Node,
+  ) {
     this.set(node);
   }
 

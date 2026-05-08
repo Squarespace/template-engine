@@ -41,7 +41,10 @@ export abstract class CalendarDate {
   /**
    * Minimal fields required to construct any calendar date.
    */
-  protected constructor(protected readonly _firstDay: number, protected readonly _minDays: number) {
+  protected constructor(
+    protected readonly _firstDay: number,
+    protected readonly _minDays: number,
+  ) {
     // Compute week fields on demand.
     this._fields[DateField.WEEK_OF_YEAR] = NULL;
     this._fields[DateField.YEAR_WOY] = NULL;
@@ -294,7 +297,7 @@ export abstract class CalendarDate {
     minDays: number,
     dow: number,
     _dom: number,
-    doy: number
+    doy: number,
   ): void {
     const f = this._fields;
     const eyear = f[DateField.EXTENDED_YEAR];
@@ -412,7 +415,7 @@ const computeBaseFields = (f: number[]): void => {
 const checkJDRange = (jd: number): void => {
   if (jd < CalendarConstants.JD_MIN || jd > CalendarConstants.JD_MAX) {
     throw new Error(
-      `Julian day ${jd} is outside the supported range of this library: ` + `${ConstantsDesc.JD_MIN} to ${ConstantsDesc.JD_MAX}`
+      `Julian day ${jd} is outside the supported range of this library: ` + `${ConstantsDesc.JD_MIN} to ${ConstantsDesc.JD_MAX}`,
     );
   }
 };

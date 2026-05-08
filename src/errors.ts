@@ -43,19 +43,19 @@ export const notAllowedAtRoot = (inst: Instruction | Opcode) => assembler(`Instr
 
 export const stateEOFNotReached = () =>
   assembler(
-    'Machine never processed EOF, indicating (a) it was never fed an EOF ' + '(bad test?) or (b) the state machine has a bug.'
+    'Machine never processed EOF, indicating (a) it was never fed an EOF ' + '(bad test?) or (b) the state machine has a bug.',
   );
 
 export const transitionFromEOF = (inst: Instruction | Opcode) =>
   assembler(
     `${info(inst)} Attempt to transition from the EOF state. ` +
       'This is either a bug in the state machine or instructions were fed to the state ' +
-      'machine after EOF.'
+      'machine after EOF.',
   );
 
 export const unclosed = (inst: Instruction) =>
   assembler(
-    `Unclosed ${info(inst)}: perhaps an EOF was not fed to the machine? ` + 'If not, this represents a bug in the state machine.'
+    `Unclosed ${info(inst)}: perhaps an EOF was not fed to the machine? ` + 'If not, this represents a bug in the state machine.',
   );
 
 export const rootPop = () =>

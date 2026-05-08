@@ -676,7 +676,10 @@ export class Expr {
   maxTokens: number;
   maxStringLen: number;
 
-  constructor(private raw: string, opts: ExprOptions = {}) {
+  constructor(
+    private raw: string,
+    opts: ExprOptions = {},
+  ) {
     this.maxTokens = opts.maxTokens || 0;
     this.maxStringLen = opts.maxStringLen || 0;
     this.tokenize(raw, 0, raw.length);

@@ -31,19 +31,22 @@ export const enum_ = <T extends string, R extends EnumMap>(kind: T, map: R): Enu
   const names: { [x: string]: EnumValue<T> } = {};
   const codes: { [x: number]: EnumValue<T> } = {};
   const seen = new Set<number>();
-  const res = Object.keys(map).reduce((prev: Enum<T, R>, curr: keyof R) => {
-    const [code, name] = map[curr];
-    const val = { kind, code, name };
-    prev[curr] = val;
-    _values.push(val);
-    names[name] = val;
-    codes[code] = val;
-    if (seen.has(code)) {
-      throw new Error(`Found non-unique enum code ${code} already mapped to ${codes[code]}`);
-    }
-    seen.add(code);
-    return prev;
-  }, {} as Enum<T, R>);
+  const res = Object.keys(map).reduce(
+    (prev: Enum<T, R>, curr: keyof R) => {
+      const [code, name] = map[curr];
+      const val = { kind, code, name };
+      prev[curr] = val;
+      _values.push(val);
+      names[name] = val;
+      codes[code] = val;
+      if (seen.has(code)) {
+        throw new Error(`Found non-unique enum code ${code} already mapped to ${codes[code]}`);
+      }
+      seen.add(code);
+      return prev;
+    },
+    {} as Enum<T, R>,
+  );
 
   // Sort returns -1 or 1 since codes cannot be equal
   _values.sort((a, b) => (a.code < b.code ? -1 : 1));

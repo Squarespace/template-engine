@@ -54,7 +54,7 @@ test('unique codes', () => {
       FOO: [1, 'Foo'],
       BAR: [2, 'Bar'],
       BAZ: [1, 'Baz'],
-    })
+    }),
   ).toThrow(Error);
 });
 

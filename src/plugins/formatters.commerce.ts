@@ -171,27 +171,15 @@ export class ProductPriceFormatter extends Formatter {
       this.resolveTemplateVariablesForOTPProduct(args, ctx, node, templateData);
     }
 
-    const priceInfo = executeTemplate(
-      ctx,
-      productPriceTemplate as unknown as RootCode,
-      new Node(templateData),
-      true,
-    );
+    const priceInfo = executeTemplate(ctx, productPriceTemplate as unknown as RootCode, new Node(templateData), true);
     first.set(priceInfo);
   }
 
-  resolveTemplateVariablesForOTPProduct(
-    args: string[],
-    ctx: Context,
-    productNode: Node,
-    templateData: ProductPriceTemplateData,
-  ) {
+  resolveTemplateVariablesForOTPProduct(args: string[], ctx: Context, productNode: Node, templateData: ProductPriceTemplateData) {
     if (commerceutil.hasVariedPrices(productNode)) {
       const productPriceFromTextNode = ctx.resolve(PRODUCT_PRICE_FROM_TEXT_PATH);
 
-      templateData.fromText = !productPriceFromTextNode.isMissing() ?
-          productPriceFromTextNode.asString() :
-          'from {fromPrice}';
+      templateData.fromText = !productPriceFromTextNode.isMissing() ? productPriceFromTextNode.asString() : 'from {fromPrice}';
       templateData.formattedFromPrice = commerceutil.getMoneyString(commerceutil.getFromPrice(productNode), args, ctx);
     }
 
@@ -214,10 +202,10 @@ export class ProductPriceFormatter extends Formatter {
 
     if (billingPeriodNode.isMissing()) {
       const productPriceUnavailableTextNode = ctx.resolve(['localizedStrings', 'productPriceUnavailable']);
-      
-      templateData.fromText = !productPriceUnavailableTextNode.isMissing() ?
-        productPriceUnavailableTextNode.asString() :
-        'Unavailable';
+
+      templateData.fromText = !productPriceUnavailableTextNode.isMissing()
+        ? productPriceUnavailableTextNode.asString()
+        : 'Unavailable';
       templateData.formattedFromPrice = 'true';
       return;
     }
@@ -233,7 +221,7 @@ export class ProductPriceFormatter extends Formatter {
 
     // If the duration is a multiple of 52 weeks or 12 months, convert to years.
     // Otherwise, use the billing period unit for the duration unit.
-    if (durationValue > 0 && PER_YEAR[durationUnit] && (durationValue % PER_YEAR[durationUnit]) === 0) {
+    if (durationValue > 0 && PER_YEAR[durationUnit] && durationValue % PER_YEAR[durationUnit] === 0) {
       durationValue /= PER_YEAR[durationUnit];
       durationUnit = ProductPriceFormatter.BILLING_PERIOD_YEARLY;
     }
@@ -242,7 +230,8 @@ export class ProductPriceFormatter extends Formatter {
     templateData.duration = durationValue;
 
     // This string needs to match the correct translation template in v6 products-2.0-en-US.json.
-    let localizedStringKey = 'productPrice__' +
+    let localizedStringKey =
+      'productPrice__' +
       `${hasMultiplePrices ? 'multiplePrices' : 'singlePrice'}__` +
       `${billingPeriodValue === 1 ? '1' : 'n'}${stringutil.capitalizeFirst(billingPeriodUnit)}ly__`;
 
@@ -253,9 +242,9 @@ export class ProductPriceFormatter extends Formatter {
     }
 
     const localizedStringNode = ctx.resolve(['localizedStrings', localizedStringKey]);
-    const templateForPrice = !localizedStringNode.isMissing() ?
-      localizedStringNode.asString() :
-      this.defaultSubscriptionPriceString(productNode);
+    const templateForPrice = !localizedStringNode.isMissing()
+      ? localizedStringNode.asString()
+      : this.defaultSubscriptionPriceString(productNode);
 
     if (hasMultiplePrices) {
       templateData.fromText = templateForPrice;
@@ -294,16 +283,15 @@ export class ProductPriceFormatter extends Formatter {
       durationUnit = ProductPriceFormatter.BILLING_PERIOD_YEARLY;
     }
 
-    let subPriceString = (hasMultiplePrices ? 'from ' : '') +
+    let subPriceString =
+      (hasMultiplePrices ? 'from ' : '') +
       '{price} every ' +
       (billingPeriodPlural ? '{billingPeriodValue} ' : '') +
       billingPeriodUnit.toLowerCase() +
       (billingPeriodPlural ? 's' : '');
 
     if (numBillingCycles > 0) {
-      subPriceString += ' for {duration} ' +
-        durationUnit.toLowerCase() +
-        (durationValue === 1 ? '' : 's');
+      subPriceString += ' for {duration} ' + durationUnit.toLowerCase() + (durationValue === 1 ? '' : 's');
     }
 
     return subPriceString;
@@ -351,9 +339,9 @@ export class SubscriptionPriceFormatter extends Formatter {
         const subscriptionFromPricingNode = commerceutil.getSubscriptionMoneyFromFirstPricingOptions(pricingOptions);
         const productPriceFromTextNode = ctx.resolve(PRODUCT_PRICE_FROM_TEXT_PATH);
 
-        subscriptionResults.fromText = !productPriceFromTextNode.isMissing() ?
-          productPriceFromTextNode.asString() :
-          'from {fromPrice}';
+        subscriptionResults.fromText = !productPriceFromTextNode.isMissing()
+          ? productPriceFromTextNode.asString()
+          : 'from {fromPrice}';
         subscriptionResults.formattedFromPrice = commerceutil.getMoneyString(subscriptionFromPricingNode, args, ctx);
       }
 

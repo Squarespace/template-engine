@@ -135,7 +135,10 @@ export class GalleryMetaPredicate extends PredicatePlugin {
 }
 
 export class GallerySelectPredicate extends PredicatePlugin {
-  constructor(private option: string, private name: string) {
+  constructor(
+    private option: string,
+    private name: string,
+  ) {
     super();
   }
 
@@ -200,7 +203,10 @@ export class PromotedBlockTypePredicate extends PredicatePlugin {
 
 export class PromotedRecordTypePredicate extends PredicatePlugin {
   private code: number;
-  constructor(recordType: RecordType, private promotedBlockType: string) {
+  constructor(
+    recordType: RecordType,
+    private promotedBlockType: string,
+  ) {
     super();
     this.code = recordType.code;
   }

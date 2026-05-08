@@ -35,7 +35,7 @@ export class Parser {
     private sink: Sink,
     private matcher: Matcher,
     private formatters: FormatterTable = {},
-    private predicates: PredicateTable = {}
+    private predicates: PredicateTable = {},
   ) {
     if (!(sink instanceof Sink)) {
       throw new Error('Argument "sink" must be a Sink instance.');

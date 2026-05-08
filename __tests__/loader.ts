@@ -26,7 +26,10 @@ interface DecoderMap {
  * Loads test case files relative to the __tests__ directory.
  */
 export class TestLoader {
-  constructor(private directory: string, private decoders: Partial<DecoderMap>) {}
+  constructor(
+    private directory: string,
+    private decoders: Partial<DecoderMap>,
+  ) {}
 
   /**
    * Return all paths in directory that match the numbered pattern.

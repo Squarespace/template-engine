@@ -9,7 +9,10 @@ export class Frame {
   private variables?: Map<string, Node>;
   private macros?: Map<string, Code>;
 
-  constructor(readonly node: Node, readonly parent?: Frame) {}
+  constructor(
+    readonly node: Node,
+    readonly parent?: Frame,
+  ) {}
 
   /**
    * Adds a variable to this frame.

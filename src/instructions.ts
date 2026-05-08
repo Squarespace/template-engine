@@ -176,7 +176,10 @@ export type Code =
 const empty = (): Code[] => [];
 
 export class BaseInstruction {
-  constructor(readonly type: Opcode, readonly code: Code) {}
+  constructor(
+    readonly type: Opcode,
+    readonly code: Code,
+  ) {}
 }
 
 export type Instruction =
