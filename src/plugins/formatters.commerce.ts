@@ -156,8 +156,8 @@ export class ProductPriceFormatter extends Formatter {
   private static BILLING_PERIOD_WEEKLY = 'WEEK';
   private static BILLING_PERIOD_YEARLY = 'YEAR';
   private static PER_YEAR = {
-    [this.BILLING_PERIOD_WEEKLY]: 52,
-    [this.BILLING_PERIOD_MONTHLY]: 12,
+    [ProductPriceFormatter.BILLING_PERIOD_WEEKLY]: 52,
+    [ProductPriceFormatter.BILLING_PERIOD_MONTHLY]: 12,
   };
 
   apply(args: string[], vars: Variable[], ctx: Context): void {
@@ -233,7 +233,7 @@ export class ProductPriceFormatter extends Formatter {
 
     // If the duration is a multiple of 52 weeks or 12 months, convert to years.
     // Otherwise, use the billing period unit for the duration unit.
-    if (durationValue > 0 && PER_YEAR[durationUnit] && durationValue % PER_YEAR[durationUnit] === 0) {
+    if (durationValue > 0 && PER_YEAR[durationUnit] && (durationValue % PER_YEAR[durationUnit]) === 0) {
       durationValue /= PER_YEAR[durationUnit];
       durationUnit = ProductPriceFormatter.BILLING_PERIOD_YEARLY;
     }

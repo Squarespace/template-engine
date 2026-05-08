@@ -3,7 +3,7 @@ import { isTruthy, Node } from '../node';
 import { ProductType } from './enums';
 import { Type } from '../types';
 import { parseDecimal, useCLDRMode } from './util.i18n';
-import { Context } from 'src/context';
+import { Context } from '../context';
 import { currencyOptions } from './options';
 
 const productTypePath = ['structuredContent', 'productType'];

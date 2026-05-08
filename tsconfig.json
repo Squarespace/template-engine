@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "module": "commonjs",
+    "target": "es2015",
+    "module": "es2022",
+    "types": [
+      "jest", "node"
+    ],
     "lib": ["es6", "dom"],
-		"allowJs": false,
-		"moduleResolution": "node",
+    "allowJs": false,
     "declaration": true,
-    "downlevelIteration": false,
     "removeComments": false,
     "sourceMap": true,
     "inlineSources": true,
@@ -18,10 +19,10 @@
     "noFallthroughCasesInSwitch": false,
     "esModuleInterop": true,
     "resolveJsonModule": true,
-		"baseUrl": ".",
-		"outDir": "lib"
+    "rootDir": "src",
+    "outDir": "lib"
   },
-	"include": [
-		"src/**/*"
-	]
+  "include": [
+    "src/**/*"
+  ]
 }
