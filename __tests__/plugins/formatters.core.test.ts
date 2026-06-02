@@ -370,6 +370,78 @@ loader.paths('f-json-pretty-%N.html').forEach((path) => {
   test(`json pretty - ${path}`, () => loader.execute(path));
 });
 
+test('find-first', () => {
+  // no args: return first element unconditionally
+  let vars = variables(['a', 'b', 'c']);
+  Core['find-first'].apply([], vars, CTX);
+  expect(vars[0].get()).toEqual('a');
+
+  // empty array → missing
+  vars = variables([]);
+  Core['find-first'].apply([], vars, CTX);
+  expect(vars[0].node.isMissing()).toBe(true);
+
+  // non-array → missing
+  vars = variables('not-an-array');
+  Core['find-first'].apply([], vars, CTX);
+  expect(vars[0].node.isMissing()).toBe(true);
+
+  // no args: first object element
+  vars = variables([{ x: 1 }, { x: 2 }]);
+  Core['find-first'].apply([], vars, CTX);
+  expect(vars[0].get()).toEqual({ x: 1 });
+
+  // 1 arg: find first element where path is truthy
+  vars = variables([{ id: 'a', enabled: false }, { id: 'b', enabled: true }, { id: 'c', enabled: true }]);
+  Core['find-first'].apply(['enabled'], vars, CTX);
+  expect(vars[0].get()).toEqual({ id: 'b', enabled: true });
+
+  // 1 arg: none match → missing
+  vars = variables([{ id: 'a', enabled: false }, { id: 'b' }]);
+  Core['find-first'].apply(['enabled'], vars, CTX);
+  expect(vars[0].node.isMissing()).toBe(true);
+});
+
+loader.paths('f-find-first-%N.html').forEach((path) => {
+  test(`find-first - ${path}`, () => loader.execute(path));
+});
+
+test('find-last', () => {
+  // no args: return last element unconditionally
+  let vars = variables(['a', 'b', 'c']);
+  Core['find-last'].apply([], vars, CTX);
+  expect(vars[0].get()).toEqual('c');
+
+  // empty array → missing
+  vars = variables([]);
+  Core['find-last'].apply([], vars, CTX);
+  expect(vars[0].node.isMissing()).toBe(true);
+
+  // non-array → missing
+  vars = variables('not-an-array');
+  Core['find-last'].apply([], vars, CTX);
+  expect(vars[0].node.isMissing()).toBe(true);
+
+  // no args: last object element
+  vars = variables([{ x: 1 }, { x: 2 }]);
+  Core['find-last'].apply([], vars, CTX);
+  expect(vars[0].get()).toEqual({ x: 2 });
+
+  // 1 arg: find last element where path is truthy
+  vars = variables([{ id: 'a', enabled: true }, { id: 'b', enabled: true }, { id: 'c', enabled: false }]);
+  Core['find-last'].apply(['enabled'], vars, CTX);
+  expect(vars[0].get()).toEqual({ id: 'b', enabled: true });
+
+  // 1 arg: none match → missing
+  vars = variables([{ id: 'a', enabled: false }, { id: 'b' }]);
+  Core['find-last'].apply(['enabled'], vars, CTX);
+  expect(vars[0].node.isMissing()).toBe(true);
+});
+
+loader.paths('f-find-last-%N.html').forEach((path) => {
+  test(`find-last - ${path}`, () => loader.execute(path));
+});
+
 test('key-by', () => {
   let vars = variables([{ id: 1 }]);
   Core['key-by'].apply([], vars, CTX);

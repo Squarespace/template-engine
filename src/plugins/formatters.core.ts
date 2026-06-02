@@ -243,6 +243,59 @@ export class KeyByFormatter extends Formatter {
   }
 }
 
+export class FindFirstFormatter extends Formatter {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
+    const first = vars[0];
+    if (first.node.type !== Type.ARRAY || first.node.value.length === 0) {
+      first.set(MISSING_NODE);
+      return;
+    }
+    if (args.length === 0) {
+      first.set(new Node(first.get()[0]));
+      return;
+    }
+    const hasLookup = args.length >= 2;
+    const lookup = hasLookup ? ctx.resolve(splitVariable(args[0])) : null;
+    const path = splitVariable(args[hasLookup ? 1 : 0]);
+    for (const val of first.get()) {
+      const element = new Node(val);
+      const candidate = hasLookup ? lookup!.path([element.asString()]) : element;
+      if (isTruthy(candidate.path(path))) {
+        first.set(element);
+        return;
+      }
+    }
+    first.set(MISSING_NODE);
+  }
+}
+
+export class FindLastFormatter extends Formatter {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
+    const first = vars[0];
+    const arr: any[] = first.node.type === Type.ARRAY ? first.get() : null;
+    if (!arr || arr.length === 0) {
+      first.set(MISSING_NODE);
+      return;
+    }
+    if (args.length === 0) {
+      first.set(new Node(arr[arr.length - 1]));
+      return;
+    }
+    const hasLookup = args.length >= 2;
+    const lookup = hasLookup ? ctx.resolve(splitVariable(args[0])) : null;
+    const path = splitVariable(args[hasLookup ? 1 : 0]);
+    for (let i = arr.length - 1; i >= 0; i--) {
+      const element = new Node(arr[i]);
+      const candidate = hasLookup ? lookup!.path([element.asString()]) : element;
+      if (isTruthy(candidate.path(path))) {
+        first.set(element);
+        return;
+      }
+    }
+    first.set(MISSING_NODE);
+  }
+}
+
 const NEWLINE = /\n/g;
 
 export class LineBreaksFormatter extends Formatter {
@@ -421,6 +474,8 @@ export const CORE_FORMATTERS: FormatterTable = {
   'encode-space': new EncodeSpaceFormatter(),
   'encode-uri': new EncodeUriFormatter(),
   'encode-uri-component': new EncodeUriComponentFormatter(),
+  'find-first': new FindFirstFormatter(),
+  'find-last': new FindLastFormatter(),
   format: new FormatFormatter(),
   get: new GetFormatter(),
   html: new HtmlFormatter(),

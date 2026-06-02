@@ -1,0 +1,14 @@
+:JSON
+{
+  "items": [
+    { "id": "a", "enabled": false },
+    { "id": "b", "enabled": true },
+    { "id": "c", "enabled": true }
+  ]
+}
+
+:TEMPLATE
+{.var @first items|find-first enabled}{@first.id}
+
+:OUTPUT
+b
