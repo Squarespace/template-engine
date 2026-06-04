@@ -442,6 +442,87 @@ loader.paths('f-find-last-%N.html').forEach((path) => {
   test(`find-last - ${path}`, () => loader.execute(path));
 });
 
+test('find-nth', () => {
+  // no filter: return element at index 0
+  let vars = variables(['a', 'b', 'c']);
+  Core['find-nth'].apply(['0'], vars, CTX);
+  expect(vars[0].get()).toEqual('a');
+
+  // no filter: return element at index 1
+  vars = variables(['a', 'b', 'c']);
+  Core['find-nth'].apply(['1'], vars, CTX);
+  expect(vars[0].get()).toEqual('b');
+
+  // no filter: negative index counts from end
+  vars = variables(['a', 'b', 'c']);
+  Core['find-nth'].apply(['-1'], vars, CTX);
+  expect(vars[0].get()).toEqual('c');
+
+  vars = variables(['a', 'b', 'c']);
+  Core['find-nth'].apply(['-2'], vars, CTX);
+  expect(vars[0].get()).toEqual('b');
+
+  // non-numeric index defaults to 0
+  vars = variables(['a', 'b', 'c']);
+  Core['find-nth'].apply(['foo'], vars, CTX);
+  expect(vars[0].get()).toEqual('a');
+
+  // index out of bounds → missing
+  vars = variables(['a', 'b', 'c']);
+  Core['find-nth'].apply(['5'], vars, CTX);
+  expect(vars[0].node.isMissing()).toBe(true);
+
+  // negative index out of bounds → missing
+  vars = variables(['a', 'b', 'c']);
+  Core['find-nth'].apply(['-5'], vars, CTX);
+  expect(vars[0].node.isMissing()).toBe(true);
+
+  // empty array → missing
+  vars = variables([]);
+  Core['find-nth'].apply(['0'], vars, CTX);
+  expect(vars[0].node.isMissing()).toBe(true);
+
+  // non-array → missing
+  vars = variables('not-an-array');
+  Core['find-nth'].apply(['0'], vars, CTX);
+  expect(vars[0].node.isMissing()).toBe(true);
+
+  // no filter: nth object element
+  vars = variables([{ x: 1 }, { x: 2 }, { x: 3 }]);
+  Core['find-nth'].apply(['2'], vars, CTX);
+  expect(vars[0].get()).toEqual({ x: 3 });
+
+  // with path: find nth element where path is truthy
+  vars = variables([
+    { id: 'a', enabled: false },
+    { id: 'b', enabled: true },
+    { id: 'c', enabled: true },
+    { id: 'd', enabled: true },
+  ]);
+  Core['find-nth'].apply(['1', 'enabled'], vars, CTX);
+  expect(vars[0].get()).toEqual({ id: 'c', enabled: true });
+
+  // with path: index 0 of matching elements
+  vars = variables([{ id: 'a', enabled: false }, { id: 'b', enabled: true }, { id: 'c', enabled: true }]);
+  Core['find-nth'].apply(['0', 'enabled'], vars, CTX);
+  expect(vars[0].get()).toEqual({ id: 'b', enabled: true });
+
+  // with path: negative index among matching elements
+  vars = variables([{ id: 'a', enabled: true }, { id: 'b', enabled: false }, { id: 'c', enabled: true }]);
+  Core['find-nth'].apply(['-1', 'enabled'], vars, CTX);
+  expect(vars[0].get()).toEqual({ id: 'c', enabled: true });
+
+  // with path: none match → missing
+  vars = variables([{ id: 'a', enabled: false }, { id: 'b' }]);
+  Core['find-nth'].apply(['0', 'enabled'], vars, CTX);
+  expect(vars[0].node.isMissing()).toBe(true);
+
+  // with path: index out of bounds among matches → missing
+  vars = variables([{ id: 'a', enabled: true }, { id: 'b', enabled: false }]);
+  Core['find-nth'].apply(['1', 'enabled'], vars, CTX);
+  expect(vars[0].node.isMissing()).toBe(true);
+});
+
 test('key-by', () => {
   let vars = variables([{ id: 1 }]);
   Core['key-by'].apply([], vars, CTX);
