@@ -248,7 +248,7 @@ export class FindFirstFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const { lookup, path } = getLookupAndPath(ctx, args);
-    first.set(findNthValidEntry(first.get(), path, lookup, 0));
+    first.set(findNthValidEntry(first.get(), path, lookup, 1));
   }
 }
 
@@ -257,15 +257,6 @@ export class FindLastFormatter extends Formatter {
     const first = vars[0];
     const { lookup, path } = getLookupAndPath(ctx, args);
     first.set(findNthValidEntry(first.get(), path, lookup, -1));
-  }
-}
-
-export class FindNthFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context): void {
-    const first = vars[0];
-    const { lookup, path } = getLookupAndPath(ctx, args.slice(1));
-    const n = parseInt(args[0], 10) || 0;
-    first.set(findNthValidEntry(first.get(), path, lookup, n));
   }
 }
 
@@ -449,7 +440,6 @@ export const CORE_FORMATTERS: FormatterTable = {
   'encode-uri-component': new EncodeUriComponentFormatter(),
   'find-first': new FindFirstFormatter(),
   'find-last': new FindLastFormatter(),
-  'find-nth': new FindNthFormatter(),
   format: new FormatFormatter(),
   get: new GetFormatter(),
   html: new HtmlFormatter(),

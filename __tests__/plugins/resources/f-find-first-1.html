@@ -8,7 +8,11 @@
 }
 
 :TEMPLATE
+{.var @first items|find-first}{@first.id}
 {.var @first items|find-first enabled}{@first.id}
+{.var @first items|find-first disabled}{@first.id} {# Note: "disabled" is not a valid path, so it should return nothing #}
 
 :OUTPUT
+a
 b
+
