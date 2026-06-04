@@ -8,6 +8,7 @@ import { Variable } from '../variable';
 import { Type } from '../types';
 import { executeTemplate } from '../exec';
 import { splitVariable } from '../util';
+import { findNthValidEntry, getLookupAndPath } from './util.find';
 import { format } from './util.format';
 import { escapeHtmlAttributes, escapeScriptTags, slugify, truncate } from './util.string';
 import utf8 from 'utf8';
@@ -243,6 +244,22 @@ export class KeyByFormatter extends Formatter {
   }
 }
 
+export class FindFirstFormatter extends Formatter {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
+    const first = vars[0];
+    const { lookup, path } = getLookupAndPath(ctx, args);
+    first.set(findNthValidEntry(first.get(), path, lookup, 1));
+  }
+}
+
+export class FindLastFormatter extends Formatter {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
+    const first = vars[0];
+    const { lookup, path } = getLookupAndPath(ctx, args);
+    first.set(findNthValidEntry(first.get(), path, lookup, -1));
+  }
+}
+
 const NEWLINE = /\n/g;
 
 export class LineBreaksFormatter extends Formatter {
@@ -421,6 +438,8 @@ export const CORE_FORMATTERS: FormatterTable = {
   'encode-space': new EncodeSpaceFormatter(),
   'encode-uri': new EncodeUriFormatter(),
   'encode-uri-component': new EncodeUriComponentFormatter(),
+  'find-first': new FindFirstFormatter(),
+  'find-last': new FindLastFormatter(),
   format: new FormatFormatter(),
   get: new GetFormatter(),
   html: new HtmlFormatter(),
