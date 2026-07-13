@@ -55,6 +55,11 @@ export interface ContextProps {
    * Explicitly enable the {.include} instruction.
    */
   enableInclude?: boolean;
+
+  /**
+   * Maximum partial recursion depth. Defaults to 16.
+   */
+  maxPartialDepth?: number;
 }
 
 type ParseFunc = (s: string) => { code: Code; errors: TemplateError[] };
@@ -131,17 +136,23 @@ export class Context {
     this.errors = [];
 
     this.partialsDepth = 0;
-    this.maxPartialDepth = DEFAULT_MAX_PARTIAL_DEPTH;
+    this.maxPartialDepth =
+      props.maxPartialDepth === undefined ? DEFAULT_MAX_PARTIAL_DEPTH : Math.max(0, props.maxPartialDepth);
     this.partialsExecuting = new Set();
   }
 
+  /**
+   * Check if we're about to recurse through a partial we're already evaluating.
+   * Limit maximum partial recursion depth. Check before incrementing so a failed
+   * entry (a depth breach) never leaves the counter or the executing set raised.
+   */
   enterPartial(name: string): boolean {
-    this.partialsExecuting.add(name);
-    this.partialsDepth++;
-    if (this.partialsDepth > this.maxPartialDepth) {
+    if (this.partialsDepth >= this.maxPartialDepth) {
       this.error(partialRecursion(name, this.maxPartialDepth));
       return false;
     }
+    this.partialsExecuting.add(name);
+    this.partialsDepth++;
     return true;
   }
 

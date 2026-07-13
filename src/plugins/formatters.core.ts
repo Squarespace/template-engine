@@ -65,10 +65,14 @@ export class ApplyFormatter extends Formatter {
     }
 
     if (ctx.enterPartial(name)) {
-      // Execute the template and set the variable to the result.
-      const text = executeTemplate(ctx, inst as RootCode | MacroCode, first.node, privateContext, argvar);
-      first.set(text);
-      ctx.exitPartial(name);
+      // Execute the template and set the variable to the result. Always balance
+      // the depth counter even when the partial execution throws.
+      try {
+        const text = executeTemplate(ctx, inst as RootCode | MacroCode, first.node, privateContext, argvar);
+        first.set(text);
+      } finally {
+        ctx.exitPartial(name);
+      }
     } else {
       // Executing the partial failed, so set empty.
       first.set('');

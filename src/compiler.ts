@@ -27,6 +27,7 @@ export interface ExecuteProps {
   enableExpr?: boolean;
   exprOpts?: ExprOptions;
   enableInclude?: boolean;
+  maxPartialDepth?: number;
 }
 
 export interface ParseResult {
@@ -90,14 +91,23 @@ export class Compiler {
    */
   execute(props: ExecuteProps = DefaultExecuteProps): ExecuteResult {
     let code: string | Code = props.code;
-    const { cldr, now, json, partials, injects, enableExpr, exprOpts, enableInclude } = props;
+    const { cldr, now, json, partials, injects, enableExpr, exprOpts, enableInclude, maxPartialDepth } = props;
     let errors: TemplateError[] = [];
 
     if (typeof code === 'string') {
       ({ code, errors } = this.parse(code));
     }
 
-    const ctx = new Context(json, { cldr, now, partials, injects, enableExpr, exprOpts, enableInclude });
+    const ctx = new Context(json, {
+      cldr,
+      now,
+      partials,
+      injects,
+      enableExpr,
+      exprOpts,
+      enableInclude,
+      maxPartialDepth,
+    });
     ctx.parsefunc = (raw: string) => this.parse(raw);
     this.engine.execute(code, ctx);
 

@@ -59,6 +59,55 @@ test('compiler mixed partials raw/parsed recursion error', () => {
   expect(errors[0].message).toContain('exceeded maximum recursion depth');
 });
 
+test('partial depth breach balanced include', () => {
+  // Safe mode, max depth 1. pA breaches the limit while including pB.
+  // The counter must drop back so the following include of pC succeeds.
+  // Before the fix a spurious second depth error was raised for pC.
+  const partials: Partials = { pA: '{.include pB}', pB: 'B', pC: 'C' };
+  const compiler = new Compiler();
+
+  // Include suppresses output, so check the error count on the exact
+  // acceptance template: only pA's pB include may breach.
+  const { errors } = compiler.execute({
+    code: '{.include pA}{.include pC}',
+    json: {},
+    partials,
+    enableInclude: true,
+    maxPartialDepth: 1,
+  });
+  expect(errors.length).toEqual(1);
+  expect(errors[0].message).toContain('exceeded maximum recursion depth');
+
+  // Same template with output enabled: pC must render after pA's breach.
+  const { ctx, errors: errors2 } = compiler.execute({
+    code: '{.include pA output}{.include pC output}',
+    json: {},
+    partials,
+    enableInclude: true,
+    maxPartialDepth: 1,
+  });
+  expect(ctx.render()).toEqual('C');
+  expect(errors2.length).toEqual(1);
+});
+
+test('partial depth breach balanced apply', () => {
+  // Same breach scenario through the apply formatter. The safe-mode breach
+  // branch (set empty) must not double-decrement, and pC must still apply
+  // after pA's breach.
+  const partials: Partials = { pA: '{.include pB}', pB: 'B', pC: 'C' };
+  const compiler = new Compiler();
+  const { ctx, errors } = compiler.execute({
+    code: '{out|apply pA}{out2|apply pC}',
+    json: { out: {}, out2: {} },
+    partials,
+    enableInclude: true,
+    maxPartialDepth: 1,
+  });
+  expect(ctx.render()).toEqual('C');
+  expect(errors.length).toEqual(1);
+  expect(errors[0].message).toContain('exceeded maximum recursion depth');
+});
+
 test('compiler raw partials', () => {
   const partials = {
     foo: '{@|apply bar}',

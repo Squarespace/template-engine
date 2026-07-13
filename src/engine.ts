@@ -449,17 +449,21 @@ export class Engine {
       buf = ctx.swapBuffer();
     }
 
-    // Execute the partial or macro inline.
+    // Execute the partial or macro inline. Always balance the depth counter
+    // even when the partial execution throws.
     if (ctx.enterPartial(name)) {
-      switch (code[0]) {
-        case Opcode.ROOT:
-          this.execute(code as RootCode, ctx);
-          break;
-        case Opcode.MACRO:
-          this.executeBlock((code as MacroCode)[2], ctx);
-          break;
+      try {
+        switch (code[0]) {
+          case Opcode.ROOT:
+            this.execute(code as RootCode, ctx);
+            break;
+          case Opcode.MACRO:
+            this.executeBlock((code as MacroCode)[2], ctx);
+            break;
+        }
+      } finally {
+        ctx.exitPartial(name);
       }
-      ctx.exitPartial(name);
     }
 
     if (!output && buf !== undefined) {
