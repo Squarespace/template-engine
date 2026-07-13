@@ -1,4 +1,5 @@
 import { Opcode } from './opcodes';
+import type { ExprOptions } from './math';
 
 // Wrappers to simplify wiring up a valid instruction tree.
 // Only composite instructions need these wrappers as atomic
@@ -55,6 +56,9 @@ export interface EvalCode {
   [1]: string;
   // Property to store parsed expression during evaluation.
   expr?: any;
+  // Expression options the cached expression was built with. A context whose
+  // options differ must re-parse the expression before it can be evaluated.
+  exprOpts?: ExprOptions;
   // Emit expression debug
   debug?: boolean;
 }
@@ -234,7 +238,6 @@ export class Ctxvar extends BaseInstruction {
 }
 
 export class EvalInst extends BaseInstruction {
-  cached: any; // cache the parsed expression
   constructor(code: string) {
     super(Opcode.EVAL, [Opcode.EVAL, code]);
   }

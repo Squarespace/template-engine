@@ -23,9 +23,18 @@ import { expressionParse, unexpectedError, partialMissing } from './errors';
 import { Variable } from './variable';
 import { Formatter, FormatterMap, PredicateMap, PredicatePlugin } from './plugin';
 import { isTruthy } from './node';
-import { tokenDebug, Expr } from './math';
+import { tokenDebug, Expr, ExprOptions } from './math';
 
 const DEBUG_ARROW = new Node(' -> ');
+
+/**
+ * Returns true when the two option sets enforce the same expression limits.
+ * An absent limit is equivalent to 0 (unlimited), so option objects that
+ * differ only by identity or absent keys compare equal.
+ */
+const sameExprOpts = (a?: ExprOptions, b?: ExprOptions): boolean =>
+  ((a && a.maxTokens) || 0) === ((b && b.maxTokens) || 0) &&
+  ((a && a.maxStringLen) || 0) === ((b && b.maxStringLen) || 0);
 
 type Bindings = { [x: string]: Node };
 
@@ -271,9 +280,12 @@ export class Engine {
     // Raw expression to be parsed and evaluated.
     let raw = inst[1];
 
-    // Check if we have no yet parsed and cached the expression.
+    // Check if we have parsed and cached the expression. The cache is keyed
+    // by the expression options: limits such as maxTokens are enforced while
+    // tokenizing, so the cached expression is only reusable when the current
+    // context's options match those it was built with.
     let expr: Expr = inst.expr;
-    if (!expr) {
+    if (!expr || !sameExprOpts(inst.exprOpts, ctx.exprOpts)) {
       let debug = false;
 
       // Check for debug flag at beginning of expression and skip it
@@ -289,14 +301,20 @@ export class Engine {
       // polish notation so it can be evaluated later.
       expr.build();
 
-      // Check if the expression has a parse error and emit it.
-      if (expr.errors.length) {
-        expr.errors.map((e) => ctx.error(expressionParse(raw, e)));
-      }
-
-      // Cache the assembled expression
+      // Cache the assembled expression along with the options it was built
+      // with, so a later context with different limits re-parses it.
       inst.expr = expr;
+      inst.exprOpts = ctx.exprOpts;
       inst.debug = debug;
+    }
+
+    // Check if the expression has a parse error and emit it. Errors are
+    // re-reported on every execution, not only the first, matching Java.
+    if (expr.errors.length) {
+      if (raw.startsWith('#')) {
+        raw = raw.slice(1);
+      }
+      expr.errors.map((e) => ctx.error(expressionParse(raw, e)));
     }
 
     if (inst.debug) {

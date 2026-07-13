@@ -197,6 +197,50 @@ test('eval reuse', () => {
   expect(ctx.render()).toEqual('AABBCC');
 });
 
+test('eval exprOpts honored per execution', () => {
+  const engine = newEngine();
+  // 11 tokens: 1 + 3 + 5 + 7 + 9 + 11
+  const inst: Code = [O.ROOT, 1, [[O.EVAL, '1 + 3 + 5 + 7 + 9 + 11']], O.EOF];
+
+  // Execute with a token limit: the expression exceeds it
+  let ctx = new Context({}, { enableExpr: true, exprOpts: { maxTokens: 10 } });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('');
+  expect(ctx.errors[0].message).toContain('maximum number of allowed tokens');
+
+  // Execute the same code without limits: limits may not be pinned to the
+  // first execution's context
+  ctx = new Context({}, { enableExpr: true });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('36');
+  expect(ctx.errors).toEqual([]);
+
+  // And back again: a different limit requires re-tokenization
+  ctx = new Context({}, { enableExpr: true, exprOpts: { maxTokens: 10 } });
+  engine.execute(inst, ctx);
+  expect(ctx.render()).toEqual('');
+  expect(ctx.errors[0].message).toContain('maximum number of allowed tokens');
+});
+
+test('eval parse errors reported per execution', () => {
+  const engine = newEngine();
+  // Malformed expression: incomplete unicode escape
+  const inst: Code = [O.ROOT, 1, [[O.EVAL, '"\\u"']], O.EOF];
+
+  // First execution reports the parse error
+  const ctx1 = new Context({}, { enableExpr: true });
+  engine.execute(inst, ctx1);
+  expect(ctx1.errors.length).toBe(1);
+  expect(ctx1.errors[0].message).toContain('unicode escape');
+
+  // The subsequent execution reuses the cached expression but must
+  // re-report the error, not silently pass it
+  const ctx2 = new Context({}, { enableExpr: true });
+  engine.execute(inst, ctx2);
+  expect(ctx2.errors.length).toBe(1);
+  expect(ctx2.errors[0].message).toContain('unicode escape');
+});
+
 test('eval runtime errors', () => {
   const engine = newEngine();
   const opts: ContextProps = { enableExpr: true };
