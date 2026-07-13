@@ -1,12 +1,13 @@
 import { GregorianDate } from '../calendars';
 
 import { Context } from '../context';
-import { Node } from '../node';
+import { MISSING_NODE, Node } from '../node';
 import { Formatter, FormatterTable } from '../plugin';
 import { executeTemplate } from '../exec';
 import { RootCode } from '../instructions';
 import { Variable } from '../variable';
 import { formatDate } from './util.date';
+import { escapeHtmlAttributes } from './util.string';
 
 // Template imports
 import commentLinkTemplate from './templates/comment-link.json';
@@ -150,9 +151,15 @@ export class TwitterFollowButtonFormatter extends Formatter {
       userName = parts[parts.length - 1];
     }
 
+    // No username and no usable profile url: render nothing.
+    if (userName === '') {
+      first.set(MISSING_NODE);
+      return;
+    }
+
     let res = "<script>Y.use('squarespace-follow-buttons', function(Y) { ";
     res += "Y.on('domready', function() { Y.Squarespace.FollowButtonUtils.renderAll(); }); });";
-    res += `</script><div class="squarespace-follow-button" data-username="${userName}"></div>`;
+    res += `</script><div class="squarespace-follow-button" data-username="${escapeHtmlAttributes(userName)}"></div>`;
     first.set(res);
   }
 }
