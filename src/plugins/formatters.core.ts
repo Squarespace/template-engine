@@ -1,4 +1,5 @@
 import { Context } from '../context';
+import { Patch } from '../compat/patch';
 import { partialMissing } from '../errors';
 import { isTruthy } from '../node';
 import { Formatter, FormatterTable } from '../plugin';
@@ -64,9 +65,18 @@ export class ApplyFormatter extends Formatter {
       return;
     }
 
-    if (ctx.enterPartial(name)) {
-      // Execute the template and set the variable to the result. Always balance
-      // the depth counter even when the partial execution throws.
+    if (ctx.compatEnabled(Patch.PARTIAL_DEPTH_LEAK)) {
+      // Legacy, the depth is released even on a breach and is not released
+      // when the partial throws.
+      if (ctx.enterPartial(name)) {
+        first.set(executeTemplate(ctx, inst as RootCode | MacroCode, first.node, privateContext, argvar));
+      } else {
+        first.set('');
+      }
+      ctx.exitPartial(name);
+    } else if (ctx.enterPartial(name)) {
+      // Fixed, the depth is released when the partial throws and only when
+      // the entry succeeded.
       try {
         const text = executeTemplate(ctx, inst as RootCode | MacroCode, first.node, privateContext, argvar);
         first.set(text);

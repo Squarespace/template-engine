@@ -172,10 +172,23 @@ export class Context {
 
   /**
    * Check if we're about to recurse through a partial we're already evaluating.
-   * Limit maximum partial recursion depth. Check before incrementing so a failed
-   * entry (a depth breach) never leaves the counter or the executing set raised.
+   * Limit maximum partial recursion depth.
    */
   enterPartial(name: string): boolean {
+    if (this.compatEnabled(Patch.PARTIAL_DEPTH_LEAK)) {
+      // Legacy, the counter is incremented before the limit check. A breach
+      // leaves it and the executing-set entry raised, so a later partial
+      // fails with a spurious depth error.
+      this.partialsExecuting.add(name);
+      this.partialsDepth++;
+      if (this.partialsDepth > this.maxPartialDepth) {
+        this.error(partialRecursion(name, this.maxPartialDepth));
+        return false;
+      }
+      return true;
+    }
+    // Fixed, the limit is checked first so a failed entry never moves the
+    // counter or the executing set.
     if (this.partialsDepth >= this.maxPartialDepth) {
       this.error(partialRecursion(name, this.maxPartialDepth));
       return false;

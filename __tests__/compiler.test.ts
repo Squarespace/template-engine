@@ -1,5 +1,6 @@
 import { Compiler } from '../src/compiler';
 import { Context, Partials } from '../src/context';
+import { CompatLevel } from '../src/compat/compat-level';
 import { Formatter } from '../src/plugin';
 import { Opcode as O } from '../src/opcodes';
 import { Code } from '../src/instructions';
@@ -59,15 +60,13 @@ test('compiler mixed partials raw/parsed recursion error', () => {
   expect(errors[0].message).toContain('exceeded maximum recursion depth');
 });
 
-test('partial depth breach balanced include', () => {
-  // Safe mode, max depth 1. pA breaches the limit while including pB.
-  // The counter must drop back so the following include of pC succeeds.
-  // Before the fix a spurious second depth error was raised for pC.
+test('partial depth breach legacy include', () => {
+  // Default level, released behavior. pA breaches the depth limit while
+  // including pB, and the failed entry leaves the counter raised, so the
+  // include of pC fails too with a spurious depth error.
   const partials: Partials = { pA: '{.include pB}', pB: 'B', pC: 'C' };
   const compiler = new Compiler();
 
-  // Include suppresses output, so check the error count on the exact
-  // acceptance template: only pA's pB include may breach.
   const { errors } = compiler.execute({
     code: '{.include pA}{.include pC}',
     json: {},
@@ -75,10 +74,10 @@ test('partial depth breach balanced include', () => {
     enableInclude: true,
     maxPartialDepth: 1,
   });
-  expect(errors.length).toEqual(1);
+  expect(errors.length).toEqual(2);
   expect(errors[0].message).toContain('exceeded maximum recursion depth');
+  expect(errors[1].message).toContain('exceeded maximum recursion depth');
 
-  // Same template with output enabled: pC must render after pA's breach.
   const { ctx, errors: errors2 } = compiler.execute({
     code: '{.include pA output}{.include pC output}',
     json: {},
@@ -86,14 +85,43 @@ test('partial depth breach balanced include', () => {
     enableInclude: true,
     maxPartialDepth: 1,
   });
+  expect(ctx.render()).toEqual('');
+  expect(errors2.length).toEqual(2);
+});
+
+test('partial depth breach fixed include', () => {
+  // Level 1 fixes the leak. Only the real breach in pB is reported and the
+  // include of pC renders normally.
+  const partials: Partials = { pA: '{.include pB}', pB: 'B', pC: 'C' };
+  const compiler = new Compiler();
+
+  const { errors } = compiler.execute({
+    code: '{.include pA}{.include pC}',
+    json: {},
+    partials,
+    enableInclude: true,
+    maxPartialDepth: 1,
+    compat: CompatLevel.at(1),
+  });
+  expect(errors.length).toEqual(1);
+  expect(errors[0].message).toContain('exceeded maximum recursion depth');
+
+  const { ctx, errors: errors2 } = compiler.execute({
+    code: '{.include pA output}{.include pC output}',
+    json: {},
+    partials,
+    enableInclude: true,
+    maxPartialDepth: 1,
+    compat: CompatLevel.at(1),
+  });
   expect(ctx.render()).toEqual('C');
   expect(errors2.length).toEqual(1);
 });
 
-test('partial depth breach balanced apply', () => {
-  // Same breach scenario through the apply formatter. The safe-mode breach
-  // branch (set empty) must not double-decrement, and pC must still apply
-  // after pA's breach.
+test('partial depth breach legacy apply', () => {
+  // Same breach through the apply formatter at the default level, the
+  // f-apply-2 scenario in unit form. The leaked counter produces a second,
+  // spurious depth error for pC.
   const partials: Partials = { pA: '{.include pB}', pB: 'B', pC: 'C' };
   const compiler = new Compiler();
   const { ctx, errors } = compiler.execute({
@@ -103,9 +131,91 @@ test('partial depth breach balanced apply', () => {
     enableInclude: true,
     maxPartialDepth: 1,
   });
+  expect(ctx.render()).toEqual('');
+  expect(errors.length).toEqual(2);
+  expect(errors[0].message).toContain('exceeded maximum recursion depth');
+  expect(errors[1].message).toContain('exceeded maximum recursion depth');
+});
+
+test('partial depth breach fixed apply', () => {
+  // Level 1 fixes the leak: only the real breach is reported and pC applies
+  // after pA returns.
+  const partials: Partials = { pA: '{.include pB}', pB: 'B', pC: 'C' };
+  const compiler = new Compiler();
+  const { ctx, errors } = compiler.execute({
+    code: '{out|apply pA}{out2|apply pC}',
+    json: { out: {}, out2: {} },
+    partials,
+    enableInclude: true,
+    maxPartialDepth: 1,
+    compat: CompatLevel.at(1),
+  });
   expect(ctx.render()).toEqual('C');
   expect(errors.length).toEqual(1);
   expect(errors[0].message).toContain('exceeded maximum recursion depth');
+});
+
+test('partial depth throw include', () => {
+  // A partial whose body raises a runtime error. The twitter formatter throws
+  // at the default level and stays silent at level 1, so one template pins
+  // both halves of the throw path. This port records the exception in the
+  // innermost block and keeps executing, so the legacy call site still sees
+  // the partial return and releases the depth counter; the recording itself
+  // is the observable difference between the levels.
+  const partials: Partials = { pA: '{@|twitter-follow-button}', pC: 'C' };
+  const compiler = new Compiler();
+
+  const legacy = compiler.execute({
+    code: '{.include pA output}{.include pC output}',
+    json: {},
+    partials,
+    enableInclude: true,
+    maxPartialDepth: 1,
+  });
+  expect(legacy.ctx.render()).toEqual('C');
+  expect(legacy.errors.length).toEqual(1);
+  expect(legacy.errors[0].message).toContain('ArrayIndexOutOfBoundsException');
+
+  const fixed = compiler.execute({
+    code: '{.include pA output}{.include pC output}',
+    json: {},
+    partials,
+    enableInclude: true,
+    maxPartialDepth: 1,
+    compat: CompatLevel.at(1),
+  });
+  expect(fixed.ctx.render()).toEqual('C');
+  expect(fixed.errors.length).toEqual(0);
+});
+
+test('partial depth throw apply', () => {
+  // Same throw scenario through the apply formatter. The depth stays balanced
+  // in both modes because the engine records the formatter error instead of
+  // re-throwing it.
+  const partials: Partials = { pA: '{@|twitter-follow-button}', pC: 'C' };
+  const compiler = new Compiler();
+
+  const legacy = compiler.execute({
+    code: '{out|apply pA}{out2|apply pC}',
+    json: { out: {}, out2: {} },
+    partials,
+    enableInclude: true,
+    maxPartialDepth: 1,
+  });
+  expect(legacy.ctx.render()).toEqual('C');
+  expect(legacy.errors.length).toEqual(1);
+  expect(legacy.errors[0].message).toContain('ArrayIndexOutOfBoundsException');
+
+  const fixed = compiler.execute({
+    code: '{out|apply pA}{out2|apply pC}',
+    json: { out: {}, out2: {} },
+    partials,
+    enableInclude: true,
+    maxPartialDepth: 1,
+    compat: CompatLevel.at(1),
+  });
+  expect(fixed.ctx.render()).toEqual('C');
+  expect(fixed.errors.length).toEqual(0);
 });
 
 test('compiler raw partials', () => {

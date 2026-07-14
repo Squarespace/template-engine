@@ -1,5 +1,6 @@
 import { Context } from './context';
 import { nameOfOpcode, Opcode } from './opcodes';
+import { Patch } from './compat/patch';
 import { Node } from './node';
 import {
   BindvarCode,
@@ -449,10 +450,11 @@ export class Engine {
       buf = ctx.swapBuffer();
     }
 
-    // Execute the partial or macro inline. Always balance the depth counter
-    // even when the partial execution throws.
+    // Execute the partial or macro inline. The legacy path releases the
+    // depth only when the partial returns without throwing; the fixed path
+    // always releases it.
     if (ctx.enterPartial(name)) {
-      try {
+      if (ctx.compatEnabled(Patch.PARTIAL_DEPTH_LEAK)) {
         switch (code[0]) {
           case Opcode.ROOT:
             this.execute(code as RootCode, ctx);
@@ -461,8 +463,20 @@ export class Engine {
             this.executeBlock((code as MacroCode)[2], ctx);
             break;
         }
-      } finally {
         ctx.exitPartial(name);
+      } else {
+        try {
+          switch (code[0]) {
+            case Opcode.ROOT:
+              this.execute(code as RootCode, ctx);
+              break;
+            case Opcode.MACRO:
+              this.executeBlock((code as MacroCode)[2], ctx);
+              break;
+          }
+        } finally {
+          ctx.exitPartial(name);
+        }
       }
     }
 

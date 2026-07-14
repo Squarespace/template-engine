@@ -8,6 +8,7 @@ import { RootCode } from '../instructions';
 import { Variable } from '../variable';
 import { formatDate } from './util.date';
 import { escapeHtmlAttributes } from './util.string';
+import { Patch } from '../compat/patch';
 
 // Template imports
 import commentLinkTemplate from './templates/comment-link.json';
@@ -144,11 +145,25 @@ export class TwitterFollowButtonFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const account = first.node;
+    const legacy = ctx.compatEnabled(Patch.TWITTER_BUTTON_USERNAME);
     let userName = account.get('userName').asString();
     if (userName === '') {
       const profileUrl = account.get('profileUrl').asString();
       const parts = profileUrl.split('/');
-      userName = parts[parts.length - 1];
+      if (legacy) {
+        // Legacy derivation mirrors Java StringUtils.split, which drops the
+        // empty tokens. A profileUrl with no non-empty segment leaves the
+        // array empty and the formatter throws.
+        const segments = parts.filter((p) => p !== '');
+        if (segments.length === 0) {
+          throw Object.assign(new Error('Index 0 out of bounds for length 0'), {
+            name: 'ArrayIndexOutOfBoundsException',
+          });
+        }
+        userName = segments[segments.length - 1];
+      } else {
+        userName = parts[parts.length - 1];
+      }
     }
 
     // No username and no usable profile url: render nothing.
@@ -159,7 +174,10 @@ export class TwitterFollowButtonFormatter extends Formatter {
 
     let res = "<script>Y.use('squarespace-follow-buttons', function(Y) { ";
     res += "Y.on('domready', function() { Y.Squarespace.FollowButtonUtils.renderAll(); }); });";
-    res += `</script><div class="squarespace-follow-button" data-username="${escapeHtmlAttributes(userName)}"></div>`;
+    res += `</script><div class="squarespace-follow-button" data-username="`;
+    // Legacy appends the username unescaped; the fix escapes it first.
+    res += legacy ? userName : escapeHtmlAttributes(userName);
+    res += `"></div>`;
     first.set(res);
   }
 }
