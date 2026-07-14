@@ -8,15 +8,17 @@ import { Parser } from '../src/parser';
 import { MatcherImpl } from '../src/matcher';
 import { Code } from '../src/instructions';
 import { Formatters, Predicates } from '../src/plugins';
+import { CompatLevel } from '../src/compat/compat-level';
 
 const SECTION = /^:([a-zA-Z\d_-]+)\s*$/;
 
 interface DecoderMap {
-  TEMPLATE: (s: string) => Code;
+  TEMPLATE: (s: string) => string | Code;
   PARAMS: (s: string) => any;
   JSON: (s: string) => any;
   PARTIALS: (s: string) => any;
   INJECT: (s: string) => any;
+  PROPERTIES: (s: string) => any;
   OUTPUT: (s: string) => string;
   PRETTY: (s: string) => string;
   '*'?: (s: any) => any;
@@ -84,12 +86,14 @@ export class TestLoader {
 }
 
 /**
- * Parse a string into an executable instruction tree.
+ * Parse a string into an executable instruction tree. The optional compat
+ * level pins the parse, mirroring Java TestCaseParser which compiles at
+ * the level from the :PROPERTIES section.
  */
-export const parseTemplate = (str: string) => {
+export const parseTemplate = (str: string, compat?: CompatLevel) => {
   const assembler = new Assembler();
   const matcher = new MatcherImpl('');
-  const parser = new Parser(str, assembler, matcher, Formatters, Predicates);
+  const parser = new Parser(str, assembler, matcher, Formatters, Predicates, compat);
   parser.parse();
   const errors = assembler.errors;
   if (errors.length > 0) {
@@ -110,6 +114,28 @@ export const parseMap = (str: string, func: (v: any) => any): any => {
   return obj;
 };
 
+/**
+ * Parse a :PROPERTIES section in Java Properties file style: one key=value
+ * pair per line. Leading whitespace is ignored and blank lines or lines
+ * starting with # or ! are skipped. The fixtures only use plain pairs, so
+ * line continuations and escape sequences are not handled.
+ */
+export const parseProperties = (str: string): any => {
+  const props: any = {};
+  for (const line of str.split('\n')) {
+    const trimmed = line.trim();
+    if (trimmed === '' || trimmed.startsWith('#') || trimmed.startsWith('!')) {
+      continue;
+    }
+    const sep = trimmed.indexOf('=');
+    if (sep === -1) {
+      throw new Error(`Invalid property line: ${line}`);
+    }
+    props[trimmed.slice(0, sep).trim()] = trimmed.slice(sep + 1).trim();
+  }
+  return props;
+};
+
 const compiler = new Compiler();
 
 /**
@@ -122,7 +148,11 @@ export class TemplateTestLoader extends TestLoader {
       PARAMS: JSON.parse,
       INJECT: (s: string) => parseMap(s, JSON.parse),
       PARTIALS: (s: string) => parseMap(s, parseTemplate),
-      TEMPLATE: parseTemplate,
+      PROPERTIES: parseProperties,
+      // The template stays raw so execute can parse it once at the level
+      // the fixture pins, matching Java TestCaseParser which compiles at
+      // that level.
+      TEMPLATE: (s: string) => s,
       OUTPUT: (s: string) => s.trim(),
       PRETTY: (s: string) => s.trim(),
     });
@@ -131,22 +161,39 @@ export class TemplateTestLoader extends TestLoader {
   execute(path: string): void {
     const spec = this.load(path);
     const params = spec.PARAMS;
+    const props = spec.PROPERTIES || {};
+
+    // An optional :PROPERTIES section pins the level and the runtime
+    // switches for the case, mirroring Java TestCaseParser which reads the
+    // same keys from java.util.Properties. The properties win over PARAMS
+    // when both set a key. `preprocess` is accepted for fixture parity but
+    // the parser has no preprocessor, so it is a no-op here.
+    let compat = CompatLevel.defaultLevel();
+    const level = props.level;
+    if (level !== undefined) {
+      compat = CompatLevel.at(Number(level));
+    }
+
+    // Parse at the pinned level, default when the fixture pins none.
+    const code = parseTemplate(spec.TEMPLATE, compat);
 
     // i18n-enable the execution context
-    const locale = (params || {}).locale || 'en';
-    const now: number | undefined = (params || {}).now;
+    const locale = props.locale || (params || {}).locale || 'en';
+    const now: number | undefined = props.now !== undefined ? Number(props.now) : (params || {}).now;
     const cldr = locale === 'none' ? undefined : framework.get(locale);
 
-    // execute the test case
+    // execute the test case at the same level the template was parsed
     const { ctx } = compiler.execute({
       cldr,
       now,
-      code: spec.TEMPLATE,
+      code,
       json: spec.JSON,
       partials: spec.PARTIALS,
       injects: spec.INJECT,
-      enableExpr: true,
-      enableInclude: true,
+      enableExpr: props.enableExpr === undefined ? true : props.enableExpr === 'true',
+      enableInclude: props.enableInclude === undefined ? true : props.enableInclude === 'true',
+      maxPartialDepth: props.maxPartialDepth === undefined ? undefined : Number(props.maxPartialDepth),
+      compat,
     });
     const output = ctx.render();
     if (ctx.errors) {
