@@ -4,7 +4,7 @@
 
 const fs = require('fs');
 const { join } = require('path');
-const { Compiler, ReferenceScanner } = require('../lib');
+const { Compiler, CompatLevel, Patch, ReferenceScanner } = require('../lib');
 
 const { prettyJson } = require('../lib/pretty');
 const { CLDRFramework } = require('@phensley/cldr');
@@ -69,7 +69,16 @@ const parseArgs = () => {
     if (m1) {
       const key = m1[1];
       const val = m2 ? true : (i++, next || true);
-      args[key] = val;
+      if (key === 'compat-patch') {
+        // Repeatable flag: collect each name so the run applies them in
+        // order. The other flags keep their last value as before.
+        if (!Array.isArray(args[key])) {
+          args[key] = [];
+        }
+        args[key].push(val);
+      } else {
+        args[key] = val;
+      }
     } else {
       args._.push(arg);
     }
@@ -90,7 +99,46 @@ const usage = (args) => {
   console.log('  -d, --dump           - Dump parsed template');
   console.log('  -P, --pretty         - Pretty-format the dumped template');
   console.log('  -R, --references     - Dump template references');
+  console.log('  --compat-level N    - Compatibility level; 0 keeps released behavior');
+  console.log('  --compat-patch NAME  - Force a legacy patch by name; repeatable');
   process.exit(1);
+};
+
+// Prints a flag error, then the option list, and exits nonzero.
+const usageError = (message) => {
+  process.stderr.write('error: ' + message + '\n');
+  usage();
+};
+
+const parseLevel = (raw) => {
+  if (typeof raw !== 'string' || !/^\d+$/.test(raw)) {
+    throw new Error('compat level must be a non-negative integer, got ' + raw);
+  }
+  return parseInt(raw, 10);
+};
+
+const resolvePatch = (raw) => {
+  const name = String(raw).trim().toUpperCase();
+  const patch = Patch.values().find(p => p.name === name);
+  if (!patch) {
+    throw new Error('unknown compat-patch ' + name);
+  }
+  return patch;
+};
+
+// Mirrors Java TemplateC.compatLevel(Namespace): start at the default
+// level, then the numeric level, then each patch override in order.
+const buildCompat = (args) => {
+  let compat = CompatLevel.defaultLevel();
+  const rawLevel = args['compat-level'];
+  if (rawLevel !== undefined) {
+    compat = compat.withLevel(parseLevel(rawLevel));
+  }
+  const names = args['compat-patch'] || [];
+  for (const name of names) {
+    compat = compat.withPatch(resolvePatch(name));
+  }
+  return compat;
 };
 
 const main = () => {
@@ -103,12 +151,19 @@ const main = () => {
     usage();
   }
 
+  let compat;
+  try {
+    compat = buildCompat(args);
+  } catch (e) {
+    usageError(e.message);
+  }
+
   const cldr = framework.get(locale);
 
   const compiler = new Compiler();
 
   const coderaw = read(codepath);
-  const code = codepath.endsWith('.json') ? JSON.parse(coderaw) : compiler.parse(coderaw).code;
+  const code = codepath.endsWith('.json') ? JSON.parse(coderaw) : compiler.parse(coderaw, compat).code;
   if (args.dump || args.d) {
     if (args.pretty || args.P) {
       process.stdout.write(prettyJson(code, '  '));
@@ -127,7 +182,9 @@ const main = () => {
   const json = jsonpath ? JSON.parse(read(jsonpath)) : {};
   const partials = partpath ? JSON.parse(read(partpath)) : {};
 
-  const { ctx } = compiler.execute({ cldr, code, json, partials, enableExpr: true, enableInclude: true });
+  // The level reaches the execute phase on both paths, so a pre-parsed
+  // .json template still runs at the chosen level.
+  const { ctx } = compiler.execute({ cldr, code, json, partials, enableExpr: true, enableInclude: true, compat });
   process.stdout.write(ctx.render());
   if (ctx.errors) {
     for (const err of ctx.errors) {
