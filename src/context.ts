@@ -1,5 +1,7 @@
 import { CLDR } from '@phensley/cldr-core';
 
+import { CompatLevel } from './compat/compat-level';
+import { Patch } from './compat/patch';
 import { partialParseFail, partialRecursion, TemplateError } from './errors';
 import { Frame } from './frame';
 import { MISSING_NODE, Node } from './node';
@@ -60,6 +62,12 @@ export interface ContextProps {
    * Maximum partial recursion depth. Defaults to 16.
    */
   maxPartialDepth?: number;
+
+  /**
+   * Compatibility level for this execution. Defaults to level 0, where
+   * every legacy behavior is active.
+   */
+  compat?: CompatLevel;
 }
 
 type ParseFunc = (s: string) => { code: Code; errors: TemplateError[] };
@@ -86,6 +94,11 @@ export class Context {
   readonly enableInclude?: boolean;
   readonly formatter?: MessageFormats;
 
+  /**
+   * Compatibility level for this execution.
+   */
+  compat: CompatLevel;
+
   protected partials: Partials;
   protected injects: any;
   protected buf: string;
@@ -106,6 +119,7 @@ export class Context {
     this.enableExpr = props.enableExpr;
     this.exprOpts = props.exprOpts;
     this.enableInclude = props.enableInclude;
+    this.compat = props.compat || CompatLevel.defaultLevel();
 
     // Instance of @phensley/cldr interface CLDR providing cldr-based formatting for
     // a given locale. It is the caller's responsibility to set this. If not
@@ -139,6 +153,21 @@ export class Context {
     this.maxPartialDepth =
       props.maxPartialDepth === undefined ? DEFAULT_MAX_PARTIAL_DEPTH : Math.max(0, props.maxPartialDepth);
     this.partialsExecuting = new Set();
+  }
+
+  /**
+   * Set the compatibility level for this execution. A missing level resets
+   * to the default.
+   */
+  setCompat(compat?: CompatLevel): void {
+    this.compat = compat || CompatLevel.defaultLevel();
+  }
+
+  /**
+   * True when the legacy behavior for the patch is active at this level.
+   */
+  compatEnabled(patch: Patch): boolean {
+    return this.compat.enabled(patch);
   }
 
   /**

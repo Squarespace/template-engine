@@ -3,6 +3,7 @@ import { Compiler } from './compiler';
 export * from './assembler';
 export * from './builder';
 export * from './compiler';
+export * from './compat';
 export * from './context';
 export * from './engine';
 export * from './enum';

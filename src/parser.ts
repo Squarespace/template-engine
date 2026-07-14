@@ -18,6 +18,7 @@ import {
   VariableInst,
 } from './instructions';
 import { Opcode } from './opcodes';
+import { CompatLevel } from './compat/compat-level';
 import { formatterUnknown, predicateUnknown } from './errors';
 import { FormatterTable, PredicateTable } from './plugin';
 
@@ -35,7 +36,8 @@ export class Parser {
     private sink: Sink,
     private matcher: Matcher,
     private formatters: FormatterTable = {},
-    private predicates: PredicateTable = {}
+    private predicates: PredicateTable = {},
+    readonly compat: CompatLevel = CompatLevel.defaultLevel()
   ) {
     if (!(sink instanceof Sink)) {
       throw new Error('Argument "sink" must be a Sink instance.');

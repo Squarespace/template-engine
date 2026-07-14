@@ -1,6 +1,8 @@
 import { CLDR } from '@phensley/cldr-core';
 
 import { Assembler } from './assembler';
+import { CompatLevel } from './compat/compat-level';
+import { Patch } from './compat/patch';
 import { Context, Partials } from './context';
 import { Engine, EngineProps } from './engine';
 import { TemplateError } from './errors';
@@ -28,6 +30,23 @@ export interface ExecuteProps {
   exprOpts?: ExprOptions;
   enableInclude?: boolean;
   maxPartialDepth?: number;
+
+  /**
+   * Compatibility level for this execution. Defaults to the released level
+   * 0 surface.
+   */
+  compat?: CompatLevel;
+
+  /**
+   * Position on the compat ladder, applied on top of `compat`.
+   */
+  compatLevel?: number;
+
+  /**
+   * Force a patch's legacy behavior on, applied on top of `compat` and
+   * `compatLevel`.
+   */
+  compatPatch?: Patch;
 }
 
 export interface ParseResult {
@@ -73,12 +92,15 @@ export class Compiler {
   }
 
   /**
-   * Parse the template and return the instruction tree.
+   * Parse the template and return the instruction tree. The compat level
+   * carries into the parse for the gated behaviors that are decided while
+   * parsing; nothing reads it yet.
    */
-  parse(source: string): ParseResult {
+  parse(source: string, compat?: CompatLevel): ParseResult {
+    const level = compat || CompatLevel.defaultLevel();
     const { formatters, predicates } = this.props;
     const assembler = new Assembler();
-    const parser = new Parser(source, assembler, this.matcher, formatters, predicates);
+    const parser = new Parser(source, assembler, this.matcher, formatters, predicates, level);
     parser.parse();
     return {
       code: assembler.code(),
@@ -91,11 +113,35 @@ export class Compiler {
    */
   execute(props: ExecuteProps = DefaultExecuteProps): ExecuteResult {
     let code: string | Code = props.code;
-    const { cldr, now, json, partials, injects, enableExpr, exprOpts, enableInclude, maxPartialDepth } = props;
+    const {
+      cldr,
+      now,
+      json,
+      partials,
+      injects,
+      enableExpr,
+      exprOpts,
+      enableInclude,
+      maxPartialDepth,
+      compat,
+      compatLevel,
+      compatPatch
+    } = props;
     let errors: TemplateError[] = [];
 
+    // Effective level for this execution: the base level (or the default),
+    // then any numeric position, then any forced legacy patches. A level
+    // change never drops an override, so the order above is stable.
+    let level = compat || CompatLevel.defaultLevel();
+    if (compatLevel !== undefined) {
+      level = level.withLevel(compatLevel);
+    }
+    if (compatPatch !== undefined) {
+      level = level.withPatch(compatPatch);
+    }
+
     if (typeof code === 'string') {
-      ({ code, errors } = this.parse(code));
+      ({ code, errors } = this.parse(code, level));
     }
 
     const ctx = new Context(json, {
@@ -107,8 +153,13 @@ export class Compiler {
       exprOpts,
       enableInclude,
       maxPartialDepth,
+      compat: level
     });
-    ctx.parsefunc = (raw: string) => this.parse(raw);
+
+    // On-the-fly partials always compile at the default level, matching Java
+    // Compiler.compile(source, safe, preprocess). This keeps the partial
+    // cache level-independent (todo 047).
+    ctx.parsefunc = (raw: string) => this.parse(raw, CompatLevel.defaultLevel());
     this.engine.execute(code, ctx);
 
     errors.splice(errors.length, 0, ...ctx.errors);
