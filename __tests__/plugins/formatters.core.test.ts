@@ -2,6 +2,8 @@ import { join } from 'path';
 import { CORE_FORMATTERS as Core } from '../../src/plugins/formatters.core';
 import { Context, Partials } from '../../src/context';
 import { Engine } from '../../src/engine';
+import { Compiler } from '../../src/compiler';
+import { CompatLevel } from '../../src/compat/compat-level';
 import { TemplateTestLoader } from '../loader';
 import { Opcode as O } from '../../src/opcodes';
 import { RootCode } from '../../src/instructions';
@@ -428,6 +430,10 @@ loader.paths('f-mod-%N.html').forEach((path) => {
   test(`mod - ${path}`, () => loader.execute(path));
 });
 
+loader.paths('f-mod-zero-%N.html').forEach((path) => {
+  test(`mod zero - ${path}`, () => loader.execute(path));
+});
+
 test('mod', () => {
   const ctx = new Context({});
   let vars = variables(11);
@@ -456,6 +462,44 @@ test('mod', () => {
   vars = variables({ foo: 'bar' });
   Core.mod.apply(['3'], vars, ctx);
   expect(vars[0].get()).toEqual(0);
+});
+
+test('mod zero divisor', () => {
+  const compiler = new Compiler();
+  const render = (template: string, compat?: CompatLevel, json: any = { n: 7 }) => {
+    const { ctx, errors } = compiler.execute({ code: template, json, compat });
+    return { output: ctx.render(), errors };
+  };
+
+  // Legacy, divisor 0 reaches the modulus and the throw is recorded; the
+  // slot renders nothing.
+  const legacy = render('{n|mod 0}');
+  expect(legacy.errors.length).toEqual(1);
+  expect(legacy.errors[0].type).toEqual('engine');
+  expect(legacy.errors[0].message).toContain('ArithmeticException');
+  expect(legacy.errors[0].message).toContain('/ by zero');
+  expect(legacy.output).toEqual('');
+
+  // Fixed, divisor 0 defaults to 2.
+  for (const compat of [CompatLevel.at(1), CompatLevel.fixed()]) {
+    const fixed = render('{n|mod 0}', compat);
+    expect(fixed.errors).toEqual([]);
+    expect(fixed.output).toEqual('1');
+  }
+
+  // Divisor and value coercion hold at both levels.
+  const levels = [CompatLevel.defaultLevel(), CompatLevel.fixed()];
+  for (const compat of levels) {
+    // A fractional divisor falls back to 2.
+    expect(render('{n|mod 3.5}', compat).output).toEqual('1');
+
+    // The value truncates to an integer.
+    expect(render('{n|mod 2}', compat, { n: 7.5 }).output).toEqual('1');
+
+    // Plain operations keep their results.
+    expect(render('{n|mod 2}', compat).output).toEqual('1');
+    expect(render('{n|mod}', compat).output).toEqual('1');
+  }
 });
 
 loader.paths(`f-get-%N.html`).forEach((path) => {

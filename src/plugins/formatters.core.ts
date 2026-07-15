@@ -299,12 +299,67 @@ export class LookupFormatter extends Formatter {
   }
 }
 
+const MOD_INTEGER = /^-?[0-9]+$/;
+
+/**
+ * Parse an argument as a signed integer in full, the shape Java's mod
+ * formatter accepts for the divisor. It allows no surrounding whitespace
+ * and no leading plus, and rejects anything outside the safe integer
+ * range. The 2^53 bound is the JS stand-in for Long's overflow throw; the
+ * (2^53, 2^63) band keeps the EVAL_INTEGRAL_LONG precision residual.
+ */
+const parseModInteger = (s: string): number | null => {
+  if (!MOD_INTEGER.test(s)) {
+    return null;
+  }
+  const n = Number(s);
+  return Math.abs(n) <= Number.MAX_SAFE_INTEGER ? n : null;
+};
+
 export class ModFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
-    const n = first.node.asNumber();
-    const divisor = parseInt(args[0], 10) || 2;
-    first.set(n % (divisor && isFinite(divisor) ? divisor : 2));
+
+    // A missing or unparsable divisor defaults to 2, like Java.
+    let divisor = 2;
+    if (args.length > 0) {
+      const parsed = parseModInteger(args[0]);
+      if (parsed !== null) {
+        divisor = parsed;
+      }
+      if (divisor === 0 && ctx.compatEnabled(Patch.MOD_ZERO)) {
+        // Legacy, divisor 0 reaches the modulus and throws by zero.
+        throw Object.assign(new Error('/ by zero'), { name: 'ArithmeticException' });
+      }
+      if (divisor === 0) {
+        // Fixed, a zero divisor defaults to 2 like bad input.
+        divisor = 2;
+      }
+    }
+
+    // The value coerces the way Jackson's asLong does: numbers truncate,
+    // text must parse as an integer in full, booleans become 1 or 0, and
+    // everything else gives 0.
+    const node = first.node;
+    let value = 0;
+    switch (node.type) {
+      case Type.NUMBER:
+        value = Number.isNaN(node.value) ? 0 : Math.trunc(node.value);
+        break;
+      case Type.STRING: {
+        const parsed = parseModInteger(node.value);
+        if (parsed !== null) {
+          value = parsed;
+        }
+        break;
+      }
+      case Type.BOOLEAN:
+        value = node.value ? 1 : 0;
+        break;
+    }
+
+    // JS % keeps the dividend's sign, matching Java long %.
+    first.set(value % divisor);
   }
 }
 
