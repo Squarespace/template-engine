@@ -1,4 +1,6 @@
 import { join } from 'path';
+import { CompatLevel } from '../../src/compat/compat-level';
+import { Compiler } from '../../src/compiler';
 import { Context } from '../../src/context';
 import { CORE_PREDICATES as Core } from '../../src/plugins/predicates.core';
 import { TemplateTestLoader } from '../loader';
@@ -19,6 +21,10 @@ loader.paths('p-even-odd-%N.html').forEach((path) => {
 
 loader.paths('p-nth-%N.html').forEach((path) => {
   test(`nth - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-nth-modulo-zero-%N.html').forEach((path) => {
+  test(`nth modulo zero - ${path}`, () => loader.execute(path));
 });
 
 test('debug?', () => {
@@ -203,7 +209,6 @@ test('nth?', () => {
   expect(impl.apply([], ctx)).toEqual(false);
 
   ctx = new Context(3);
-  expect(impl.apply(['0'], ctx)).toEqual(false);
   expect(impl.apply(['3'], ctx)).toEqual(true);
   expect(impl.apply(['4'], ctx)).toEqual(false);
   expect(impl.apply(['"foo"'], ctx)).toEqual(false);
@@ -216,9 +221,59 @@ test('nth?', () => {
   expect(impl.apply(['3', '4'], ctx)).toEqual(false);
   expect(impl.apply(['3', '9'], ctx)).toEqual(false);
   expect(impl.apply(['9', '3'], ctx)).toEqual(true);
-
   expect(impl.apply(['0', '3'], ctx)).toEqual(true);
+
+  // A zero modulus only returns false once fixed; legacy throws instead.
+  ctx = new Context(3, { compat: CompatLevel.fixed() });
+  expect(impl.apply(['0'], ctx)).toEqual(false);
+
+  ctx = new Context({}, { compat: CompatLevel.fixed() });
   expect(impl.apply(['3', '0'], ctx)).toEqual(false);
+});
+
+test('nth? zero modulus', () => {
+  const compiler = new Compiler();
+  const impl = Core['nth?'];
+  const render = (template: string, compat?: CompatLevel, json: any = { n: 6 }) => {
+    const { ctx, errors } = compiler.execute({ code: template, json, compat });
+    return { output: ctx.render(), errors };
+  };
+
+  // Legacy, a zero modulus reaches the division. The engine records the
+  // throw at the block level and skips both branches of the if.
+  const legacy = render('X{.nth? n 0}A{.or}B{.end}Y');
+  expect(legacy.errors.length).toEqual(1);
+  expect(legacy.errors[0].type).toEqual('engine');
+  expect(legacy.errors[0].message).toContain('ArithmeticException');
+  expect(legacy.errors[0].message).toContain('/ by zero');
+  expect(legacy.output).toEqual('XY');
+
+  // The direct call throws the same shape as the mod formatter.
+  expect(() => impl.apply(['0'], new Context(6))).toThrow('/ by zero');
+
+  // Fixed, a zero modulus is not a match and the .or clause renders.
+  for (const compat of [CompatLevel.at(1), CompatLevel.fixed()]) {
+    const fixed = render('X{.nth? n 0}A{.or}B{.end}Y', compat);
+    expect(fixed.errors).toEqual([]);
+    expect(fixed.output).toEqual('XBY');
+  }
+
+  // The integrality guard runs before the zero modulus branch, so none of
+  // these throw at either level.
+  for (const compat of [CompatLevel.defaultLevel(), CompatLevel.fixed()]) {
+    // A nonzero modulus matches.
+    expect(render('{.nth? n 3}A{.or}B{.end}', compat).output).toEqual('A');
+
+    // A fractional value is not integral and never reaches the division.
+    const frac = render('{.nth? n 0}A{.or}B{.end}', compat, { n: 6.5 });
+    expect(frac.errors).toEqual([]);
+    expect(frac.output).toEqual('B');
+
+    // A text modulus fails the integrality guard without an error.
+    const text = render('{.nth? n "0"}A{.or}B{.end}', compat);
+    expect(text.errors).toEqual([]);
+    expect(text.output).toEqual('B');
+  }
 });
 
 test('odd?', () => {

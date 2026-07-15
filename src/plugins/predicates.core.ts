@@ -128,7 +128,15 @@ export class NthPredicate extends PredicatePlugin {
     // Only integers..
     const n = node.value;
     const m = modulus.value;
-    if (!isInteger(n) || !isInteger(m) || m === 0) {
+    if (!isInteger(n) || !isInteger(m)) {
+      return false;
+    }
+    if (m === 0) {
+      // Legacy, a zero modulus reaches the division and throws by zero.
+      if (ctx.compatEnabled(Patch.NTH_MODULO_ZERO)) {
+        throw Object.assign(new Error('/ by zero'), { name: 'ArithmeticException' });
+      }
+      // Fixed, a zero modulus is not a match.
       return false;
     }
 
