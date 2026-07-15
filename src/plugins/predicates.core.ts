@@ -3,6 +3,7 @@ import { isTruthy, Node } from '../node';
 import { PredicatePlugin, PredicateTable } from '../plugin';
 import { isJsonStart, splitVariable } from '../util';
 import { Type } from '../types';
+import { Patch } from '../compat/patch';
 
 /**
  * Examines each argument to determine if it is a valid, bare JSON value
@@ -27,13 +28,13 @@ const resolve = (args: string[], ctx: Context): Node[] => {
 /**
  * Resolves the arguments and then computes the predicate function.
  */
-const compute = (args: string[], ctx: Context, f: (a: Node, b: Node) => boolean) => {
+const compute = (args: string[], ctx: Context, f: (a: Node, b: Node, ctx: Context) => boolean) => {
   const len = args.length;
   if (len === 0) {
     return false;
   }
   const nodes = resolve(args, ctx);
-  return len === 1 ? f(ctx.node(), nodes[0]) : f(nodes[0], nodes[1]);
+  return len === 1 ? f(ctx.node(), nodes[0], ctx) : f(nodes[0], nodes[1], ctx);
 };
 
 export class DebugPredicate extends PredicatePlugin {
@@ -43,7 +44,7 @@ export class DebugPredicate extends PredicatePlugin {
   }
 }
 
-const equals = (a: Node, b: Node) => a.equals(b);
+const equals = (a: Node, b: Node, ctx: Context) => a.equals(b);
 
 export class EqualPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
@@ -65,7 +66,9 @@ export class EvenPredicate extends PredicatePlugin {
   }
 }
 
-const greaterThan = (a: Node, b: Node) => a.compare(b) > 0;
+const compare = (a: Node, b: Node, ctx: Context) => a.compare(b, ctx.compatEnabled(Patch.COMPARE_TOTAL_ORDER));
+
+const greaterThan = (a: Node, b: Node, ctx: Context) => compare(a, b, ctx) > 0;
 
 export class GreaterThanPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
@@ -73,7 +76,7 @@ export class GreaterThanPredicate extends PredicatePlugin {
   }
 }
 
-const greaterThanOrEqual = (a: Node, b: Node) => a.compare(b) >= 0;
+const greaterThanOrEqual = (a: Node, b: Node, ctx: Context) => compare(a, b, ctx) >= 0;
 
 export class GreaterThanOrEqualPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
@@ -81,7 +84,7 @@ export class GreaterThanOrEqualPredicate extends PredicatePlugin {
   }
 }
 
-const lessThan = (a: Node, b: Node) => a.compare(b) < 0;
+const lessThan = (a: Node, b: Node, ctx: Context) => compare(a, b, ctx) < 0;
 
 export class LessThanPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
@@ -89,7 +92,7 @@ export class LessThanPredicate extends PredicatePlugin {
   }
 }
 
-const lessThanOrEqual = (a: Node, b: Node) => a.compare(b) <= 0;
+const lessThanOrEqual = (a: Node, b: Node, ctx: Context) => compare(a, b, ctx) <= 0;
 
 export class LessThanOrEqualPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
@@ -97,7 +100,7 @@ export class LessThanOrEqualPredicate extends PredicatePlugin {
   }
 }
 
-const notEqual = (a: Node, b: Node) => !a.equals(b);
+const notEqual = (a: Node, b: Node, ctx: Context) => !a.equals(b);
 
 export class NotEqualPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {

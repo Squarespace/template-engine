@@ -221,8 +221,8 @@ test('comparisons', () => {
   // value is always cast to the left's type.
 
   expect(compare(pi, true)).toEqual(1);
-  expect(compare(true, pi)).toEqual(1);
-  expect(compare(false, pi)).toEqual(0);
+  expect(compare(true, pi)).toEqual(0);
+  expect(compare(false, pi)).toEqual(-1);
 
   expect(compare('', false)).toEqual(-5);
   expect(compare(false, '')).toEqual(0);
