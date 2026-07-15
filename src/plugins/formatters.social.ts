@@ -149,12 +149,11 @@ export class TwitterFollowButtonFormatter extends Formatter {
     let userName = account.get('userName').asString();
     if (userName === '') {
       const profileUrl = account.get('profileUrl').asString();
-      const parts = profileUrl.split('/');
+      // Matches Java StringUtils.split, which drops the empty tokens, so a
+      // trailing slash never leaves an empty segment behind.
+      const segments = profileUrl.split('/').filter((p) => p !== '');
       if (legacy) {
-        // Legacy derivation mirrors Java StringUtils.split, which drops the
-        // empty tokens. A profileUrl with no non-empty segment leaves the
-        // array empty and the formatter throws.
-        const segments = parts.filter((p) => p !== '');
+        // Legacy, a profileUrl with no segment throws here.
         if (segments.length === 0) {
           throw Object.assign(new Error('Index 0 out of bounds for length 0'), {
             name: 'ArrayIndexOutOfBoundsException',
@@ -162,7 +161,9 @@ export class TwitterFollowButtonFormatter extends Formatter {
         }
         userName = segments[segments.length - 1];
       } else {
-        userName = parts[parts.length - 1];
+        // Fixed, no segment leaves an empty username and the button is
+        // dropped below.
+        userName = segments.length ? segments[segments.length - 1] : '';
       }
     }
 

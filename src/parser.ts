@@ -301,7 +301,10 @@ export class Parser {
   /**
    * Parse an INCLUDE instruction. Example:
    *
-   *  {.include partial suppress}
+   *  {.include partial output}
+   *
+   * The output flag is optional. Without it the partial's output is
+   * suppressed, matching Java.
    */
   parseInclude(): boolean {
     const m = this.matcher;

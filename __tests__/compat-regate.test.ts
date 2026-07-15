@@ -69,4 +69,21 @@ describe('twitter-follow-button compat', () => {
     twitter().apply([], vars, ctx);
     expect(vars[0].get()).toContain('data-username="a"b"');
   });
+
+  test('trailing slash derives the same username at every level', () => {
+    // Java StringUtils.split drops the empty token after the trailing slash,
+    // so both levels render the somebody button. The fixed level must not
+    // treat the trailing slash as an empty username.
+    const json = { userName: '', profileUrl: 'https://twitter.com/somebody/' };
+    const compiler = new Compiler();
+    for (const compat of [undefined, CompatLevel.at(1), CompatLevel.fixed()]) {
+      const { ctx, errors } = compiler.execute({
+        code: '{@|twitter-follow-button}',
+        json,
+        compat,
+      });
+      expect(ctx.render()).toContain('data-username="somebody"');
+      expect(errors).toEqual([]);
+    }
+  });
 });
