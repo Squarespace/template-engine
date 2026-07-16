@@ -482,11 +482,18 @@ export class TruncateFormatter extends Formatter {
       ellipsis = args[1];
     }
 
-    if (isFinite(limit) && limit > 0) {
+    if (isFinite(limit)) {
       const first = vars[0];
-      let value = first.node.asString();
-      value = truncate(value, limit, ellipsis);
-      first.set(value);
+      const value = first.node.asString();
+
+      // Legacy, a negative length throws. Fixed, it clamps to 0.
+      const legacy = ctx.compatEnabled(Patch.TRUNCATE_NEGATIVE);
+      if (legacy && limit < 0) {
+        throw Object.assign(new Error(`begin 0, end ${limit}, length ${value.length}`), {
+          name: 'StringIndexOutOfBoundsException',
+        });
+      }
+      first.set(truncate(value, legacy ? limit : Math.max(0, limit), ellipsis));
     }
   }
 }

@@ -730,14 +730,55 @@ test('truncate', () => {
   Core.truncate.apply(['false'], vars, CTX);
   expect(vars[0].get()).toEqual(str);
 
-  vars = variables(str);
-  Core.truncate.apply(['-10'], vars, CTX);
-  expect(vars[0].get()).toEqual(str);
+  // Same rows as Java PluginUtilsTest.testTruncate: short text stays as
+  // is, longer text cuts at the nearest space boundary.
+  vars = variables('abcdefghij');
+  Core.truncate.apply(['3'], vars, CTX);
+  expect(vars[0].get()).toEqual('abc...');
+
+  vars = variables('ab');
+  Core.truncate.apply(['5'], vars, CTX);
+  expect(vars[0].get()).toEqual('ab');
+
+  // Legacy, a negative length throws like the release.
+  vars = variables('abcdefghij');
+  expect(() => Core.truncate.apply(['-1'], vars, CTX)).toThrow('begin 0, end -1, length 10');
 
   str = 'abc def ghi jkl';
   vars = variables(str);
   Core.truncate.apply(['10'], vars, CTX);
   expect(vars[0].get()).toEqual('abc def ...');
+});
+
+test('truncate negative length', () => {
+  const compiler = new Compiler();
+  const render = (template: string, compat?: CompatLevel, json: any = { t: 'abcdefghij' }) => {
+    const { ctx, errors } = compiler.execute({ code: template, json, compat });
+    return { output: ctx.render(), errors };
+  };
+
+  // Legacy, a negative length throws and the slot renders nothing.
+  const legacy = render('{t|truncate -1}');
+  expect(legacy.errors.length).toEqual(1);
+  expect(legacy.errors[0].type).toEqual('engine');
+  expect(legacy.errors[0].message).toContain('StringIndexOutOfBoundsException');
+  expect(legacy.errors[0].message).toContain('begin 0, end -1, length 10');
+  expect(legacy.output).toEqual('');
+
+  // Fixed, a negative length clamps to 0 and renders the ellipsis only.
+  for (const compat of [CompatLevel.at(1), CompatLevel.fixed()]) {
+    const fixed = render('{t|truncate -1}', compat);
+    expect(fixed.errors).toEqual([]);
+    expect(fixed.output).toEqual('...');
+  }
+
+  // A zero length renders the ellipsis and leaves an empty value empty,
+  // the same at both levels.
+  for (const compat of [CompatLevel.defaultLevel(), CompatLevel.fixed()]) {
+    expect(render('{t|truncate 0}', compat).output).toEqual('...');
+    expect(render('{t|truncate 0}', compat, { t: '' }).output).toEqual('');
+    expect(render('{t|truncate 3}', compat).output).toEqual('abc...');
+  }
 });
 
 loader.paths('f-url-encode-%N.html').forEach((path) => {
