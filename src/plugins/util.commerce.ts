@@ -1,5 +1,6 @@
 import { CurrencyType, Decimal } from '@phensley/cldr-core';
 import { isTruthy, Node } from '../node';
+import { Patch } from '../compat/patch';
 import { ProductType } from './enums';
 import { Type } from '../types';
 import { parseDecimal, useCLDRMode } from './util.i18n';
@@ -54,6 +55,107 @@ export const getLegacyPriceFromMoneyNode = (moneyNode: Node): Decimal => {
   return price ? price.movePoint(2) : ZERO;
 };
 
+// Format a cents value as dollars from its exact digits, never through a
+// double. Mirrors Java's BigDecimal.movePointLeft(2) on the cents value,
+// followed by DecimalFormat's default HALF_EVEN rounding and US thousands
+// grouping.
+const formatMoneyExact = (cents: string): string => {
+  const rounded = roundHalfEven(moveDecimalLeft(cents));
+  const dot = rounded.indexOf('.');
+  return `${groupThousands(rounded.slice(0, dot))}.${rounded.slice(dot + 1)}`;
+};
+
+/**
+ * Move the decimal point two places left on an exact digits string, padding
+ * the fractional part to at least two digits, so "1234" becomes "12.34" and
+ * "12.5" becomes "0.125". Mirrors BigDecimal.movePointLeft(2).
+ */
+export const moveDecimalLeft = (cents: string): string => {
+  const negative = cents.startsWith('-');
+  const digits = negative ? cents.slice(1) : cents;
+  const dot = digits.indexOf('.');
+  const integer = dot < 0 ? digits : digits.slice(0, dot);
+  const fraction = dot < 0 ? '' : digits.slice(dot + 1);
+  const tail = integer.length >= 2 ? integer.slice(-2) : ('00' + integer).slice(-2);
+  const rest = integer.slice(0, -2) || '0';
+  return `${negative ? '-' : ''}${rest}.${tail}${fraction}`;
+};
+
+/**
+ * Round a decimal string to two fraction digits, half to even, the default
+ * RoundingMode of Java's DecimalFormat. A dropped 5 rounds to the even
+ * neighbor unless a non-zero digit follows it, in which case it rounds up.
+ */
+export const roundHalfEven = (value: string): string => {
+  const dot = value.indexOf('.');
+  if (dot < 0) {
+    return `${value}.00`;
+  }
+  const integer = value.slice(0, dot);
+  const fraction = value.slice(dot + 1);
+  if (fraction.length <= 2) {
+    return `${integer}.${(fraction + '00').slice(0, 2)}`;
+  }
+  let keep = fraction.slice(0, 2);
+  const dropped = fraction.slice(2);
+  const first = dropped.charCodeAt(0) - 48;
+  const lastOdd = (keep.charCodeAt(1) - 48) % 2 === 1;
+  let nonZeroAfter = false;
+  for (let i = 1; i < dropped.length; i++) {
+    if (dropped.charCodeAt(i) !== 48) {
+      nonZeroAfter = true;
+      break;
+    }
+  }
+  if (first < 5 || (first === 5 && !nonZeroAfter && !lastOdd)) {
+    return `${integer}.${keep}`;
+  }
+  // Increment the kept digits, carrying into the integer part on "99".
+  let i = 1;
+  while (i >= 0) {
+    const digit = keep.charCodeAt(i) - 48 + 1;
+    if (digit < 10) {
+      keep = keep.slice(0, i) + String(digit) + keep.slice(i + 1);
+      return `${integer}.${keep}`;
+    }
+    keep = keep.slice(0, i) + '0' + keep.slice(i + 1);
+    i--;
+  }
+  return `${incrementInteger(integer)}.00`;
+};
+
+// Add one to an integer digits string, carrying into a new leading digit,
+// so "999" becomes "1000".
+const incrementInteger = (integer: string): string => {
+  const negative = integer.startsWith('-');
+  const digits = negative ? integer.slice(1) : integer;
+  const out = digits.split('');
+  let i = out.length - 1;
+  while (i >= 0) {
+    const digit = out[i].charCodeAt(0) - 48 + 1;
+    if (digit < 10) {
+      out[i] = String(digit);
+      break;
+    }
+    out[i] = '0';
+    i--;
+  }
+  const value = i < 0 ? `1${'0'.repeat(digits.length)}` : out.join('');
+  return `${negative ? '-' : ''}${value}`;
+};
+
+// Comma-group an integer digit string with US thousands separators, so
+// "1234567" becomes "1,234,567".
+const groupThousands = (integer: string): string => {
+  const negative = integer.startsWith('-');
+  const digits = negative ? integer.slice(1) : integer;
+  const groups: string[] = [];
+  for (let i = digits.length; i > 0; i -= 3) {
+    groups.unshift(digits.slice(Math.max(0, i - 3), i));
+  }
+  return (negative ? '-' : '') + groups.join(',');
+};
+
 export const getMoneyString = (moneyNode: Node, args: string[], ctx: Context): string => {
   if (useCLDRMode(ctx)) {
     const amount = getAmountFromMoneyNode(moneyNode);
@@ -62,10 +164,21 @@ export const getMoneyString = (moneyNode: Node, args: string[], ctx: Context): s
     return ctx.cldr?.Numbers.formatCurrency(amount, currencyCode, currencyOptions(args)) ?? '';
   } else {
     const legacyAmount = getLegacyPriceFromMoneyNode(moneyNode);
-    const numberFormatter = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const formattedAmount = numberFormatter.format(parseFloat(legacyAmount.toString()) / 100);
+    // Residual: level 0 keeps the released TS code, which rounds through a
+    // double with Intl's default half-up ties. A half-cent binary tie like
+    // cents 12.5 renders 0.13 where Java's legacy half-even gives 0.12. The
+    // empirical level 0 pin, cents 123456789012345678 -> ...456.80, replaces
+    // the todo body's earlier ...660.00 estimate, which did not reproduce.
+    // The fixed path above matches Java exactly.
+    if (ctx.compatEnabled(Patch.MONEY_DOUBLE_ROUNDING)) {
+      // Legacy, the exact code the release shipped.
+      const numberFormatter = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const formattedAmount = numberFormatter.format(parseFloat(legacyAmount.toString()) / 100);
 
-    return `<span class="sqs-money-native">${formattedAmount}</span>`;
+      return `<span class="sqs-money-native">${formattedAmount}</span>`;
+    }
+    // Fixed, it converts cents to dollars exactly.
+    return `<span class="sqs-money-native">${formatMoneyExact(legacyAmount.toString())}</span>`;
   }
 };
 

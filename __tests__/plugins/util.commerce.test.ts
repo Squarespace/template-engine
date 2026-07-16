@@ -1,6 +1,8 @@
 import { join } from 'path';
 import * as commerceutil from '../../src/plugins/util.commerce';
 import { Node } from '../../src/node';
+import { Context } from '../../src/context';
+import { CompatLevel } from '../../src/compat';
 import { ProductType } from '../../src/plugins/enums';
 import { expectedTests, predicateTests, Product } from '../helpers';
 import { TestLoader } from '../loader';
@@ -232,4 +234,71 @@ predicateTests('multiple quantity allowed for services', MULTIPLE_QUANTITY_ALLOW
     const actual = commerceutil.isMultipleQuantityAllowedForServices(new Node(t.input));
     expect(actual).toEqual(t.expected);
   });
+});
+
+const moneyNode = (value: string) => new Node({ value, currency: 'USD' });
+
+const moneyString = (node: Node, compat?: CompatLevel) =>
+  commerceutil.getMoneyString(node, [], new Context(node, { compat }));
+
+const moneySpan = (amount: string) => `<span class="sqs-money-native">${amount}</span>`;
+
+/**
+ * Exact string helpers behind the fixed money path. The input rows mirror
+ * Java's BigDecimal.movePointLeft(2) and DecimalFormat HALF_EVEN steps.
+ */
+test('legacy money exact helpers', () => {
+  // Move the decimal point two places left on the exact cents digits.
+  expect(commerceutil.moveDecimalLeft('123456789012345678')).toEqual('1234567890123456.78');
+  expect(commerceutil.moveDecimalLeft('123456789012345678.90')).toEqual('1234567890123456.7890');
+  expect(commerceutil.moveDecimalLeft('12.5')).toEqual('0.125');
+  expect(commerceutil.moveDecimalLeft('1234.56')).toEqual('12.3456');
+  expect(commerceutil.moveDecimalLeft('100')).toEqual('1.00');
+  expect(commerceutil.moveDecimalLeft('0')).toEqual('0.00');
+  expect(commerceutil.moveDecimalLeft('-12.5')).toEqual('-0.125');
+
+  // Round to two fraction digits, half to even.
+  expect(commerceutil.roundHalfEven('1234567890123456.7890')).toEqual('1234567890123456.79');
+  expect(commerceutil.roundHalfEven('0.125')).toEqual('0.12');
+  expect(commerceutil.roundHalfEven('0.135')).toEqual('0.14');
+  expect(commerceutil.roundHalfEven('12.3456')).toEqual('12.35');
+  expect(commerceutil.roundHalfEven('0.005')).toEqual('0.00');
+  expect(commerceutil.roundHalfEven('0.015')).toEqual('0.02');
+  expect(commerceutil.roundHalfEven('99.995')).toEqual('100.00');
+  expect(commerceutil.roundHalfEven('-0.125')).toEqual('-0.12');
+  expect(commerceutil.roundHalfEven('-0.135')).toEqual('-0.14');
+  expect(commerceutil.roundHalfEven('1.00')).toEqual('1.00');
+});
+
+/**
+ * Level 0 keeps the released double round-trip and its lost precision.
+ */
+test('money string legacy', () => {
+  expect(moneyString(moneyNode('1234567890123456.78'))).toEqual(moneySpan('1,234,567,890,123,456.80'));
+  expect(moneyString(moneyNode('0.125'))).toEqual(moneySpan('0.13'));
+});
+
+/**
+ * The fixed level formats the exact cents digits and matches Java.
+ */
+test('money string fixed', () => {
+  const fixed = CompatLevel.fixed();
+  expect(moneyString(moneyNode('1234567890123456.78'), fixed)).toEqual(moneySpan('1,234,567,890,123,456.78'));
+  expect(moneyString(moneyNode('1234567890123456.7890'), fixed)).toEqual(moneySpan('1,234,567,890,123,456.79'));
+  expect(moneyString(moneyNode('0.125'), fixed)).toEqual(moneySpan('0.12'));
+  expect(moneyString(moneyNode('0.135'), fixed)).toEqual(moneySpan('0.14'));
+});
+
+/**
+ * Missing values and ordinary prices render the same at both levels.
+ */
+test('money string missing and small values', () => {
+  const fixed = CompatLevel.fixed();
+  const missing = new Node({ currency: 'USD' });
+  expect(moneyString(missing)).toEqual(moneySpan('0.00'));
+  expect(moneyString(missing, fixed)).toEqual(moneySpan('0.00'));
+  expect(moneyString(moneyNode('12.3456'))).toEqual(moneySpan('12.35'));
+  expect(moneyString(moneyNode('12.3456'), fixed)).toEqual(moneySpan('12.35'));
+  expect(moneyString(moneyNode('1.00'))).toEqual(moneySpan('1.00'));
+  expect(moneyString(moneyNode('1.00'), fixed)).toEqual(moneySpan('1.00'));
 });
