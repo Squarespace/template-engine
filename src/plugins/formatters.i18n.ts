@@ -1,11 +1,12 @@
-import { CurrencyType } from '@phensley/cldr-core';
+import { CurrencyType, Decimal } from '@phensley/cldr-core';
 
+import { Patch } from '../compat/patch';
 import { Context } from '../context';
+import { MISSING_NODE } from '../node';
 import { Variable } from '../variable';
 import { FormatterTable } from '../plugin';
 import { Formatter } from '../plugin';
 import { getTimeZone } from './util.timezone';
-import { parseDecimal } from './util.i18n';
 import { currencyOptions, datetimeOptions, decimalOptions, intervalOptions, relativetimeOptions } from './options';
 import { splitVariable } from '../util';
 import { humanizeDate } from './util.content';
@@ -67,15 +68,23 @@ export class DecimalFormatter extends Formatter {
       return;
     }
 
-    const node = first.node.asString();
-    const opts = decimalOptions(args);
-    const num = parseDecimal(node);
-    if (num !== undefined) {
-      const res = cldr.Numbers.formatDecimal(num, opts);
-      first.set(res);
-    } else {
-      first.set('');
+    const legacy = ctx.compatEnabled(Patch.MONEY_BAD_DECIMAL);
+    let decimal: Decimal;
+    try {
+      decimal = new Decimal(first.node.asString());
+    } catch (e) {
+      if (legacy) {
+        // Level 0 lets cldr's IllegalArgumentException escape, and the
+        // engine records it as an unexpected error, matching Java.
+        throw Object.assign(new Error((e as Error).message), { name: 'IllegalArgumentException' });
+      }
+      // Fixed, an unconvertible value renders missing.
+      first.set(MISSING_NODE);
+      return;
     }
+    const opts = decimalOptions(args);
+    const res = cldr.Numbers.formatDecimal(decimal, opts);
+    first.set(res);
   }
 }
 
@@ -154,14 +163,23 @@ export class MoneyFormatter extends Formatter {
     }
 
     const code = currencyNode.asString();
-    const decimal = parseDecimal(decimalValue.asString());
-    if (decimal !== undefined) {
-      const opts = currencyOptions(args);
-      const res = cldr.Numbers.formatCurrency(decimal, code as CurrencyType, opts);
-      first.set(res);
-    } else {
-      first.set('');
+    const legacy = ctx.compatEnabled(Patch.MONEY_BAD_DECIMAL);
+    let decimal: Decimal;
+    try {
+      decimal = new Decimal(decimalValue.asString());
+    } catch (e) {
+      if (legacy) {
+        // Level 0 lets cldr's IllegalArgumentException escape, and the
+        // engine records it as an unexpected error, matching Java.
+        throw Object.assign(new Error((e as Error).message), { name: 'IllegalArgumentException' });
+      }
+      // Fixed, an unconvertible decimalValue renders missing.
+      first.set(MISSING_NODE);
+      return;
     }
+    const opts = currencyOptions(args);
+    const res = cldr.Numbers.formatCurrency(decimal, code as CurrencyType, opts);
+    first.set(res);
   }
 }
 

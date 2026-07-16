@@ -1,6 +1,8 @@
 import { join } from 'path';
 import { CLDR } from '@phensley/cldr';
 import { framework } from '../cldr';
+import { CompatLevel } from '../../src/compat/compat-level';
+import { Compiler } from '../../src/compiler';
 import { Context } from '../../src/context';
 import { I18N_FORMATTERS as TABLE, RelativeTimeFormatter, TimeSinceFormatter } from '../../src/plugins/formatters.i18n';
 import { Variable } from '../../src/variable';
@@ -90,7 +92,7 @@ test('decimal', () => {
   expect(formatDecimal(undefined, big, args)).toEqual('');
 
   // Bad input
-  expect(formatDecimal(EN, '"abcdef"', [])).toEqual('');
+  expect(() => formatDecimal(EN, '"abcdef"', [])).toThrow(IAE);
 });
 
 loader.paths('f-money-%N.html').forEach((path) => {
@@ -114,13 +116,111 @@ test('money', () => {
   // Bad input
   expect(formatMoney(EN, '"abdef"', [])).toEqual('');
 
+  // Level 0 keeps the legacy IllegalArgumentException for a bad decimalValue.
   const badmoney = { decimalValue: 'abdef', currencyCode: 'USD' };
-  expect(formatMoney(EN, badmoney, [])).toEqual('');
+  expect(() => formatMoney(EN, badmoney, [])).toThrow(IAE);
 
   // Use value and currency instead of decimalValue and currencyCode
   money = { value: '155900.799', currency: 'EUR' };
   let ctx: any = {};
   expect(formatMoney(EN, money, ['style:short'], ctx)).toEqual('€156K');
+});
+
+const LEGACY = CompatLevel.defaultLevel();
+const FIXED = CompatLevel.fixed();
+const IAE = expect.objectContaining({ name: 'IllegalArgumentException' });
+
+const applyDecimal = (cldr: CLDR | undefined, n: any, args: string[], compat: CompatLevel) => {
+  const impl = TABLE.decimal;
+  const ctx = new Context({}, { cldr, compat });
+  const vars = variables(n);
+  impl.apply(args, vars, ctx);
+  return vars[0];
+};
+
+const applyMoney = (cldr: CLDR | undefined, n: any, args: string[], compat: CompatLevel) => {
+  const impl = TABLE.money;
+  const ctx = new Context({}, { cldr, compat });
+  const vars = variables(n);
+  impl.apply(args, vars, ctx);
+  return vars[0];
+};
+
+const execute = (code: string, json: any, compat?: CompatLevel) => {
+  const c = new Compiler();
+  return c.execute({ code, json, cldr: EN, compat });
+};
+
+test('money bad decimalValue', () => {
+  const bad = [
+    { decimalValue: null, currencyCode: 'USD' },
+    { decimalValue: 'not-a-number', currencyCode: 'USD' },
+  ];
+
+  // Legacy, a null or non-numeric decimalValue throws at the default level.
+  for (const m of bad) {
+    expect(() => applyMoney(EN, m, [], LEGACY)).toThrow(IAE);
+  }
+
+  // Legacy, a full execute records the throw as one error.
+  let { ctx, errors } = execute('[ {@|money} ]', bad[0]);
+  expect(ctx.render()).toEqual('[  ]');
+  expect(errors.length).toEqual(1);
+  expect(errors[0].message).toContain('IllegalArgumentException');
+
+  // Fixed, a null or non-numeric decimalValue renders missing.
+  for (const m of bad) {
+    expect(applyMoney(EN, m, [], FIXED).node.isMissing()).toBe(true);
+  }
+
+  // Fixed, a full execute renders empty without error.
+  ({ ctx, errors } = execute('[ {@|money} ]', bad[0], FIXED));
+  expect(ctx.render()).toEqual('[  ]');
+  expect(errors).toEqual([]);
+});
+
+test('money valid and mixed serialization', () => {
+  // A valid decimalValue renders at both levels.
+  for (const compat of [LEGACY, FIXED]) {
+    expect(applyMoney(EN, { decimalValue: '1.25', currencyCode: 'USD' }, [], compat).get()).toEqual('$1.25');
+  }
+
+  // Mixed serialization falls back before the parse, so it renders empty at
+  // both levels without an error.
+  const mixed = { currencyCode: 'USD', value: '123.456' };
+  for (const compat of [LEGACY, FIXED]) {
+    expect(applyMoney(EN, mixed, [], compat).get()).toEqual('');
+  }
+});
+
+test('decimal bad value', () => {
+  // Legacy, a non-numeric value throws at the default level.
+  expect(() => applyDecimal(EN, 'not-a-number', [], LEGACY)).toThrow(IAE);
+
+  // Fixed, a non-numeric value renders missing.
+  expect(applyDecimal(EN, 'not-a-number', [], FIXED).node.isMissing()).toBe(true);
+});
+
+test('decimal valid value', () => {
+  // A valid value renders the same at both levels.
+  for (const compat of [LEGACY, FIXED]) {
+    expect(applyDecimal(EN, '1.25', [], compat).get()).toEqual('1.25');
+    expect(applyDecimal(EN, 7.5, [], compat).get()).toEqual('7.5');
+  }
+});
+
+test('decimal missing value', () => {
+  // Legacy, a missing value reaches the parse as empty text and the engine
+  // records the IllegalArgumentException.
+  let { ctx, errors } = execute('[ {missing|decimal} ]', {});
+  expect(ctx.render()).toEqual('[  ]');
+  expect(errors.length).toEqual(1);
+  expect(errors[0].message).toContain('IllegalArgumentException');
+
+  // Fixed, a missing value renders empty without an error.
+  ({ ctx, errors } = execute('[ {missing|decimal} ]', {}, FIXED));
+  expect(ctx.render()).toEqual('[  ]');
+  expect(errors).toEqual([]);
 });
 
 loader.paths('f-datetime-%N.html').forEach((path) => {
