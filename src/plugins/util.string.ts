@@ -38,8 +38,21 @@ const HTML_ATTRIBUTE_CHARS = {
   '"': '&quot;',
 };
 
-export const escapeHtmlAttributes = (str: string) => {
-  return replaceMappedChars(str, HTML_ATTRIBUTE_CHARS);
+// Fixed, the single quote is escaped for single-quoted attribute values.
+const HTML_ATTRIBUTE_CHARS_QUOTE = {
+  ...HTML_ATTRIBUTE_CHARS,
+  "'": '&#39;',
+};
+
+/**
+ * Escape a string for an HTML attribute context. The default matches the
+ * release: the single quote passes through raw. Pass false to escape it
+ * as &#39;, for callers whose output lands in single-quoted attributes.
+ * Only the htmlattr and htmltag formatters pick the flag from the compat
+ * level; every other caller keeps the released form at all levels.
+ */
+export const escapeHtmlAttributes = (str: string, legacySingleQuote = true) => {
+  return replaceMappedChars(str, legacySingleQuote ? HTML_ATTRIBUTE_CHARS : HTML_ATTRIBUTE_CHARS_QUOTE);
 };
 
 const SLUG_KILLCHARS = /[^a-zA-Z0-9\s-]+/g;

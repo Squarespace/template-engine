@@ -1,6 +1,8 @@
 import { join } from 'path';
 import { CONTENT_FORMATTERS as TABLE } from '../../src/plugins/formatters.content';
 import { Context } from '../../src/context';
+import { Compiler } from '../../src/compiler';
+import { CompatLevel } from '../../src/compat/compat-level';
 import { MISSING_NODE } from '../../src/node';
 import { Image } from '../helpers';
 import { TemplateTestLoader } from '../loader';
@@ -170,6 +172,21 @@ loader.paths('f-humanize-duration-%N.html').forEach((path) => {
 
 loader.paths('f-image-%N.html').forEach((path) => {
   test(`image - ${path}`, () => loader.execute(path));
+});
+
+test('image alt stays released at the fixed level', () => {
+  // The image-alt path calls the released escape form, so the quote stays
+  // raw even when every patch is fixed.
+  const compiler = new Compiler();
+  const { ctx, errors } = compiler.execute({
+    code: '{@|image}',
+    json: { id: 'x1', title: "it's", assetUrl: '/a.jpg' },
+    compat: CompatLevel.fixed(),
+  });
+  expect(errors).toEqual([]);
+  const output = ctx.render();
+  expect(output).toContain('alt="it\'s"');
+  expect(output).not.toContain('alt="it&#39;s"');
 });
 
 loader.paths('f-image-meta-%N.html').forEach((path) => {

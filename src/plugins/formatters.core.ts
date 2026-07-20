@@ -201,7 +201,8 @@ export class HtmlFormatter extends Formatter {
 export class HtmlAttrFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
-    first.set(escapeHtmlAttributes(first.node.asString()));
+    // Legacy, the single quote passes through raw; fixed, it escapes.
+    first.set(escapeHtmlAttributes(first.node.asString(), ctx.compatEnabled(Patch.HTMLATTR_QUOTE)));
   }
 }
 

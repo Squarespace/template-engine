@@ -13,6 +13,13 @@ test('remove tags', () => {
 
 test('escape html attribute', () => {
   expect(escapeHtmlAttributes('<tag> "foo" & bar')).toEqual('&lt;tag&gt; &quot;foo&quot; &amp; bar');
+
+  // Legacy, the default leaves a single quote raw.
+  expect(escapeHtmlAttributes("it's")).toEqual("it's");
+
+  // Fixed, the quote is escaped for single-quoted attribute values.
+  expect(escapeHtmlAttributes("it's", false)).toEqual('it&#39;s');
+  expect(escapeHtmlAttributes(`a'b&c<d>e"f`, false)).toEqual('a&#39;b&amp;c&lt;d&gt;e&quot;f');
 });
 
 test('slugify', () => {

@@ -322,6 +322,41 @@ loader.paths('f-htmltag-%N.html').forEach((path) => {
 
 test('htmltag', () => htmlattr('htmltag'));
 
+loader.paths('f-htmlattr-quote-%N.html').forEach((path) => {
+  test(`htmlattr quote - ${path}`, () => loader.execute(path));
+});
+
+test('htmlattr quote level', () => {
+  const compiler = new Compiler();
+  const render = (template: string, compat?: CompatLevel, json: any = { s: "it's" }) => {
+    const { ctx, errors } = compiler.execute({ code: template, json, compat });
+    return { output: ctx.render(), errors };
+  };
+
+  // Legacy below the threshold, level 0 and 1 keep the released output.
+  for (const compat of [CompatLevel.defaultLevel(), CompatLevel.at(1)]) {
+    for (const name of ['htmlattr', 'htmltag']) {
+      const result = render(`{s|${name}}`, compat);
+      expect(result.errors).toEqual([]);
+      expect(result.output).toEqual("it's");
+    }
+  }
+
+  // Fixed at the threshold and above, the quote is escaped.
+  for (const compat of [CompatLevel.at(2), CompatLevel.fixed()]) {
+    for (const name of ['htmlattr', 'htmltag']) {
+      const result = render(`{s|${name}}`, compat);
+      expect(result.errors).toEqual([]);
+      expect(result.output).toEqual('it&#39;s');
+    }
+  }
+
+  // The full mapping once fixed, matching the Java rows and fixtures.
+  const full = render('{s|htmlattr}', CompatLevel.fixed(), { s: `a'b&c<d>e"f` });
+  expect(full.errors).toEqual([]);
+  expect(full.output).toEqual('a&#39;b&amp;c&lt;d&gt;e&quot;f');
+});
+
 loader.paths('f-iter-%N.html').forEach((path) => {
   test(`iter - ${path}`, () => loader.execute(path));
 });
