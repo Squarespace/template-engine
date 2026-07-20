@@ -127,7 +127,7 @@ export class SocialButtonFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const website = ctx.resolve(['website']);
-    const text = makeSocialButton(website, first.node, false);
+    const text = makeSocialButton(website, first.node, false, ctx.compatEnabled(Patch.SOCIAL_BUTTON_ATTRIBUTES));
     first.set(text);
   }
 }
@@ -136,7 +136,7 @@ export class SocialButtonInlineFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const website = ctx.resolve(['website']);
-    const text = makeSocialButton(website, first.node, true);
+    const text = makeSocialButton(website, first.node, true, ctx.compatEnabled(Patch.SOCIAL_BUTTON_ATTRIBUTES));
     first.set(text);
   }
 }
