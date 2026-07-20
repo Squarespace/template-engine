@@ -1,5 +1,8 @@
 import { join } from 'path';
+import { GregorianDate } from '../../src/calendars';
+import { CompatLevel } from '../../src/compat/compat-level';
 import { DATE_FORMATTERS as TABLE } from '../../src/plugins/formatters.date';
+import { formatDate, mondayWeekOfYear } from '../../src/plugins/util.date';
 import { Context } from '../../src/context';
 import { Variable } from '../../src/variable';
 import { framework } from '../cldr';
@@ -9,7 +12,21 @@ const loader = new TemplateTestLoader(join(__dirname, 'resources'));
 
 const variables = (...n: any[]) => n.map((v, i) => new Variable('var' + i, v));
 
+// Week anchor test rows, ported from PluginDateUtilsTest in Java. All
+// instants are UTC, so the week numbers do not depend on the system zone.
+const JAN_01_2020_UTC = 1577836800000; // Wednesday
+const JAN_01_2023_UTC = 1672531200000; // Sunday
+const JAN_02_2023_UTC = 1672617600000; // Monday
+const JUL_03_2023_UTC = 1688342400000; // Monday
+const JUL_09_2023_UTC = 1688860800000; // Sunday
+const DEC_31_2023_UTC = 1703980800000; // Sunday
+const DEC_31_2024_UTC = 1735603200000; // Tuesday, leap year
+
 loader.paths('f-date-%N.html').forEach((path) => {
+  test(`date - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-date-week-%N.html').forEach((path) => {
   test(`date - ${path}`, () => loader.execute(path));
 });
 
@@ -238,4 +255,95 @@ test('all fields', () => {
   vars = variables(nov2019);
   TABLE.date.apply(['%Z'], vars, ctx);
   expect(vars[0].get()).toEqual('EST');
+});
+
+test('week number released vs fixed', () => {
+  const fmt = (f: string, epoch: number, legacy = true) =>
+    formatDate(GregorianDate.fromUnixEpoch(epoch, 'UTC'), f, legacy);
+
+  // Released behavior: %W is Sunday anchored and duplicates %U.
+  // Sunday 2023-01-01 is week 01 Sunday-based, ISO week 52 of 2022.
+  expect(fmt('%U %W %V', JAN_01_2023_UTC)).toEqual('01 01 52');
+  // Wednesday 2020-01-01 is before the first Monday but in the first
+  // Sunday-based and ISO weeks of 2020.
+  expect(fmt('%U %W %V', JAN_01_2020_UTC)).toEqual('01 01 01');
+  // Sunday 2023-07-09 starts a new Sunday-based week but not a Monday one.
+  expect(fmt('%U %W %V', JUL_09_2023_UTC)).toEqual('28 28 27');
+
+  // Fixed behavior: %W is Monday anchored per POSIX.
+  expect(fmt('%U %W %V', JAN_01_2023_UTC, false)).toEqual('01 00 52');
+  // Before the first Monday of the year is week 00 even when the date
+  // sits in week 1 Sunday-based and ISO.
+  expect(fmt('%U %W %V', JAN_01_2020_UTC, false)).toEqual('01 00 01');
+  // The Monday after starts the first Monday-anchored week.
+  expect(fmt('%W', JAN_02_2023_UTC, false)).toEqual('01');
+  // A mid-year Monday and the following Sunday are in the same %W week.
+  expect(fmt('%W', JUL_03_2023_UTC, false)).toEqual('27');
+  expect(fmt('%W', JUL_09_2023_UTC, false)).toEqual('27');
+  // Year end, and a 53-week Monday-anchored year (2024 leap, Jan 1 Monday).
+  expect(fmt('%W', DEC_31_2023_UTC, false)).toEqual('52');
+  expect(fmt('%W', DEC_31_2024_UTC, false)).toEqual('53');
+
+  // %U and %V anchor on Sunday and ISO weeks; the %W level change never
+  // moves them. Checked on every date above, and pinned on two rows.
+  const all = [JAN_01_2020_UTC, JAN_01_2023_UTC, JAN_02_2023_UTC, JUL_03_2023_UTC, JUL_09_2023_UTC,
+    DEC_31_2023_UTC, DEC_31_2024_UTC];
+  all.forEach((epoch) => {
+    expect(fmt('%U %V', epoch)).toEqual(fmt('%U %V', epoch, false));
+  });
+  expect(fmt('%U %V', JAN_01_2023_UTC)).toEqual('01 52');
+  // Tuesday 2024-12-31 sits in the week that rolls into 2025 for both
+  // Sunday-based and ISO numbering.
+  expect(fmt('%U %V', DEC_31_2024_UTC)).toEqual('01 01');
+});
+
+test('mondayWeekOfYear', () => {
+  // POSIX %W: the first Monday of the year starts week 1; before it is
+  // week 00. jan1Dow is Jan 1's day of week, 1=Sun..7=Sat.
+  // Jan 1 on Sunday (2023, 2029): the first Monday is Jan 2.
+  expect(mondayWeekOfYear(1, 1)).toEqual(0);
+  expect(mondayWeekOfYear(2, 1)).toEqual(1);
+  expect(mondayWeekOfYear(8, 1)).toEqual(1);
+  expect(mondayWeekOfYear(9, 1)).toEqual(2);
+  // Jan 1 on Monday (2024): week 1 starts Jan 1.
+  expect(mondayWeekOfYear(1, 2)).toEqual(1);
+  expect(mondayWeekOfYear(7, 2)).toEqual(1);
+  expect(mondayWeekOfYear(8, 2)).toEqual(2);
+  // Jan 1 on Tuesday (2019): the first Monday is Jan 7.
+  expect(mondayWeekOfYear(1, 3)).toEqual(0);
+  expect(mondayWeekOfYear(6, 3)).toEqual(0);
+  expect(mondayWeekOfYear(7, 3)).toEqual(1);
+  // Jan 1 on Wednesday (2020): the first Monday is Jan 6.
+  expect(mondayWeekOfYear(5, 4)).toEqual(0);
+  expect(mondayWeekOfYear(6, 4)).toEqual(1);
+  // Jan 1 on Thursday (2015): the first Monday is Jan 5.
+  expect(mondayWeekOfYear(4, 5)).toEqual(0);
+  expect(mondayWeekOfYear(5, 5)).toEqual(1);
+  // Jan 1 on Friday (2021): the first Monday is Jan 4.
+  expect(mondayWeekOfYear(3, 6)).toEqual(0);
+  expect(mondayWeekOfYear(4, 6)).toEqual(1);
+  // Jan 1 on Saturday (2022): the first Monday is Jan 3.
+  expect(mondayWeekOfYear(2, 7)).toEqual(0);
+  expect(mondayWeekOfYear(3, 7)).toEqual(1);
+});
+
+test('week formatter levels', () => {
+  const en = framework.get('en');
+  const utc = { website: { timeZone: 'UTC' } };
+
+  // The default context uses level 0: %W is Sunday anchored.
+  let ctx = new Context(utc, { cldr: en });
+  let vars = variables(JAN_01_2023_UTC);
+  TABLE.date.apply(['%U %W %V'], vars, ctx);
+  expect(vars[0].get()).toEqual('01 01 52');
+
+  // A fixed context switches %W to the Monday anchor; %U and %V hold.
+  ctx = new Context(utc, { cldr: en, compat: CompatLevel.fixed() });
+  vars = variables(JAN_01_2023_UTC);
+  TABLE.date.apply(['%U %W %V'], vars, ctx);
+  expect(vars[0].get()).toEqual('01 00 52');
+
+  vars = variables(DEC_31_2024_UTC);
+  TABLE.date.apply(['%W'], vars, ctx);
+  expect(vars[0].get()).toEqual('53');
 });

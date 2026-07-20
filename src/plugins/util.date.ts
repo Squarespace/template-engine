@@ -1,9 +1,11 @@
 import { GregorianDate } from '../calendars';
 
 /**
- * Format a Gregorian date using a YUI / UNIX date format pattern.
+ * Format a Gregorian date using a YUI / UNIX date format pattern. When
+ * legacyWeekAnchor is set, %W stays Sunday anchored, the released
+ * behavior. Clear it for the Monday-anchored POSIX week number.
  */
-export const formatDate = (d: GregorianDate, fmt: string) => {
+export const formatDate = (d: GregorianDate, fmt: string, legacyWeekAnchor = true) => {
   let esc = '';
   const parts = [];
   const len = fmt.length;
@@ -67,7 +69,7 @@ export const formatDate = (d: GregorianDate, fmt: string) => {
       // %c     locale's date and time (e.g., Thu Mar  3 23:05:25 2005)
       case 'c': {
         // day of month, unpadded
-        out = formatDate(d, `%a, %b ${d.dayOfMonth()}, %Y %i:%M:%S %p %Z`);
+        out = formatDate(d, `%a, %b ${d.dayOfMonth()}, %Y %i:%M:%S %p %Z`, legacyWeekAnchor);
         break;
       }
 
@@ -83,7 +85,7 @@ export const formatDate = (d: GregorianDate, fmt: string) => {
 
       // %D     date; same as %m/%d/%y
       case 'D':
-        out = formatDate(d, '%m/%d/%y');
+        out = formatDate(d, '%m/%d/%y', legacyWeekAnchor);
         break;
 
       // %e     day of month, space padded; same as %_d
@@ -93,7 +95,7 @@ export const formatDate = (d: GregorianDate, fmt: string) => {
 
       // %F     full date; same as %Y-%m-%d
       case 'F':
-        out = formatDate(d, '%Y-%m-%d');
+        out = formatDate(d, '%Y-%m-%d', legacyWeekAnchor);
         break;
 
       // %g     last two digits of year of ISO week number (see %G)
@@ -187,13 +189,13 @@ export const formatDate = (d: GregorianDate, fmt: string) => {
       // %r     locale's 12-hour clock time (e.g., 11:11:04 PM)
       case 'r': {
         const h = d.hour();
-        out = formatDate(d, `${h === 0 ? 12 : h}:%M:%S %p`);
+        out = formatDate(d, `${h === 0 ? 12 : h}:%M:%S %p`, legacyWeekAnchor);
         break;
       }
 
       // %R     24-hour hour and minute; same as %H:%M
       case 'R':
-        out = formatDate(d, '%H:%M');
+        out = formatDate(d, '%H:%M', legacyWeekAnchor);
         break;
 
       // %s     seconds since 1970-01-01 00:00:00 UTC
@@ -213,7 +215,7 @@ export const formatDate = (d: GregorianDate, fmt: string) => {
 
       // %T     time; same as %H:%M:%S
       case 'T':
-        out = formatDate(d, '%H:%M:%S');
+        out = formatDate(d, '%H:%M:%S', legacyWeekAnchor);
         break;
 
       // %u     day of week (1..7); 1 is Monday
@@ -230,7 +232,7 @@ export const formatDate = (d: GregorianDate, fmt: string) => {
 
       // Undocumented
       case 'v':
-        out = formatDate(d, '%e-%b-%Y');
+        out = formatDate(d, '%e-%b-%Y', legacyWeekAnchor);
         break;
 
       // %V     ISO week number, with Monday as first day of week (01..53)
@@ -244,18 +246,29 @@ export const formatDate = (d: GregorianDate, fmt: string) => {
         break;
 
       // %W     week number of year, with Monday as first day of week (00..53)
-      case 'W':
-        out = pad(`${d.weekOfYear()}`, '0', 2);
+      case 'W': {
+        if (legacyWeekAnchor) {
+          // Legacy, Sunday anchored, the exact code the release shipped.
+          out = pad(`${d.weekOfYear()}`, '0', 2);
+        } else {
+          // Fixed, Monday anchored. dayOfWeek(): 1=Sun..7=Sat (see %u).
+          // Back out Jan 1's weekday and count weeks from the first Monday.
+          const doy = d.dayOfYear();
+          const dow = d.dayOfWeek();
+          const jan1Dow = ((dow - (doy - 1) - 1) % 7 + 7) % 7 + 1;
+          out = pad(`${mondayWeekOfYear(doy, jan1Dow)}`, '0', 2);
+        }
         break;
+      }
 
       // %x     locale's date representation (e.g., 12/31/1999)
       case 'x':
-        out = formatDate(d, '%m/%d/%Y');
+        out = formatDate(d, '%m/%d/%Y', legacyWeekAnchor);
         break;
 
       // %X     locale's time representation (e.g., 23:13:48)
       case 'X':
-        out = formatDate(d, '%I:%M:%S %p');
+        out = formatDate(d, '%I:%M:%S %p', legacyWeekAnchor);
         break;
 
       // %y     last two digits of year (00..99)
@@ -303,6 +316,13 @@ export const formatDate = (d: GregorianDate, fmt: string) => {
   }
 
   return parts.join('');
+};
+
+// POSIX %W week number: Monday starts week 1, days before that are week 00.
+// dayOfYear is 1-based. jan1Dow is Jan 1's day of week, 1=Sun..7=Sat.
+export const mondayWeekOfYear = (dayOfYear: number, jan1Dow: number): number => {
+  const firstMonday = (9 - jan1Dow) % 7 + 1; // day-of-year of the first Monday
+  return ((dayOfYear + 7 - firstMonday) / 7) | 0;
 };
 
 const getTZC = (offset: number): [boolean, number, number] => {

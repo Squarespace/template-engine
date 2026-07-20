@@ -1,4 +1,5 @@
 import { GregorianDate } from '../calendars';
+import { Patch } from '../compat/patch';
 import { Context } from '../context';
 import { Formatter, FormatterTable } from '../plugin';
 import { Variable } from '../variable';
@@ -29,7 +30,7 @@ export class DateFormatter extends Formatter {
     const d = GregorianDate.fromUnixEpoch(instant, timezone);
 
     // Build format and apply
-    const value = formatDate(d, args.join(' '));
+    const value = formatDate(d, args.join(' '), ctx.compatEnabled(Patch.WEEK_MONDAY_ANCHOR));
     first.set(value);
   }
 }
