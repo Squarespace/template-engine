@@ -9,7 +9,7 @@ import { Formatter } from '../plugin';
 import { getTimeZone } from './util.timezone';
 import { currencyOptions, datetimeOptions, decimalOptions, intervalOptions, relativetimeOptions } from './options';
 import { splitVariable } from '../util';
-import { humanizeDate } from './util.content';
+import { humanizeDate, getZoneOffsetMs } from './util.content';
 
 export class DatetimeFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
@@ -224,7 +224,13 @@ export class TimeSinceFormatter extends Formatter {
     const date = cldr.Calendars.toGregorianDate({ date: n });
 
     const delta = base.unixEpoch() - date.unixEpoch();
-    const res = humanizeDate(delta, false);
+    // Legacy, the default zone's offset at the instant joins the delta,
+    // matching the released Java code. At level 1 the delta is the raw epoch
+    // millis difference. The system zone stands in for Java's
+    // TimeZone.getDefault().getID() and is resolved per call.
+    const legacy = ctx.compatEnabled(Patch.HUMANIZE_DATE_TZ);
+    const zoneId = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const res = humanizeDate(legacy ? delta + getZoneOffsetMs(cldr, zoneId, n) : delta, false);
     const html = `<span class="timesince" data-date="${n}">${res}</span>`;
     first.set(html);
   }

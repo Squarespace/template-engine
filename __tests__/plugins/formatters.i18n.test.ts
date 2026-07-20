@@ -5,6 +5,7 @@ import { CompatLevel } from '../../src/compat/compat-level';
 import { Compiler } from '../../src/compiler';
 import { Context } from '../../src/context';
 import { I18N_FORMATTERS as TABLE, RelativeTimeFormatter, TimeSinceFormatter } from '../../src/plugins/formatters.i18n';
+import { getZoneOffsetMs, humanizeDate } from '../../src/plugins/util.content';
 import { Variable } from '../../src/variable';
 import { TemplateTestLoader } from '../loader';
 
@@ -420,9 +421,9 @@ loader.paths('f-timesince-%N.html').forEach((path) => {
   test(`timesince - ${path}`, () => loader.execute(path));
 });
 
-const formatTimeSince = (cldr: CLDR | undefined, start: number | undefined, end: number, args: string[]) => {
+const formatTimeSince = (cldr: CLDR | undefined, start: number | undefined, end: number, args: string[], compat?: CompatLevel) => {
   const impl = TABLE.timesince as TimeSinceFormatter;
-  const ctx = new Context({}, { cldr, now: start });
+  const ctx = new Context({}, { cldr, now: start, compat });
   const vars = variables(end);
   impl.apply(args, vars, ctx);
   return vars[0].get();
@@ -434,24 +435,48 @@ test('timesince', () => {
   const args: string[] = [];
   let e: number;
 
+  // These rows bucket on the raw epoch millis delta. The default level adds
+  // the system zone's offset, so the fixed level keeps them deterministic.
+  // The legacy path is covered by the zone offset rows below.
+  const fmt = (e: number) => formatTimeSince(EN, base, e, args, FIXED);
+
   e = start.add({ millis: 100 }).unixEpoch();
-  expect(formatTimeSince(EN, base, e, args)).toContain('less than a minute ago');
+  expect(fmt(e)).toContain('less than a minute ago');
 
   e = start.add({ year: -1.6 }).unixEpoch();
-  expect(formatTimeSince(EN, base, e, args)).toContain('about a year ago');
+  expect(fmt(e)).toContain('about a year ago');
 
   e = start.add({ month: -6 }).unixEpoch();
-  expect(formatTimeSince(EN, base, e, args)).toContain('about 6 months ago');
+  expect(fmt(e)).toContain('about 6 months ago');
 
   e = start.add({ day: -27 }).unixEpoch();
-  expect(formatTimeSince(EN, base, e, args)).toContain('about 3 weeks ago');
+  expect(fmt(e)).toContain('about 3 weeks ago');
 
   e = start.add({ hour: -27 }).unixEpoch();
-  expect(formatTimeSince(EN, base, e, args)).toContain('about a day ago');
+  expect(fmt(e)).toContain('about a day ago');
 
   e = start.add({ minute: -27 }).unixEpoch();
-  expect(formatTimeSince(EN, base, e, args)).toContain('about 27 minutes ago');
+  expect(fmt(e)).toContain('about 27 minutes ago');
 
   // base cldr produces empty output
   expect(formatTimeSince(undefined, base, e, args)).toEqual('Invalid date.');
+});
+
+test('timesince zone offset', () => {
+  // May 13, 2013 01:00:00 UTC, from the Java KnownDates table.
+  const base = 1368406800000;
+  const hour = 3600000;
+  const n = base - hour;
+
+  // Default level, the system zone's offset at the instant joins the delta.
+  const systemZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const expected = `<span class="timesince" data-date="${n}">${humanizeDate(hour + getZoneOffsetMs(EN, systemZone, n), false)}</span>`;
+  expect(formatTimeSince(EN, base, n, [])).toEqual(expected);
+
+  // Fixed level, the delta is the raw epoch millis difference.
+  const impl = TABLE.timesince as TimeSinceFormatter;
+  const ctx = new Context({}, { cldr: EN, now: base, compat: FIXED });
+  const vars = variables(n);
+  impl.apply([], vars, ctx);
+  expect(vars[0].get()).toEqual(`<span class="timesince" data-date="${n}">about an hour ago</span>`);
 });

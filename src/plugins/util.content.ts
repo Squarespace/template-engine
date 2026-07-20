@@ -1,3 +1,4 @@
+import { CLDR } from '@phensley/cldr-core';
 import { Context } from '../context';
 import { isTruthy, Node } from '../node';
 import { escapeHtmlAttributes, removeTags } from './util.string';
@@ -104,6 +105,32 @@ export const humanizeDate = (delta: number, showSeconds: boolean) => {
     return humanizeDatePlural(delta, 'second');
   }
   return 'less than a minute ago';
+};
+
+/**
+ * UTC offset in millis for a zone at an instant. The offset lives on a
+ * calendar date's zone info, a protected field with no public accessor, so
+ * the value is read directly. The host's own zone tables fill in when it is
+ * missing.
+ */
+export const getZoneOffsetMs = (cldr: CLDR, zoneId: string, instantMs: number): number => {
+  const info = (cldr.Calendars.toGregorianDate({ date: instantMs, zoneId }) as any)._zoneInfo;
+  if (info && typeof info.offset === 'number') {
+    return info.offset;
+  }
+  const name = new Intl.DateTimeFormat('en-US', { timeZone: zoneId, timeZoneName: 'longOffset' })
+    .formatToParts(new Date(instantMs))
+    .find((p) => p.type === 'timeZoneName');
+  const match = name && /^GMT(?:([+-])(\d{2}):(\d{2}))?$/.exec(name.value);
+  if (!match) {
+    return 0;
+  }
+  // A bare GMT names an offset of zero.
+  if (match[1] === undefined) {
+    return 0;
+  }
+  const mins = 60 * parseInt(match[2], 10) + parseInt(match[3], 10);
+  return (match[1] === '-' ? -1 : 1) * mins * 60000;
 };
 
 export const isLicensedAssetPreview = (image: Node) => {
