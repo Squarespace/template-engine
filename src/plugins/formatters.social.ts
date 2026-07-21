@@ -22,10 +22,22 @@ const TWITTER_TWEETS_REGEX = /(^| )@([a-z0-9_]+)/gi;
 const TWITTER_TWEETS_REPLACEMENT = '$1<a target="new" href="https://twitter.com/$2/">@$2</a>';
 const TWITTER_HASHTAG_REGEX = /(^| )#([a-z0-9_]+)/gi;
 
+const TWITTER_LINKS_BODY_ESCAPES: Record<string, string> = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+};
+
 export class ActivateTwitterLinksFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
+    const legacy = ctx.compatEnabled(Patch.TWITTER_LINKS_RAW_HTML);
     let text = first.node.asString();
+    if (!legacy) {
+      // Fixed, escape the raw text first so hostile markup cannot pass
+      // through. The anchors built below are trusted.
+      text = text.replace(/[&<>]/g, (ch) => TWITTER_LINKS_BODY_ESCAPES[ch]);
+    }
     text = text.replace(TWITTER_LINKS_REGEX, TWITTER_LINKS_REPLACEMENT);
     text = text.replace(TWITTER_TWEETS_REGEX, TWITTER_TWEETS_REPLACEMENT);
     text = text.replace(TWITTER_HASHTAG_REGEX, (match, prefix, hashtag) => {

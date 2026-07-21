@@ -85,13 +85,50 @@ const emptyAssetUrl = {
  * variable node are the same JSON object, so the formatter resolves
  * 'website' and reads the item fields from the same node.
  */
-const format = (impl: Formatter, json: object, level: number) => {
+const format = (impl: Formatter, json: unknown, level: number) => {
   const node = new Node(json);
   const ctx = new Context(node, { compat: CompatLevel.at(level) });
   const vars = variables(node);
   impl.apply([], vars, ctx);
   return vars[0].get();
 };
+
+// Hostile markup passes through raw while the legacy path is active and is
+// escaped at level 2, where @user and #tag still become links. Mirrors the
+// Java testActivateTwitterLinksEscapesHtml JSON and the level-2 fixture
+// output.
+const TWITTER_LINKS = TABLE['activate-twitter-links'];
+const hostileMarkup = 'hello <img src=x onerror=alert(1)> @user #tag';
+const hostileMarkupLegacy =
+  'hello <img src=x onerror=alert(1)> ' +
+  '<a target="new" href="https://twitter.com/user/">@user</a> ' +
+  '<a target="new" href="https://twitter.com/hashtag/tag?src=hash">#tag</a>';
+const hostileMarkupFixed =
+  'hello &lt;img src=x onerror=alert(1)&gt; ' +
+  '<a target="new" href="https://twitter.com/user/">@user</a> ' +
+  '<a target="new" href="https://twitter.com/hashtag/tag?src=hash">#tag</a>';
+
+// A & in a linkified url renders as &amp; inside the href at level 2.
+// Mirrors the Java testActivateTwitterLinksUrlWithAmpersand JSON.
+const ampersandUrl = 'go to http://example.com/x?a=1&b=2 now';
+const ampersandUrlLegacy =
+  'go to <a target="new" href="http://example.com/x?a=1&b=2">' +
+  'http://example.com/x?a=1&b=2</a> now';
+const ampersandUrlFixed =
+  'go to <a target="new" href="http://example.com/x?a=1&amp;b=2">' +
+  'http://example.com/x?a=1&amp;b=2</a> now';
+
+test('activate twitter links: levels 0 and 1 linkify raw text, level 2 escapes first', () => {
+  expect(format(TWITTER_LINKS, hostileMarkup, 0)).toEqual(hostileMarkupLegacy);
+  expect(format(TWITTER_LINKS, hostileMarkup, 1)).toEqual(hostileMarkupLegacy);
+  expect(format(TWITTER_LINKS, hostileMarkup, 2)).toEqual(hostileMarkupFixed);
+});
+
+test('activate twitter links: a url amp stays raw at levels 0 and 1, escapes in the href at level 2', () => {
+  expect(format(TWITTER_LINKS, ampersandUrl, 0)).toEqual(ampersandUrlLegacy);
+  expect(format(TWITTER_LINKS, ampersandUrl, 1)).toEqual(ampersandUrlLegacy);
+  expect(format(TWITTER_LINKS, ampersandUrl, 2)).toEqual(ampersandUrlFixed);
+});
 
 test('social button: hostile values break out at level 0 and escape at level 2', () => {
   // Level 0 keeps the released surface: system-data-id, asset-url,
