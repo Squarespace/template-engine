@@ -194,6 +194,29 @@ test('money valid and mixed serialization', () => {
   }
 });
 
+test('money unknown currency code', () => {
+  const unknown = { decimalValue: '1.25', currencyCode: 'FOO' };
+  const lower = { decimalValue: '1.25', currencyCode: 'usd' };
+  const empty = { decimalValue: '1.25', currencyCode: '' };
+  const usd = { decimalValue: '1.25', currencyCode: 'USD' };
+
+  // Legacy (level 0), the unknown code passes through and the bare number
+  // keeps its leading NBSP. Level 1 sits below the threshold and stays on
+  // this path.
+  for (const m of [unknown, lower, empty]) {
+    for (const compat of [LEGACY, CompatLevel.at(1)]) {
+      expect(applyMoney(EN, m, [], compat).get()).toEqual('\u00a01.25');
+    }
+  }
+  expect(applyMoney(EN, usd, [], LEGACY).get()).toEqual('$1.25');
+
+  // Fixed, the unknown code renders missing, like the other bad-money paths.
+  for (const m of [unknown, lower, empty]) {
+    expect(applyMoney(EN, m, [], FIXED).node.isMissing()).toBe(true);
+  }
+  expect(applyMoney(EN, usd, [], FIXED).get()).toEqual('$1.25');
+});
+
 test('decimal bad value', () => {
   // Legacy, a non-numeric value throws at the default level.
   expect(() => applyDecimal(EN, 'not-a-number', [], LEGACY)).toThrow(IAE);

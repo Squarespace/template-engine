@@ -177,6 +177,13 @@ export class MoneyFormatter extends Formatter {
       first.set(MISSING_NODE);
       return;
     }
+    // Legacy, an unknown currency code renders a bare number with a
+    // leading NBSP. Fixed, the unknown code renders missing, like the
+    // other bad-money paths.
+    if (!ctx.compatEnabled(Patch.MONEY_UNKNOWN_CURRENCY) && !cldr.Numbers.getCurrencySymbol(code as CurrencyType)) {
+      first.set(MISSING_NODE);
+      return;
+    }
     const opts = currencyOptions(args);
     const res = cldr.Numbers.formatCurrency(decimal, code as CurrencyType, opts);
     first.set(res);
