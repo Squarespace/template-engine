@@ -252,9 +252,20 @@ loader.paths('f-encode-space-%N.html').forEach((path) => {
 });
 
 test('encode-space', () => {
-  const vars = variables(' \t\n ');
-  Core['encode-space'].apply([], vars, CTX);
-  expect(vars[0].get()).toEqual('&nbsp;&nbsp;&nbsp;&nbsp;');
+  const apply = (value: string, ctx = CTX) => {
+    const vars = variables(value);
+    Core['encode-space'].apply([], vars, ctx);
+    return vars[0].get();
+  };
+
+  // Legacy, all whitespace is replaced at the default level.
+  expect(apply('a b')).toEqual('a&nbsp;b');
+  expect(apply('  \n ')).toEqual('&nbsp;&nbsp;&nbsp;&nbsp;');
+
+  // Fixed, only the space character is replaced per the doc.
+  const fixed = new Context({}, { compat: CompatLevel.fixed() });
+  expect(apply('a\tb\nc', fixed)).toEqual('a\tb\nc');
+  expect(apply('a b', fixed)).toEqual('a&nbsp;b');
 });
 
 loader.paths('f-encode-uri-%N.html').forEach((path) => {

@@ -121,7 +121,14 @@ export class EncodeSpaceFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const value = first.node.asString();
-    first.set(value.replace(/\s/g, '&nbsp;'));
+    if (ctx.compatEnabled(Patch.ENCODE_SPACE_WHITESPACE)) {
+      // Legacy, tabs and newlines are replaced along with spaces. Java \s
+      // matches more Unicode whitespace than JS \s; no fixture pins those.
+      first.set(value.replace(/\s/g, '&nbsp;'));
+    } else {
+      // Fixed, only the space character is replaced per the doc.
+      first.set(value.replace(/ /g, '&nbsp;'));
+    }
   }
 }
 
