@@ -242,6 +242,8 @@ test('resize width for height', () => {
 // not, so the resize helper keeps its own text.
 const WIDTH_HEIGHT_MESSAGE = "Invalid source parameter. Pass in 'originalSize'.";
 const RESIZE_MESSAGE = "Invalid source parameter. Pass in 'originalSize'";
+// Fixed matches the Java text, which carries the trailing period.
+const RESIZE_MESSAGE_FIXED = RESIZE_MESSAGE + '.';
 
 const FIXED = new Context({}, { compat: CompatLevel.fixed() });
 
@@ -285,16 +287,16 @@ test('resize on non-numeric dimensions', () => {
     // friendly message.
     [CTX, 'axb', 0],
     [CTX, '', RESIZE_MESSAGE],
-    // Fixed reaches the friendly message for both.
-    [FIXED, 'axb', RESIZE_MESSAGE],
-    [FIXED, '', RESIZE_MESSAGE],
+    // Fixed reaches the friendly message for both, with the Java period.
+    [FIXED, 'axb', RESIZE_MESSAGE_FIXED],
+    [FIXED, '', RESIZE_MESSAGE_FIXED],
 
     // Valid dimensions compute the same at every level.
     [CTX, '640x360', 180],
     [FIXED, '640x360', 180],
     // A float part divides loosely at level 0, and is rejected when fixed.
     [CTX, '6.5x360', 19200],
-    [FIXED, '6.5x360', RESIZE_MESSAGE],
+    [FIXED, '6.5x360', RESIZE_MESSAGE_FIXED],
   ];
 
   rows.forEach(([ctx, input, expected]) => {
@@ -307,7 +309,7 @@ test('resize on non-numeric dimensions', () => {
     const vars = variables(input);
     TABLE.resizedWidthForHeight.apply(['320'], vars, FIXED);
     if (input === 'axb') {
-      expect(vars[0].get()).toEqual(RESIZE_MESSAGE);
+      expect(vars[0].get()).toEqual(RESIZE_MESSAGE_FIXED);
     } else {
       expect(vars[0].get()).toEqual(568);
     }

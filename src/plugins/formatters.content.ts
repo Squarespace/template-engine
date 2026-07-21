@@ -19,11 +19,10 @@ import audioPlayerTemplate from './templates/audio-player.json';
 const SQUARESPACE_SIZES = ['100w', '300w', '500w', '750w', '1000w', '1500w', '2500w'];
 
 /**
- * Fixed width and height render this when the source is not a valid
+ * Fixed width, height and resize render this when the source is not a valid
  * widthxheight pair. Level 0 keeps the released render: a non-numeric part
- * gives NaN (Java throws), and an empty or no-x value goes missing. The
- * resize helper keeps its own message, which lacks the trailing period, so
- * the two read differently.
+ * gives NaN (Java throws), an empty or no-x value goes missing, and resize
+ * keeps its released message, which lacks the trailing period.
  */
 const INVALID_SOURCE = "Invalid source parameter. Pass in 'originalSize'.";
 
@@ -280,9 +279,12 @@ export class ItemClassesFormatter extends Formatter {
 }
 
 const resize = (ctx: Context, node: Node, resizeWidth: boolean, requested: number) => {
-  const parts = splitDimensions(node, ctx.compatEnabled(Patch.SPLIT_DIMENSIONS_NONNUMERIC));
+  const legacy = ctx.compatEnabled(Patch.SPLIT_DIMENSIONS_NONNUMERIC);
+  const parts = splitDimensions(node, legacy);
   if (parts === null || parts.length !== 2) {
-    return "Invalid source parameter. Pass in 'originalSize'";
+    // Legacy keeps the released message; fixed matches the Java text, with
+    // the trailing period.
+    return legacy ? "Invalid source parameter. Pass in 'originalSize'" : INVALID_SOURCE;
   }
   const width = parseInt(parts[0], 10);
   const height = parseInt(parts[1], 10);
