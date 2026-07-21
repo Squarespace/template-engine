@@ -66,8 +66,20 @@ export const slugify = (str: string) => {
 
 const SCRIPT_TAG = /<\//g;
 
-export const escapeScriptTags = (str: string) => {
-  return str.replace(SCRIPT_TAG, '<\\/');
+/**
+ * Escape closing HTML tags. Pass false to also write U+2028 and U+2029 as
+ * the json escapes, so script-embedded output stays parseable on runtimes
+ * that end a string literal at those characters. The default keeps the
+ * released behavior for callers that leave the flag alone.
+ */
+export const escapeScriptTags = (str: string, legacyLineSeparators = true) => {
+  let escaped = str.replace(SCRIPT_TAG, '<\\/');
+  if (!legacyLineSeparators) {
+    // Global regexes, because String.replace with a string pattern stops at
+    // the first match and Java's String.replace is global.
+    escaped = escaped.replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
+  }
+  return escaped;
 };
 
 const ELLIPSIS = '...';

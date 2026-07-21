@@ -220,7 +220,7 @@ export class JsonFormatter extends Formatter {
       first.set('');
     } else {
       const value = JSON.stringify(first.node.value);
-      first.set(escapeScriptTags(value));
+      first.set(escapeScriptTags(value, ctx.compatEnabled(Patch.JSON_LINE_SEPARATORS)));
     }
   }
 }
@@ -232,7 +232,7 @@ export class JsonPretty extends Formatter {
       first.set('');
     } else {
       const value = JSON.stringify(first.node.value, undefined, '  ');
-      first.set(escapeScriptTags(value));
+      first.set(escapeScriptTags(value, ctx.compatEnabled(Patch.JSON_LINE_SEPARATORS)));
     }
   }
 }

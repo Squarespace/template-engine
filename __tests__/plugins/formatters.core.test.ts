@@ -393,6 +393,10 @@ loader.paths('f-json-%N.html').forEach((path) => {
   test(`json - ${path}`, () => loader.execute(path));
 });
 
+loader.paths('f-json-line-separators-%N.html').forEach((path) => {
+  test(`json line separators - ${path}`, () => loader.execute(path));
+});
+
 test('json-pretty', () => {
   let vars = variables({ a: [1, 2] });
   Core['json-pretty'].apply([], vars, CTX);
@@ -413,6 +417,55 @@ loader.paths('f-find-first-%N.html').forEach((path) => {
 
 loader.paths('f-find-last-%N.html').forEach((path) => {
   test(`find-last - ${path}`, () => loader.execute(path));
+
+loader.paths('f-json-pretty-line-separators-%N.html').forEach((path) => {
+  test(`json pretty line separators - ${path}`, () => loader.execute(path));
+});
+
+test('json line separators level', () => {
+  const compiler = new Compiler();
+  const render = (template: string, compat: CompatLevel, value: string) => {
+    const { ctx, errors } = compiler.execute({ code: template, json: { s: value }, compat });
+    return { output: ctx.render(), errors };
+  };
+
+  const value = 'a\u2028b\u2029c';
+
+  // Legacy below the threshold, levels 0 and 1 keep the raw separators.
+  for (const compat of [CompatLevel.defaultLevel(), CompatLevel.at(1)]) {
+    for (const name of ['json', 'json-pretty']) {
+      const result = render(`{s|${name}}`, compat, value);
+      expect(result.errors).toEqual([]);
+      expect(result.output).toEqual(`"a\u2028b\u2029c"`);
+    }
+  }
+
+  // Fixed at the threshold and above, the separators become json escapes
+  // that re-parse to the original value.
+  for (const compat of [CompatLevel.at(2), CompatLevel.fixed()]) {
+    for (const name of ['json', 'json-pretty']) {
+      const result = render(`{s|${name}}`, compat, value);
+      expect(result.errors).toEqual([]);
+      expect(result.output).toEqual('"a\\u2028b\\u2029c"');
+      expect(JSON.parse(result.output)).toEqual(value);
+    }
+  }
+
+  // Several separators in one string all escape, not just the first.
+  for (const name of ['json', 'json-pretty']) {
+    const result = render(`{s|${name}}`, CompatLevel.fixed(), 'a\u2028b\u2028c');
+    expect(result.errors).toEqual([]);
+    expect(result.output).toEqual('"a\\u2028b\\u2028c"');
+  }
+
+  // The script-tag defang holds at both levels.
+  for (const compat of [CompatLevel.defaultLevel(), CompatLevel.fixed()]) {
+    for (const name of ['json', 'json-pretty']) {
+      const result = render(`{s|${name}}`, compat, '</script>');
+      expect(result.errors).toEqual([]);
+      expect(result.output).toEqual('"<\\/script>"');
+    }
+  }
 });
 
 test('key-by', () => {
