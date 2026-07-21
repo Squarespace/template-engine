@@ -165,8 +165,27 @@ export const outputImageMeta = (image: Node, ctx: Context, preferredAlt?: string
   return res;
 };
 
-export const splitDimensions = (node: Node) => {
+/**
+ * True when the part is a full signed integer within the safe-integer
+ * range. Mirrors Java's Integer.parseInt: a leading minus and nothing else,
+ * no whitespace, no fractions. The residual: a value past Java's int range
+ * like 2147483648 still parses here, and one past the long range parses
+ * nowhere.
+ */
+const isFullInteger = (part: string) =>
+  /^-?\d+$/.test(part) && Math.abs(Number(part)) <= Number.MAX_SAFE_INTEGER;
+
+export const splitDimensions = (node: Node, legacyNonNumeric: boolean = true) => {
   const val = node.asString();
   const parts = val.split('x');
-  return parts.length === 2 ? parts : null;
+  if (parts.length !== 2) {
+    return null;
+  }
+  // Legacy, a non-numeric part reaches the consumer's parseInt and renders
+  // NaN (width, height) or 0 (resize). Fixed, the part is rejected here so
+  // the formatters take their invalid-source path, as Java does.
+  if (!legacyNonNumeric && (!isFullInteger(parts[0]) || !isFullInteger(parts[1]))) {
+    return null;
+  }
+  return parts;
 };

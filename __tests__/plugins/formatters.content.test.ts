@@ -237,6 +237,83 @@ test('resize width for height', () => {
   });
 });
 
+// The friendly messages for the two invalid-source paths. Fixed width and
+// height match Java and end with a period; the released resize message does
+// not, so the resize helper keeps its own text.
+const WIDTH_HEIGHT_MESSAGE = "Invalid source parameter. Pass in 'originalSize'.";
+const RESIZE_MESSAGE = "Invalid source parameter. Pass in 'originalSize'";
+
+const FIXED = new Context({}, { compat: CompatLevel.fixed() });
+
+test('width and height on non-numeric dimensions', () => {
+  const rows: Array<[Context, string, any, any]> = [
+    // Legacy: non-numeric renders NaN, empty renders missing. These pin the
+    // released surface.
+    [CTX, 'axb', NaN, NaN],
+    [CTX, '', MISSING_NODE, MISSING_NODE],
+    // Fixed routes both to the friendly message.
+    [FIXED, 'axb', WIDTH_HEIGHT_MESSAGE, WIDTH_HEIGHT_MESSAGE],
+    [FIXED, '', WIDTH_HEIGHT_MESSAGE, WIDTH_HEIGHT_MESSAGE],
+
+    // Valid dimensions parse at every level.
+    [CTX, '640x360', 640, 360],
+    [FIXED, '640x360', 640, 360],
+    // A float part parses loosely at level 0, and is rejected when fixed.
+    [CTX, '6.5x360', 6, 360],
+    [FIXED, '6.5x360', WIDTH_HEIGHT_MESSAGE, WIDTH_HEIGHT_MESSAGE],
+    // A negative part is a valid signed integer.
+    [CTX, '-5x360', -5, 360],
+    [FIXED, '-5x360', -5, 360],
+  ];
+
+  rows.forEach(([ctx, input, widthExpected, heightExpected]) => {
+    let vars = variables(input);
+    TABLE.width.apply([], vars, ctx);
+    const width = vars[0].node === MISSING_NODE ? MISSING_NODE : vars[0].get();
+    expect(width).toEqual(widthExpected);
+
+    vars = variables(input);
+    TABLE.height.apply([], vars, ctx);
+    const height = vars[0].node === MISSING_NODE ? MISSING_NODE : vars[0].get();
+    expect(height).toEqual(heightExpected);
+  });
+});
+
+test('resize on non-numeric dimensions', () => {
+  const rows: Array<[Context, string, any]> = [
+    // Legacy: a non-numeric part computes to 0, an empty value falls to the
+    // friendly message.
+    [CTX, 'axb', 0],
+    [CTX, '', RESIZE_MESSAGE],
+    // Fixed reaches the friendly message for both.
+    [FIXED, 'axb', RESIZE_MESSAGE],
+    [FIXED, '', RESIZE_MESSAGE],
+
+    // Valid dimensions compute the same at every level.
+    [CTX, '640x360', 180],
+    [FIXED, '640x360', 180],
+    // A float part divides loosely at level 0, and is rejected when fixed.
+    [CTX, '6.5x360', 19200],
+    [FIXED, '6.5x360', RESIZE_MESSAGE],
+  ];
+
+  rows.forEach(([ctx, input, expected]) => {
+    const vars = variables(input);
+    TABLE.resizedHeightForWidth.apply(['320'], vars, ctx);
+    expect(vars[0].get()).toEqual(expected);
+  });
+
+  ['axb', '640x360'].forEach((input) => {
+    const vars = variables(input);
+    TABLE.resizedWidthForHeight.apply(['320'], vars, FIXED);
+    if (input === 'axb') {
+      expect(vars[0].get()).toEqual(RESIZE_MESSAGE);
+    } else {
+      expect(vars[0].get()).toEqual(568);
+    }
+  });
+});
+
 test('squarespace thumbnail for width', () => {
   const impl = TABLE.squarespaceThumbnailForWidth;
   const cases = [

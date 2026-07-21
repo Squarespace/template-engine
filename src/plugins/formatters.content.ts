@@ -4,6 +4,7 @@ import { Formatter, FormatterTable } from '../plugin';
 import { executeTemplate } from '../exec';
 import { Variable } from '../variable';
 import { RootCode } from '../instructions';
+import { Patch } from '../compat/patch';
 
 import { RecordType } from './enums';
 import { isOnSale, isSoldOut } from './util.commerce';
@@ -16,6 +17,15 @@ import { hexColorToInt } from './util.color';
 import audioPlayerTemplate from './templates/audio-player.json';
 
 const SQUARESPACE_SIZES = ['100w', '300w', '500w', '750w', '1000w', '1500w', '2500w'];
+
+/**
+ * Fixed width and height render this when the source is not a valid
+ * widthxheight pair. Level 0 keeps the released render: a non-numeric part
+ * gives NaN (Java throws), and an empty or no-x value goes missing. The
+ * resize helper keeps its own message, which lacks the trailing period, so
+ * the two read differently.
+ */
+const INVALID_SOURCE = "Invalid source parameter. Pass in 'originalSize'.";
 
 export class AbsUrlFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
@@ -78,9 +88,10 @@ export class ColorWeightFormatter extends Formatter {
 export class HeightFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
-    const parts = splitDimensions(first.node);
+    const legacy = ctx.compatEnabled(Patch.SPLIT_DIMENSIONS_NONNUMERIC);
+    const parts = splitDimensions(first.node, legacy);
     if (parts === null) {
-      first.set(MISSING_NODE);
+      first.set(legacy ? MISSING_NODE : INVALID_SOURCE);
     } else {
       const height = parseInt(parts[1], 10);
       first.set(height);
@@ -269,7 +280,7 @@ export class ItemClassesFormatter extends Formatter {
 }
 
 const resize = (ctx: Context, node: Node, resizeWidth: boolean, requested: number) => {
-  const parts = splitDimensions(node);
+  const parts = splitDimensions(node, ctx.compatEnabled(Patch.SPLIT_DIMENSIONS_NONNUMERIC));
   if (parts === null || parts.length !== 2) {
     return "Invalid source parameter. Pass in 'originalSize'";
   }
@@ -418,12 +429,13 @@ export class WebsiteColorFormatter extends Formatter {
 export class WidthFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
-    const parts = splitDimensions(first.node);
+    const legacy = ctx.compatEnabled(Patch.SPLIT_DIMENSIONS_NONNUMERIC);
+    const parts = splitDimensions(first.node, legacy);
     if (parts === null) {
-      first.set(MISSING_NODE);
+      first.set(legacy ? MISSING_NODE : INVALID_SOURCE);
     } else {
-      const height = parseInt(parts[0], 10);
-      first.set(height);
+      const width = parseInt(parts[0], 10);
+      first.set(width);
     }
   }
 }
