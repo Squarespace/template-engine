@@ -98,14 +98,38 @@ export class DecimalFormatter extends Formatter {
 
 // TODO: i18n-money-format  (Legacy)
 
-// Find the key/value delimiter in a string.
-const delimiter = (s: string): number => {
-  for (let i = 0; i < s.length; i++) {
+/**
+ * Same shape as Java's isName. Java accepts any Unicode letter; this port
+ * keeps the released ASCII surface, so an identifier starts with a letter,
+ * underscore, or dollar sign and continues with those or digits.
+ */
+const IDENTIFIER = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
+const isName = (s: string): boolean => IDENTIFIER.test(s);
+
+/**
+ * Find the name/value delimiter in an argument. At the fixed level an
+ * argument is a named argument only when the name part is a plain
+ * identifier and the delimiter is not part of a URL scheme (e.g.
+ * http://example.com). Otherwise the argument is positional.
+ */
+const delimiter = (s: string, legacyUrlSplit = true): number => {
+  const len = s.length;
+  for (let i = 0; i < len; i++) {
     const c = s[i];
-    // Either ':' or '=' can delimit arguments
-    if (c === ':' || c === '=') {
+    if (c !== ':' && c !== '=') {
+      continue;
+    }
+    // Legacy, the first colon or equals is the delimiter.
+    if (legacyUrlSplit) {
       return i;
     }
+    // A colon followed by "//" is a URL scheme, not a delimiter.
+    if (c === ':' && i + 2 < len && s[i + 1] === '/' && s[i + 2] === '/') {
+      continue;
+    }
+    // A later delimiter would extend the same name, which already failed,
+    // so no later position can be a delimiter either.
+    return isName(s.slice(0, i)) ? i : -1;
   }
   return -1;
 };
@@ -121,19 +145,30 @@ export class MessageFormatterImpl extends Formatter {
 
     const positional: any[] = [];
     const keyword: { [name: string]: any } = {};
+    const legacy = ctx.compatEnabled(Patch.MESSAGE_ARG_URL_SPLIT);
     args.forEach((arg) => {
       const parent = ctx.frame().parent;
-      const i = delimiter(arg);
+      const i = delimiter(arg, legacy);
       if (i === -1) {
-        const _arg = ctx.resolveFrom(splitVariable(arg), parent ? parent : ctx.frame());
-        positional.push(_arg);
+        let value = ctx.resolveFrom(splitVariable(arg), parent ? parent : ctx.frame());
+        // Fixed, an argument that did not resolve to a variable passes
+        // through as literal text. Legacy, it is dropped.
+        if (value.isMissing() && !legacy) {
+          value = ctx.newNode(arg);
+        }
+        positional.push(value);
       } else {
         const key = arg.slice(0, i);
         const val = arg.slice(i + 1);
-        const _val = ctx.resolveFrom(splitVariable(val), parent ? parent : ctx.frame());
+        let value = ctx.resolveFrom(splitVariable(val), parent ? parent : ctx.frame());
+        // Fixed, an unresolved value passes through as literal text.
+        // Legacy, it is dropped.
+        if (value.isMissing() && !legacy) {
+          value = ctx.newNode(val);
+        }
         // Index the argument both as a keyword and positional
-        keyword[key] = _val;
-        positional.push(_val);
+        keyword[key] = value;
+        positional.push(value);
       }
     });
 

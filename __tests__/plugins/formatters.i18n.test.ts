@@ -379,6 +379,52 @@ loader.paths('f-message-plural-%N.html').forEach((path) => {
   test(`message plural - ${path}`, () => loader.execute(path));
 });
 
+// The hyphenated names fall outside the numbered globs, so run them
+// directly. The legacy fixture pins no level and runs at the default.
+test('message literal args', () => {
+  loader.execute('f-message-literal-args.html');
+  loader.execute('f-message-literal-args-legacy.html');
+});
+
+test('message url args', () => {
+  const fixed = CompatLevel.at(2);
+
+  // A URL argument stays whole at the fixed level and passes the raw text
+  // through when it does not resolve. Legacy, it splits on the colon and
+  // the parts drop.
+  const url = { m: 'x={0}' };
+  expect(execute('{m|message http://example.com}', url).ctx.render()).toEqual('x=');
+  // Level 1 sits below the threshold and keeps the legacy surface.
+  expect(execute('{m|message http://example.com}', url, CompatLevel.at(1)).ctx.render()).toEqual('x=');
+  expect(execute('{m|message http://example.com}', url, fixed).ctx.render()).toEqual('x=http://example.com');
+
+  // A url value behind a name stays whole at the fixed level: the scheme
+  // is not a delimiter. Legacy, the name is the scheme, and both parts
+  // fail to resolve.
+  const named = { m: 'd={url}' };
+  expect(execute('{m|message url:https://user:pass@example.com}', named).ctx.render()).toEqual('d=');
+  expect(execute('{m|message url:https://user:pass@example.com}', named, fixed).ctx.render()).toEqual(
+    'd=https://user:pass@example.com',
+  );
+
+  // A name part that is not an identifier makes the argument positional
+  // at the fixed level. Legacy still splits on the equals.
+  const nid = { m: 'g={0}' };
+  expect(execute('{m|message 1a=x}', nid).ctx.render()).toEqual('g=');
+  expect(execute('{m|message 1a=x}', nid, fixed).ctx.render()).toEqual('g=1a=x');
+
+  // A plain number is positional at both levels. Only the fixed level
+  // passes the raw text through.
+  const num = { m: 'e={0}' };
+  expect(execute('{m|message 42}', num).ctx.render()).toEqual('e=');
+  expect(execute('{m|message 42}', num, fixed).ctx.render()).toEqual('e=42');
+
+  // A named argument that resolves is the same at both levels.
+  const person = { m: 'Hi, {name}', person: { name: 'Bob' } };
+  expect(execute('{m|message name:person.name}', person).ctx.render()).toEqual('Hi, Bob');
+  expect(execute('{m|message name:person.name}', person, fixed).ctx.render()).toEqual('Hi, Bob');
+});
+
 test('message', () => {
   let ctx: any = { person: { name: 'Bob' } };
   let args = ['person.name'];
