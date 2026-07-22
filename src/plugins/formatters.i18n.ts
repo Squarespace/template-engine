@@ -12,6 +12,13 @@ import { splitVariable } from '../util';
 import { humanizeDate, getZoneOffsetMs } from './util.content';
 
 export class DatetimeFormatter extends Formatter {
+  validateArgs(args: string[]): void {
+    // Same option parsing the runtime applies, Java OptionParsers.datetime.
+    // It rejects nothing; running it here keeps the parse-time and runtime
+    // paths on the same code.
+    datetimeOptions(args);
+  }
+
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const cldr = ctx.cldr;
@@ -42,6 +49,11 @@ export class DatetimeFormatter extends Formatter {
 }
 
 export class DatetimeIntervalformatter extends Formatter {
+  validateArgs(args: string[]): void {
+    // Same option parsing the runtime applies, Java OptionParsers.interval.
+    intervalOptions(args);
+  }
+
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const cldr = ctx.cldr;
     if (!cldr || vars.length < 2) {
@@ -68,6 +80,11 @@ export class DatetimeIntervalformatter extends Formatter {
 // TODO: datetimefield DEPRECATED
 
 export class DecimalFormatter extends Formatter {
+  validateArgs(args: string[]): void {
+    // Same option parsing the runtime applies, Java OptionParsers.decimal.
+    decimalOptions(args);
+  }
+
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const cldr = ctx.cldr;
@@ -199,6 +216,11 @@ export class MessageFormatterImpl extends Formatter {
 }
 
 export class MoneyFormatter extends Formatter {
+  validateArgs(args: string[]): void {
+    // Same option parsing the runtime applies, Java OptionParsers.currency.
+    currencyOptions(args);
+  }
+
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const node = first.node;

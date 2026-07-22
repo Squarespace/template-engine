@@ -15,6 +15,12 @@ const getTimeZone = (ctx: Context) => {
 };
 
 export class DateFormatter extends Formatter {
+  constructor() {
+    // Java registers date with the required-arguments flag; its validateArgs
+    // only stashes the raw arguments as opaque data, which this port drops.
+    super(true);
+  }
+
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
 

@@ -1,9 +1,16 @@
 import { Context } from '../context';
 import { isTruthy, Node } from '../node';
 import { PredicatePlugin, PredicateTable } from '../plugin';
+import { atMost, between } from './args';
+import { variableReference } from '../patterns';
 import { isJsonStart, splitVariable } from '../util';
 import { Type } from '../types';
 import { Patch } from '../compat/patch';
+
+// Anchored copy of the variable-reference pattern, mirroring the Java
+// Patterns.VARIABLE_REF_DOTTED recognizer: segments of digits, an optional
+// @ or $ prefix plus a word, or a bare @, separated by dots.
+const VARIABLE_REF = new RegExp(`^(?:${variableReference})$`);
 
 /**
  * Examines each argument to determine if it is a valid, bare JSON value
@@ -37,6 +44,46 @@ const compute = (args: string[], ctx: Context, f: (a: Node, b: Node, ctx: Contex
   return len === 1 ? f(ctx.node(), nodes[0], ctx) : f(nodes[0], nodes[1], ctx);
 };
 
+/**
+ * Base class for predicates whose arguments are bare JSON values or
+ * variable references, mirroring the Java JsonPredicate. The arity rule
+ * and the per-argument JSON-or-reference check both run at parse time; the
+ * runtime still re-derives each value from the raw argument, so validation
+ * only produces the error set.
+ */
+abstract class JsonPredicate extends PredicatePlugin {
+  constructor(requiresArgs = true) {
+    super(requiresArgs);
+  }
+
+  /**
+   * Enforce the argument count. Mirrors Java JsonPredicate.limitArgs.
+   */
+  abstract limitArgs(count: number): void;
+
+  validateArgs(args: string[]): void {
+    this.limitArgs(args.length);
+    for (const arg of args) {
+      this.parseArg(arg);
+    }
+  }
+
+  private parseArg(arg: string): void {
+    if (isJsonStart(arg)) {
+      try {
+        JSON.parse(arg);
+        return;
+      } catch (e) {
+        // Not JSON, fall through to the reference check.
+      }
+    }
+    if (VARIABLE_REF.test(arg)) {
+      return;
+    }
+    throw new Error(`Argument ${arg} must be a valid JSON value or variable reference.`);
+  }
+}
+
 export class DebugPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
     const node = ctx.resolve(['debug']);
@@ -46,13 +93,22 @@ export class DebugPredicate extends PredicatePlugin {
 
 const equals = (a: Node, b: Node, ctx: Context) => a.equals(b);
 
-export class EqualPredicate extends PredicatePlugin {
+export class EqualPredicate extends JsonPredicate {
+  limitArgs(count: number): void {
+    between(count, 1, 2);
+  }
   apply(args: string[], ctx: Context): boolean {
     return compute(args, ctx, equals);
   }
 }
 
-export class EvenPredicate extends PredicatePlugin {
+export class EvenPredicate extends JsonPredicate {
+  constructor() {
+    super(false);
+  }
+  limitArgs(count: number): void {
+    atMost(count, 1);
+  }
   apply(args: string[], ctx: Context): boolean {
     let node = ctx.node();
     if (args.length >= 1) {
@@ -70,7 +126,10 @@ const compare = (a: Node, b: Node, ctx: Context) => a.compare(b, ctx.compatEnabl
 
 const greaterThan = (a: Node, b: Node, ctx: Context) => compare(a, b, ctx) > 0;
 
-export class GreaterThanPredicate extends PredicatePlugin {
+export class GreaterThanPredicate extends JsonPredicate {
+  limitArgs(count: number): void {
+    between(count, 1, 2);
+  }
   apply(args: string[], ctx: Context): boolean {
     return compute(args, ctx, greaterThan);
   }
@@ -78,7 +137,10 @@ export class GreaterThanPredicate extends PredicatePlugin {
 
 const greaterThanOrEqual = (a: Node, b: Node, ctx: Context) => compare(a, b, ctx) >= 0;
 
-export class GreaterThanOrEqualPredicate extends PredicatePlugin {
+export class GreaterThanOrEqualPredicate extends JsonPredicate {
+  limitArgs(count: number): void {
+    between(count, 1, 2);
+  }
   apply(args: string[], ctx: Context): boolean {
     return compute(args, ctx, greaterThanOrEqual);
   }
@@ -86,7 +148,10 @@ export class GreaterThanOrEqualPredicate extends PredicatePlugin {
 
 const lessThan = (a: Node, b: Node, ctx: Context) => compare(a, b, ctx) < 0;
 
-export class LessThanPredicate extends PredicatePlugin {
+export class LessThanPredicate extends JsonPredicate {
+  limitArgs(count: number): void {
+    between(count, 1, 2);
+  }
   apply(args: string[], ctx: Context): boolean {
     return compute(args, ctx, lessThan);
   }
@@ -94,7 +159,10 @@ export class LessThanPredicate extends PredicatePlugin {
 
 const lessThanOrEqual = (a: Node, b: Node, ctx: Context) => compare(a, b, ctx) <= 0;
 
-export class LessThanOrEqualPredicate extends PredicatePlugin {
+export class LessThanOrEqualPredicate extends JsonPredicate {
+  limitArgs(count: number): void {
+    between(count, 1, 2);
+  }
   apply(args: string[], ctx: Context): boolean {
     return compute(args, ctx, lessThanOrEqual);
   }
@@ -102,7 +170,10 @@ export class LessThanOrEqualPredicate extends PredicatePlugin {
 
 const notEqual = (a: Node, b: Node, ctx: Context) => !a.equals(b);
 
-export class NotEqualPredicate extends PredicatePlugin {
+export class NotEqualPredicate extends JsonPredicate {
+  limitArgs(count: number): void {
+    between(count, 1, 2);
+  }
   apply(args: string[], ctx: Context): boolean {
     return compute(args, ctx, notEqual);
   }
@@ -110,7 +181,13 @@ export class NotEqualPredicate extends PredicatePlugin {
 
 const isInteger = (n: number) => typeof n === 'number' && Math.floor(n) === n;
 
-export class NthPredicate extends PredicatePlugin {
+export class NthPredicate extends JsonPredicate {
+  constructor() {
+    super(false);
+  }
+  limitArgs(count: number): void {
+    between(count, 1, 2);
+  }
   apply(args: string[], ctx: Context): boolean {
     const len = args.length;
     if (len === 0) {
@@ -144,7 +221,13 @@ export class NthPredicate extends PredicatePlugin {
   }
 }
 
-export class OddPredicate extends PredicatePlugin {
+export class OddPredicate extends JsonPredicate {
+  constructor() {
+    super(false);
+  }
+  limitArgs(count: number): void {
+    atMost(count, 1);
+  }
   apply(args: string[], ctx: Context): boolean {
     let node = ctx.node();
     if (args.length >= 1) {

@@ -27,6 +27,18 @@ export const formatterUnknown = (name: string) => parser(`Formatter '${name}' is
 
 export const predicateUnknown = (name: string) => parser(`Predicate '${name}' is unknown`);
 
+export const predicateNeedsArgs = (name: string) =>
+  parser(`Predicate '.${name}' requires arguments but none were provided.`);
+
+export const predicateArgsInvalid = (name: string, msg: string) =>
+  parser(`Predicate ${name} arguments invalid: '${msg}'`);
+
+export const formatterNeedsArgs = (name: string) =>
+  parser(`Formatter '${name}' needs arguments but none were provided.`);
+
+export const formatterArgsInvalid = (name: string, msg: string) =>
+  parser(`Formatter '${name}' arguments are invalid: '${msg}'`);
+
 // ASSEMBLER
 
 export const deadCode = (inst: Instruction) => assembler(`This ${info(inst)} block will never execute.`);

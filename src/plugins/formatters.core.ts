@@ -10,11 +10,20 @@ import { Type } from '../types';
 import { executeTemplate } from '../exec';
 import { splitVariable } from '../util';
 import { findNthValidEntry, getLookupAndPath } from './util.find';
+import { atLeast, between, exactly, parseInt32 } from './args';
 import { format } from './util.format';
 import { escapeHtmlAttributes, escapeScriptTags, slugify, truncate } from './util.string';
 import utf8 from 'utf8';
 
 export class ApplyFormatter extends Formatter {
+  constructor() {
+    super(true);
+  }
+
+  validateArgs(args: string[]): void {
+    atLeast(args.length, 1);
+  }
+
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
 
@@ -105,6 +114,14 @@ export class CountFormatter extends Formatter {
 }
 
 export class CycleFormatter extends Formatter {
+  constructor() {
+    super(true);
+  }
+
+  validateArgs(args: string[]): void {
+    atLeast(args.length, 1);
+  }
+
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const value = first.node.asNumber();
@@ -245,6 +262,14 @@ export class JsonPretty extends Formatter {
 }
 
 export class KeyByFormatter extends Formatter {
+  constructor() {
+    super(true);
+  }
+
+  validateArgs(args: string[]): void {
+    exactly(args.length, 1);
+  }
+
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const path = args[0];
@@ -294,6 +319,14 @@ export class LineBreaksFormatter extends Formatter {
 }
 
 export class LookupFormatter extends Formatter {
+  constructor() {
+    super(true);
+  }
+
+  validateArgs(args: string[]): void {
+    exactly(args.length, 1);
+  }
+
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const key = args[0];
@@ -379,6 +412,10 @@ export class OutputFormatter extends Formatter {
 }
 
 export class PluralizeFormatter extends Formatter {
+  validateArgs(args: string[]): void {
+    between(args.length, 0, 2);
+  }
+
   apply(args: string[], vars: Variable[], ctx: Context): void {
     let singular = '';
     let plural = 's';
@@ -480,6 +517,14 @@ export class StrFormatter extends Formatter {
 }
 
 export class TruncateFormatter extends Formatter {
+  validateArgs(args: string[]): void {
+    // Java guards on a present argument and then requires a strict int,
+    // reporting the NumberFormatException as a bad-length error.
+    if (args.length > 0 && parseInt32(args[0]) === null) {
+      throw new Error(`bad value for length '${args[0]}'`);
+    }
+  }
+
   apply(args: string[], vars: Variable[], ctx: Context): void {
     let limit = 100;
     let ellipsis = '...';

@@ -7,6 +7,7 @@ import { RootCode } from '../instructions';
 import { Patch } from '../compat/patch';
 
 import { RecordType } from './enums';
+import { atLeast, atMost, parseInt32 } from './args';
 import { isOnSale, isSoldOut } from './util.commerce';
 import { getAltText, getFocalPoint, outputImageMeta, splitDimensions } from './util.content';
 import { pad } from './util.date';
@@ -52,6 +53,13 @@ export class CapitalizeFormatter extends Formatter {
 }
 
 export class ChildImageMetaFormatter extends Formatter {
+  validateArgs(args: string[]): void {
+    atMost(args.length, 1);
+    if (args.length === 1 && parseInt32(args[0]) === null) {
+      throw new Error(`expected an integer index, found '${args[0]}'`);
+    }
+  }
+
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const index = args.length === 0 ? 0 : parseInt(args[0], 10);
@@ -110,6 +118,10 @@ export class HumanizeDurationFormatter extends Formatter {
 }
 
 export class ImageFormatter extends Formatter {
+  validateArgs(args: string[]): void {
+    atMost(args.length, 1);
+  }
+
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const node = first.node;
@@ -297,7 +309,25 @@ const resize = (ctx: Context, node: Node, resizeWidth: boolean, requested: numbe
   return value | 0;
 };
 
-export class ResizedHeightForWidthFormatter extends Formatter {
+/**
+ * Shared validation for the resize family, mirroring the Java
+ * ResizeBaseFormatter: an argument is required and must parse as an int,
+ * otherwise the NumberFormatException text becomes the invalid-args error.
+ */
+abstract class ResizeBaseFormatter extends Formatter {
+  constructor() {
+    super(true);
+  }
+
+  validateArgs(args: string[]): void {
+    atLeast(args.length, 1);
+    if (parseInt32(args[0]) === null) {
+      throw new Error(`For input string: "${args[0]}"`);
+    }
+  }
+}
+
+export class ResizedHeightForWidthFormatter extends ResizeBaseFormatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const requested = parseInt(args[0], 10);
     const first = vars[0];
@@ -306,7 +336,7 @@ export class ResizedHeightForWidthFormatter extends Formatter {
   }
 }
 
-export class ResizedWidthForHeightFormatter extends Formatter {
+export class ResizedWidthForHeightFormatter extends ResizeBaseFormatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const requested = parseInt(args[0], 10);
     const first = vars[0];
@@ -330,7 +360,7 @@ const getSquarespaceSizeForWidth = (width: number) => {
   return '100w';
 };
 
-export class SquarespaceThumbnailForWidthFormatter extends Formatter {
+export class SquarespaceThumbnailForWidthFormatter extends ResizeBaseFormatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const width = parseInt(args[0], 10);
     const first = vars[0];
@@ -338,7 +368,7 @@ export class SquarespaceThumbnailForWidthFormatter extends Formatter {
   }
 }
 
-export class SquarespaceThumbnailForHeightFormatter extends Formatter {
+export class SquarespaceThumbnailForHeightFormatter extends ResizeBaseFormatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const height = parseInt(args[0], 10);
     const first = vars[0];

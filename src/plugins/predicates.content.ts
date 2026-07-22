@@ -1,6 +1,7 @@
 import { Context } from '../context';
 import { isTruthy } from '../node';
 import { PredicatePlugin, PredicateTable } from '../plugin';
+import { exactly } from './args';
 import { BackgroundSource, CollectionType, FolderBehavior, RecordType } from './enums';
 import { GregorianDate } from '../calendars';
 import { removeTags } from './util.string';
@@ -81,6 +82,14 @@ export class CollectionTemplatePagePredicate extends PredicatePlugin {
 }
 
 export class CollectionTypeNameEqualsPredicate extends PredicatePlugin {
+  constructor() {
+    super(true);
+  }
+
+  validateArgs(args: string[]): void {
+    exactly(args.length, 1);
+  }
+
   apply(args: string[], ctx: Context): boolean {
     return args.length === 0 ? false : ctx.resolve(['typeName']).asString() === args[0];
   }

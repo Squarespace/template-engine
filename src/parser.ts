@@ -19,7 +19,16 @@ import {
 } from './instructions';
 import { Opcode } from './opcodes';
 import { CompatLevel } from './compat/compat-level';
-import { formatterUnknown, predicateUnknown } from './errors';
+import {
+  formatterArgsInvalid,
+  formatterNeedsArgs,
+  formatterUnknown,
+  predicateArgsInvalid,
+  predicateNeedsArgs,
+  predicateUnknown,
+} from './errors';
+import { Arguments } from './instructions';
+
 import { FormatterTable, PredicateTable } from './plugin';
 
 type ParserState = () => ParserState | null;
@@ -436,6 +445,28 @@ export class Parser {
       return false;
     }
 
+    // Validate the arguments when the predicate is known. Java resolves
+    // the predicate first, then validates, and aborts the compile on a
+    // failure; the TS parser records the error and keeps going, like the
+    // existing unknown-predicate path.
+    if (op === Opcode.PREDICATE || space) {
+      const predicate = name === null ? undefined : this.predicates[name];
+      if (predicate) {
+        if (args === null && predicate.requiresArgs) {
+          // Java parsePredicateArguments fails a null argument string
+          // before validateArgs runs. An all-delimiter string is not null,
+          // so it still reaches validateArgs with zero arguments.
+          this.sink.error(predicateNeedsArgs(name!));
+        } else {
+          try {
+            predicate.validateArgsCompat(args === null ? [] : args[0], this.compat);
+          } catch (e) {
+            this.sink.error(predicateArgsInvalid(name!, (e as Error).message));
+          }
+        }
+      }
+    }
+
     if (op === Opcode.PREDICATE) {
       this.push(new Predicate(name!, args === null ? 0 : args));
     } else {
@@ -611,9 +642,34 @@ export class Parser {
   checkFormatters(formatters: null | 0 | FormatterCall[]): boolean {
     if (formatters) {
       for (const fmt of formatters) {
-        if (!this.formatters[fmt[0]]) {
+        const formatter = this.formatters[fmt[0]];
+        if (!formatter) {
           this.sink.error(formatterUnknown(fmt[0]));
           return false;
+        }
+        if (fmt.length > 1) {
+          // The call matched a raw argument string, so its split arguments
+          // are validated. This also covers an all-delimiter string, which
+          // splits to a single empty argument.
+          try {
+            formatter.validateArgs((fmt[1] as Arguments)[0]);
+          } catch (e) {
+            this.sink.error(formatterArgsInvalid(fmt[0], (e as Error).message));
+            return false;
+          }
+        } else if (formatter.requiresArgs) {
+          // Java fails a required-arguments formatter before validation.
+          this.sink.error(formatterNeedsArgs(fmt[0]));
+          return false;
+        } else {
+          // Java still runs validateArgs on an empty argument set, so a
+          // formatter that rejects an empty call fails here too.
+          try {
+            formatter.validateArgs([]);
+          } catch (e) {
+            this.sink.error(formatterArgsInvalid(fmt[0], (e as Error).message));
+            return false;
+          }
         }
       }
     }
