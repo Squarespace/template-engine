@@ -1,13 +1,15 @@
 import { Compiler } from '../src/compiler';
 import { CompatLevel } from '../src/compat/compat-level';
 import { Patch } from '../src/compat/patch';
+import { isJsonStart } from '../src/util';
 
 /**
  * Parse-time argument validation (todo 023): predicates and formatters run
  * a validateArgs step during parsing, mirroring the Java Tokenizer at
- * Tokenizer.java:597 (predicates) and :847 (formatters). The validation is
- * not compat-gated; only the JSON keyword-start rule inside it is (todo
- * 024), so every level reports the same errors.
+ * Tokenizer.java:597 (predicates) and :847 (formatters). Most validation
+ * is not compat-gated, so every level reports the same errors; the JSON
+ * keyword-start rule inside JsonPredicate is gated on JSON_START_KEYWORD
+ * (todo 024), with its own rows below.
  *
  * Predicate-only templates run inside a block so the assembler has an .end
  * to close, keeping the assertions to the validation error alone.
@@ -287,4 +289,113 @@ test('validated argument counts stay identical across the whole ladder', () => {
       expectClean(template, compat);
     }
   }
+});
+
+test('isJsonStart pre-filter table, legacy vs fixed', () => {
+  // Todo 024 rows. Columns are the legacyStart flag of isJsonStart:
+  // legacy keeps the released rule, fixed mirrors Java's skip-ws +
+  // exact-keyword shape. A true result only admits a decode attempt; the
+  // caller still classifies non-JSON strings through the other branches.
+  const rows: [string, boolean, boolean][] = [
+    // Legacy rejects a keyword that does not start at index 0; fixed skips
+    // the whitespace and matches the keyword.
+    [' true', false, true],
+    ['\ttrue', false, true],
+    ['  false', false, true],
+    // Java legacy skipped spaces and took ' 12' as a JSON start; the
+    // released TS rule does not. Fixed agrees with Java.
+    [' 12', false, true],
+    // 'truex' never reads as JSON: legacy anchors the keyword to the whole
+    // string, fixed requires a keyword boundary. It classifies as a
+    // variable reference at both levels.
+    ['truex', false, false],
+    ['nul', false, false],
+    ['true', true, true],
+    // Java legacy accepted a keyword with trailing whitespace; the
+    // released TS rule does not. Fixed also accepts it.
+    ['true ', false, true],
+    ['  [1]', false, true],
+    // All-whitespace input is never a JSON start.
+    ['', false, false],
+  ];
+  for (const [s, legacy, fixed] of rows) {
+    expect(isJsonStart(s)).toEqual(legacy);
+    expect(isJsonStart(s, false)).toEqual(fixed);
+  }
+});
+
+test('json keyword start: gated at the compile level', () => {
+  // Port of CorePredicatesTest. The keyword argument with leading
+  // whitespace is a JSON value only once the compile level reaches the
+  // JSON_START_KEYWORD threshold (2). Below it the argument is neither
+  // JSON nor a variable reference, so validation rejects it. The quote
+  // is only the argument delimiter; no closing quote follows so the
+  // matcher does not append a trailing empty argument.
+  const expected = [
+    `SyntaxError: Predicate equal? arguments invalid: 'Argument  true must be a valid JSON value or variable reference.'`,
+  ];
+  for (const compat of [CompatLevel.defaultLevel(), CompatLevel.at(1)]) {
+    expectErrors('{.equal?" true}yes{.end}', expected, compat);
+  }
+  for (const compat of [CompatLevel.at(2), CompatLevel.fixed()]) {
+    expectClean('{.equal?" true}yes{.end}', compat);
+    expectClean('{.equal?" false}yes{.end}', compat);
+    expectClean('{.equal?" [1]}yes{.end}', compat);
+  }
+});
+
+test('json keyword start: end-to-end at the default, rung 1 and rung 2', () => {
+  const render = (template: string, compat: CompatLevel, json: any) => {
+    const { ctx, errors } = compiler.execute({ code: template, json, compat });
+    return { output: ctx.render(), errors };
+  };
+
+  // Legacy (levels 0 and 1), a leading-space keyword is a parse error and
+  // the .else branch renders. Fixed (level 2), it decodes as JSON true.
+  const trueTemplate = '{.equal?" true}yes{.or}no{.end}';
+  for (const compat of [CompatLevel.defaultLevel(), CompatLevel.at(1)]) {
+    const row = render(trueTemplate, compat, true);
+    expect(row.errors).toHaveLength(1);
+    expect(row.errors[0].message).toContain(
+      'Argument  true must be a valid JSON value or variable reference.'
+    );
+    expect(row.output).toEqual('no');
+  }
+  let row = render(trueTemplate, CompatLevel.at(2), true);
+  expect(row.errors).toEqual([]);
+  expect(row.output).toEqual('yes');
+  row = render(trueTemplate, CompatLevel.fixed(), true);
+  expect(row.errors).toEqual([]);
+  expect(row.output).toEqual('yes');
+
+  const falseTemplate = '{.equal?" false}yes{.or}no{.end}';
+  for (const compat of [CompatLevel.defaultLevel(), CompatLevel.at(1)]) {
+    const legacy = render(falseTemplate, compat, false);
+    expect(legacy.errors).toHaveLength(1);
+    expect(legacy.errors[0].message).toContain(
+      'Argument  false must be a valid JSON value or variable reference.'
+    );
+    expect(legacy.output).toEqual('no');
+  }
+  row = render(falseTemplate, CompatLevel.at(2), false);
+  expect(row.errors).toEqual([]);
+  expect(row.output).toEqual('yes');
+
+  // The structural twin: a leading-space array literal. Legacy treats it
+  // as a missing reference, fixed decodes it.
+  const arrayTemplate = '{.equal?" [1]}yes{.or}no{.end}';
+  for (const compat of [CompatLevel.defaultLevel(), CompatLevel.at(1)]) {
+    const legacy = render(arrayTemplate, compat, [1]);
+    expect(legacy.errors).toHaveLength(1);
+    expect(legacy.errors[0].message).toContain(
+      'Argument  [1] must be a valid JSON value or variable reference.'
+    );
+    expect(legacy.output).toEqual('no');
+  }
+  row = render(arrayTemplate, CompatLevel.at(2), [1]);
+  expect(row.errors).toEqual([]);
+  expect(row.output).toEqual('yes');
+  row = render(arrayTemplate, CompatLevel.fixed(), [1]);
+  expect(row.errors).toEqual([]);
+  expect(row.output).toEqual('yes');
 });

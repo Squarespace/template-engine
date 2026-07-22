@@ -5,6 +5,7 @@ import { atMost, between } from './args';
 import { variableReference } from '../patterns';
 import { isJsonStart, splitVariable } from '../util';
 import { Type } from '../types';
+import { CompatLevel } from '../compat/compat-level';
 import { Patch } from '../compat/patch';
 
 // Anchored copy of the variable-reference pattern, mirroring the Java
@@ -19,7 +20,10 @@ const VARIABLE_REF = new RegExp(`^(?:${variableReference})$`);
  */
 const resolve = (args: string[], ctx: Context): Node[] => {
   return args.map((arg) => {
-    if (isJsonStart(arg)) {
+    // The keyword-start rule gates on the EXECUTION level. Same-level
+    // compile and execute agree; a level change between them can
+    // classify an argument differently (documented residual).
+    if (isJsonStart(arg, ctx.compatEnabled(Patch.JSON_START_KEYWORD))) {
       try {
         const value = JSON.parse(arg);
         return ctx.newNode(value);
@@ -61,15 +65,32 @@ abstract class JsonPredicate extends PredicatePlugin {
    */
   abstract limitArgs(count: number): void;
 
+  /**
+   * Validate the arguments at the released compat level, mirroring Java
+   * JsonPredicate.validateArgs(Arguments).
+   */
   validateArgs(args: string[]): void {
+    this.validateArgsCompat(args, CompatLevel.defaultLevel());
+  }
+
+  /**
+   * Enforce the argument count and parse each argument as a JSON value or
+   * a variable reference. The keyword-start rule gates on the COMPILE
+   * level, mirroring Java JsonPredicate.validateArgs(Arguments,
+   * CompatLevel): legacy reads a bulk JSON start, fixed skips JSON
+   * whitespace and requires an exact keyword. The runtime re-derives each
+   * value from the raw argument, so this only produces the error set.
+   */
+  validateArgsCompat(args: string[], compat: CompatLevel): void {
     this.limitArgs(args.length);
+    const legacyStart = compat.enabled(Patch.JSON_START_KEYWORD);
     for (const arg of args) {
-      this.parseArg(arg);
+      this.parseArg(arg, legacyStart);
     }
   }
 
-  private parseArg(arg: string): void {
-    if (isJsonStart(arg)) {
+  private parseArg(arg: string, legacyStart: boolean): void {
+    if (isJsonStart(arg, legacyStart)) {
       try {
         JSON.parse(arg);
         return;

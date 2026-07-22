@@ -26,10 +26,74 @@ export const splitVariable = (name: string) => {
 
 const RE_JSON_START = /^[\"\d\[\{]|^-\d|^(true|false|null)$/;
 
+const JSON_WHITESPACE = new Set([' ', '\t', '\n', '\r']);
+
+/**
+ * True when the keyword starts at index and ends at the string end or at
+ * JSON whitespace. An anchored prefix is not enough: 'truex' would match
+ * 'true'.
+ */
+const jsonKeywordStart = (s: string, index: number, keyword: string) => {
+  if (!s.startsWith(keyword, index)) {
+    return false;
+  }
+  const end = index + keyword.length;
+  return end >= s.length || JSON_WHITESPACE.has(s[end]);
+};
+
 /**
  * Return true if the string starts with a value JSON character or value.
+ * Cheap pre-filter only; decoding still happens in the caller.
+ *
+ * With legacyStart (the default) the released rule runs unchanged: the
+ * lead character decides, and a keyword must span the whole string, so
+ * ' 12', 'true ' and ' true' all fail the check. Old Java skipped only
+ * spaces instead, so it classified ' 12' and 'true ' as JSON; the
+ * released TS surface keeps its own rule. Otherwise JSON whitespace is
+ * skipped before the check and keywords (true, false, null) must match
+ * exactly and end at the string end or at JSON whitespace, mirroring
+ * Java's fixed rule.
  */
-export const isJsonStart = (s: string | number) => RE_JSON_START.test(s as string);
+export const isJsonStart = (s: string | number, legacyStart = true) => {
+  const raw = s as string;
+  if (legacyStart) {
+    return RE_JSON_START.test(raw);
+  }
+  const len = raw.length;
+  let i = 0;
+  while (i < len) {
+    const ch = raw[i];
+    if (ch !== ' ' && ch !== '\t' && ch !== '\n' && ch !== '\r') {
+      switch (ch) {
+        case '"':
+        case '-':
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+        case '[':
+        case '{':
+          return true;
+        case 'f':
+          return jsonKeywordStart(raw, i, 'false');
+        case 'n':
+          return jsonKeywordStart(raw, i, 'null');
+        case 't':
+          return jsonKeywordStart(raw, i, 'true');
+        default:
+          return false;
+      }
+    }
+    i++;
+  }
+  return false;
+};
 
 /**
  * Deep compare of two objects for equality.
