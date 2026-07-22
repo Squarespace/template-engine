@@ -145,12 +145,27 @@ export class MessageFormatterImpl extends Formatter {
 
     const positional: any[] = [];
     const keyword: { [name: string]: any } = {};
+    // The 021 literal fallback below still keys off this patch.
     const legacy = ctx.compatEnabled(Patch.MESSAGE_ARG_URL_SPLIT);
+    // Which frame an argument's first segment walks from. Legacy, the
+    // message string's frame, so '@' points at the message key's value.
+    // Fixed, the enclosing scope, so an '@'-relative path can reach it.
+    // Java walks the stack for an '@' first segment, but resolveFrom
+    // resolves it against exactly the starting frame, no walk. The two
+    // agree while that frame's node exists and differ only when the
+    // message string is missing, which no Java fixture pins. Keep the
+    // no-walk behavior.
+    const legacyScope = ctx.compatEnabled(Patch.SUBPATH_PARENT_SCOPE);
+    const parent = ctx.frame().parent;
+    const start = parent ? parent : ctx.frame();
     args.forEach((arg) => {
-      const parent = ctx.frame().parent;
       const i = delimiter(arg, legacy);
       if (i === -1) {
-        let value = ctx.resolveFrom(splitVariable(arg), parent ? parent : ctx.frame());
+        // A bare '@' is the starting frame's node at every level. Java
+        // reads the whole arg the same way (splitVariable returns null
+        // and resolve(null) returns the starting frame's node), so the
+        // frame gate does not apply here.
+        let value = arg === '@' ? start.node : ctx.resolveFrom(splitVariable(arg), legacyScope ? ctx.frame() : start);
         // Fixed, an argument that did not resolve to a variable passes
         // through as literal text. Legacy, it is dropped.
         if (value.isMissing() && !legacy) {
@@ -160,7 +175,8 @@ export class MessageFormatterImpl extends Formatter {
       } else {
         const key = arg.slice(0, i);
         const val = arg.slice(i + 1);
-        let value = ctx.resolveFrom(splitVariable(val), parent ? parent : ctx.frame());
+        // A bare '@' value behaves like a bare '@' argument.
+        let value = val === '@' ? start.node : ctx.resolveFrom(splitVariable(val), legacyScope ? ctx.frame() : start);
         // Fixed, an unresolved value passes through as literal text.
         // Legacy, it is dropped.
         if (value.isMissing() && !legacy) {

@@ -379,11 +379,41 @@ loader.paths('f-message-plural-%N.html').forEach((path) => {
   test(`message plural - ${path}`, () => loader.execute(path));
 });
 
+loader.paths('f-message-subpath-%N.html').forEach((path) => {
+  test(`message subpath - ${path}`, () => loader.execute(path));
+});
+
 // The hyphenated names fall outside the numbered globs, so run them
 // directly. The legacy fixture pins no level and runs at the default.
 test('message literal args', () => {
   loader.execute('f-message-literal-args.html');
   loader.execute('f-message-literal-args-legacy.html');
+});
+
+test('message subpath parent scope', () => {
+  const json = { x: { y: 1 }, m: 'val={a}' };
+
+  // '@.y' walks from the message string's frame at the legacy levels, so
+  // '@' is the message key and the subpath drops. The fixed level walks
+  // from the enclosing scope, so '@' is the section item and .y resolves.
+  for (const compat of [LEGACY, CompatLevel.at(1)]) {
+    expect(execute('{.section x}{m|message a=@.y}{.end}', json, compat).ctx.render()).toEqual('val=');
+  }
+  expect(execute('{.section x}{m|message a=@.y}{.end}', json, FIXED).ctx.render()).toEqual('val=1');
+
+  // A plain name resolves the same at both levels: the walk starts at the
+  // message frame and finds y in the enclosing scope.
+  for (const compat of [LEGACY, FIXED]) {
+    expect(execute('{.section x}{m|message a=y}{.end}', json, compat).ctx.render()).toEqual('val=1');
+  }
+
+  // A bare '@' is the starting frame's node at every level with no gate.
+  // Inside a section that is the item object, which the message args drop.
+  // At the root it is the data object, also dropped.
+  for (const compat of [LEGACY, CompatLevel.at(1), FIXED]) {
+    expect(execute('{.section x}{m|message a=@}{.end}', json, compat).ctx.render()).toEqual('val=');
+    expect(execute('{m|message a=@}', json, compat).ctx.render()).toEqual('val=');
+  }
 });
 
 test('message url args', () => {
