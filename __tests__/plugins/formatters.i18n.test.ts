@@ -24,6 +24,9 @@ const ZONE_LON = 'Europe/London';
 
 const ONE_DAY_MS = 86400 * 1000;
 
+// Aug 9, 2017, the now value pinned by the Java DateTimeMissingTest.
+const NOW = 1502298000000;
+
 const formatDecimal = (cldr: CLDR | undefined, n: string, args: string[]) => {
   const impl = TABLE.decimal;
   const ctx = new Context({}, { cldr });
@@ -40,12 +43,20 @@ const formatMoney = (cldr: CLDR | undefined, n: any, args: string[], context: an
   return vars[0].get();
 };
 
-const formatDatetime = (cldr: CLDR | undefined, epoch: string, zoneId: string, args: string[]) => {
+const formatDatetime = (cldr: CLDR | undefined, epoch: any, zoneId: string, args: string[], compat?: CompatLevel) => {
   const impl = TABLE.datetime;
-  const ctx = new Context({ website: { timeZone: zoneId } }, { cldr });
+  const ctx = new Context({ website: { timeZone: zoneId } }, { cldr, compat });
   const vars = variables(epoch);
   impl.apply(args, vars, ctx);
   return vars[0].get();
+};
+
+const applyDatetime = (cldr: CLDR | undefined, epoch: any, zoneId: string, args: string[], compat?: CompatLevel) => {
+  const impl = TABLE.datetime;
+  const ctx = new Context({ website: { timeZone: zoneId } }, { cldr, compat });
+  const vars = variables(epoch);
+  impl.apply(args, vars, ctx);
+  return vars[0];
 };
 
 const formatMessage = (cldr: CLDR | undefined, msg: string, args: string[], context: any) => {
@@ -64,11 +75,18 @@ const formatInterval = (cldr: CLDR | undefined, start: number, end: number, zone
   return vars[0].get();
 };
 
-const formatRelativeTime = (cldr: CLDR | undefined, start: number | undefined, vars: Variable[], args: string[]) => {
+const formatRelativeTime = (cldr: CLDR | undefined, start: number | undefined, vars: Variable[], args: string[], compat?: CompatLevel) => {
   const impl = TABLE['relative-time'] as RelativeTimeFormatter;
-  const ctx = new Context({}, { cldr, now: start });
+  const ctx = new Context({}, { cldr, now: start, compat });
   impl.apply(args, vars, ctx);
   return vars[0].get();
+};
+
+const applyRelativeTime = (cldr: CLDR | undefined, start: number | undefined, vars: Variable[], args: string[], compat?: CompatLevel) => {
+  const impl = TABLE['relative-time'] as RelativeTimeFormatter;
+  const ctx = new Context({}, { cldr, now: start, compat });
+  impl.apply(args, vars, ctx);
+  return vars[0];
 };
 
 loader.paths('f-decimal-%N.html').forEach((path) => {
@@ -324,6 +342,35 @@ test('datetime-interval', () => {
   expect(formatInterval(EN, Infinity, start, ZONE_NY, args)).toEqual('');
 });
 
+test('datetime missing or null', () => {
+  // Legacy, a missing or null value reads as epoch 0 and renders the 1969
+  // date. Level 1 stays on this path.
+  for (const compat of [LEGACY, CompatLevel.at(1)]) {
+    for (const d of [undefined, null]) {
+      expect(formatDatetime(EN, d, ZONE_NY, [], compat)).toEqual('December 31, 1969');
+    }
+  }
+
+  // Fixed, it renders missing.
+  for (const d of [undefined, null]) {
+    expect(applyDatetime(EN, d, ZONE_NY, [], FIXED).node.isMissing()).toBe(true);
+  }
+
+  // A full execute renders empty without an error.
+  for (const json of [{}, { d: null }]) {
+    const { ctx, errors } = execute('{d|datetime}', json, FIXED);
+    expect(ctx.render()).toEqual('');
+    expect(errors).toEqual([]);
+  }
+});
+
+test('datetime explicit zero', () => {
+  // An explicit 0 is present data and renders the epoch date at every level.
+  for (const compat of [LEGACY, CompatLevel.at(1), FIXED]) {
+    expect(formatDatetime(EN, 0, ZONE_NY, [], compat)).toEqual('December 31, 1969');
+  }
+});
+
 loader.paths('f-message-%N.html').forEach((path) => {
   test(`message - ${path}`, () => loader.execute(path));
 });
@@ -438,6 +485,48 @@ test('relative time', () => {
 
   // Invalid type
   expect(formatRelativeTime(EN, base, variables('foo'), args)).toEqual('');
+});
+
+test('relative time missing or null', () => {
+  // Legacy, a missing or null value reads as epoch 0 and renders the age
+  // in years. Level 1 stays on this path.
+  for (const compat of [LEGACY, CompatLevel.at(1)]) {
+    for (const d of [undefined, null]) {
+      expect(formatRelativeTime(EN, NOW, variables(d), [], compat)).toEqual('48 years ago');
+    }
+    expect(formatRelativeTime(EN, NOW, variables(0), [], compat)).toEqual('48 years ago');
+  }
+
+  // Fixed, it renders missing.
+  for (const d of [undefined, null]) {
+    expect(applyRelativeTime(EN, NOW, variables(d), [], FIXED).node.isMissing()).toBe(true);
+  }
+
+  // An explicit 0 is present data and keeps the legacy age at every level.
+  expect(formatRelativeTime(EN, NOW, variables(0), [], FIXED)).toEqual('48 years ago');
+});
+
+test('relative time second operand missing', () => {
+  // Legacy, a missing second operand reads as epoch 0 and renders the age
+  // in years. Level 1 stays on this path.
+  for (const compat of [LEGACY, CompatLevel.at(1)]) {
+    expect(formatRelativeTime(EN, NOW, variables(1502305200000, undefined), [], compat)).toEqual('48 years ago');
+  }
+
+  // Fixed, it renders missing.
+  expect(applyRelativeTime(EN, NOW, variables(1502305200000, undefined), [], FIXED).node.isMissing()).toBe(true);
+
+  // A full execute renders empty without an error.
+  const { ctx, errors } = execute('{s, e|relative-time}', { s: 1502305200000 }, FIXED);
+  expect(ctx.render()).toEqual('');
+  expect(errors).toEqual([]);
+});
+
+test('relative time present', () => {
+  // Matches the Java fixture: now=NOW, d=1502305200000.
+  for (const compat of [LEGACY, CompatLevel.at(1), FIXED]) {
+    expect(formatRelativeTime(EN, NOW, variables(1502305200000), [], compat)).toEqual('in 2 hours');
+  }
 });
 
 loader.paths('f-timesince-%N.html').forEach((path) => {

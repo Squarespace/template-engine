@@ -20,6 +20,14 @@ export class DatetimeFormatter extends Formatter {
       return;
     }
 
+    // Legacy, a missing or null value renders the epoch date. Fixed, it
+    // renders missing.
+    const legacy = ctx.compatEnabled(Patch.DATETIME_MISSING_EPOCH);
+    if (!legacy && (first.node.isMissing() || first.node.isNull())) {
+      first.set(MISSING_NODE);
+      return;
+    }
+
     const date = first.node.asNumber();
     if (isNaN(date)) {
       first.set('');
@@ -198,9 +206,22 @@ export class RelativeTimeFormatter extends Formatter {
       first.set('');
       return;
     }
+    // Legacy, a missing or null value renders the age since epoch 0.
+    // Fixed, it renders missing.
+    const legacy = ctx.compatEnabled(Patch.DATETIME_MISSING_EPOCH);
+    if (!legacy && (first.node.isMissing() || first.node.isNull())) {
+      first.set(MISSING_NODE);
+      return;
+    }
     let s = ctx.now === undefined ? new Date().getTime() : ctx.now;
     let e = first.node.asNumber();
     if (vars.length > 1) {
+      // Legacy, a missing second operand also reads as epoch 0. Fixed, it
+      // renders missing.
+      if (!legacy && (vars[1].node.isMissing() || vars[1].node.isNull())) {
+        first.set(MISSING_NODE);
+        return;
+      }
       s = e;
       e = vars[1].node.asNumber();
     }
