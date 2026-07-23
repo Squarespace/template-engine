@@ -301,6 +301,81 @@ test('format', () => {
   expect(vars[0].get()).toEqual('The  is .');
 });
 
+test('format levels', () => {
+  // FORMAT_STATE_DIGITS gates at level 2, so levels 0 and 1 render the
+  // released state machine and level 2 renders the fixed braces. Rows
+  // mirror the FormatUtilsTest rows from the Java patch.
+  const rows = [
+    {
+      args: ['k0', 'k1'],
+      json: { k0: 'X', k1: 'Y' },
+      pattern: 'one {0} two {1}',
+      released: 'one X two Y',
+      fixed: 'one X two Y',
+    },
+    {
+      args: ['k0', 'k1', 'k2', 'k3', 'k4', 'k5', 'k6', 'k7', 'k8', 'k9', 'k10'],
+      json: { k0: 'a', k1: 'b', k2: 'c', k3: 'd', k4: 'e', k5: 'f', k6: 'g', k7: 'h', k8: 'i', k9: 'j', k10: 'k' },
+      pattern: 'ten {10}',
+      released: 'ten k',
+      fixed: 'ten k',
+    },
+    {
+      args: ['k0'],
+      json: { k0: 'ARG0' },
+      pattern: 'full {x} text',
+      released: 'full  text',
+      fixed: 'full  text',
+    },
+    {
+      args: ['k0'],
+      json: { k0: 'ARG0' },
+      pattern: 'cost {x 2} dollars',
+      released: 'cost  dollars',
+      fixed: 'cost  dollars',
+    },
+    {
+      args: ['k0'],
+      json: { k0: 'ARG0' },
+      pattern: 'literal {{ brace }}',
+      released: 'literal }',
+      fixed: 'literal { brace }',
+    },
+    {
+      args: ['k0'],
+      json: { k0: 'ARG0' },
+      pattern: 'a {{0}} b',
+      released: 'a } b',
+      fixed: 'a {0} b',
+    },
+    {
+      args: ['k0'],
+      json: { k0: 'ARG0' },
+      pattern: '{{ }}',
+      released: '}',
+      fixed: '{ }',
+    },
+    {
+      args: ['k0'],
+      json: { k0: 'ARG0' },
+      pattern: '{x {0}',
+      released: 'ARG0',
+      fixed: '',
+    },
+  ];
+  for (const row of rows) {
+    const render = (compat: CompatLevel) => {
+      const ctx = new Context(row.json, { compat });
+      const vars = variables(row.pattern);
+      Core.format.apply(row.args, vars, ctx);
+      return vars[0].get();
+    };
+    expect(render(CompatLevel.defaultLevel())).toEqual(row.released);
+    expect(render(CompatLevel.at(1))).toEqual(row.released);
+    expect(render(CompatLevel.at(2))).toEqual(row.fixed);
+  }
+});
+
 loader.paths('f-format-%N.html').forEach((path) => {
   test(`format - ${path}`, () => loader.execute(path));
 });

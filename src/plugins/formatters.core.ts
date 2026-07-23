@@ -175,7 +175,7 @@ export class FormatFormatter extends Formatter {
       return node.type === Type.NULL || node.type === Type.MISSING ? '' : node.value;
     });
     const fmt = first.node.asString();
-    const result = format(fmt, values);
+    const result = format(fmt, values, ctx.compatEnabled(Patch.FORMAT_STATE_DIGITS));
     first.set(result);
   }
 }
