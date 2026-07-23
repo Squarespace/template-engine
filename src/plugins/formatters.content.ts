@@ -82,7 +82,8 @@ export class ColorWeightFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const hex = first.node.asString();
-    const color = hexColorToInt(hex);
+    const legacy = ctx.compatEnabled(Patch.COLOR_WEIGHT_LENGTH);
+    const color = hexColorToInt(hex, legacy);
     if (color === -1) {
       first.set(MISSING_NODE);
       return;

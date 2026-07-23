@@ -148,6 +148,39 @@ test('color-weight', () => {
   vars = variables('zyz');
   impl.apply([], vars, CTX);
   expect(vars[0].node).toEqual(MISSING_NODE);
+
+  // A 4 or 5 char hex passes the released {3,6} match and reports dark.
+  // Level 1 still sits below the patch threshold, so only level 2 and up
+  // render it missing. A 7 char hex and non-hex strings are missing at
+  // every level.
+  const level1 = new Context({}, { compat: CompatLevel.at(1) });
+  const fixed = new Context({}, { compat: CompatLevel.fixed() });
+  const rows: Array<[Context, string, any]> = [
+    [CTX, '#1234', 'dark'],
+    [level1, '#1234', 'dark'],
+    [fixed, '#1234', MISSING_NODE],
+    [CTX, '#12345', 'dark'],
+    [level1, '#12345', 'dark'],
+    [fixed, '#12345', MISSING_NODE],
+    [CTX, '1234567', MISSING_NODE],
+    [fixed, '1234567', MISSING_NODE],
+    [CTX, '#GGG', MISSING_NODE],
+    [fixed, '#GGG', MISSING_NODE],
+    [CTX, '#fff', 'light'],
+    [fixed, '#fff', 'light'],
+    [CTX, '#444', 'dark'],
+    [fixed, '#444', 'dark'],
+  ];
+
+  rows.forEach(([ctx, input, expected]) => {
+    vars = variables(input);
+    impl.apply([], vars, ctx);
+    if (expected === MISSING_NODE) {
+      expect(vars[0].node).toEqual(MISSING_NODE);
+    } else {
+      expect(vars[0].get()).toEqual(expected);
+    }
+  });
 });
 
 loader.paths('f-height-%N.html').forEach((path) => {
