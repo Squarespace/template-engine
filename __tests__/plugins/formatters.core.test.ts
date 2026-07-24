@@ -303,6 +303,42 @@ test('encode-uri quote level', () => {
   expect(apply('a b/c', CompatLevel.fixed())).toEqual('a%20b/c');
 });
 
+test('encode-uri lone surrogate', () => {
+  const apply = (value: string, compat: CompatLevel) => {
+    const vars = variables(value);
+    const ctx = new Context({}, { compat });
+    Core['encode-uri'].apply([], vars, ctx);
+    return { value: vars[0].get(), errors: ctx.errors.length };
+  };
+
+  // The native call throws on a lone surrogate, the path EncodeUtils
+  // treats as null. Legacy renders the text null; fixed emits empty
+  // output. The threshold sits at level 2, so level 1 keeps the legacy
+  // text. The value comes from JSON to pin the \uD800 escape path.
+  const s = JSON.parse('{"s":"a\\uD800b"}').s;
+  for (const compat of [CompatLevel.defaultLevel(), CompatLevel.at(1)]) {
+    expect(apply(s, compat)).toEqual({ value: 'null', errors: 0 });
+  }
+  for (const compat of [CompatLevel.at(2), CompatLevel.fixed()]) {
+    expect(apply(s, compat)).toEqual({ value: '', errors: 0 });
+  }
+});
+
+test('encode-uri quote with lone surrogate', () => {
+  const apply = (value: string, compat: CompatLevel) => {
+    const vars = variables(value);
+    const ctx = new Context({}, { compat });
+    Core['encode-uri'].apply([], vars, ctx);
+    return { value: vars[0].get(), errors: ctx.errors.length };
+  };
+
+  // A lone surrogate makes the native call fail on the whole value, so
+  // the catch replaces everything and the quote post-pass never runs.
+  const s = JSON.parse('{"s":"a\'\\uD800b"}').s;
+  expect(apply(s, CompatLevel.defaultLevel())).toEqual({ value: 'null', errors: 0 });
+  expect(apply(s, CompatLevel.fixed())).toEqual({ value: '', errors: 0 });
+});
+
 loader.paths('f-encode-uri-component-%N.html').forEach((path) => {
   test(`encode-uri-component - ${path}`, () => loader.execute(path));
 });
@@ -336,6 +372,26 @@ test('encode-uri-component quote level', () => {
   // A value without a quote is the same at both levels.
   expect(apply('a b/c', CompatLevel.defaultLevel())).toEqual('a%20b%2Fc');
   expect(apply('a b/c', CompatLevel.fixed())).toEqual('a%20b%2Fc');
+});
+
+test('encode-uri-component lone surrogate', () => {
+  const apply = (value: string, compat: CompatLevel) => {
+    const vars = variables(value);
+    const ctx = new Context({}, { compat });
+    Core['encode-uri-component'].apply([], vars, ctx);
+    return { value: vars[0].get(), errors: ctx.errors.length };
+  };
+
+  // Same shape as the encode-uri case, with a low surrogate to match the
+  // Java test input. Legacy renders the text null; fixed emits empty
+  // output. Level 1 keeps the legacy text below the level 2 threshold.
+  const s = JSON.parse('{"s":"a\\uDC00b"}').s;
+  for (const compat of [CompatLevel.defaultLevel(), CompatLevel.at(1)]) {
+    expect(apply(s, compat)).toEqual({ value: 'null', errors: 0 });
+  }
+  for (const compat of [CompatLevel.at(2), CompatLevel.fixed()]) {
+    expect(apply(s, compat)).toEqual({ value: '', errors: 0 });
+  }
 });
 
 test('format', () => {

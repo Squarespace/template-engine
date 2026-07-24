@@ -153,11 +153,20 @@ export class EncodeUriFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const value = first.node.asString();
-    let result = encodeURI(value);
-    if (ctx.compatEnabled(Patch.ENCODE_URI_QUOTE)) {
-      // Legacy, the quote encodes as %27. The native call leaves it in
-      // place, so the replace lands on every quote and nothing else.
-      result = result.replace(/'/g, '%27');
+    let result: string;
+    try {
+      result = encodeURI(value);
+      if (ctx.compatEnabled(Patch.ENCODE_URI_QUOTE)) {
+        // Legacy, the quote encodes as %27. The native call leaves it in
+        // place, so the replace lands on every quote and nothing else.
+        result = result.replace(/'/g, '%27');
+      }
+    } catch {
+      // A lone surrogate makes the native call throw URIError, the only
+      // error the try block can raise. Legacy renders the text null, the
+      // same output as EncodeUtils returning null in Java; fixed replaces
+      // it with the empty string. The quote replace never runs here.
+      result = ctx.compatEnabled(Patch.ENCODE_URI_SURROGATE) ? 'null' : '';
     }
     first.set(result);
   }
@@ -167,11 +176,20 @@ export class EncodeUriComponentFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const value = first.node.asString();
-    let result = encodeURIComponent(value);
-    if (ctx.compatEnabled(Patch.ENCODE_URI_QUOTE)) {
-      // Legacy, the quote encodes as %27. The native call leaves it in
-      // place, so the replace lands on every quote and nothing else.
-      result = result.replace(/'/g, '%27');
+    let result: string;
+    try {
+      result = encodeURIComponent(value);
+      if (ctx.compatEnabled(Patch.ENCODE_URI_QUOTE)) {
+        // Legacy, the quote encodes as %27. The native call leaves it in
+        // place, so the replace lands on every quote and nothing else.
+        result = result.replace(/'/g, '%27');
+      }
+    } catch {
+      // A lone surrogate makes the native call throw URIError, the only
+      // error the try block can raise. Legacy renders the text null, the
+      // same output as EncodeUtils returning null in Java; fixed replaces
+      // it with the empty string. The quote replace never runs here.
+      result = ctx.compatEnabled(Patch.ENCODE_URI_SURROGATE) ? 'null' : '';
     }
     first.set(result);
   }
