@@ -1,4 +1,5 @@
 import { Context } from '../context';
+import { Patch } from '../compat/patch';
 import { ProductType } from './enums';
 import { Node } from '../node';
 import { Variable } from '../variable';
@@ -65,9 +66,27 @@ export class CartQuantityFormatter extends Formatter {
     const first = vars[0];
     let count = 0;
     const entries = first.node.get('entries');
+    // A missing or non-array entries renders 0 at every level. That is the
+    // released guard, and the legacy loop would not run anyway: Jackson's
+    // size() is 0 for a scalar or missing node.
     if (entries.type === Type.ARRAY) {
-      for (let i = 0; i < entries.value.length; i++) {
-        count += entries.get(i).get('quantity').asNumber();
+      if (ctx.compatEnabled(Patch.CART_QUANTITY_MISSING)) {
+        // Legacy, an entry without a quantity NPEs and the int sum
+        // overflows on big carts.
+        for (let i = 0; i < entries.value.length; i++) {
+          const quantity = entries.get(i).get('quantity');
+          if (quantity.isMissing() || quantity.isNull()) {
+            throw Object.assign(new Error(''), { name: 'NullPointerException' });
+          }
+          const q32 = quantity.asNumber() | 0;
+          count = (count + q32) | 0;
+        }
+      } else {
+        // Fixed, a missing or non-numeric quantity counts as 0 and the
+        // sum does not overflow.
+        for (let i = 0; i < entries.value.length; i++) {
+          count += entries.get(i).get('quantity').asNumber();
+        }
       }
     }
     const text = `<span class="sqs-cart-quantity">${count}</span>`;
