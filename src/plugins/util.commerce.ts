@@ -371,7 +371,7 @@ export const getTotalStockRemaining = (item: Node) => {
   return total;
 };
 
-export const hasVariedPrices = (item: Node) => {
+export const hasVariedPrices = (item: Node, legacyNonArray = true) => {
   const type = getProductType(item);
 
   switch (type) {
@@ -380,6 +380,11 @@ export const hasVariedPrices = (item: Node) => {
     case ProductType.SERVICE: {
       const variants = getVariants(item);
       const size = variants.size();
+      if (legacyNonArray && variants.type === Type.OBJECT && size >= 2) {
+        // Legacy, an object variants node with two or more fields throws,
+        // mirroring the released code's NPE on Jackson's get(0).
+        throw Object.assign(new Error(''), { name: 'NullPointerException' });
+      }
       if (variants.type === Type.ARRAY && size > 0) {
         const first = variants.get(0);
         const onSale = first.get('onSale');

@@ -2,7 +2,7 @@ import { join } from 'path';
 import * as commerceutil from '../../src/plugins/util.commerce';
 import { Node } from '../../src/node';
 import { Context } from '../../src/context';
-import { CompatLevel } from '../../src/compat';
+import { CompatLevel, Patch } from '../../src/compat';
 import { ProductType } from '../../src/plugins/enums';
 import { expectedTests, predicateTests, Product } from '../helpers';
 import { TestLoader } from '../loader';
@@ -103,6 +103,47 @@ predicateTests('has varied prices external', HAS_VARIED_PRICES_SPEC).forEach((t)
     const actual = commerceutil.hasVariedPrices(new Node(t.input));
     expect(actual).toEqual(t.expected);
   });
+});
+
+const NPE = expect.objectContaining({ name: 'NullPointerException' });
+
+/**
+ * An object variants node with two or more fields throws below the patch
+ * threshold, mirroring the released NPE. Java brings no message, so the
+ * name is what tests can see. At the threshold a non-array variants node
+ * is treated like missing or empty and returns false. Objects with fewer
+ * than two fields, empty arrays, and well-formed arrays never throw, so
+ * both levels keep the released verdict.
+ */
+test('has varied prices non-array variants', () => {
+  const product = PRODUCT.type(ProductType.PHYSICAL);
+  const legacyNonArray = (level: CompatLevel) => level.enabled(Patch.VARIED_PRICES_NON_ARRAY);
+
+  // Levels below the threshold keep the released throw.
+  const twoFieldObject = product.variants({ a: 1, b: 2 }).node();
+  expect(() => commerceutil.hasVariedPrices(twoFieldObject)).toThrow(NPE);
+  expect(() => commerceutil.hasVariedPrices(twoFieldObject, legacyNonArray(CompatLevel.at(1)))).toThrow(NPE);
+
+  // Fixed at the threshold, a non-array variants node means no varied prices.
+  expect(commerceutil.hasVariedPrices(twoFieldObject, legacyNonArray(CompatLevel.at(2)))).toEqual(false);
+
+  // An object with one field never runs the compare loop, so no throw.
+  const oneFieldObject = product.variants({ a: 1 }).node();
+  expect(commerceutil.hasVariedPrices(oneFieldObject, legacyNonArray(CompatLevel.defaultLevel()))).toEqual(false);
+  expect(commerceutil.hasVariedPrices(oneFieldObject, legacyNonArray(CompatLevel.at(2)))).toEqual(false);
+
+  // An empty array falls through the same way at both levels.
+  const emptyArray = product.variants([]).node();
+  expect(commerceutil.hasVariedPrices(emptyArray, legacyNonArray(CompatLevel.defaultLevel()))).toEqual(false);
+  expect(commerceutil.hasVariedPrices(emptyArray, legacyNonArray(CompatLevel.at(2)))).toEqual(false);
+
+  // Well-formed arrays keep the released verdicts at both levels.
+  const varied = product.variants([{ price: 100 }, { price: 200 }]).node();
+  const same = product.variants([{ price: 100 }, { price: 100 }]).node();
+  for (const level of [CompatLevel.defaultLevel(), CompatLevel.at(2)]) {
+    expect(commerceutil.hasVariedPrices(varied, legacyNonArray(level))).toEqual(true);
+    expect(commerceutil.hasVariedPrices(same, legacyNonArray(level))).toEqual(false);
+  }
 });
 
 test('is on sale', () => {

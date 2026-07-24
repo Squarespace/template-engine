@@ -1,4 +1,5 @@
 import { Context } from '../context';
+import { Patch } from '../compat/patch';
 import { PredicatePlugin, PredicateTable } from '../plugin';
 import { hasVariants, hasVariedPrices, isOnSale, isSoldOut } from './util.commerce';
 
@@ -22,7 +23,7 @@ export class SoldOut extends PredicatePlugin {
 
 export class VariedPrices extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
-    return hasVariedPrices(ctx.node());
+    return hasVariedPrices(ctx.node(), ctx.compatEnabled(Patch.VARIED_PRICES_NON_ARRAY));
   }
 }
 

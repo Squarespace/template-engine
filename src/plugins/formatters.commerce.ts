@@ -205,7 +205,7 @@ export class ProductPriceFormatter extends Formatter {
     productNode: Node,
     templateData: ProductPriceTemplateData,
   ) {
-    if (commerceutil.hasVariedPrices(productNode)) {
+    if (commerceutil.hasVariedPrices(productNode, ctx.compatEnabled(Patch.VARIED_PRICES_NON_ARRAY))) {
       const productPriceFromTextNode = ctx.resolve(PRODUCT_PRICE_FROM_TEXT_PATH);
 
       templateData.fromText = !productPriceFromTextNode.isMissing() ?
@@ -241,7 +241,7 @@ export class ProductPriceFormatter extends Formatter {
       return;
     }
 
-    const hasMultiplePrices = commerceutil.hasVariedPrices(productNode);
+    const hasMultiplePrices = commerceutil.hasVariedPrices(productNode, ctx.compatEnabled(Patch.VARIED_PRICES_NON_ARRAY));
     const billingPeriodValue = this.getValueFromSubscriptionPlanBillingPeriod(billingPeriodNode);
     const billingPeriodUnit = this.getUnitFromSubscriptionPlanBillingPeriod(billingPeriodNode);
 
@@ -274,7 +274,7 @@ export class ProductPriceFormatter extends Formatter {
     const localizedStringNode = ctx.resolve(['localizedStrings', localizedStringKey]);
     const templateForPrice = !localizedStringNode.isMissing() ?
       localizedStringNode.asString() :
-      this.defaultSubscriptionPriceString(productNode);
+      this.defaultSubscriptionPriceString(ctx, productNode);
 
     if (hasMultiplePrices) {
       templateData.fromText = templateForPrice;
@@ -293,10 +293,10 @@ export class ProductPriceFormatter extends Formatter {
   // TODO: This is shitty. The formatter should, if necessary, look up the English string and use it.
   // NOTE: ^ This TODO was taken from the corresponding function in CommerceFormatters in template-compiler:
   // https://github.com/Squarespace/template-compiler/blob/main/core/src/main/java/com/squarespace/template/plugins/platform/CommerceFormatters.java/#L438
-  defaultSubscriptionPriceString(productNode: Node) {
+  defaultSubscriptionPriceString(ctx: Context, productNode: Node) {
     const billingPeriodNode = this.getSubscriptionPlanBillingPeriodNode(productNode);
 
-    const hasMultiplePrices = commerceutil.hasVariedPrices(productNode);
+    const hasMultiplePrices = commerceutil.hasVariedPrices(productNode, ctx.compatEnabled(Patch.VARIED_PRICES_NON_ARRAY));
     const billingPeriodValue = this.getValueFromSubscriptionPlanBillingPeriod(billingPeriodNode);
     const billingPeriodPlural = billingPeriodValue > 1;
     const billingPeriodUnit = this.getUnitFromSubscriptionPlanBillingPeriod(billingPeriodNode);
@@ -363,7 +363,7 @@ export class SubscriptionPriceFormatter extends Formatter {
     const pricingOptions = commerceutil.getPricingOptionsAmongLowestVariant(node);
 
     if (pricingOptions != null && pricingOptions.size() > 0) {
-      if (commerceutil.hasVariedPrices(node)) {
+      if (commerceutil.hasVariedPrices(node, ctx.compatEnabled(Patch.VARIED_PRICES_NON_ARRAY))) {
         // This will return either salePriceMoney or priceMoney depending on whether the onSale is true or false.
         // That's because this block here is the from {price} so the from price needs to be the lowest possible price
         // taking into if a variant is onSale.
