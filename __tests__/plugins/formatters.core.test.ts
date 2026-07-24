@@ -278,6 +278,31 @@ test('encode-uri', () => {
   expect(vars[0].get()).toEqual('%3C=%25%3E');
 });
 
+test('encode-uri quote level', () => {
+  const apply = (value: string, compat: CompatLevel) => {
+    const vars = variables(value);
+    const ctx = new Context({}, { compat });
+    Core['encode-uri'].apply([], vars, ctx);
+    return vars[0].get();
+  };
+
+  // Legacy below the threshold, the quote encodes as %27.
+  for (const compat of [CompatLevel.defaultLevel(), CompatLevel.at(1)]) {
+    expect(apply("'", compat)).toEqual('%27');
+    expect(apply("a'b", compat)).toEqual('a%27b');
+  }
+
+  // Fixed at the threshold, the quote stays unescaped per uriMark.
+  for (const compat of [CompatLevel.at(2), CompatLevel.fixed()]) {
+    expect(apply("'", compat)).toEqual("'");
+    expect(apply("a'b", compat)).toEqual("a'b");
+  }
+
+  // A value without a quote is the same at both levels.
+  expect(apply('a b/c', CompatLevel.defaultLevel())).toEqual('a%20b/c');
+  expect(apply('a b/c', CompatLevel.fixed())).toEqual('a%20b/c');
+});
+
 loader.paths('f-encode-uri-component-%N.html').forEach((path) => {
   test(`encode-uri-component - ${path}`, () => loader.execute(path));
 });
@@ -286,6 +311,31 @@ test('encode-uri-component', () => {
   const vars = variables('<=%>');
   Core['encode-uri-component'].apply([], vars, CTX);
   expect(vars[0].get()).toEqual('%3C%3D%25%3E');
+});
+
+test('encode-uri-component quote level', () => {
+  const apply = (value: string, compat: CompatLevel) => {
+    const vars = variables(value);
+    const ctx = new Context({}, { compat });
+    Core['encode-uri-component'].apply([], vars, ctx);
+    return vars[0].get();
+  };
+
+  // Legacy below the threshold, the quote encodes as %27.
+  for (const compat of [CompatLevel.defaultLevel(), CompatLevel.at(1)]) {
+    expect(apply("'", compat)).toEqual('%27');
+    expect(apply("a'b", compat)).toEqual('a%27b');
+  }
+
+  // Fixed at the threshold, the quote stays unescaped per uriMark.
+  for (const compat of [CompatLevel.at(2), CompatLevel.fixed()]) {
+    expect(apply("'", compat)).toEqual("'");
+    expect(apply("a'b", compat)).toEqual("a'b");
+  }
+
+  // A value without a quote is the same at both levels.
+  expect(apply('a b/c', CompatLevel.defaultLevel())).toEqual('a%20b%2Fc');
+  expect(apply('a b/c', CompatLevel.fixed())).toEqual('a%20b%2Fc');
 });
 
 test('format', () => {

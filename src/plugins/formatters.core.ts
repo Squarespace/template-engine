@@ -153,7 +153,13 @@ export class EncodeUriFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const value = first.node.asString();
-    first.set(encodeURI(value));
+    let result = encodeURI(value);
+    if (ctx.compatEnabled(Patch.ENCODE_URI_QUOTE)) {
+      // Legacy, the quote encodes as %27. The native call leaves it in
+      // place, so the replace lands on every quote and nothing else.
+      result = result.replace(/'/g, '%27');
+    }
+    first.set(result);
   }
 }
 
@@ -161,7 +167,13 @@ export class EncodeUriComponentFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
     const value = first.node.asString();
-    first.set(encodeURIComponent(value));
+    let result = encodeURIComponent(value);
+    if (ctx.compatEnabled(Patch.ENCODE_URI_QUOTE)) {
+      // Legacy, the quote encodes as %27. The native call leaves it in
+      // place, so the replace lands on every quote and nothing else.
+      result = result.replace(/'/g, '%27');
+    }
+    first.set(result);
   }
 }
 
