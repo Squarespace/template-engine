@@ -56,13 +56,29 @@ export class DatetimeIntervalformatter extends Formatter {
 
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const cldr = ctx.cldr;
-    if (!cldr || vars.length < 2) {
+    if (!cldr) {
       vars[0].set('');
+      return;
+    }
+    // Java returns without touching the variable when only one operand is
+    // present, so the raw value passes through unchanged at every level.
+    if (vars.length < 2) {
+      return;
+    }
+
+    // Legacy, a missing or null operand reads as epoch 0 and the interval
+    // renders the 1969 range. Fixed, it renders missing.
+    if (!ctx.compatEnabled(Patch.DATETIME_INTERVAL_RAW) &&
+      (vars[0].node.isMissing() || vars[0].node.isNull() || vars[1].node.isMissing() || vars[1].node.isNull())) {
+      vars[0].set(MISSING_NODE);
       return;
     }
 
     const n0 = vars[0].node.asNumber();
     const n1 = vars[1].node.asNumber();
+    // Released surface: a non-numeric operand renders empty at every level.
+    // Java's asLong reads the text as 0 and formats the epoch interval;
+    // the port keeps the empty rendering.
     if (!isFinite(n0) || !isFinite(n1)) {
       vars[0].set('');
       return;

@@ -375,6 +375,57 @@ test('datetime-interval', () => {
   expect(formatInterval(EN, Infinity, start, ZONE_NY, args)).toEqual('');
 });
 
+test('datetime-interval missing or null operand', () => {
+  // Legacy, a missing or null operand reads as epoch 0 and the interval
+  // renders the 1969 range. Levels 1 and 2 sit below the threshold and
+  // stay on this path. The both-missing row renders "7:00 PM" here; Java
+  // renders "7:00:00 PM" for that identical-instant interval, a cldr
+  // difference on the seconds field.
+  const legacy: Array<[any, string]> = [
+    [{}, '7:00\u202FPM'],
+    [{ s: NOW }, 'Aug 9, 2017\u2009\u2013\u2009Dec 31, 1969'],
+    [{ e: NOW + 7200000 }, 'Dec 31, 1969\u2009\u2013\u2009Aug 9, 2017'],
+  ];
+  for (const compat of [LEGACY, CompatLevel.at(1), CompatLevel.at(2)]) {
+    for (const row of legacy) {
+      const json = { website: { timeZone: ZONE_NY }, ...row[0] };
+      const { ctx, errors } = execute('{s, e|datetime-interval}', json, compat);
+      expect(ctx.render()).toEqual(row[1]);
+      expect(errors).toEqual([]);
+    }
+  }
+
+  // Fixed, the interval renders missing.
+  for (const compat of [CompatLevel.at(3), FIXED]) {
+    for (const row of legacy) {
+      const json = { website: { timeZone: ZONE_NY }, ...row[0] };
+      const { ctx, errors } = execute('{s, e|datetime-interval}', json, compat);
+      expect(ctx.render()).toEqual('');
+      expect(errors).toEqual([]);
+    }
+  }
+});
+
+test('datetime-interval present', () => {
+  // Both operands present render the same time range at every level.
+  const json = { website: { timeZone: ZONE_LA }, s: NOW, e: NOW + 7200000 };
+  for (const compat of [LEGACY, CompatLevel.at(2), FIXED]) {
+    const { ctx, errors } = execute('{s, e|datetime-interval}', json, compat);
+    expect(ctx.render()).toEqual('10:00\u202FAM\u2009\u2013\u200912:00\u202FPM');
+    expect(errors).toEqual([]);
+  }
+});
+
+test('datetime-interval single variable', () => {
+  // A single variable passes through unchanged at every level, the raw
+  // number rather than an empty string.
+  for (const compat of [LEGACY, CompatLevel.at(2), FIXED]) {
+    const { ctx, errors } = execute('{x|datetime-interval}', { x: 42 }, compat);
+    expect(ctx.render()).toEqual('42');
+    expect(errors).toEqual([]);
+  }
+});
+
 test('datetime missing or null', () => {
   // Legacy, a missing or null value reads as epoch 0 and renders the 1969
   // date. Level 1 stays on this path.
