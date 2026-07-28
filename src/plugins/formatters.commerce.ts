@@ -237,7 +237,12 @@ export class ProductPriceFormatter extends Formatter {
       templateData.fromText = !productPriceUnavailableTextNode.isMissing() ?
         productPriceUnavailableTextNode.asString() :
         'Unavailable';
-      templateData.formattedFromPrice = 'true';
+      // Fixed, the slot holds a single space. The template's .if gate on
+      // this value still passes (an empty string is falsy), and a
+      // localized unavailable text with a price placeholder renders
+      // nothing here. Legacy, it holds 'true', which such a text renders
+      // literally.
+      templateData.formattedFromPrice = ctx.compatEnabled(Patch.PRODUCT_PRICE_TRUE_SLOT) ? 'true' : ' ';
       return;
     }
 

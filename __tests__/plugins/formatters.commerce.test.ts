@@ -1,6 +1,7 @@
 import { join } from 'path';
 import { CLDR } from '@phensley/cldr';
 import { framework } from '../cldr';
+import { Compiler } from '../../src/compiler';
 import { Context } from '../../src/context';
 import { Node } from '../../src/node';
 import { Variable } from '../../src/variable';
@@ -364,4 +365,51 @@ loader.paths('f-product-price-finite-subscription-weekly-localized-multiple.html
 
 loader.paths('f-product-price-subscription-weekly-plan-unavailable.html').forEach((path) => {
   test(`product price subscription weekly plan unavailable - ${path}`, () => loader.execute(path));
+});
+
+// The two fixtures pin the no-billing-period slot at level 0 and level 3,
+// and their names break the f-product-price-%N glob, so each runs with an
+// explicit loader.execute call.
+test('product price subscription plan unavailable true slot', () =>
+  loader.execute('f-product-price-subscription-plan-unavailable-true-slot.html'));
+
+test('product price subscription plan unavailable true slot level 3', () =>
+  loader.execute('f-product-price-subscription-plan-unavailable-true-slot-level-3.html'));
+
+test('product price unavailable default text', () => {
+  // Without localizedStrings the branch falls back to 'Unavailable' and
+  // the slot value never reaches the output, at both levels.
+  const compiler = new Compiler();
+  const json = {
+    structuredContent: { productType: 1, isSubscribable: 'true', subscriptionPlan: {} },
+  };
+  for (const compat of [CompatLevel.defaultLevel(), CompatLevel.fixed()]) {
+    const { ctx, errors } = compiler.execute({ code: '{@|product-price}', json, cldr: EN, compat });
+    expect(errors).toEqual([]);
+    expect(ctx.render()).toContain('Unavailable');
+  }
+});
+
+test('product price unavailable localized price slot', () => {
+  // A subscribable product whose plan has no billing period. The
+  // localized unavailable text embeds a price placeholder.
+  const compiler = new Compiler();
+  const json = {
+    structuredContent: { productType: 1, isSubscribable: 'true', subscriptionPlan: {} },
+    localizedStrings: { productPriceUnavailable: 'Price ({price})' },
+  };
+
+  // Below the threshold the slot keeps the legacy literal.
+  for (const compat of [CompatLevel.defaultLevel(), CompatLevel.at(2)]) {
+    const { ctx, errors } = compiler.execute({ code: '{@|product-price}', json, cldr: EN, compat });
+    expect(errors).toEqual([]);
+    expect(ctx.render()).toContain('Price (true)');
+  }
+
+  // At the fixed level the placeholder renders nothing.
+  const { ctx, errors } = compiler.execute({ code: '{@|product-price}', json, cldr: EN, compat: CompatLevel.fixed() });
+  expect(errors).toEqual([]);
+  const output = ctx.render();
+  expect(output).toContain('Price ( )');
+  expect(output).not.toContain('true');
 });
