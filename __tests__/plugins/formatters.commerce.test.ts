@@ -2,7 +2,9 @@ import { join } from 'path';
 import { CLDR } from '@phensley/cldr';
 import { framework } from '../cldr';
 import { Context } from '../../src/context';
+import { Node } from '../../src/node';
 import { Variable } from '../../src/variable';
+import { CompatLevel } from '../../src/compat/compat-level';
 import { COMMERCE_FORMATTERS as TABLE } from '../../src/plugins/formatters.commerce';
 import { TemplateTestLoader } from '../loader';
 
@@ -17,6 +19,17 @@ const formatPercentage = (cldr: CLDR | undefined, n: string, args: string[]) => 
   const ctx = new Context({}, { cldr });
   const vars = variables(n);
   impl.apply(args, vars, ctx);
+  return vars[0].get();
+};
+
+// The variable node is the field object and the context root is the JSON
+// object, so the formatter resolves localizedStrings from the root, the
+// way a template execution does.
+const formatSummaryField = (json: any, level: number) => {
+  const root = new Node(json);
+  const ctx = new Context(root, { compat: CompatLevel.at(level) });
+  const vars = variables(root.get('field'));
+  TABLE['summary-form-field'].apply([], vars, ctx);
   return vars[0].get();
 };
 
@@ -123,6 +136,58 @@ loader.paths('f-summary-form-field-time-%N.html').forEach((path) => {
 
 loader.paths('f-summary-form-field-unk-%N.html').forEach((path) => {
   test(`summary form field unk - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-summary-form-field-escape-%N.html').forEach((path) => {
+  test(`summary form field escape - ${path}`, () => loader.execute(path));
+});
+
+// rawTitle and the fallback text stay raw below the patch threshold at
+// levels 0 to 2 and escape as user data from level 3 on. The rendered
+// value is template output and stays raw at every level. The level-3
+// expectations mirror the Java fixture output.
+const summaryFieldDiv = (title: string, value: string) =>
+  '<div style="font-size:11px; margin-top:3px">\n' +
+  `  <span style="font-weight:bold;">${title}:</span> ${value}\n` +
+  '</div>';
+
+const SUMMARY_FIELD_JSON = {
+  field: {
+    type: 'unknown',
+    rawTitle: 'A <B> & "C"',
+    value: '<b>bold</b>',
+  },
+};
+
+// rawTitle with special chars renders raw at level 0 and level 2, below
+// the level-3 threshold, and escapes at level 3. The value stays raw in
+// the level-3 output.
+test('summary form field: rawTitle escapes at level 3 only', () => {
+  expect(formatSummaryField(SUMMARY_FIELD_JSON, 0)).toBe(summaryFieldDiv('A <B> & "C"', '<b>bold</b>'));
+  expect(formatSummaryField(SUMMARY_FIELD_JSON, 2)).toBe(summaryFieldDiv('A <B> & "C"', '<b>bold</b>'));
+  expect(formatSummaryField(SUMMARY_FIELD_JSON, 3)).toBe(summaryFieldDiv('A &lt;B&gt; &amp; "C"', '<b>bold</b>'));
+});
+
+// A value containing markup is rendered output, not user data, so it
+// stays raw at level 3.
+test('summary form field: the value stays raw at level 3', () => {
+  expect(formatSummaryField(SUMMARY_FIELD_JSON, 3)).toContain(':</span> <b>bold</b>\n</div>');
+});
+
+// The no-answer fallback text renders raw below the level-3 threshold and
+// escapes from level 3 on, matching the Java fixture output.
+test('summary form field: fallback text escapes at level 3 only', () => {
+  const json = {
+    field: {
+      type: 'unknown',
+      rawTitle: 'Q <&> "T"',
+    },
+    localizedStrings: {
+      productSummaryFormNoAnswerText: 'No answer <&> "x"',
+    },
+  };
+  expect(formatSummaryField(json, 0)).toBe(summaryFieldDiv('Q <&> "T"', 'No answer <&> "x"'));
+  expect(formatSummaryField(json, 3)).toBe(summaryFieldDiv('Q &lt;&amp;&gt; "T"', 'No answer &lt;&amp;&gt; "x"'));
 });
 
 loader.paths('f-variant-descriptor-%N.html').forEach((path) => {

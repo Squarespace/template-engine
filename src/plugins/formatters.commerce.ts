@@ -676,13 +676,25 @@ export class SummaryFormFieldFormatter extends Formatter {
     let buf = '<div style="font-size:11px; margin-top:3px">\n';
 
     buf += '  <span style="font-weight:bold;">';
-    buf += field.get('rawTitle').asString();
+    // Legacy, rawTitle and the fallback text land in the HTML raw.
+    // Fixed, both are escaped before appending.
+    const legacyTitles = ctx.compatEnabled(Patch.SUMMARY_FIELD_TITLE_ESCAPES);
+    if (legacyTitles) {
+      buf += field.get('rawTitle').asString();
+    } else {
+      buf += stringutil.escapeHtml(field.get('rawTitle').asString());
+    }
     buf += ':</span> ';
     if (isTruthy(value)) {
       buf += value;
     } else {
       const text = localizedStrings.get('productSummaryFormNoAnswerText').asString().trim();
-      buf += text === '' ? 'N/A' : text;
+      const safe = text === '' ? 'N/A' : text;
+      if (legacyTitles) {
+        buf += safe;
+      } else {
+        buf += stringutil.escapeHtml(safe);
+      }
     }
     buf += '\n</div>';
     first.set(buf);

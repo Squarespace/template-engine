@@ -55,6 +55,22 @@ export const escapeHtmlAttributes = (str: string, legacySingleQuote = true) => {
   return replaceMappedChars(str, legacySingleQuote ? HTML_ATTRIBUTE_CHARS : HTML_ATTRIBUTE_CHARS_QUOTE);
 };
 
+const HTML_BODY_CHARS = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+};
+
+/**
+ * Escape a string for HTML body text. Only &, <, and > are replaced, each
+ * in a single pass, so the & of a generated entity is never escaped a
+ * second time. The quote characters pass through raw; callers that write
+ * attribute values use escapeHtmlAttributes instead.
+ */
+export const escapeHtml = (str: string) => {
+  return replaceMappedChars(str, HTML_BODY_CHARS);
+};
+
 const SLUG_KILLCHARS = /[^a-zA-Z0-9\s-]+/g;
 const WHITESPACE_RE = /\s+/g;
 
