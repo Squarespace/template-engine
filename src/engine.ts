@@ -25,6 +25,7 @@ import { Variable } from './variable';
 import { Formatter, FormatterMap, PredicateMap, PredicatePlugin } from './plugin';
 import { isTruthy } from './node';
 import { tokenDebug, Expr, ExprOptions } from './math';
+import { Type } from './types';
 
 const DEBUG_ARROW = new Node(' -> ');
 
@@ -36,6 +37,19 @@ const DEBUG_ARROW = new Node(' -> ');
 const sameExprOpts = (a?: ExprOptions, b?: ExprOptions): boolean =>
   ((a && a.maxTokens) || 0) === ((b && b.maxTokens) || 0) &&
   ((a && a.maxStringLen) || 0) === ((b && b.maxStringLen) || 0);
+
+/**
+ * True when a node is a number whose value is an integer that fits in a
+ * long. The bounds are Java's double forms: (double) Long.MIN_VALUE is
+ * -2^63 and (double) Long.MAX_VALUE rounds up to 2^63, so the double
+ * value of any in-range long is integral and lies in [-2^63, 2^63).
+ * BigInt of such a value recovers its exact digits.
+ */
+const isExactLong = (r: Node): boolean =>
+  r.type === Type.NUMBER &&
+  Number.isInteger(r.value) &&
+  r.value >= -9223372036854775808 &&
+  r.value < 9223372036854775808;
 
 type Bindings = { [x: string]: Node };
 
@@ -336,7 +350,14 @@ export class Engine {
       ctx.pushNode(ctx.node());
 
       // Reduce the expression
-      const r = expr.reduce(ctx);
+      let r = expr.reduce(ctx);
+
+      // Integral results within long range render with their exact digits
+      // once the level is fixed, matching Java's LongNode emission. The
+      // node keeps its double value; only the text changes.
+      if (r && !ctx.compatEnabled(Patch.EVAL_INTEGRAL_LONG) && isExactLong(r)) {
+        r = new Node(r.value, r.type, String(BigInt(r.value)));
+      }
 
       // Collect all local variables created by the expression.
       const vars = ctx.frame().getVars();

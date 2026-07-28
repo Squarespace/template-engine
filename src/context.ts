@@ -275,6 +275,11 @@ export class Context {
   emitNode(node: Node): void {
     switch (node.type) {
       case Type.NUMBER:
+        // Numbers render via asString, which returns the exact digits when
+        // the eval path attached them. A plain number stringifies as before.
+        this.append(node.asString());
+        break;
+
       case Type.STRING:
       case Type.BOOLEAN:
         this.append(node.value);

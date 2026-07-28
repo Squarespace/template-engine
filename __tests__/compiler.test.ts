@@ -1,7 +1,10 @@
 import { Compiler } from '../src/compiler';
 import { Context, Partials } from '../src/context';
 import { CompatLevel } from '../src/compat/compat-level';
+import { Engine } from '../src/engine';
 import { Formatter } from '../src/plugin';
+import { Node } from '../src/node';
+import { Type } from '../src/types';
 import { Opcode as O } from '../src/opcodes';
 import { Code } from '../src/instructions';
 import { Variable } from '../src/variable';
@@ -216,6 +219,121 @@ test('partial depth throw apply', () => {
   });
   expect(fixed.ctx.render()).toEqual('C');
   expect(fixed.errors.length).toEqual(0);
+});
+
+test('eval integral digits, legacy at the default level', () => {
+  // Port of Java CompilerTest.testEvalIntegralResults, the released path.
+  // The double path renders exact digits below 2^53 and rounds above it,
+  // the same 16-significant-digit form Java's DoubleNode renders, so these
+  // byte-match level 0.
+  const rows: [string, string][] = [
+    ['{.eval 3.0}', '3'],
+    ['{.eval 1+2}', '3'],
+    ['{.eval 2 ** 62}', '4611686018427388000'],
+    ['{.eval 1.5}', '1.5'],
+    ['{.eval 1/3}', '0.3333333333333333'],
+    ['{.eval 2 ** 64}', '18446744073709552000'],
+    // A literal past 2^53 rounds to a double when the expression tokenizes,
+    // in TS and Java alike.
+    ['{.eval 9007199254740993}', '9007199254740992'],
+    ['{.eval 0x20000000000001}', '9007199254740992'],
+  ];
+  for (const [template, expected] of rows) {
+    const { ctx, errors } = new Compiler().execute({ code: template, json: {}, enableExpr: true });
+    expect(errors).toEqual([]);
+    expect(ctx.render()).toEqual(expected);
+  }
+});
+
+test('eval integral digits, level 2 keeps the double path', () => {
+  // EVAL_INTEGRAL_LONG fixes at level 3, so level 2 renders the same
+  // rounded form as the default.
+  const { ctx } = new Compiler().execute({
+    code: '{.eval 2 ** 62}',
+    json: {},
+    enableExpr: true,
+    compat: CompatLevel.at(2),
+  });
+  expect(ctx.render()).toEqual('4611686018427388000');
+});
+
+test('eval integral digits, exact at the fixed level', () => {
+  // Level 3+ emits exact digits for integral results within long range,
+  // Java's LongNode. Fractional results and results past 2^63 stay doubles
+  // at every level.
+  const rows: [string, string][] = [
+    ['{.eval 2 ** 62}', '4611686018427387904'],
+    ['{.eval 1+2}', '3'],
+    ['{.eval 3.0}', '3'],
+    ['{.eval 1.5}', '1.5'],
+    ['{.eval 2 ** 64}', '18446744073709552000'],
+  ];
+  for (const [template, expected] of rows) {
+    const { ctx, errors } = new Compiler().execute({
+      code: template,
+      json: {},
+      enableExpr: true,
+      compat: CompatLevel.fixed(),
+    });
+    expect(errors).toEqual([]);
+    expect(ctx.render()).toEqual(expected);
+  }
+});
+
+test('eval integral result compares equal to the same JSON number', () => {
+  // A fixed-level eval result renders with exact digits but still carries
+  // its double value, so it orders identically against a JSON number of
+  // the same value. The literal also rounds to that double at JSON.parse.
+  // Known residual: the exact digits live on the node's render path only,
+  // so consumers that re-derive digits from the number, such as money on
+  // an eval result, still see the double form.
+  const template =
+    '{.eval @n = 2 ** 62}' +
+    '{.equal? @n 4611686018427387904}equal{.or}not-equal{.end}' +
+    '{.greaterThan? @n 4611686018427387904}gt{.or}not-gt{.end}' +
+    '{.lessThan? @n 4611686018427387904}lt{.or}not-lt{.end}';
+  const { ctx, errors } = new Compiler().execute({
+    code: template,
+    json: {},
+    enableExpr: true,
+    compat: CompatLevel.fixed(),
+  });
+  expect(errors).toEqual([]);
+  expect(ctx.render()).toEqual('equalnot-gtnot-lt');
+});
+
+// Residual, pinned but not fixed here: JSON integer input above 2^53 rounds
+// at JSON.parse in TS, while Java's Jackson keeps it exact via LongNode or
+// BigIntegerNode at every level. The divergence is in the data layer and
+// predates this patch; the eval rows above document the shared double form.
+
+test('eval integral result carries exact digits as a double', () => {
+  // The ExprTest analogue of Java's LongNode assertion: at the fixed level
+  // the emitted node renders its exact digits while its value stays the
+  // double, so asNumber, compare, equals and predicates keep the old
+  // behavior.
+  const { code } = new Compiler().parse('{.eval 2 ** 62}');
+  let captured: Node | undefined;
+  class CaptureCtx extends Context {
+    emitNode(node: Node): void {
+      captured = node;
+      super.emitNode(node);
+    }
+  }
+  const ctx = new CaptureCtx({}, { enableExpr: true });
+  ctx.setCompat(CompatLevel.fixed());
+  new Engine().execute(code, ctx);
+  expect(captured!.type).toBe(Type.NUMBER);
+  expect(captured!.value).toBe(2 ** 62);
+  expect(captured!.asString()).toBe('4611686018427387904');
+  expect(ctx.render()).toBe('4611686018427387904');
+
+  // The default level keeps the released double form and no exact digits.
+  const { code: legacyCode } = new Compiler().parse('{.eval 2 ** 62}');
+  const legacy = new CaptureCtx({}, { enableExpr: true });
+  new Engine().execute(legacyCode, legacy);
+  expect(captured!.exactDigits).toBeUndefined();
+  expect(captured!.asString()).toBe('4611686018427388000');
 });
 
 test('compiler raw partials', () => {

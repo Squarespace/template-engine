@@ -11,9 +11,17 @@ class Node {
   readonly type: Type;
   readonly value: any;
 
-  constructor(value: any, type?: Type) {
+  /**
+   * The exact decimal digits of an integral number, set by the eval render
+   * path at the fixed level. The value stays a double so comparisons and
+   * arithmetic treat the node normally; only the rendered text changes.
+   */
+  readonly exactDigits?: string;
+
+  constructor(value: any, type?: Type, exactDigits?: string) {
     this.value = value;
     this.type = type !== undefined ? type : of(value);
+    this.exactDigits = exactDigits;
   }
 
   isNull(): boolean {
@@ -73,6 +81,9 @@ class Node {
    * Return the node's value as a string.
    */
   asString(): string {
+    if (this.exactDigits !== undefined) {
+      return this.exactDigits;
+    }
     switch (this.type) {
       case Type.STRING:
         return this.value;
