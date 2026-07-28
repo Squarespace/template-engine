@@ -42,7 +42,7 @@ export class DatetimeFormatter extends Formatter {
     }
 
     const opts = datetimeOptions(args);
-    const zoneId = getTimeZone(ctx);
+    const zoneId = getTimeZone(ctx, ctx.compatEnabled(Patch.TIMEZONE_NULL_LITERAL));
     const res = cldr.Calendars.formatDate({ date, zoneId }, opts);
     first.set(res);
   }
@@ -68,7 +68,7 @@ export class DatetimeIntervalformatter extends Formatter {
       return;
     }
 
-    const zoneId = getTimeZone(ctx);
+    const zoneId = getTimeZone(ctx, ctx.compatEnabled(Patch.TIMEZONE_NULL_LITERAL));
     const start = { date: n0, zoneId };
     const end = { date: n1, zoneId };
     const opts = intervalOptions(args);
@@ -206,7 +206,7 @@ export class MessageFormatterImpl extends Formatter {
     });
 
     const { formatter } = ctx;
-    const zoneId = getTimeZone(ctx);
+    const zoneId = getTimeZone(ctx, ctx.compatEnabled(Patch.TIMEZONE_NULL_LITERAL));
     formatter!.setTimeZone(zoneId);
 
     const msg = first.node.asString();

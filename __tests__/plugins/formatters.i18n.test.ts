@@ -306,6 +306,39 @@ test('datetime', () => {
   expect(formatDatetime(EN, '"abcdef"', ZONE_NY, args)).toEqual('');
 });
 
+test('datetime null timeZone literal', () => {
+  // 2023-01-01T05:00:00Z, the instant both Java fixtures pin. The UTC
+  // reading is January 1 and the NY reading is a day earlier.
+  const EPOCH = '1672542000000';
+  const UTC = 'January 1, 2023';
+  const NY = 'December 31, 2022';
+
+  const render = (json: any, compat?: CompatLevel) => {
+    const impl = TABLE.datetime;
+    const ctx = new Context(json, { cldr: EN, compat });
+    const vars = variables(EPOCH);
+    impl.apply([], vars, ctx);
+    return vars[0].get();
+  };
+
+  // The i18n path shares the date formatter's gate: a null zone below the
+  // threshold reads as an empty string and falls back to UTC, and the
+  // fixed level treats it like missing.
+  for (const compat of [LEGACY, CompatLevel.at(1), CompatLevel.at(2)]) {
+    expect(render({ website: { timeZone: null } }, compat)).toEqual(UTC);
+  }
+  for (const compat of [CompatLevel.at(3), FIXED]) {
+    expect(render({ website: { timeZone: null } }, compat)).toEqual(NY);
+  }
+
+  // Missing and empty-string zones keep their released reads at both ends
+  // of the ladder: missing is the NY default, an empty string stays UTC.
+  for (const compat of [LEGACY, FIXED]) {
+    expect(render({}, compat)).toEqual(NY);
+    expect(render({ website: { timeZone: '' } }, compat)).toEqual(UTC);
+  }
+});
+
 test('japanese', () => {
   // March 12, 2018 5:48:54 PM UTC
   const d = '1520876934000';

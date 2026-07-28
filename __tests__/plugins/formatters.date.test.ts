@@ -30,6 +30,14 @@ loader.paths('f-date-week-%N.html').forEach((path) => {
   test(`date - ${path}`, () => loader.execute(path));
 });
 
+// The timezone fixtures use hyphenated names the numbered globs above do
+// not match, so run them directly. The first pins no level and runs at
+// the default; the second pins level 3.
+test('date timezone null', () => {
+  loader.execute('f-date-timezone-null-1.html');
+  loader.execute('f-date-timezone-null-2.html');
+});
+
 test('date', () => {
   const en = framework.get('en');
 
@@ -346,4 +354,47 @@ test('week formatter levels', () => {
   vars = variables(DEC_31_2024_UTC);
   TABLE.date.apply(['%W'], vars, ctx);
   expect(vars[0].get()).toEqual('53');
+});
+
+test('null timeZone literal', () => {
+  const en = framework.get('en');
+  // 2023-01-01T05:00:00Z, the instant both Java fixtures pin. The UTC
+  // reading is 2023-01-01 and the NY reading is a day earlier.
+  const EPOCH = 1672542000000;
+  const UTC = '2023-01-01';
+  const NY = '2022-12-31';
+  const LEVELS = [CompatLevel.defaultLevel(), CompatLevel.at(1), CompatLevel.at(2), CompatLevel.at(3), CompatLevel.fixed()];
+
+  const render = (json: any, compat: CompatLevel) => {
+    const ctx = new Context(json, { cldr: en, compat });
+    const vars = variables(EPOCH);
+    TABLE.date.apply(['%Y-%m-%d'], vars, ctx);
+    return vars[0].get();
+  };
+
+  // A null zone reads as an empty string below the threshold and the zone
+  // lookup falls back to UTC. The fixed level treats it like missing.
+  for (const compat of [CompatLevel.defaultLevel(), CompatLevel.at(1), CompatLevel.at(2)]) {
+    expect(render({ website: { timeZone: null } }, compat)).toEqual(UTC);
+  }
+  for (const compat of [CompatLevel.at(3), CompatLevel.fixed()]) {
+    expect(render({ website: { timeZone: null } }, compat)).toEqual(NY);
+  }
+
+  // A missing zone is the NY default at every level.
+  for (const compat of LEVELS) {
+    expect(render({}, compat)).toEqual(NY);
+  }
+
+  // Explicit zones pass through at every level: UTC stays UTC, NY stays NY.
+  for (const compat of LEVELS) {
+    expect(render({ website: { timeZone: 'UTC' } }, compat)).toEqual(UTC);
+    expect(render({ website: { timeZone: 'America/New_York' } }, compat)).toEqual(NY);
+  }
+
+  // An empty string is not null and passes through to the UTC fallback at
+  // every level, the over-broad-handling guard.
+  for (const compat of LEVELS) {
+    expect(render({ website: { timeZone: '' } }, compat)).toEqual(UTC);
+  }
 });

@@ -5,13 +5,14 @@ import { Formatter, FormatterTable } from '../plugin';
 import { Variable } from '../variable';
 import { formatDate } from './util.date';
 
-/**
- * Retrieves the Website's timeZone from the context, falling
- * back to the default NY.
- */
-const getTimeZone = (ctx: Context) => {
+// A local copy of util.timezone.ts getTimeZone. Keep the
+// TIMEZONE_NULL_LITERAL gate in both copies.
+const getTimeZone = (ctx: Context, legacyNull: boolean = true) => {
   const node = ctx.resolve(['website', 'timeZone']);
-  return node.isMissing() ? 'America/New_York' : node.asString();
+  if (node.isMissing() || (!legacyNull && node.isNull())) {
+    return 'America/New_York';
+  }
+  return node.asString();
 };
 
 export class DateFormatter extends Formatter {
@@ -32,7 +33,7 @@ export class DateFormatter extends Formatter {
     }
 
     const instant = vars[0].node.asNumber();
-    const timezone = getTimeZone(ctx);
+    const timezone = getTimeZone(ctx, ctx.compatEnabled(Patch.TIMEZONE_NULL_LITERAL));
     const d = GregorianDate.fromUnixEpoch(instant, timezone);
 
     // Build format and apply
