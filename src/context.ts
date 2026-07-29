@@ -44,7 +44,8 @@ export interface ContextProps {
   now?: number;
 
   /**
-   * Explicitly enable the {.expr} instruction.
+   * Enable the {.expr} instruction. On by default; pass false to turn
+   * it off.
    */
   enableExpr?: boolean;
 
@@ -89,7 +90,7 @@ export class Context {
   readonly errors: any[];
   readonly cldr?: CLDR;
   readonly now?: number;
-  readonly enableExpr?: boolean;
+  readonly enableExpr: boolean;
   readonly exprOpts?: ExprOptions;
   readonly enableInclude?: boolean;
   readonly formatter?: MessageFormats;
@@ -116,7 +117,7 @@ export class Context {
     this.partials = props.partials || {};
     this.injects = props.injects || {};
     this.now = props.now;
-    this.enableExpr = props.enableExpr;
+    this.enableExpr = props.enableExpr !== false;
     this.exprOpts = props.exprOpts;
     this.enableInclude = props.enableInclude;
     this.compat = props.compat || CompatLevel.defaultLevel();

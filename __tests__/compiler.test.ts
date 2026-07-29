@@ -28,6 +28,26 @@ test('compiler defaults', () => {
   expect(ctx.render()).toEqual('');
 });
 
+test('eval on by default, off with enableExpr false', () => {
+  // Rows mirror Java CodeExecutorTest.testEvalInstGatedByEnableExpr.
+  const compiler = new Compiler();
+
+  // No prop at all: the default turns eval on
+  let { ctx, errors } = compiler.execute({ code: '{.eval 2*3}', json: {} });
+  expect(errors).toEqual([]);
+  expect(ctx.render()).toEqual('6');
+
+  // Explicitly disabled
+  ({ ctx, errors } = compiler.execute({ code: '{.eval 2*3}', json: {}, enableExpr: false }));
+  expect(errors).toEqual([]);
+  expect(ctx.render()).toEqual('');
+
+  // Explicitly enabled
+  ({ ctx, errors } = compiler.execute({ code: '{.eval 2*3}', json: {}, enableExpr: true }));
+  expect(errors).toEqual([]);
+  expect(ctx.render()).toEqual('6');
+});
+
 test('compiler custom formatter', () => {
   const formatters = {
     dummy: new Dummy(),
