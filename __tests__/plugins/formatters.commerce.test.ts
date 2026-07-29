@@ -155,9 +155,8 @@ test('product restock: product without id', () => {
   }
 
   // At the fixed level the missing id leaves the template's static
-  // whitespace in the output. Java renders "" here; the difference is a
-  // pre-existing template-rendering quirk for missing variables and is
-  // out of scope for this patch.
+  // whitespace in the output. Java renders the same whitespace string
+  // (CommerceFormattersTest.testRestockMissingProductId pins it).
   const fixed = compiler.execute({ code, json, compat: CompatLevel.fixed() });
   expect(fixed.errors).toEqual([]);
   expect(fixed.ctx.render()).toEqual('[\n\n\n\n\n\n]');
