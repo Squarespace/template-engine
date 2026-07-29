@@ -445,7 +445,14 @@ export class ProductRestockNotificationFormatter extends Formatter {
     const first = vars[0];
     const node = first.node;
 
-    const productId = [node.get('id').asString()];
+    // Legacy, a product without an id throws below the threshold. Fixed,
+    // the missing id resolves to no context entry and the template keeps
+    // only its static whitespace when it renders.
+    const id = node.get('id');
+    if (ctx.compatEnabled(Patch.SCARCITY_MISSING_FIELD) && (id.isMissing() || id.isNull())) {
+      throw Object.assign(new Error(''), { name: 'NullPointerException' });
+    }
+    const productId = [id.asString()];
     const product = productCtx.path(productId);
     const obj = {
       product: node.value,
@@ -470,17 +477,31 @@ export class ProductScarcityFormatter extends Formatter {
 
     const first = vars[0];
     const product = first.node;
-    const id = product.get('id').asString();
-    const productCtx = merchCtx.get(id);
 
-    if (!productCtx.isMissing() && productCtx.get('scarcityEnabled').asBoolean()) {
-      const obj: any = {
-        scarcityTemplateViews: productCtx.get('scarcityTemplateViews').value,
-        scarcityText: productCtx.get('scarcityText').value,
-        scarcityShownByDefault: productCtx.get('scarcityShownByDefault').value,
-      };
-      const res = executeTemplate(ctx, productScarcityTemplate as unknown as RootCode, new Node(obj), false);
-      first.set(res);
+    // Legacy, a product without an id or a context entry without
+    // scarcityEnabled throws below the threshold. Fixed, both read as
+    // absent and the block renders empty.
+    const legacyScarcity = ctx.compatEnabled(Patch.SCARCITY_MISSING_FIELD);
+    const id = product.get('id');
+    if (legacyScarcity && (id.isMissing() || id.isNull())) {
+      throw Object.assign(new Error(''), { name: 'NullPointerException' });
+    }
+    const productCtx = merchCtx.get(id.asString());
+
+    if (!productCtx.isMissing()) {
+      const scarcityEnabled = productCtx.get('scarcityEnabled');
+      if (legacyScarcity && (scarcityEnabled.isMissing() || scarcityEnabled.isNull())) {
+        throw Object.assign(new Error(''), { name: 'NullPointerException' });
+      }
+      if (scarcityEnabled.asBoolean()) {
+        const obj: any = {
+          scarcityTemplateViews: productCtx.get('scarcityTemplateViews').value,
+          scarcityText: productCtx.get('scarcityText').value,
+          scarcityShownByDefault: productCtx.get('scarcityShownByDefault').value,
+        };
+        const res = executeTemplate(ctx, productScarcityTemplate as unknown as RootCode, new Node(obj), false);
+        first.set(res);
+      }
     }
   }
 }

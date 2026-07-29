@@ -97,6 +97,72 @@ loader.paths('f-product-scarcity-%N.html').forEach((path) => {
   test(`product scarcity - ${path}`, () => loader.execute(path));
 });
 
+// The hyphenated name breaks the f-product-scarcity-%N glob, so it runs
+// with an explicit loader.execute call. The file pins level 3.
+test('product scarcity - f-scarcity-no-enabled-field.html', () =>
+  loader.execute('f-scarcity-no-enabled-field.html'));
+
+const compiler = new Compiler();
+
+// An entry without scarcityEnabled throws below the threshold and safe
+// mode records one NullPointerException. The variable stays the untouched
+// product, so the block renders empty either way.
+const SCARCITY_NO_ENABLED_JSON = {
+  item: { id: '560c37c1a7c8465c4a71d99a' },
+  productMerchandisingContext: { '560c37c1a7c8465c4a71d99a': {} },
+};
+
+test('product scarcity: context entry without scarcityEnabled', () => {
+  const code = '[{item|product-scarcity}]';
+  for (const compat of [CompatLevel.defaultLevel(), CompatLevel.at(2)]) {
+    const { ctx, errors } = compiler.execute({ code, json: SCARCITY_NO_ENABLED_JSON, compat });
+    expect(errors.length).toEqual(1);
+    expect(errors[0].message).toContain('NullPointerException');
+    expect(ctx.render()).toEqual('[]');
+  }
+
+  const fixed = compiler.execute({ code, json: SCARCITY_NO_ENABLED_JSON, compat: CompatLevel.fixed() });
+  expect(fixed.errors).toEqual([]);
+  expect(fixed.ctx.render()).toEqual('[]');
+});
+
+// A product without an id throws below the threshold for both
+// formatters. Above it the missing id behaves like any missing field:
+// scarcity renders empty.
+test('product scarcity: product without id', () => {
+  const code = '[{item|product-scarcity}]';
+  const json = { item: {}, productMerchandisingContext: {} };
+
+  const legacy = compiler.execute({ code, json });
+  expect(legacy.errors.length).toEqual(1);
+  expect(legacy.errors[0].message).toContain('NullPointerException');
+  expect(legacy.ctx.render()).toEqual('[]');
+
+  const fixed = compiler.execute({ code, json, compat: CompatLevel.fixed() });
+  expect(fixed.errors).toEqual([]);
+  expect(fixed.ctx.render()).toEqual('[]');
+});
+
+test('product restock: product without id', () => {
+  const code = '[{item|product-restock-notification}]';
+  const json = { item: {}, productMerchandisingContext: {} };
+
+  for (const compat of [CompatLevel.defaultLevel(), CompatLevel.at(2)]) {
+    const { ctx, errors } = compiler.execute({ code, json, compat });
+    expect(errors.length).toEqual(1);
+    expect(errors[0].message).toContain('NullPointerException');
+    expect(ctx.render()).toEqual('[]');
+  }
+
+  // At the fixed level the missing id leaves the template's static
+  // whitespace in the output. Java renders "" here; the difference is a
+  // pre-existing template-rendering quirk for missing variables and is
+  // out of scope for this patch.
+  const fixed = compiler.execute({ code, json, compat: CompatLevel.fixed() });
+  expect(fixed.errors).toEqual([]);
+  expect(fixed.ctx.render()).toEqual('[\n\n\n\n\n\n]');
+});
+
 loader.paths('f-quantity-input-%N.html').forEach((path) => {
   test(`quantity input - ${path}`, () => loader.execute(path));
 });
