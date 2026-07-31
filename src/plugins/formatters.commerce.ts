@@ -40,6 +40,11 @@ export class AddToCartButtonFormatter extends Formatter {
   }
 }
 
+/**
+ * Like money-format (e.g. 0.00) but with a currency symbol. Negative
+ * values use the locale's minus sign, not accounting parentheses.
+ * Formats through the cldr Numbers currency formatter.
+ */
 export class BookkeeperMoneyFormat extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];

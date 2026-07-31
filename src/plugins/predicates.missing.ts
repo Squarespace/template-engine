@@ -1,25 +1,18 @@
 import { PredicatePlugin, PredicateTable } from '../plugin';
 import { Context } from '../context';
-import { TemplateError } from '../errors';
 
-const missing = (name: string): TemplateError => ({ type: 'engine', message: `"${name}" formatter is not yet implemented` });
-
-export class MissingPredicate extends PredicatePlugin {
-  private error: TemplateError;
-  constructor(name: string) {
-    super();
-    this.error = missing(name);
-  }
-
+/**
+ * Deprecated stub kept only for backward compatibility. It returns true
+ * for any input and locale. It must stay registered, because customer
+ * templates may still call {"units-metric?"}, and removing it would
+ * fail their compile.
+ */
+export class UnitsMetricPredicate extends PredicatePlugin {
   apply(args: string[], ctx: Context): boolean {
-    ctx.error(this.error);
-    return false;
+    return true;
   }
 }
 
-const NAMES = ['units-metric?'];
-
-export const MISSING_PREDICATES: PredicateTable = NAMES.reduce((table, name) => {
-  table[name] = new MissingPredicate(name);
-  return table;
-}, {} as PredicateTable);
+export const MISSING_PREDICATES: PredicateTable = {
+  'units-metric?': new UnitsMetricPredicate(),
+};

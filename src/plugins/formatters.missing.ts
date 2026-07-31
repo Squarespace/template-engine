@@ -1,5 +1,6 @@
 import { Formatter, FormatterTable } from '../plugin';
 import { Context } from '../context';
+import { MISSING_NODE } from '../node';
 import { Variable } from '../variable';
 import { atMost } from './args';
 // import { TemplateError } from '../errors';
@@ -22,6 +23,18 @@ import { atMost } from './args';
 export class NotImplementedFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     // NO OP
+  }
+}
+
+/**
+ * Deprecated stub kept only for backward compatibility. It accepts any
+ * input and always renders as missing. It must stay registered, because
+ * customer templates may still call {"datetimefield"} or {"unit"}, and
+ * removing it would fail their compile.
+ */
+export class SetMissingFormatter extends Formatter {
+  apply(args: string[], vars: Variable[], ctx: Context): void {
+    vars[0].set(MISSING_NODE);
   }
 }
 
@@ -85,12 +98,17 @@ export class LegacyMoneyFormatter extends Formatter {
   }
 }
 
-const NOIMPL = ['datetimefield', 'money-format', 'money-string', 'moneyFormat', 'unit'];
+const NOIMPL = ['money-format', 'money-string', 'moneyFormat'];
 
 export const NOIMPL_FORMATTERS: FormatterTable = NOIMPL.reduce((table, name) => {
   table[name] = new NotImplementedFormatter();
   return table;
 }, {} as FormatterTable);
+
+// The datetimefield and unit stubs render as missing, unlike the no-op
+// list above. Both stay registered so customer templates still compile.
+NOIMPL_FORMATTERS['datetimefield'] = new SetMissingFormatter();
+NOIMPL_FORMATTERS['unit'] = new SetMissingFormatter();
 
 // The locale-validating stub is registered separately so its validateArgs
 // survives the no-op reduce above.
