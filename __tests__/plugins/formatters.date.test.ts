@@ -57,6 +57,21 @@ test('date', () => {
   TABLE.date.apply(['%Y %q %'], vars, ctx);
   expect(vars[0].get()).toEqual('2013 2 %');
 
+  // Unknown directives echo % plus the char, as in the Java formatter.
+  vars = variables(may2013);
+  TABLE.date.apply(['%Y-%Q-%m'], vars, ctx);
+  expect(vars[0].get()).toEqual('2013-%Q-05');
+
+  // %% escapes a literal %, so the Q after it is plain text.
+  vars = variables(may2013);
+  TABLE.date.apply(['%%Q'], vars, ctx);
+  expect(vars[0].get()).toEqual('%Q');
+
+  // A lone trailing % is a literal.
+  vars = variables(may2013);
+  TABLE.date.apply(['%Y%'], vars, ctx);
+  expect(vars[0].get()).toEqual('2013%');
+
   ctx = new Context(losAngeles, { cldr: en });
   vars = variables(may2013);
   TABLE.date.apply(['%c'], vars, ctx);

@@ -301,6 +301,12 @@ export const formatDate = (d: GregorianDate, fmt: string, legacyWeekAnchor = tru
       // %:z    +hh:mm numeric time zone (e.g., -04:00)
       // %::z   +hh:mm:ss numeric time zone (e.g., -04:00:00)
       // %:::z  numeric time zone with : to necessary precision (e.g., -04, +05:30)
+
+      // Unknown directive: echo the % and the char, as Java does, so a
+      // typo like %Q stays visible in the output instead of vanishing.
+      default:
+        out = '%' + ch;
+        break;
     }
 
     if (out) {
