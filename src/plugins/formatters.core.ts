@@ -195,6 +195,30 @@ export class EncodeUriComponentFormatter extends Formatter {
   }
 }
 
+export class FindFirstFormatter extends Formatter {
+  validateArgs(args: string[]): void {
+    between(args.length, 0, 2);
+  }
+
+  apply(args: string[], vars: Variable[], ctx: Context): void {
+    const first = vars[0];
+    const { lookup, path } = getLookupAndPath(ctx, args);
+    first.set(findNthValidEntry(first.node, path, lookup, 1));
+  }
+}
+
+export class FindLastFormatter extends Formatter {
+  validateArgs(args: string[]): void {
+    between(args.length, 0, 2);
+  }
+
+  apply(args: string[], vars: Variable[], ctx: Context): void {
+    const first = vars[0];
+    const { lookup, path } = getLookupAndPath(ctx, args);
+    first.set(findNthValidEntry(first.node, path, lookup, -1));
+  }
+}
+
 export class FormatFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
@@ -318,22 +342,6 @@ export class KeyByFormatter extends Formatter {
     }
 
     first.set(keyByMap);
-  }
-}
-
-export class FindFirstFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context): void {
-    const first = vars[0];
-    const { lookup, path } = getLookupAndPath(ctx, args);
-    first.set(findNthValidEntry(first.get(), path, lookup, 1));
-  }
-}
-
-export class FindLastFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context): void {
-    const first = vars[0];
-    const { lookup, path } = getLookupAndPath(ctx, args);
-    first.set(findNthValidEntry(first.get(), path, lookup, -1));
   }
 }
 

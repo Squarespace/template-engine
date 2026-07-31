@@ -482,6 +482,14 @@ test('format levels', () => {
   }
 });
 
+loader.paths('f-find-first-%N.html').forEach((path) => {
+  test(`find-first - ${path}`, () => loader.execute(path));
+});
+
+loader.paths('f-find-last-%N.html').forEach((path) => {
+  test(`find-last - ${path}`, () => loader.execute(path));
+});
+
 loader.paths('f-format-%N.html').forEach((path) => {
   test(`format - ${path}`, () => loader.execute(path));
 });
