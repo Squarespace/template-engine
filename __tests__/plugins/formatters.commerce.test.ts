@@ -104,6 +104,32 @@ test('product scarcity - f-scarcity-no-enabled-field.html', () =>
 
 const compiler = new Compiler();
 
+// The subscription option id sat behind an eval'd flag variable, so it
+// disappeared under enableExpr:false. The gate reads the raw variables
+// now and renders the attribute either way.
+test('add to cart btn - subscription option id renders with eval off', () => {
+  const spec = loader.load('f-add-to-cart-btn-8.html');
+  const { ctx, errors } = compiler.execute({
+    code: spec.TEMPLATE,
+    json: spec.JSON,
+    cldr: EN,
+    enableExpr: false,
+  });
+  expect(errors).toEqual([]);
+  expect(ctx.render().trim()).toEqual(spec.OUTPUT);
+});
+
+test('add to cart btn - subscription option id renders by default', () => {
+  const spec = loader.load('f-add-to-cart-btn-8.html');
+  const { ctx, errors } = compiler.execute({
+    code: spec.TEMPLATE,
+    json: spec.JSON,
+    cldr: EN,
+  });
+  expect(errors).toEqual([]);
+  expect(ctx.render().trim()).toEqual(spec.OUTPUT);
+});
+
 // An entry without scarcityEnabled throws below the threshold and safe
 // mode records one NullPointerException. The variable stays the untouched
 // product, so the block renders empty either way.
