@@ -1,5 +1,6 @@
 import { join } from 'path';
 import { Context, Partials } from '../src/context';
+import { CompatLevel } from '../src/compat/compat-level';
 import { Engine, EngineProps } from '../src/engine';
 import { Formatters, Predicates } from '../src/plugins';
 import { Opcode as O } from '../src/opcodes';
@@ -686,6 +687,45 @@ test('include missing', () => {
   engine.execute(inst, ctx);
   expect(ctx.render()).toEqual('abc');
   expect(ctx.errors[0].message).toContain('Attempt to apply');
+});
+
+test('include buffer survives failing partial', () => {
+  // A suppressed include swaps in a fresh buffer. When the partial records
+  // an error mid-run, the caller buffer must come back intact and the
+  // partial's own output must stay out of it.
+  const engine = newEngine();
+  const partials: Partials = {
+    // pA fails before writing output, pB writes output and then fails.
+    pA: [O.ROOT, 1, [[O.INCLUDE, 'missing', 0]], O.EOF],
+    pB: [O.ROOT, 1, [[O.TEXT, 'X '], [O.INCLUDE, 'missing', 0]], O.EOF],
+  };
+
+  const run = (include: string, compat: CompatLevel) => {
+    const inst: Code = [
+      O.ROOT,
+      1,
+      [
+        [O.TEXT, 'A '],
+        [O.INCLUDE, include, 0],
+        [O.TEXT, ' B'],
+      ],
+      O.EOF,
+    ];
+    const ctx = new Context({}, { partials, enableInclude: true, compat });
+    engine.execute(inst, ctx);
+    return ctx;
+  };
+
+  // Both the legacy and fixed partial depth paths must restore the buffer.
+  for (const compat of [CompatLevel.defaultLevel(), CompatLevel.at(1)]) {
+    let ctx = run('pA', compat);
+    expect(ctx.render()).toEqual('A  B');
+    expect(ctx.errors[0].message).toContain('Attempt to apply');
+
+    ctx = run('pB', compat);
+    expect(ctx.render()).toEqual('A  B');
+    expect(ctx.errors[0].message).toContain('Attempt to apply');
+  }
 });
 
 test('include disabled', () => {

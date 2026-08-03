@@ -16,29 +16,34 @@ export const executeTemplate = (
   privateContext: boolean,
   argvar?: Variable,
 ) => {
+  // Swap in a fresh buffer and always swap it back, even when the template
+  // throws at runtime.
   const buf = ctx.swapBuffer();
-  ctx.pushNode(node);
-  ctx.stopResolution(privateContext);
+  try {
+    ctx.pushNode(node);
+    ctx.stopResolution(privateContext);
 
-  // Arguments from the 'apply' formatter
-  if (argvar) {
-    ctx.setVar('@args', argvar);
+    // Arguments from the 'apply' formatter
+    if (argvar) {
+      ctx.setVar('@args', argvar);
+    }
+
+    switch (inst[0]) {
+      case Opcode.ROOT:
+        // Partials will be a full parsed template including a ROOT instruction.
+        ctx.engine!.execute(inst as RootCode, ctx);
+        break;
+
+      case Opcode.MACRO:
+        // Macros are named inline code blocks.
+        ctx.engine!.executeBlock((inst as MacroCode)[2], ctx);
+        break;
+    }
+    const text = ctx.render();
+
+    ctx.pop();
+    return text;
+  } finally {
+    ctx.restoreBuffer(buf);
   }
-
-  switch (inst[0]) {
-    case Opcode.ROOT:
-      // Partials will be a full parsed template including a ROOT instruction.
-      ctx.engine!.execute(inst as RootCode, ctx);
-      break;
-
-    case Opcode.MACRO:
-      // Macros are named inline code blocks.
-      ctx.engine!.executeBlock((inst as MacroCode)[2], ctx);
-      break;
-  }
-  const text = ctx.render();
-
-  ctx.pop();
-  ctx.restoreBuffer(buf);
-  return text;
 };

@@ -466,27 +466,19 @@ export class Engine {
 
     let buf: string | undefined;
 
-    // By default we suppress output from the partial or macro
+    // By default we suppress output from the partial or macro. Swap in a
+    // fresh buffer and always swap it back, even when the partial throws
+    // at runtime.
     if (!output) {
       buf = ctx.swapBuffer();
     }
 
-    // Execute the partial or macro inline. The legacy path releases the
-    // depth only when the partial returns without throwing; the fixed path
-    // always releases it.
-    if (ctx.enterPartial(name)) {
-      if (ctx.compatEnabled(Patch.PARTIAL_DEPTH_LEAK)) {
-        switch (code[0]) {
-          case Opcode.ROOT:
-            this.execute(code as RootCode, ctx);
-            break;
-          case Opcode.MACRO:
-            this.executeBlock((code as MacroCode)[2], ctx);
-            break;
-        }
-        ctx.exitPartial(name);
-      } else {
-        try {
+    try {
+      // Execute the partial or macro inline. The legacy path releases the
+      // depth only when the partial returns without throwing; the fixed
+      // path always releases it.
+      if (ctx.enterPartial(name)) {
+        if (ctx.compatEnabled(Patch.PARTIAL_DEPTH_LEAK)) {
           switch (code[0]) {
             case Opcode.ROOT:
               this.execute(code as RootCode, ctx);
@@ -495,14 +487,26 @@ export class Engine {
               this.executeBlock((code as MacroCode)[2], ctx);
               break;
           }
-        } finally {
           ctx.exitPartial(name);
+        } else {
+          try {
+            switch (code[0]) {
+              case Opcode.ROOT:
+                this.execute(code as RootCode, ctx);
+                break;
+              case Opcode.MACRO:
+                this.executeBlock((code as MacroCode)[2], ctx);
+                break;
+            }
+          } finally {
+            ctx.exitPartial(name);
+          }
         }
       }
-    }
-
-    if (!output && buf !== undefined) {
-      ctx.restoreBuffer(buf);
+    } finally {
+      if (!output && buf !== undefined) {
+        ctx.restoreBuffer(buf);
+      }
     }
   }
 
