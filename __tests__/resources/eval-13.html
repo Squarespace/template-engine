@@ -1,0 +1,44 @@
+:TEMPLATE
+
+# && and || always evaluate both operands and yield a boolean. JS
+# short-circuits and returns the deciding operand: 1 && 2 -> 2.
+{.eval 1 && 2}
+{.eval 0 || 3}
+{.eval true && false}
+
+# null keeps JS loose equality here, so all of these are false. Java
+# coerces null to 0 and pins the opposite: null == 0 and null == "" are
+# true there. See the Expr class docs.
+{.eval null == 0}
+{.eval null == ""}
+{.eval null == 1}
+
+# No short-circuit: the assignment in the right operand of && runs even
+# though the left operand is falsy, so @x becomes 2 (JS would leave it
+# at 1). The assignment also ends the expression with no result, so
+# nothing renders before the trailing reference below.
+{.eval @x = 1; 0 && (@x = 2)} {@x}
+
+:JSON
+{}
+
+:OUTPUT
+
+# && and || always evaluate both operands and yield a boolean. JS
+# short-circuits and returns the deciding operand: 1 && 2 -> 2.
+true
+true
+false
+
+# null keeps JS loose equality here, so all of these are false. Java
+# coerces null to 0 and pins the opposite: null == 0 and null == "" are
+# true there. See the Expr class docs.
+false
+false
+false
+
+# No short-circuit: the assignment in the right operand of && runs even
+# though the left operand is falsy, so @x becomes 2 (JS would leave it
+# at 1). The assignment also ends the expression with no result, so
+# nothing renders before the trailing reference below.
+ 2

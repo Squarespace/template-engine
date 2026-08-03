@@ -9,9 +9,19 @@ import { expressionReduce } from './errors';
 
 /**
  *  Expression evaluation using an extended version of Dijkstra's "shunting
- *  yard" algorithm with JavaScript semantics. This algorithm was chosen as
- *  it is simple, sufficient, and can be implemented compactly, minimizing
- *  the size of the code and making it easier to verify correct.
+ *  yard" algorithm with JavaScript-INSPIRED semantics. This algorithm was
+ *  chosen as it is simple, sufficient, and can be implemented compactly,
+ *  minimizing the size of the code and making it easier to verify correct.
+ *
+ *  Deliberate, tested divergences from JavaScript:
+ *
+ *   - Both operands of && and || are always evaluated and the result is a
+ *     boolean (1 && 2 -> true). JS short-circuits and returns the deciding
+ *     operand (1 && 2 -> 2).
+ *   - null keeps JS loose equality in comparisons (null == 0 -> false,
+ *     null == "" -> false). Java coerces null to 0, making both true there;
+ *     aligning TS with Java's coercion is an explicit parity task, not a
+ *     silent fix. See testJsDivergences.
  *
  *  Features:
  *
@@ -844,6 +854,12 @@ export class Expr {
               r = bool(a.value! >= b.value!);
               break;
             case OperatorType.EQ:
+              // null comparisons deliberately keep JS loose equality:
+              // null == 0 and null == "" are false here. Java coerces
+              // null to 0 and pins both true, so aligning TS with Java
+              // is an explicit parity task, not a silent fix, because it
+              // would break JS-faithful consumers. See the Expr class
+              // docs and testJsDivergences.
               // intentional == below
               r = bool(a.value == b.value);
               break;
@@ -867,6 +883,10 @@ export class Expr {
               r = num(asnum(a) | asnum(b));
               break;
             case OperatorType.LAND:
+              // Both operands are always evaluated and the result is a
+              // boolean (1 && 2 -> true), matching Java but not JS,
+              // which short-circuits and returns the deciding operand
+              // (1 && 2 -> 2). See the Expr class docs.
               r = bool(asbool(a) && asbool(b));
               break;
             case OperatorType.LOR:

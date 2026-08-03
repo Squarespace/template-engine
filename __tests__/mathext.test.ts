@@ -1,5 +1,6 @@
 import { Expr, ExprOptions } from '../src/math';
 import { Context } from '../src/context';
+import { Type } from '../src/types';
 import { xmur3 } from './rng';
 
 const context = (o?: any, opts?: ExprOptions) => new Context(o || {}, { enableExpr: true, exprOpts: opts });
@@ -73,4 +74,42 @@ test('slices of valid expressions', () => {
       }
     }
   }
+});
+
+/**
+ * Pins the deliberate, tested divergences from JavaScript documented in
+ * the Expr class docs, mirroring testJsDivergences in Java's ExprTest.
+ * These are not bugs to fix silently; true JS semantics is a separate,
+ * explicitly approved task.
+ */
+test('js divergences', () => {
+  const c = context({});
+  const bool = (s: string) => {
+    const r = reduce(s, c)!;
+    expect(r.type).toBe(Type.BOOLEAN);
+    return r.value;
+  };
+
+  // && and || always evaluate both operands and yield a boolean. JS
+  // short-circuits and returns the deciding operand: 1 && 2 -> 2,
+  // 0 || 3 -> 3.
+  expect(bool('1 && 2')).toBe(true);
+  expect(bool('0 || 3')).toBe(true);
+  expect(bool('true && false')).toBe(false);
+
+  // null keeps JS loose equality, so both are false. Java coerces null
+  // to 0 and pins the opposite: null == 0 -> true, null == "" -> true.
+  expect(bool('null == 0')).toBe(false);
+  expect(bool('null == ""')).toBe(false);
+  expect(bool('null == 1')).toBe(false);
+
+  // No short-circuit: the right operand of && runs even when the left
+  // operand is falsy, so @x becomes 2. In JS, 0 && (x = 2) leaves x at
+  // 1. The assignment also ends the expression with no result, so this
+  // reduces to undefined, while Java's stack keeps the stray 0 and
+  // yields 0.
+  const e = new Expr('@x = 1; 0 && (@x = 2)');
+  e.build();
+  expect(e.reduce(c)).toBeUndefined();
+  expect(c.resolve(['@x']).value).toBe(2);
 });
