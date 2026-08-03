@@ -580,6 +580,46 @@ test('message', () => {
   expect(formatMessage(EN, '{0 datetime}', args, ctx)).toEqual('');
 });
 
+test('message zone per call', () => {
+  // Two messages in one execution with different effective zones. The top
+  // one renders in NY; the one inside a section that shadows
+  // website.timeZone renders in Tokyo. Both come out right in the same
+  // run, so a cached formatter never leaks one zone into the other.
+  const json = {
+    s: 1582129775000,
+    website: { timeZone: 'America/New_York' },
+    m: 'top {0 datetime time:medium}',
+    nested: { m: 'in {0 datetime time:medium}', website: { timeZone: 'Asia/Tokyo' } },
+  };
+  const tpl = '{m|message s}{.section nested}{m|message s}{.end}';
+  for (const compat of [LEGACY, FIXED]) {
+    expect(execute(tpl, json, compat).ctx.render()).toEqual('top 11:29:35 AMin 1:29:35 AM');
+  }
+});
+
+test('message zone per render', () => {
+  // Java's MessageFormatterTest.testTimeZonePerRender: the same context
+  // renders again after website.timeZone changes, and the second render
+  // formats in the new zone.
+  const tpl = '{m|message s}';
+  const json = {
+    s: 1582129775000,
+    website: { timeZone: 'America/New_York' },
+    m: '{0 datetime time:medium}',
+  };
+  const c = new Compiler();
+  const code = c.parse(tpl).code;
+  const { ctx } = c.execute({ code, json, cldr: EN, compat: FIXED });
+  expect(ctx.render()).toEqual('11:29:35 AM');
+
+  // Same context, new zone. The per-zone cache must build a fresh
+  // formatter for Tokyo rather than reuse the New York one.
+  json.website.timeZone = 'Asia/Tokyo';
+  ctx.swapBuffer();
+  ctx.engine!.execute(code, ctx);
+  expect(ctx.render()).toEqual('1:29:35 AM');
+});
+
 loader.paths('f-relative-time-%N.html').forEach((path) => {
   test(`relative time - ${path}`, () => loader.execute(path));
 });

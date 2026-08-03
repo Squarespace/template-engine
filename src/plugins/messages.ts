@@ -13,20 +13,21 @@ import { currencyOptions, datetimeOptions, decimalOptions, intervalOptions } fro
 import { parseDecimal } from './util.i18n';
 import { Type } from '../types';
 
-const DEFAULT_ZONE = 'America/New_York';
-
 /**
- * Customized message formatter with i18n tags.
+ * Customized message formatter with i18n tags. The zone is fixed at
+ * construction, so callers build one instance per zone. The Context
+ * caches the instances by zone id.
  */
 export class MessageFormats {
   readonly converter: ArgConverter;
   readonly formatter: MessageFormatter;
-  private zoneId: string = DEFAULT_ZONE;
+  readonly zoneId: string;
 
   /**
    * This type will only be constructed if we have a valid cldr instance attached.
    */
-  constructor(private cldr: CLDR) {
+  constructor(private cldr: CLDR, zoneId: string) {
+    this.zoneId = zoneId;
     this.converter = new ArgConverter();
     const bundle = cldr.General.bundle();
     const opts: MessageFormatterOptions = {
@@ -37,10 +38,6 @@ export class MessageFormats {
       region: bundle.region(),
     };
     this.formatter = new MessageFormatter(opts);
-  }
-
-  setTimeZone(zoneId: string): void {
-    this.zoneId = zoneId;
   }
 
   formatters(): MessageFormatFuncMap {

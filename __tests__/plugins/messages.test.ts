@@ -12,7 +12,7 @@ test('message formats', () => {
   const date1 = new Node(1614798160345);
   const date2 = new Node(1617476560000);
   const cldr = framework.get('en');
-  const f = new MessageFormats(cldr).formatters();
+  const f = new MessageFormats(cldr, 'America/New_York').formatters();
   const bool = new Node(true);
   const nil = new Node(null);
 
@@ -38,6 +38,20 @@ test('message formats', () => {
   expect(f['datetime-interval']([], [])).toEqual('');
   expect(f['datetime-interval'](undefined as any, [])).toEqual('');
   expect(f['datetime-interval']([date1, date2], [])).toEqual('Mar 3 – Apr 3, 2021');
+});
+
+test('message formats fixed zone per instance', () => {
+  // The zone is set at construction and never rebound. Two instances with
+  // different zones hold their own formatters and share no mutable state.
+  const epoch = 1582129775000;
+  const cldr = framework.get('en');
+  const ny = new MessageFormats(cldr, 'America/New_York').formatters();
+  const tokyo = new MessageFormats(cldr, 'Asia/Tokyo').formatters();
+  const args = [new Node(epoch)];
+  const opts = ['date:long', 'time:medium'];
+
+  expect(ny.datetime(args, opts)).toEqual('February 19, 2020 at 11:29:35 AM');
+  expect(tokyo.datetime(args, opts)).toEqual('February 20, 2020 at 1:29:35 AM');
 });
 
 test('custom converter', () => {

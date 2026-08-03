@@ -221,12 +221,11 @@ export class MessageFormatterImpl extends Formatter {
       }
     });
 
-    const { formatter } = ctx;
     const zoneId = getTimeZone(ctx, ctx.compatEnabled(Patch.TIMEZONE_NULL_LITERAL));
-    formatter!.setTimeZone(zoneId);
+    const formatter = ctx.messageFormatter(zoneId);
 
     const msg = first.node.asString();
-    const result = formatter!.formatter.format(msg, positional, keyword);
+    const result = formatter.formatter.format(msg, positional, keyword);
     first.set(result);
   }
 }

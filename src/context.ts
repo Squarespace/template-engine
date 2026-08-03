@@ -93,7 +93,7 @@ export class Context {
   readonly enableExpr: boolean;
   readonly exprOpts?: ExprOptions;
   readonly enableInclude?: boolean;
-  readonly formatter?: MessageFormats;
+  private readonly formatters: Map<string, MessageFormats>;
 
   /**
    * Compatibility level for this execution.
@@ -127,10 +127,9 @@ export class Context {
     // set you will experience partial functionality. All @phensley/cldr-based
     // formatters will return '' and predicates will evaluate to false.
     this.cldr = props.cldr;
-    // If i18n is enabled, define the message formatter
-    if (this.cldr) {
-      this.formatter = new MessageFormats(this.cldr);
-    }
+    // A message formatter is fixed to one zone and built on demand, so the
+    // cache starts empty and grows one instance per zone id encountered.
+    this.formatters = new Map();
 
     // TODO: REMOVE version, add temporary state to engine.
     // version of the template syntax being processed
@@ -162,6 +161,26 @@ export class Context {
    */
   setCompat(compat?: CompatLevel): void {
     this.compat = compat || CompatLevel.defaultLevel();
+  }
+
+  /**
+   * Return the message formatter for the given time zone. Instances are
+   * immutable per zone, so cache one per zone id instead of rebinding a
+   * shared zone field on every call.
+   */
+  messageFormatter(zoneId: string): MessageFormats {
+    const cldr = this.cldr;
+    if (!cldr) {
+      // The i18n formatters all gate on ctx.cldr before reaching here, so
+      // this is an internal misuse, not a render path.
+      throw new Error('messageFormatter requires a cldr instance');
+    }
+    let formats = this.formatters.get(zoneId);
+    if (formats === undefined) {
+      formats = new MessageFormats(cldr, zoneId);
+      this.formatters.set(zoneId, formats);
+    }
+    return formats;
   }
 
   /**
