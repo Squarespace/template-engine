@@ -383,3 +383,49 @@ test('compiler partials error reporting', () => {
   expect(errors[0].message).toContain('Parse of partial "foo"');
   expect(ctx.render()).toEqual('');
 });
+
+test('cross-context partial cache parses each source once', () => {
+  // Two executions through the same compiler share one compile of the raw
+  // partial, and both contexts end up holding the same instruction object.
+  const partials: Partials = { greet: '{msg}!' };
+  const source = '{msg}!';
+  const compiler = new Compiler();
+  const parse = jest.spyOn(Compiler.prototype, 'parse');
+  try {
+    const r1 = compiler.execute({ code: '{@|apply greet}', json: { msg: 'hi' }, partials });
+    const r2 = compiler.execute({ code: '{@|apply greet}', json: { msg: 'hi' }, partials });
+    expect(r1.errors).toEqual([]);
+    expect(r2.errors).toEqual([]);
+    expect(r1.ctx.render()).toEqual('hi!');
+    expect(r2.ctx.render()).toEqual('hi!');
+    expect(r1.ctx.getPartial('greet')).toBe(r2.ctx.getPartial('greet'));
+
+    // The partial source parses once; the second execution hits the cache.
+    const partialParses = parse.mock.calls.filter(([s]) => s === source);
+    expect(partialParses).toHaveLength(1);
+  } finally {
+    parse.mockRestore();
+  }
+});
+
+test('cross-context partial cache skips failed compiles', () => {
+  // A partial with a syntax error is never cached, so each execution
+  // re-parses it and re-reports the error.
+  const partials: Partials = { foo: '{.end}' };
+  const source = '{.end}';
+  const compiler = new Compiler();
+  const parse = jest.spyOn(Compiler.prototype, 'parse');
+  try {
+    const r1 = compiler.execute({ code: '{num|apply foo}', json: { num: 1 }, partials });
+    const r2 = compiler.execute({ code: '{num|apply foo}', json: { num: 1 }, partials });
+    expect(r1.errors).toHaveLength(1);
+    expect(r2.errors).toHaveLength(1);
+    expect(r1.errors[0].message).toContain('Parse of partial "foo"');
+    expect(r2.errors[0].message).toContain('Parse of partial "foo"');
+
+    const partialParses = parse.mock.calls.filter(([s]) => s === source);
+    expect(partialParses).toHaveLength(2);
+  } finally {
+    parse.mockRestore();
+  }
+});
