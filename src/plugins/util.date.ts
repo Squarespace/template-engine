@@ -283,7 +283,8 @@ export const formatDate = (d: GregorianDate, fmt: string, legacyWeekAnchor = tru
         out = `${d.year()}`;
         break;
 
-      // %z     +hhmm numeric time zone (e.g., -0400)
+      // %z     numeric time zone as +hh:mm (e.g., -04:00, +02:00);
+      //        the colon form is what HTML5 <time datetime> requires
       case 'z': {
         const [neg, hrs, mins] = getTZC(d.timeZoneOffset());
         const h = pad(`${hrs}`, '0', 2);

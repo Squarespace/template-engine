@@ -115,6 +115,7 @@ test('date', () => {
 test('all fields', () => {
   const en = framework.get('en');
   const nov2019 = 1573241320123;
+  const july2019 = 1561939200000;
 
   const ctx = new Context({}, { cldr: en });
   let vars = variables(nov2019);
@@ -274,6 +275,26 @@ test('all fields', () => {
   vars = variables(nov2019);
   TABLE.date.apply(['%z'], vars, ctx);
   expect(vars[0].get()).toEqual('-05:00');
+
+  // %z always uses the +hh:mm colon form for positive and negative
+  // offsets. The bare context above falls back to America/New_York in
+  // EST; pin EDT (July) and a +02:00 European zone (Kiev in EET) at the
+  // same default level.
+  vars = variables(july2019);
+  TABLE.date.apply(
+    ['%z'],
+    vars,
+    new Context({ website: { timeZone: 'America/New_York' } }, { cldr: en })
+  );
+  expect(vars[0].get()).toEqual('-04:00');
+
+  vars = variables(nov2019);
+  TABLE.date.apply(
+    ['%z'],
+    vars,
+    new Context({ website: { timeZone: 'Europe/Kiev' } }, { cldr: en })
+  );
+  expect(vars[0].get()).toEqual('+02:00');
 
   vars = variables(nov2019);
   TABLE.date.apply(['%Z'], vars, ctx);
