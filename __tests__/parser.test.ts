@@ -250,6 +250,9 @@ test('include', () => {
 
   ({ code } = parse('{.include a}'));
   expect(code).toEqual([O.ROOT, 1, [[O.INCLUDE, 'a', [[], ' ']]], O.EOF]);
+
+  ({ code } = parse('{.include pC output}'));
+  expect(code).toEqual([O.ROOT, 1, [[O.INCLUDE, 'pC', [['output'], ' ']]], O.EOF]);
 });
 
 test('inject', () => {

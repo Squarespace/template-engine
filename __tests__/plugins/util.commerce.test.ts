@@ -268,6 +268,28 @@ test('total stock remaining', () => {
   expect(total).toEqual(Number.MAX_SAFE_INTEGER);
 });
 
+const GET_TOTAL_STOCK_SPEC = jsonLoader.load('get-total-stock-remaining.json');
+
+// Expected totals per fixture section, mirroring Java
+// CommerceUtilsTest#testGetTotalStockRemaining. Java summed the overflow
+// row in a long; JS doubles do not wrap, so the total stays exact.
+const GET_TOTAL_STOCK_EXPECTED: { [key: string]: number } = {
+  'getTotalStock-unlimited-physical': Number.MAX_SAFE_INTEGER,
+  'getTotalStock-digital': Number.MAX_SAFE_INTEGER,
+  'getTotalStock-six-service': 6,
+  'getTotalStock-0-physical': 0,
+  'getTotalStock-0-physical-2': 0,
+  'getTotalStock-unknown': 0,
+  'getTotalStock-overflow': 4294967296,
+};
+
+Object.keys(GET_TOTAL_STOCK_SPEC).forEach((key) => {
+  test(`total stock remaining ${key}`, () => {
+    const total = commerceutil.getTotalStockRemaining(new Node(GET_TOTAL_STOCK_SPEC[key]));
+    expect(total).toEqual(GET_TOTAL_STOCK_EXPECTED[key]);
+  });
+});
+
 const MULTIPLE_QUANTITY_ALLOWED_SPEC = jsonLoader.load('is-multi-quantity-allowed-for-services.json');
 
 predicateTests('multiple quantity allowed for services', MULTIPLE_QUANTITY_ALLOWED_SPEC).forEach((t) => {

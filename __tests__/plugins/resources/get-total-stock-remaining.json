@@ -53,3 +53,14 @@
     }
 }
 
+:getTotalStock-overflow
+{
+    "structuredContent": {
+        "productType": 1,
+        "variants": [
+            {"qtyInStock": 2147483648},
+            {"qtyInStock": 2147483648}
+        ]
+    }
+}
+
