@@ -520,7 +520,7 @@ export class SlugifyFormatter extends Formatter {
   }
 }
 
-const RE_SMARTY_1 = /(^|[-\u2014\\s(\["])'/gm;
+const RE_SMARTY_1 = /(^|[-\u2014\s(\["])'/gm;
 const RE_SMARTY_APOS = /'/gm;
 const RE_SMARTY_2 = /(^|[-\u2014/\[(\u2018\s])"/gm;
 const RE_SMARTY_QUOTE = /"/gm;

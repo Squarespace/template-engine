@@ -972,6 +972,30 @@ test('smartypants', () => {
   vars = variables('I spoke to Larry--the project\nlead--about the issue');
   Core.smartypants.apply([], vars, CTX);
   expect(vars[0].get()).toEqual('I spoke to Larry\u2014the project\nlead\u2014about the issue');
+
+  vars = variables("He said 'hello'");
+  Core.smartypants.apply([], vars, CTX);
+  expect(vars[0].get()).toEqual('He said \u2018hello\u2019');
+
+  vars = variables(" foo '");
+  Core.smartypants.apply([], vars, CTX);
+  expect(vars[0].get()).toEqual(' foo \u2018');
+
+  vars = variables("it's 'fine' here");
+  Core.smartypants.apply([], vars, CTX);
+  expect(vars[0].get()).toEqual('it\u2019s \u2018fine\u2019 here');
+
+  vars = variables("('yes')");
+  Core.smartypants.apply([], vars, CTX);
+  expect(vars[0].get()).toEqual('(\u2018yes\u2019)');
+
+  vars = variables("won't");
+  Core.smartypants.apply([], vars, CTX);
+  expect(vars[0].get()).toEqual('won\u2019t');
+
+  vars = variables("'quoted'");
+  Core.smartypants.apply([], vars, CTX);
+  expect(vars[0].get()).toEqual('\u2018quoted\u2019');
 });
 
 loader.paths(`f-str-%N.html`).forEach((path) => {
