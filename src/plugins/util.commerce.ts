@@ -474,9 +474,14 @@ export const isSubscribable = (item: Node): boolean => item.path(['structuredCon
 
 // TODO: writeVariantFormat
 
-const getUserDefinedOptions = (content: Node) => {
+interface UserDefinedOption {
+  name: string;
+  values: string[];
+}
+
+const getUserDefinedOptions = (content: Node): UserDefinedOption[] => {
   const ordering = content.get('variantOptionOrdering');
-  const options = [];
+  const options: UserDefinedOption[] = [];
   const size = ordering.size();
   for (let i = 0; i < size; i++) {
     const name = ordering.get(i).asString();
@@ -494,6 +499,14 @@ export const getItemVariantOptions = (item: Node) => {
   }
 
   const userDefinedOptions = getUserDefinedOptions(content);
+  // Look up the option by name instead of scanning the array for each field.
+  const optionByName = new Map<string, UserDefinedOption>();
+  // Track seen values per option so the membership check does not rescan the array.
+  const optionValuesByName = new Map<string, Set<string>>();
+  for (let i = 0; i < userDefinedOptions.length; i++) {
+    const option = userDefinedOptions[i];
+    optionByName.set(option.name, option);
+  }
 
   for (let i = 0; i < variantsSize; i++) {
     const variant = variants.get(i);
@@ -507,31 +520,20 @@ export const getItemVariantOptions = (item: Node) => {
       const field = fields[j];
       const variantOptionValue: string = attrs.get(field).asString();
 
-      let option = null;
-      for (let k = 0; k < userDefinedOptions.length; k++) {
-        const current = userDefinedOptions[k];
-        if (current.name === field) {
-          option = current;
-          break;
-        }
-      }
-
-      if (option === null) {
+      const option = optionByName.get(field);
+      if (option === undefined) {
         continue;
       }
 
-      let hasValue = false;
-      const optionValues: string[] = option.values;
-      for (let k = 0; k < optionValues.length; k++) {
-        const value = optionValues[k];
-        if (value === variantOptionValue) {
-          hasValue = true;
-          break;
-        }
+      let seenValues = optionValuesByName.get(field);
+      if (seenValues === undefined) {
+        seenValues = new Set(option.values);
+        optionValuesByName.set(field, seenValues);
       }
 
-      if (!hasValue) {
-        optionValues.push(variantOptionValue);
+      if (!seenValues.has(variantOptionValue)) {
+        seenValues.add(variantOptionValue);
+        option.values.push(variantOptionValue);
       }
     }
   }
