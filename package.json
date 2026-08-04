@@ -41,11 +41,15 @@
   "peerDependencies": {
     "@phensley/cldr-core": "~1.14.0"
   },
+  "resolutions": {
+    "dts-bundle-generator/typescript": "^5.9.3"
+  },
   "devDependencies": {
     "@phensley/cldr": "~1.14.0",
     "@rollup/plugin-commonjs": "^29.0.2",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
+    "@rollup/plugin-terser": "^1.0.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^25.6.0",
     "@types/utf8": "^3.0.3",
