@@ -1,0 +1,20 @@
+:JSON
+{}
+
+:PARTIALS
+{}
+
+:INJECT
+{
+  "zero.json": "0",
+  "empty.json": "\"\"",
+  "flag.json": "false",
+  "nil.json": "null"
+}
+
+:TEMPLATE
+{.inject @zero zero.json}{.inject @empty empty.json}{.inject @flag flag.json}{.inject @nil nil.json}
+[{@zero}][{@empty}][{@flag}][{@nil}]
+
+:OUTPUT
+[0][][false][]

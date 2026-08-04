@@ -395,11 +395,13 @@ export class Context {
    * values.
    */
   getInjectable(name: string): Node {
-    const node = this.injects[name] || null;
-    if (node !== null) {
-      return node instanceof Node ? node : this.newNode(node);
+    // Presence check, not truthiness: 0, '', and false are real injects and
+    // should bind, not fall through to MISSING_NODE.
+    if (!(name in this.injects)) {
+      return MISSING_NODE;
     }
-    return MISSING_NODE;
+    const node = this.injects[name];
+    return node instanceof Node ? node : this.newNode(node);
   }
 
   /**

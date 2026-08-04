@@ -21,6 +21,15 @@ test('injects', () => {
   expect(ctx.getInjectable('foo')).toEqual(new Node(123));
 });
 
+test('injects falsy values', () => {
+  const ctx = new Context(0, { injects: { zero: 0, empty: '', flag: false, nil: null } });
+  expect(ctx.getInjectable('zero')).toEqual(new Node(0));
+  expect(ctx.getInjectable('empty')).toEqual(new Node(''));
+  expect(ctx.getInjectable('flag')).toEqual(new Node(false));
+  expect(ctx.getInjectable('nil')).toEqual(new Node(null));
+  expect(ctx.getInjectable('absent')).toBe(MISSING_NODE);
+});
+
 test('buffer append', () => {
   const ctx = new Context({});
   expect(ctx.render()).toEqual('');
