@@ -163,7 +163,16 @@ const main = () => {
   const compiler = new Compiler();
 
   const coderaw = read(codepath);
-  const code = codepath.endsWith('.json') ? JSON.parse(coderaw) : compiler.parse(coderaw, compat).code;
+  // Keep the parsed result so compile errors survive into the render path's
+  // report. A .json template is pre-parsed code and has no parse errors.
+  let parsed;
+  let code;
+  if (codepath.endsWith('.json')) {
+    code = JSON.parse(coderaw);
+  } else {
+    parsed = compiler.parse(coderaw, compat);
+    code = parsed.code;
+  }
   if (args.dump || args.d) {
     if (args.pretty || args.P) {
       process.stdout.write(prettyJson(code, '  '));
@@ -185,11 +194,22 @@ const main = () => {
   // The level reaches the execute phase on both paths, so a pre-parsed
   // .json template still runs at the chosen level.
   const { ctx } = compiler.execute({ cldr, code, json, partials, enableExpr: true, enableInclude: true, compat });
+
+  // Always print the rendered output, even when errors occurred; build
+  // tooling can use the exit code to tell whether the output is trustworthy.
   process.stdout.write(ctx.render());
-  if (ctx.errors) {
-    for (const err of ctx.errors) {
-      process.stderr.write(err.message + '\n');
+
+  // Compile errors are collected by the parse; render-time errors land on
+  // the context. A nonempty merged list means the output is not trustworthy.
+  const errors = [...(parsed && parsed.errors ? parsed.errors : []), ...(ctx.errors || [])];
+  if (errors.length > 0) {
+    process.stderr.write('Caught errors executing template:\n');
+    for (const err of errors) {
+      process.stderr.write('    ' + err.message + '\n');
     }
+    // Let pending stdout writes drain before exiting, or large renders get
+    // truncated by the pipe buffer.
+    process.exitCode = 1;
   }
 };
 

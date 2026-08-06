@@ -137,3 +137,93 @@ describe('templatec compat flags', () => {
     expect(viaCode.stdout).toBe(OUTPUT);
   });
 });
+
+/**
+ * Exit-code semantics for the render path: compile and render errors must
+ * exit nonzero so build tooling can tell the output is untrusted, while the
+ * dump path never gates on errors. Mirror of TemplateCTest's compile-mode
+ * cases plus two pinned renders at different compat levels.
+ */
+describe('templatec exit codes', () => {
+  let dir: string;
+
+  const write = (name: string, body: string) => {
+    const path = join(dir, name);
+    fs.writeFileSync(path, body);
+    return path;
+  };
+
+  beforeEach(() => {
+    dir = fs.mkdtempSync(join(tmpdir(), 'templatec-exit-'));
+  });
+
+  afterEach(() => {
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  test('clean template exits 0 with no stderr', async () => {
+    const template = write('clean.html', '{.section items}{@name}{.end}');
+    const data = write('data.json', '{"name": "a"}');
+    const res = await run(['-t', template, '-j', data]);
+    // The section iterates a key that is missing from the data, and @name is
+    // a template-variable reference, so nothing renders. Java's test asserts
+    // only the exit code for this template.
+    expect(res.stdout).toBe('');
+    expect(res.stderr).toBe('');
+  });
+
+  test('unclosed section is a compile error and exits 1', async () => {
+    const template = write('broken.html', '{.section items}');
+    const data = write('data.json', '{"name": "a"}');
+    const err = await runFail(['-t', template, '-j', data]);
+    expect(err).toBeDefined();
+    expect(err!.code).toBe(1);
+    expect(err!.stderr).toContain('Caught errors executing template:');
+    expect(err!.stderr).toContain('SyntaxError: Reached EOF in the middle of SECTION');
+    // The rendered output is still written before the error report.
+    expect(err!.stdout).toBe('');
+  });
+
+  test('unknown formatter is a compile error and exits 1', async () => {
+    const template = write('fmt.html', '{@value|nonsuch}');
+    const data = write('data.json', '{"value": 1}');
+    const err = await runFail(['-t', template, '-j', data]);
+    expect(err).toBeDefined();
+    expect(err!.code).toBe(1);
+    expect(err!.stderr).toContain("SyntaxError: Formatter 'nonsuch' is unknown");
+    // The failed directive is echoed into the output, which is still written
+    // before the error report.
+    expect(err!.stdout).toBe('{@value|nonsuch}');
+  });
+
+  test('missing partial is a render-time error and exits 1', async () => {
+    const template = write('inc.html', '{.include noSuchPartial}');
+    const data = write('data.json', '{"value": 1}');
+    const err = await runFail(['-t', template, '-j', data]);
+    expect(err).toBeDefined();
+    expect(err!.code).toBe(1);
+    expect(err!.stderr).toContain('Caught errors executing template:');
+    expect(err!.stderr).toContain("RuntimeError: Attempt to apply partial 'noSuchPartial' which could not be found.");
+  });
+
+  test('dump of a broken template still exits 0 with JSON output', async () => {
+    const template = write('broken.html', '{.section items}');
+    const res = await run(['-d', '-t', template]);
+    expect(res.stderr).toBe('');
+    // The dump path does not gate on compile errors, matching Java's stats
+    // and tree paths.
+    expect(() => JSON.parse(res.stdout)).not.toThrow();
+  });
+
+  test('activate-twitter-links renders at compat level 0 and 2 without errors', async () => {
+    const template = write('twitter.html', '{t|activate-twitter-links}');
+    const data = write('data.json', '{"t": "@user <b>"}');
+    const legacy = await run(['--compat-level', '0', '-t', template, '-j', data]);
+    const fixed = await run(['--compat-level', '2', '-t', template, '-j', data]);
+    expect(legacy.stderr).toBe('');
+    expect(fixed.stderr).toBe('');
+    // Level 0 linkifies the raw text; level 2 escapes the html first.
+    expect(legacy.stdout).toBe('<a target="new" href="https://twitter.com/user/">@user</a> <b>');
+    expect(fixed.stdout).toBe('<a target="new" href="https://twitter.com/user/">@user</a> &lt;b&gt;');
+  });
+});
