@@ -48,10 +48,8 @@ const tasks = [
     plugins,
     external: [
       '@phensley/cldr-core',
-      '@phensley/cldr-schema',
-      '@phensley/cldr-utils',
-      '@phensley/decimal',
-      '@phensley/timezone'
+      '@phensley/timezone',
+      'utf8'
     ]
   },
 ];

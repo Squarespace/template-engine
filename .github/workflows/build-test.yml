@@ -23,7 +23,7 @@ jobs:
 
       - name: Build
         run: |
-          yarn
+          yarn install --frozen-lockfile
           yarn clean
 
       - name: Test

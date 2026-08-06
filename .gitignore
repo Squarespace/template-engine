@@ -9,7 +9,6 @@ lib-es/
 
 .DS_Store
 package-lock.json
-yarn.lock
 
 *.swp
 
