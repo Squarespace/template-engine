@@ -54,6 +54,23 @@ test('basic', () => {
   expect(r.variables).toEqual([{ 'foo.bar': null, foo: { bar: null } }]);
 });
 
+test('if', () => {
+  let r = scan('{.if foo}{bar}{.or}{baz}{.end}');
+  expect(r.variables).toEqual([{ foo: null, bar: null, baz: null }]);
+  expect(r.instructions.VARIABLE).toEqual(2);
+
+  r = scan('{.if foo}{bar}{.or}{baz}{.end}{.section s}{qux}{.end}{.repeated section r}{quux}{.end}');
+  expect(r.variables).toEqual([{ foo: null, bar: null, baz: null, s: { qux: null }, r: { quux: null } }]);
+  expect(r.instructions.VARIABLE).toEqual(4);
+
+  r = scan('{.if foo}{bar|truncate 5}{.or}{baz|capitalize}{.end}');
+  expect(r.variables).toEqual([{ foo: null, bar: null, baz: null }]);
+  expect(r.formatters).toEqual({ truncate: 1, capitalize: 1 });
+
+  r = scan('{.if foo}{bar}{.end}');
+  expect(r.variables).toEqual([{ foo: null, bar: null }]);
+});
+
 test('dupe names', () => {
   const r = scan('{.section name}foo{.end}{.section name}bar{.end}');
   expect(r.variables).toEqual([{ name: {} }]);

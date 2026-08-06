@@ -2,6 +2,7 @@ import {
   BindvarCode,
   Code,
   CtxvarCode,
+  IfCode,
   MacroCode,
   PredicateCode,
   Reference,
@@ -81,6 +82,16 @@ export class ReferenceScanner {
       case Opcode.MACRO: {
         const i = inst as MacroCode;
         this.block(i[2]);
+        break;
+      }
+
+      case Opcode.IF: {
+        const i = inst as IfCode;
+        for (const r of i[2]) {
+          this.variable(ref(r));
+        }
+        this.block(i[3]);
+        this.extract(i[4]);
         break;
       }
 
