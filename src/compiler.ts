@@ -103,8 +103,13 @@ export class Compiler {
    */
   private partialCache = new Map<string, ParseResult>();
 
-  constructor(private props: CompilerProps = { formatters: Formatters, predicates: Predicates }) {
-    this.engine = new Engine(props);
+  private props: CompilerProps;
+
+  constructor(props: CompilerProps = {}) {
+    // Merge per key so a props object with only one table set keeps the
+    // defaults for the other.
+    this.props = { formatters: Formatters, predicates: Predicates, ...props };
+    this.engine = new Engine(this.props);
     this.matcher = new MatcherImpl('');
   }
 

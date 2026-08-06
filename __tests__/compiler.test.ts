@@ -28,6 +28,29 @@ test('compiler defaults', () => {
   expect(ctx.render()).toEqual('');
 });
 
+test('compiler empty props keep defaults', () => {
+  // new Compiler({}) keeps the default formatter and predicate tables.
+  const compiler = new Compiler({});
+  let { ctx, errors } = compiler.execute({ code: '{a|truncate 5}', json: { a: 'hello world' } });
+  expect(errors).toEqual([]);
+  expect(ctx.render()).toEqual('hello...');
+
+  ({ ctx, errors } = compiler.execute({ code: '{.even? a}yes{.or}no{.end}', json: { a: 2 } }));
+  expect(errors).toEqual([]);
+  expect(ctx.render()).toEqual('yes');
+});
+
+test('compiler partial props keep the other defaults', () => {
+  // Custom formatters override; predicates still resolve from the default table.
+  let { ctx, errors } = new Compiler({ formatters: {} }).execute({ code: '{.even? a}yes{.or}no{.end}', json: { a: 2 } });
+  expect(errors).toEqual([]);
+  expect(ctx.render()).toEqual('yes');
+
+  // Explicit empty formatters table still wins over the default.
+  ({ errors } = new Compiler({ formatters: {} }).execute({ code: '{a|html}', json: { a: 'x' } }));
+  expect(errors.length).toBeGreaterThan(0);
+});
+
 test('eval on by default, off with enableExpr false', () => {
   // Rows mirror Java CodeExecutorTest.testEvalInstGatedByEnableExpr.
   const compiler = new Compiler();
