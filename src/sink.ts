@@ -9,11 +9,6 @@ export abstract class Sink {
   abstract accept(inst: Instruction | Opcode): void;
 
   /**
-   * Run the completion checks.
-   */
-  abstract complete(): void;
-
-  /**
    * Push an error to the sink.
    */
   abstract error(err: TemplateError): void;

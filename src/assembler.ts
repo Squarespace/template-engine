@@ -5,9 +5,7 @@ import {
   notAllowedAtRoot,
   notAllowedInBlock,
   rootPop,
-  stateEOFNotReached,
   transitionFromEOF,
-  unclosed,
   TemplateError,
 } from './errors';
 import { Opcode } from './opcodes';
@@ -60,21 +58,6 @@ export class Assembler extends Sink {
    */
   error(err: TemplateError): void {
     this.errors.push(err);
-  }
-
-  /**
-   * Indicates that the last instruction has been fed to the assembler.
-   * Performs a check and returns a flag indicating success.
-   */
-  complete(): boolean {
-    const type = getType(this.current!);
-    if (type !== Opcode.ROOT) {
-      this.error(unclosed(this.current!));
-    }
-    if (this.state !== this.stateEOF) {
-      this.error(stateEOFNotReached());
-    }
-    return this.errors.length === 0;
   }
 
   /**

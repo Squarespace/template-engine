@@ -1,9 +1,9 @@
 import { Assembler } from '../src/assembler';
 import { CodeBuilder } from '../src/builder';
-import { Instruction, Section } from '../src/instructions';
+import { Section } from '../src/instructions';
 import { Opcode as O } from '../src/opcodes';
 
-import { notAllowedAtRoot, stateEOFNotReached, transitionFromEOF, unclosed } from '../src/errors';
+import { notAllowedAtRoot, transitionFromEOF } from '../src/errors';
 
 test('assembler sanity check', () => {
   const assembler = new Assembler();
@@ -15,19 +15,6 @@ test('assembler sanity check', () => {
 
   // Ensure error is thrown when state machine has a bug
   expect(() => assembler.pop()).toThrow(Error);
-  expect(assembler.complete()).toEqual(false);
-
-  const errors = assembler.errors;
-  expect(errors.length).toEqual(2);
-  expect(errors[0]).toEqual(unclosed(null as unknown as Instruction));
-  expect(errors[1]).toEqual(stateEOFNotReached());
-});
-
-test('assembly complete', () => {
-  const { assembler, errors } = new CodeBuilder().section(['a']).text('A').end().eof().get();
-
-  expect(assembler.complete()).toEqual(true);
-  expect(errors).toEqual([]);
 });
 
 test('atom', () => {
@@ -74,18 +61,16 @@ test('empty', () => {
 });
 
 test('root invalid', () => {
-  let assembler;
   let errors;
 
   // alternates-with at root scope
-  ({ assembler, errors } = new CodeBuilder().text('A').alternatesWith().eof().get());
+  ({ errors } = new CodeBuilder().text('A').alternatesWith().eof().get());
 
-  expect(assembler.complete()).toEqual(false);
   expect(errors.length).toEqual(1);
   expect(errors[0]).toEqual(notAllowedAtRoot(O.ALTERNATES_WITH));
 
   // end at root scope
-  ({ assembler, errors } = new CodeBuilder()
+  ({ errors } = new CodeBuilder()
     .section(['foo', 'bar'])
     .text('hi')
     .end()
@@ -93,24 +78,20 @@ test('root invalid', () => {
     .eof()
     .get());
 
-  expect(assembler.complete()).toEqual(false);
   expect(errors.length).toEqual(1);
   expect(errors[0]).toEqual(notAllowedAtRoot(O.END));
 
   // or in root scope
-  ({ assembler, errors } = new CodeBuilder().text('A').or().text('B').eof().get());
+  ({ errors } = new CodeBuilder().text('A').or().text('B').eof().get());
 
-  expect(assembler.complete()).toEqual(false);
   expect(errors.length).toEqual(1);
   expect(errors[0]).toEqual(notAllowedAtRoot(O.OR_PREDICATE));
 
   // instructions after eof
-  ({ assembler, errors } = new CodeBuilder().text('A').eof().section(['foo']).text('B').end().get());
+  ({ errors } = new CodeBuilder().text('A').eof().section(['foo']).text('B').end().get());
 
-  expect(assembler.complete()).toEqual(false);
-  expect(errors.length).toEqual(2);
+  expect(errors.length).toEqual(1);
   expect(errors[0]).toEqual(transitionFromEOF(O.SECTION));
-  expect(errors[1]).toEqual(stateEOFNotReached());
 });
 
 test('comments and literals', () => {

@@ -454,6 +454,12 @@ test('section', () => {
   expect(code).toEqual([O.ROOT, 1, [[O.TEXT, '{.section a.b**}']], O.EOF]);
 });
 
+test('unclosed section at eof', () => {
+  const { assembler } = parse('{.section foo}');
+  expect(assembler.errors.length).toEqual(1);
+  expect(assembler.errors[0].message).toEqual('SyntaxError: Reached EOF in the middle of SECTION');
+});
+
 test('variables', () => {
   let { code } = parse('{a, b, c|foo d e|bar}', { foo: DUMMY, bar: DUMMY });
   expect(code).toEqual([O.ROOT, 1, [[O.VARIABLE, [['a'], ['b'], ['c']], [['foo', [['d', 'e'], ' ']], ['bar']]]], O.EOF]);
