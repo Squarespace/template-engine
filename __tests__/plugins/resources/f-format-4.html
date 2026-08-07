@@ -1,0 +1,18 @@
+:JSON
+{
+  "title": "Root title",
+  "items": [
+    { "body": "one is {0}" },
+    { "body": "two is {0}" }
+  ]
+}
+
+:TEMPLATE
+{.repeated section items}
+{body|format title}
+{.end}
+
+:OUTPUT
+one is Root title
+
+two is Root title

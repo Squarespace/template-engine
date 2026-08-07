@@ -146,7 +146,6 @@ export class Context {
 
     this.buf = '';
     this.stack = [new Frame(node)];
-    this.version = 1;
     this.errors = [];
 
     this.partialsDepth = 0;

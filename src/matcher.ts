@@ -102,6 +102,8 @@ export class Matcher implements MatcherProps {
    */
   seekTo(ch: string): string | null {
     let i = this.start;
+    // this.end is the position of the expected closing character, so the
+    // scan includes it.
     const j = this.end;
     while (i <= j) {
       if (this.str[i] === ch) {

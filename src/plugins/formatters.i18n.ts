@@ -48,7 +48,7 @@ export class DatetimeFormatter extends Formatter {
   }
 }
 
-export class DatetimeIntervalformatter extends Formatter {
+export class DatetimeIntervalFormatter extends Formatter {
   validateArgs(args: string[]): void {
     // Same option parsing the runtime applies, Java OptionParsers.interval.
     intervalOptions(args);
@@ -356,7 +356,7 @@ export class TimeSinceFormatter extends Formatter {
 
 export const I18N_FORMATTERS: FormatterTable = {
   datetime: new DatetimeFormatter(),
-  'datetime-interval': new DatetimeIntervalformatter(),
+  'datetime-interval': new DatetimeIntervalFormatter(),
   decimal: new DecimalFormatter(),
   message: new MessageFormatterImpl(),
   money: new MoneyFormatter(),

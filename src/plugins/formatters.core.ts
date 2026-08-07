@@ -224,6 +224,9 @@ export class FormatFormatter extends Formatter {
     const first = vars[0];
     const values = args.map((arg) => {
       const names = splitVariable(arg);
+      // The current frame holds the value being formatted, so arguments
+      // resolve from the enclosing scope. At the root there is no parent,
+      // hence the fallback.
       const parent = ctx.frame().parent;
       const node = ctx.resolveFrom(names, parent ? parent : ctx.frame());
       return node.type === Type.NULL || node.type === Type.MISSING ? '' : node.value;
