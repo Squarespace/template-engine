@@ -5,6 +5,7 @@ import { Compiler } from '../../src/compiler';
 import { CompatLevel } from '../../src/compat/compat-level';
 import { MISSING_NODE } from '../../src/node';
 import { Image } from '../helpers';
+import { framework } from '../cldr';
 import { TemplateTestLoader } from '../loader';
 import { Variable } from '../../src/variable';
 
@@ -408,4 +409,37 @@ test('width', () => {
 
 loader.paths('f-website-color-%N.html').forEach((path) => {
   test(`website-color - ${path}`, () => loader.execute(path));
+});
+
+test('website-color locale', () => {
+  const run = (data: any, cldr?: any): any => {
+    const ctx = cldr ? new Context({}, { cldr }) : new Context({});
+    const vars = variables(data);
+    TABLE['website-color'].apply([], vars, ctx);
+    return vars[0].get();
+  };
+
+  const en = framework.get('en');
+  const fr = framework.get('fr');
+
+  // The decimal symbol follows the context locale; no cldr means the dot.
+  const node = { hue: 0, saturation: 0.1234, lightness: 0.5 };
+  expect(run(node, en)).toEqual('hsl(0, 12.34%, 50%)');
+  expect(run(node, fr)).toEqual('hsl(0, 12,34%, 50%)');
+  expect(run(node)).toEqual('hsl(0, 12.34%, 50%)');
+
+  // Trailing zeroes are stripped after the 2-place round, in both locales.
+  const trailing = { hue: 0, saturation: 0.12, lightness: 0.5 };
+  expect(run(trailing, en)).toEqual('hsl(0, 12%, 50%)');
+  expect(run(trailing, fr)).toEqual('hsl(0, 12%, 50%)');
+
+  // The 0.125 row scales to exactly 12.5, which fits two places, so both
+  // engines keep it: this pins the locale swap on a non-integer row.
+  const half = { hue: 0, saturation: 0.125, lightness: 0.5 };
+  expect(run(half, en)).toEqual('hsl(0, 12.5%, 50%)');
+  expect(run(half, fr)).toEqual('hsl(0, 12,5%, 50%)');
+
+  // The alpha component is fourth and localized too.
+  expect(run({ hue: 0, saturation: 0.2, lightness: 0.5, alpha: 0.75 }, fr))
+    .toEqual('hsla(0, 20%, 50%, 0,75)');
 });

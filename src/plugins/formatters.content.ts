@@ -384,6 +384,26 @@ export class SquarespaceThumbnailForHeightFormatter extends ResizeBaseFormatter 
 
 const numberToFixed = (num: number, places: number): number => parseFloat(num.toFixed(places));
 
+/**
+ * Resolve the decimal symbol for the context locale. Without a cldr we fall
+ * back to the dot, matching Java's Locale.US default.
+ */
+const decimalSymbol = (ctx: Context): string => {
+  const cldr = ctx.cldr;
+  if (!cldr) {
+    return '.';
+  }
+  try {
+    const tag = cldr.General.locale().tag.toString();
+    const parts = new Intl.NumberFormat(tag, { useGrouping: false }).formatToParts(1.5);
+    const decimal = parts.find((part) => part.type === 'decimal');
+    return decimal === undefined ? '.' : decimal.value;
+  } catch {
+    // An unresolvable locale falls back to the dot default.
+    return '.';
+  }
+};
+
 export class WebsiteColorFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     const first = vars[0];
@@ -434,6 +454,9 @@ export class WebsiteColorFormatter extends Formatter {
       return;
     }
 
+    const symbol = decimalSymbol(ctx);
+    const localize = (value: number): string => String(numberToFixed(value, 2)).replace('.', symbol);
+
     let res = '';
     if (hasAlphaValue) {
       res += 'hsla(';
@@ -441,15 +464,15 @@ export class WebsiteColorFormatter extends Formatter {
       res += 'hsl(';
     }
 
-    res += numberToFixed(hue, 2);
+    res += localize(hue);
     res += ', ';
-    res += numberToFixed(saturation, 2);
+    res += localize(saturation);
     res += '%, ';
-    res += numberToFixed(lightness, 2);
+    res += localize(lightness);
 
     if (hasAlphaValue) {
       res += '%, ';
-      res += numberToFixed(alpha!, 2);
+      res += localize(alpha!);
       res += ')';
     } else {
       res += '%)';
