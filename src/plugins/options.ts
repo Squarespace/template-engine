@@ -372,7 +372,26 @@ const relativetimeOption = (arg: string, val: string, options: RelativeTimeForma
 
 const clamp = (n: number, min: number, max: number) => (n < min ? min : n > max ? max : n);
 
+const LONG_MAX = 9223372036854775807;
+
+// Mirrors Java OptionParsers.toInt: a digit scan that saturates at
+// Long.MAX_VALUE instead of wrapping, stopped at the first non-digit,
+// with the (int) cast applied as a ToInt32 wrap. Saturated input yields
+// 0 here vs -1 in Java, unobservable since every call site clamps to
+// [0, CLAMP_MAX].
 const int = (v: string) => {
-  const n = parseInt(v, 10);
-  return isFinite(n) ? n : 0;
+  let n = 0;
+  for (let i = 0; i < v.length; i++) {
+    const c = v.charCodeAt(i);
+    if (c < 48 || c > 57) {
+      break;
+    }
+    const d = c - 48;
+    if (n > (LONG_MAX - d) / 10) {
+      n = LONG_MAX;
+      break;
+    }
+    n = n * 10 + d;
+  }
+  return n | 0;
 };

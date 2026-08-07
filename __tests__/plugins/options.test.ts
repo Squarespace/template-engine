@@ -102,3 +102,30 @@ test('relative time options', () => {
 
   expect(relativetimeOptions(['unknown:foo'])).toEqual({ ca: 'gregory' });
 });
+
+test('option int saturates like Java toPositiveLong', () => {
+  // In-range values are unchanged.
+  expect(decimalOptions(['minint:0'])).toEqual({ minimumIntegerDigits: 0 });
+  expect(decimalOptions(['minint:5'])).toEqual({ minimumIntegerDigits: 5 });
+  expect(decimalOptions(['minint:30'])).toEqual({ minimumIntegerDigits: 30 });
+
+  // Saturation rows: > Long.MAX is saturated, then ToInt32-wrapped to 0,
+  // the same result Java's (int) cast then clamp gives.
+  expect(decimalOptions(['minint:99999999999999999999'])).toEqual({ minimumIntegerDigits: 0 });
+  expect(decimalOptions(['minint:4294967296'])).toEqual({ minimumIntegerDigits: 0 });
+  expect(decimalOptions(['minint:2147483648'])).toEqual({ minimumIntegerDigits: 0 });
+
+  // The arg parse keeps the value as-is, so a leading space stops the scan
+  // before any digit, matching Java's break on non-digit.
+  expect(decimalOptions(['minint: 5'])).toEqual({ minimumIntegerDigits: 0 });
+
+  // The scan stops at the first non-digit and keeps what was parsed; the
+  // clamp then caps it at 50, same as Java's clamp at the option site.
+  expect(decimalOptions(['minint:12345xyz'])).toEqual({ minimumIntegerDigits: 50 });
+
+  // The same int path serves the other number option parsers.
+  expect(relativetimeOptions(['maxfrac:99999999999999999999'])).toEqual({
+    maximumFractionDigits: 0,
+    ca: 'gregory',
+  });
+});
