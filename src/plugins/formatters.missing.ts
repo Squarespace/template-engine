@@ -78,8 +78,10 @@ const isLocale = (s: string): boolean => {
 /**
  * Parse-time validation for i18n-money-format, mirroring the Java
  * LegacyMoneyFormatter: at most one argument, and a present, non-blank
- * argument must be a locale. The runtime half stays a stub; see the legacy
- * money decision in todo 050.
+ * argument must be a locale. The runtime half stays a stub: it is one of
+ * the legacy money formatters that was deliberately not ported
+ * (superseded by the CLDR money formatters; see the TS divergences note
+ * in the README).
  */
 export class LegacyMoneyFormatter extends Formatter {
   validateArgs(args: string[]): void {
@@ -98,6 +100,10 @@ export class LegacyMoneyFormatter extends Formatter {
   }
 }
 
+// money-format, money-string and moneyFormat are deliberate permanent
+// stubs, not missing ports: the legacy money formatters were superseded
+// by the CLDR money formatters (see the TS divergences note in the
+// README).
 const NOIMPL = ['money-format', 'money-string', 'moneyFormat'];
 
 export const NOIMPL_FORMATTERS: FormatterTable = NOIMPL.reduce((table, name) => {

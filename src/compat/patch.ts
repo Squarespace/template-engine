@@ -93,18 +93,20 @@ const THRESHOLDS = {
 
   /**
    * i18n-money-format throws a malformed pattern error on a JVM default
-   * locale without a dot decimal separator. No-op in this port: the gated
-   * formatter path is a stub. It stays for table parity; see the legacy
-   * money decision in todo 050.
+   * locale without a dot decimal separator. The legacy money stack was
+   * intentionally not ported (superseded by the CLDR money formatters);
+   * the patch stays as a no-op for table parity. See the TS divergences
+   * note in the README.
    */
   MONEY_LOCALE_SYMBOLS: 1,
 
   /**
    * The legacy money formatters (i18n-money-format, moneyFormat,
    * money-format, money-string, cart-subtotal) format through a double and
-   * lose precision on large values. The i18n half is a no-op in this port:
-   * the gated formatter path is a stub. It stays for table parity; see the
-   * legacy money decision in todo 050.
+   * lose precision on large values. The legacy money stack was
+   * intentionally not ported (superseded by the CLDR money formatters);
+   * the patch stays as a no-op for table parity. See the TS divergences
+   * note in the README.
    */
   MONEY_DOUBLE_ROUNDING: 1,
 
@@ -169,8 +171,9 @@ const THRESHOLDS = {
 
   /**
    * cart-subtotal and the legacy money formatters throw on blank or null
-   * input. No-op in this port: the gated formatter path is a stub. It stays
-   * for table parity; see the legacy money decision in todo 050.
+   * input. The legacy money stack was intentionally not ported
+   * (superseded by the CLDR money formatters); the patch stays as a no-op
+   * for table parity. See the TS divergences note in the README.
    */
   MONEY_BLANK_PARSE: 2,
 
@@ -181,9 +184,10 @@ const THRESHOLDS = {
   MONEY_UNKNOWN_CURRENCY: 2,
 
   /**
-   * i18n-money-format throws for a present but invalid currency code. No-op
-   * in this port: the gated formatter path is a stub. It stays for table
-   * parity; see the legacy money decision in todo 050.
+   * i18n-money-format throws for a present but invalid currency code. The
+   * legacy money stack was intentionally not ported (superseded by the
+   * CLDR money formatters); the patch stays as a no-op for table parity.
+   * See the TS divergences note in the README.
    */
   LEGACY_MONEY_BAD_CURRENCY: 2,
 

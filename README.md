@@ -27,6 +27,10 @@ This project is a new implementation of the Squarespace template syntax with the
  * Follow same basic design as Java compiler.
  * High test coverage.
 
+### TS divergences
+
+The five legacy money formatters (cart-subtotal, i18n-money-format, money-format, money-string, moneyFormat) are intentionally not ported: the CLDR-based money formatters supersede them and they are not in active use. A template calling one renders stub output at every compat level on TS, where the Java compiler renders real, level-dependent output. The four matching patch entries remain as no-ops so the compat levels stay comparable between the two compilers.
+
 ### License
 
 [Apache 2.0](https://tldrlegal.com/license/apache-license-2.0-(apache-2.0))

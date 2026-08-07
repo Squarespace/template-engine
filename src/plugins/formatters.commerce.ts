@@ -99,6 +99,13 @@ export class CartQuantityFormatter extends Formatter {
   }
 }
 
+/**
+ * Deliberate stub. cart-subtotal is a legacy money formatter that the
+ * port does not implement: the CLDR-based money formatters supersede it
+ * and it is not in active use (see the TS divergences note in the README).
+ * Java renders a real subtotal span here; this one renders the literal
+ * `deprecated, do not use` at every compat level, by decision.
+ */
 export class CartSubtotalFormatter extends Formatter {
   apply(args: string[], vars: Variable[], ctx: Context): void {
     vars[0].set('deprecated, do not use');
