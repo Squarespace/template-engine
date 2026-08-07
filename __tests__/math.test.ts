@@ -2,29 +2,29 @@ import { Context } from '../src/context';
 import { Node } from '../src/node';
 import {
   bool,
+  num,
   tokenDebug,
-  ADD,
   ArgsToken,
+  ADD,
+  ASN,
   BooleanToken,
   COMMA,
   DIV,
-  EQ,
   Expr,
+  ExprOptions,
   ExprTokenType,
+  EQ,
   LOR,
   LPRN,
   MINUS,
   MUL,
-  num,
   NullToken,
   RPRN,
-  SUB,
-  ASN,
   SEMI,
   SEQ,
-  VarToken,
-  ExprOptions,
+  SUB,
   Token,
+  VarToken,
 } from '../src/math';
 import { splitVariable } from '../src/util';
 import { Variable } from '../src/variable';
@@ -190,7 +190,9 @@ test('basics', () => {
 test('debug', () => {
   expect(debug('@a = 2 * 3 / max(c, d)')).toEqual('[[@a 2 3 <multiply> <args> c d max() <divide> <assign>]]');
   expect(debug(`"foo" !== "bar"`)).toEqual('[["foo" "bar" <strict inequality>]]');
-  expect(debug('null == false || null != true')).toEqual('[[null false <equality> null true <inequality> <logical or>]]');
+  expect(debug('null == false || null != true')).toEqual(
+    '[[null false <equality> null true <inequality> <logical or>]]'
+  );
   expect(tokenDebug({ type: 100 } as unknown as Token)).toEqual('<unk>');
   expect(tokenDebug(undefined)).toEqual('undefined');
 });

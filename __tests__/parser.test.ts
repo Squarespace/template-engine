@@ -10,17 +10,25 @@ import { Formatter } from '../src/plugin';
 import { Variable } from '../src/variable';
 
 class DummyFormatter extends Formatter {
-  apply(args: string[], vars: Variable[], ctx: Context) {}
+  apply(args: string[], vars: Variable[], ctx: Context): void {
+    // no-op
+  }
 }
 
 const DUMMY = new DummyFormatter();
 const MATCHER = new MatcherImpl('');
 
-const parse = (str: string, formatters: FormatterMap = {}, predicates: PredicateMap = {}) => {
+const parse = (str: string, formatters: FormatterMap = {}, predicates: PredicateMap = {}): any => {
   const assembler = new Assembler();
-  const parser = new Parser(str, assembler, MATCHER, { ...formatters, ...Formatters }, { ...predicates, ...Predicates });
-  parser.parse();
-  return { assembler, parser, code: assembler.code() };
+  const p = new Parser(
+    str,
+    assembler,
+    MATCHER,
+    { ...formatters, ...Formatters },
+    { ...predicates, ...Predicates }
+  );
+  p.parse();
+  return { assembler, parser: p, code: assembler.code() };
 };
 
 const parser = (str: string) => {
@@ -462,7 +470,8 @@ test('unclosed section at eof', () => {
 
 test('variables', () => {
   let { code } = parse('{a, b, c|foo d e|bar}', { foo: DUMMY, bar: DUMMY });
-  expect(code).toEqual([O.ROOT, 1, [[O.VARIABLE, [['a'], ['b'], ['c']], [['foo', [['d', 'e'], ' ']], ['bar']]]], O.EOF]);
+  const expected = [O.ROOT, 1, [[O.VARIABLE, [['a'], ['b'], ['c']], [['foo', [['d', 'e'], ' ']], ['bar']]]], O.EOF];
+  expect(code).toEqual(expected);
 
   ({ code } = parse('{a|foo|bar}', { foo: DUMMY, bar: DUMMY }));
   expect(code).toEqual([O.ROOT, 1, [[O.VARIABLE, [['a']], [['foo'], ['bar']]]], O.EOF]);

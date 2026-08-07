@@ -26,7 +26,8 @@ test('humanize date with zone offset', () => {
   expect(contentutil.getZoneOffsetMs(noZoneInfo, 'Asia/Tokyo', 1600003263000)).toEqual(32400000);
 
   // Legacy, the zone offset joins the delta.
-  const legacy = (zoneId: string) => contentutil.humanizeDate(hour + contentutil.getZoneOffsetMs(cldr, zoneId, instant), false);
+  const legacy = (zoneId: string) =>
+    contentutil.humanizeDate(hour + contentutil.getZoneOffsetMs(cldr, zoneId, instant), false);
   expect(legacy('America/New_York')).toEqual('less than a minute ago');
   expect(legacy('Asia/Tokyo')).toEqual('about 10 hours ago');
 

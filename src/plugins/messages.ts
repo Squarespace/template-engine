@@ -10,8 +10,15 @@ import {
 
 import { Node } from '../node';
 import { currencyOptions, datetimeOptions, decimalOptions, intervalOptions } from './options';
-import { parseDecimal } from './util.i18n';
 import { Type } from '../types';
+
+export const parseDecimal = (s: string | number): Decimal | undefined => {
+  try {
+    return new Decimal(s);
+  } catch (e) {
+    return undefined;
+  }
+};
 
 /**
  * Customized message formatter with i18n tags. The zone is fixed at

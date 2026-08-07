@@ -39,7 +39,7 @@ export const findNthValidEntry = (
   items: Node,
   path: (string | number)[] | null,
   lookup: Node | null,
-  nth: number,
+  nth: number
 ): Node => {
   if (items.type !== Type.ARRAY) {
     return MISSING_NODE;

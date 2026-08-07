@@ -20,6 +20,23 @@ const NAMES = {
 
 export const nameOfType = (type: Type) => NAMES[type];
 
+/**
+ * Options to configure the expression engine.
+ */
+export interface ExprOptions {
+  /**
+   * Maximum number of tokens an expression can contain. If an expression exceeds
+   * this limit it raises an error.
+   */
+  maxTokens?: number;
+
+  /**
+   * Maximum length of a string that can be constructed through concatenation.
+   * If string result of A + B exceeds the length it raises an error.
+   */
+  maxStringLen?: number;
+}
+
 export const of = (value: any) => {
   switch (typeof value) {
     case 'object':

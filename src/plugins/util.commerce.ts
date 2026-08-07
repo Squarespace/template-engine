@@ -3,8 +3,9 @@ import { isTruthy, Node } from '../node';
 import { Patch } from '../compat/patch';
 import { ProductType } from './enums';
 import { Type } from '../types';
-import { parseDecimal, useCLDRMode } from './util.i18n';
-import { Context } from 'src/context';
+import { parseDecimal } from './messages';
+import { useCLDRMode } from './util.i18n';
+import { Context } from '../context';
 import { currencyOptions } from './options';
 
 const productTypePath = ['structuredContent', 'productType'];
@@ -45,7 +46,9 @@ export const getAmountFromMoneyNode = (moneyNode?: Node) => {
 
 export const getCurrencyFromMoneyNode = (moneyNode: Node): CurrencyType => {
   const currencyNode = moneyNode.path(['currency']);
-  const currency = !currencyNode.isMissing() ? currencyNode.asString().trim() : DEFAULT_MONEY_NODE.path(['currency']).asString();
+  const currency = !currencyNode.isMissing()
+    ? currencyNode.asString().trim()
+    : DEFAULT_MONEY_NODE.path(['currency']).asString();
 
   return currency as CurrencyType;
 };
@@ -101,8 +104,8 @@ export const roundHalfEven = (value: string): string => {
   const first = dropped.charCodeAt(0) - 48;
   const lastOdd = (keep.charCodeAt(1) - 48) % 2 === 1;
   let nonZeroAfter = false;
-  for (let i = 1; i < dropped.length; i++) {
-    if (dropped.charCodeAt(i) !== 48) {
+  for (let j = 1; j < dropped.length; j++) {
+    if (dropped.charCodeAt(j) !== 48) {
       nonZeroAfter = true;
       break;
     }
@@ -183,7 +186,7 @@ export const getMoneyString = (moneyNode: Node, args: string[], ctx: Context): s
 };
 
 export const getSubscriptionMoneyFromFirstPricingOptions = (pricingOptions: Node): Node => {
-  if (pricingOptions == null || pricingOptions.size() == 0) {
+  if (pricingOptions == null || pricingOptions.size() === 0) {
     return DEFAULT_MONEY_NODE;
   }
 

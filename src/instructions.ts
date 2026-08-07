@@ -1,5 +1,5 @@
 import { Opcode } from './opcodes';
-import type { ExprOptions } from './math';
+import type { ExprOptions } from './types';
 
 // Wrappers to simplify wiring up a valid instruction tree.
 // Only composite instructions need these wrappers as atomic

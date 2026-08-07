@@ -121,14 +121,14 @@ export const formatDate = (d: GregorianDate, fmt: string, legacyWeekAnchor = tru
       // %i     hour (1..12), unpadded
       case 'i': {
         const h = d.hour();
-        out = `${h == 0 ? 12 : h}`;
+        out = `${h === 0 ? 12 : h}`;
         break;
       }
 
       // %I     hour (01..12), zero-padded
       case 'I': {
         const h = d.hour();
-        out = pad(`${h == 0 ? 12 : h}`, '0', 2);
+        out = pad(`${h === 0 ? 12 : h}`, '0', 2);
         break;
       }
 

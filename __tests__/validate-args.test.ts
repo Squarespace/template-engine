@@ -103,7 +103,8 @@ test('predicate args must be JSON or a variable reference', () => {
   ]);
   expectErrors('{.greaterThan? foo}x{.end}', []);
   expectErrors('{.equal? [1,2 x}x{.end}', [
-    `SyntaxError: Predicate equal? arguments invalid: 'Argument [1,2 must be a valid JSON value or variable reference.'`,
+    'SyntaxError: Predicate equal? arguments invalid: ' +
+      "'Argument [1,2 must be a valid JSON value or variable reference.'",
   ]);
 });
 
@@ -346,20 +347,20 @@ test('json keyword start: gated at the compile level', () => {
 
 test('json keyword start: end-to-end at the default, rung 1 and rung 2', () => {
   const render = (template: string, compat: CompatLevel, json: any) => {
-    const { ctx, errors } = compiler.execute({ code: template, json, compat });
-    return { output: ctx.render(), errors };
+    const { ctx, errors: errs } = compiler.execute({ code: template, json, compat });
+    return { output: ctx.render(), errors: errs };
   };
 
   // Legacy (levels 0 and 1), a leading-space keyword is a parse error and
   // the .else branch renders. Fixed (level 2), it decodes as JSON true.
   const trueTemplate = '{.equal?" true}yes{.or}no{.end}';
   for (const compat of [CompatLevel.defaultLevel(), CompatLevel.at(1)]) {
-    const row = render(trueTemplate, compat, true);
-    expect(row.errors).toHaveLength(1);
-    expect(row.errors[0].message).toContain(
+    const legacyRow = render(trueTemplate, compat, true);
+    expect(legacyRow.errors).toHaveLength(1);
+    expect(legacyRow.errors[0].message).toContain(
       'Argument  true must be a valid JSON value or variable reference.'
     );
-    expect(row.output).toEqual('no');
+    expect(legacyRow.output).toEqual('no');
   }
   let row = render(trueTemplate, CompatLevel.at(2), true);
   expect(row.errors).toEqual([]);

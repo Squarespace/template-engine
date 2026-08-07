@@ -14,7 +14,7 @@ export const executeTemplate = (
   inst: RootCode | MacroCode,
   node: Node,
   privateContext: boolean,
-  argvar?: Variable,
+  argvar?: Variable
 ) => {
   // Swap in a fresh buffer and always swap it back, even when the template
   // throws at runtime.

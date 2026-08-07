@@ -16,7 +16,17 @@ test('literals', () => {
   const inst: Code = [
     O.ROOT,
     1,
-    [O.NEWLINE, [O.TEXT, '\n'], O.META_LEFT, [O.TEXT, 'abc'], O.META_RIGHT, [O.TEXT, '\n'], O.SPACE, [O.TEXT, '\n'], O.TAB],
+    [
+      O.NEWLINE,
+      [O.TEXT, '\n'],
+      O.META_LEFT,
+      [O.TEXT, 'abc'],
+      O.META_RIGHT,
+      [O.TEXT, '\n'],
+      O.SPACE,
+      [O.TEXT, '\n'],
+      O.TAB,
+    ],
     O.EOF,
   ];
 
@@ -193,7 +203,7 @@ test('eval reuse', () => {
     O.EOF,
   ];
 
-  let ctx = new Context({ items: ['A', 'B', 'C'] }, { enableExpr: true });
+  const ctx = new Context({ items: ['A', 'B', 'C'] }, { enableExpr: true });
   engine.execute(inst, ctx);
   expect(ctx.render()).toEqual('AABBCC');
 });
@@ -401,7 +411,15 @@ test('predicates', () => {
   const inst: Code = [
     O.ROOT,
     1,
-    [[O.PREDICATE, 'equal?', [['foo', 'bar'], ' '], [[O.TEXT, 'equal']], [O.OR_PREDICATE, 0, 0, [[O.TEXT, 'not equal']], O.END]]],
+    [
+      [
+        O.PREDICATE,
+        'equal?',
+        [['foo', 'bar'], ' '],
+        [[O.TEXT, 'equal']],
+        [O.OR_PREDICATE, 0, 0, [[O.TEXT, 'not equal']], O.END],
+      ],
+    ],
     O.EOF,
   ];
 
@@ -426,9 +444,14 @@ test('predicates', () => {
 
 test('predicate without alternative', () => {
   const engine = newEngine();
-  const inst: Code = [O.ROOT, 1, [[O.PREDICATE, 'equal?', [['foo', 'bar'], ' '], [[O.TEXT, 'equal']], undefined]], O.EOF];
+  const inst: Code = [
+    O.ROOT,
+    1,
+    [[O.PREDICATE, 'equal?', [['foo', 'bar'], ' '], [[O.TEXT, 'equal']], undefined]],
+    O.EOF,
+  ];
 
-  let ctx = new Context({ foo: 1, bar: 2 });
+  const ctx = new Context({ foo: 1, bar: 2 });
   engine.execute(inst, ctx);
   expect(ctx.render()).toEqual('');
 });
@@ -548,7 +571,7 @@ test('if without alternative', () => {
   const engine = newEngine();
   const inst: Code = [O.ROOT, 1, [[O.IF, [0], [['a'], ['b']], [[O.TEXT, 'A']], undefined]], O.EOF];
 
-  let ctx = new Context({ a: 0, b: 0 });
+  const ctx = new Context({ a: 0, b: 0 });
   engine.execute(inst, ctx);
   expect(ctx.render()).toEqual('');
 });
@@ -619,7 +642,7 @@ test('include', () => {
 
 test('include macro', () => {
   const engine = newEngine();
-  let inst: Code = [
+  const inst: Code = [
     O.ROOT,
     1,
     [
@@ -645,7 +668,7 @@ test('include macro', () => {
 
 test('include recursive', () => {
   const engine = newEngine();
-  let inst: Code = [
+  const inst: Code = [
     O.ROOT,
     1,
     [

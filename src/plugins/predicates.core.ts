@@ -56,7 +56,7 @@ const compute = (args: string[], ctx: Context, f: (a: Node, b: Node, ctx: Contex
  * only produces the error set.
  */
 abstract class JsonPredicate extends PredicatePlugin {
-  constructor(requiresArgs = true) {
+  constructor(requiresArgs: boolean = true) {
     super(requiresArgs);
   }
 

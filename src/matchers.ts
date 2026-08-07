@@ -31,7 +31,7 @@ export interface MatcherProps {
  * Matcher code that uses substring / global RegExp flag.
  */
 export const GlobalMatcherMixin = <T extends Constructor<MatcherProps>>(Base: T) =>
-  class GlobalMatcherMixin extends Base {
+  class GlobalMatcher extends Base {
     constructor(...args: any[]) {
       super(...args);
     }
@@ -70,7 +70,7 @@ export const GlobalMatcherMixin = <T extends Constructor<MatcherProps>>(Base: T)
  * Matcher code that uses sticky RegExp flag.
  */
 export const StickyMatcherMixin = <T extends Constructor<MatcherProps>>(Base: T) =>
-  class StickyMatcherMixin extends Base {
+  class StickyMatcher extends Base {
     constructor(...args: any[]) {
       super(...args);
     }

@@ -3,7 +3,7 @@ import { Opcode } from './opcodes';
 import * as patterns from './patterns';
 import { Arguments, FormatterCall, Operator } from './instructions';
 import { splitVariable } from './util';
-import { hasStickyRegexp, MatcherProps, GlobalMatcherMixin, StickyMatcherMixin } from './matchers';
+import { hasStickyRegexp, GlobalMatcherMixin, MatcherProps, StickyMatcherMixin } from './matchers';
 
 // Table for fast mapping of instructions to their opcodes.
 const INSTRUCTIONS: { [x: string]: (string | Opcode)[] } = {

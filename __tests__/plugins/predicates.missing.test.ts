@@ -5,7 +5,7 @@ import { MISSING_PREDICATES as Missing } from '../../src/plugins/predicates.miss
 test('missing predicate units-metric?', () => {
   const impl = Missing['units-metric?'];
 
-  let ctx = new Context({});
+  const ctx = new Context({});
   expect(impl.apply([], ctx)).toEqual(true);
 
   expect(ctx.errors.length).toEqual(0);

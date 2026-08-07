@@ -1,6 +1,6 @@
 import { Matcher } from './matcher';
 import { Sink } from './sink';
-import { FAST_NULL, Instruction, Include } from './instructions';
+import { FAST_NULL, Include, Instruction } from './instructions';
 import {
   Bindvar,
   Comment,

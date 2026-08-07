@@ -216,7 +216,10 @@ export class PromotedRecordTypePredicate extends PredicatePlugin {
 
   apply(args: string[], ctx: Context): boolean {
     const node = ctx.node();
-    return node.get('recordType').asNumber() === this.code || node.get('promotedBlockType').asString() === this.promotedBlockType;
+    return (
+      node.get('recordType').asNumber() === this.code ||
+      node.get('promotedBlockType').asString() === this.promotedBlockType
+    );
   }
 }
 

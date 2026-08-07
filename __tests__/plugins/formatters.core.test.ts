@@ -170,7 +170,12 @@ test('apply max recursion depth', () => {
 
   const partials: { [x: string]: RootCode } = {};
   for (let i = 0; i < 20; i++) {
-    partials[`partial-${i}.html`] = [O.ROOT, 1, [[O.VARIABLE, [['@']], [['apply', [[`partial-${i + 1}.html`], ' ']]]]], O.EOF];
+    partials[`partial-${i}.html`] = [
+      O.ROOT,
+      1,
+      [[O.VARIABLE, [['@']], [['apply', [[`partial-${i + 1}.html`], ' ']]]]],
+      O.EOF,
+    ];
   }
 
   const node = { person: { name: 'User Name' } };
@@ -624,8 +629,8 @@ loader.paths('f-json-pretty-line-separators-%N.html').forEach((path) => {
 
 test('json line separators level', () => {
   const compiler = new Compiler();
-  const render = (template: string, compat: CompatLevel, value: string) => {
-    const { ctx, errors } = compiler.execute({ code: template, json: { s: value }, compat });
+  const render = (template: string, compat: CompatLevel, s: string) => {
+    const { ctx, errors } = compiler.execute({ code: template, json: { s }, compat });
     return { output: ctx.render(), errors };
   };
 

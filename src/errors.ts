@@ -61,13 +61,13 @@ export const transitionFromEOF = (inst: Instruction | Opcode) =>
   );
 
 export const rootPop = () =>
-  assembler('Popped the ROOT instruction off the stack, which should never happen! ' + 'Possible bug in state machine.');
+  assembler(
+    'Popped the ROOT instruction off the stack, which should never happen! ' + 'Possible bug in state machine.'
+  );
 
 // ENGINE
 
 export const expressionParse = (expr: string, err: string) => engine(`Error parsing expression: ${JSON.stringify(expr)}: ${err}`);
-
-export const expressionReduce = (expr: string, err: string) => engine(`Error reducing expression: ${expr}: ${err}`);
 
 export const partialMissing = (name: string) => engine(`Attempt to apply partial '${name}' which could not be found.`);
 

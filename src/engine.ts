@@ -6,8 +6,8 @@ import {
   BindvarCode,
   Code,
   CtxvarCode,
-  FormatterCall,
   EvalCode,
+  FormatterCall,
   IfCode,
   IncludeCode,
   InjectCode,
@@ -20,12 +20,12 @@ import {
   TextCode,
   VariableCode,
 } from './instructions';
-import { expressionParse, unexpectedError, partialMissing } from './errors';
+import { expressionParse, partialMissing, unexpectedError } from './errors';
 import { Variable } from './variable';
 import { Formatter, FormatterMap, PredicateMap, PredicatePlugin } from './plugin';
 import { isTruthy } from './node';
-import { tokenDebug, Expr, ExprOptions } from './math';
-import { Type } from './types';
+import { tokenDebug, Expr } from './math';
+import { ExprOptions, Type } from './types';
 
 const DEBUG_ARROW = new Node(' -> ');
 

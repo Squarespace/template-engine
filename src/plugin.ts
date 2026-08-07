@@ -9,7 +9,7 @@ export abstract class Formatter {
    */
   readonly requiresArgs: boolean;
 
-  constructor(requiresArgs = false) {
+  constructor(requiresArgs: boolean = false) {
     this.requiresArgs = requiresArgs;
   }
 
@@ -38,7 +38,7 @@ export abstract class PredicatePlugin {
    */
   readonly requiresArgs: boolean;
 
-  constructor(requiresArgs = false) {
+  constructor(requiresArgs: boolean = false) {
     this.requiresArgs = requiresArgs;
   }
 

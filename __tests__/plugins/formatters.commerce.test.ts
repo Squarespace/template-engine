@@ -470,12 +470,12 @@ test('product price subscription plan unavailable true slot level 3', () =>
 test('product price unavailable default text', () => {
   // Without localizedStrings the branch falls back to 'Unavailable' and
   // the slot value never reaches the output, at both levels.
-  const compiler = new Compiler();
+  const comp = new Compiler();
   const json = {
     structuredContent: { productType: 1, isSubscribable: 'true', subscriptionPlan: {} },
   };
   for (const compat of [CompatLevel.defaultLevel(), CompatLevel.fixed()]) {
-    const { ctx, errors } = compiler.execute({ code: '{@|product-price}', json, cldr: EN, compat });
+    const { ctx, errors } = comp.execute({ code: '{@|product-price}', json, cldr: EN, compat });
     expect(errors).toEqual([]);
     expect(ctx.render()).toContain('Unavailable');
   }
@@ -484,7 +484,7 @@ test('product price unavailable default text', () => {
 test('product price unavailable localized price slot', () => {
   // A subscribable product whose plan has no billing period. The
   // localized unavailable text embeds a price placeholder.
-  const compiler = new Compiler();
+  const comp = new Compiler();
   const json = {
     structuredContent: { productType: 1, isSubscribable: 'true', subscriptionPlan: {} },
     localizedStrings: { productPriceUnavailable: 'Price ({price})' },
@@ -492,13 +492,13 @@ test('product price unavailable localized price slot', () => {
 
   // Below the threshold the slot keeps the legacy literal.
   for (const compat of [CompatLevel.defaultLevel(), CompatLevel.at(2)]) {
-    const { ctx, errors } = compiler.execute({ code: '{@|product-price}', json, cldr: EN, compat });
-    expect(errors).toEqual([]);
-    expect(ctx.render()).toContain('Price (true)');
+    const { ctx: loopCtx, errors: loopErrors } = comp.execute({ code: '{@|product-price}', json, cldr: EN, compat });
+    expect(loopErrors).toEqual([]);
+    expect(loopCtx.render()).toContain('Price (true)');
   }
 
   // At the fixed level the placeholder renders nothing.
-  const { ctx, errors } = compiler.execute({ code: '{@|product-price}', json, cldr: EN, compat: CompatLevel.fixed() });
+  const { ctx, errors } = comp.execute({ code: '{@|product-price}', json, cldr: EN, compat: CompatLevel.fixed() });
   expect(errors).toEqual([]);
   const output = ctx.render();
   expect(output).toContain('Price ( )');

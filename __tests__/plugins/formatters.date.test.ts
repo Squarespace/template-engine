@@ -399,7 +399,13 @@ test('null timeZone literal', () => {
   const EPOCH = 1672542000000;
   const UTC = '2023-01-01';
   const NY = '2022-12-31';
-  const LEVELS = [CompatLevel.defaultLevel(), CompatLevel.at(1), CompatLevel.at(2), CompatLevel.at(3), CompatLevel.fixed()];
+  const LEVELS = [
+    CompatLevel.defaultLevel(),
+    CompatLevel.at(1),
+    CompatLevel.at(2),
+    CompatLevel.at(3),
+    CompatLevel.fixed(),
+  ];
 
   const render = (json: any, compat: CompatLevel) => {
     const ctx = new Context(json, { cldr: en, compat });

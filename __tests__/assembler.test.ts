@@ -199,7 +199,15 @@ test('macro invalid', () => {
 });
 
 test('macro', () => {
-  const { root, errors } = new CodeBuilder().macro('foo.html').text('A').section(['bar']).text('B').end().end().eof().get();
+  const { root, errors } = new CodeBuilder()
+    .macro('foo.html')
+    .text('A')
+    .section(['bar'])
+    .text('B')
+    .end()
+    .end()
+    .eof()
+    .get();
 
   expect(errors).toEqual([]);
   expect(root.code).toEqual([
@@ -336,7 +344,12 @@ test('repeated', () => {
   const { root, errors } = new CodeBuilder().repeated(['a']).section(['b']).text('B').end().end().eof().get();
 
   expect(errors).toEqual([]);
-  expect(root.code).toEqual([O.ROOT, 1, [[O.REPEATED, ['a'], [[O.SECTION, ['b'], [[O.TEXT, 'B']], O.END]], O.END, []]], O.EOF]);
+  expect(root.code).toEqual([
+    O.ROOT,
+    1,
+    [[O.REPEATED, ['a'], [[O.SECTION, ['b'], [[O.TEXT, 'B']], O.END]], O.END, []]],
+    O.EOF,
+  ]);
 });
 
 test('repeated with or branch', () => {
@@ -352,7 +365,15 @@ test('repeated with or branch', () => {
 });
 
 test('repeated with or branch and alternates block', () => {
-  const { root, errors } = new CodeBuilder().repeated(['a']).text('A').alternatesWith().or().text('B').end().eof().get();
+  const { root, errors } = new CodeBuilder()
+    .repeated(['a'])
+    .text('A')
+    .alternatesWith()
+    .or()
+    .text('B')
+    .end()
+    .eof()
+    .get();
 
   expect(errors).toEqual([]);
   expect(root.code).toEqual([
@@ -410,7 +431,14 @@ test('section invalid', () => {
 });
 
 test('section with or branch', () => {
-  const { root, errors } = new CodeBuilder().section(['foo', 'bar']).text('hello').or().text('goodbye').end().eof().get();
+  const { root, errors } = new CodeBuilder()
+    .section(['foo', 'bar'])
+    .text('hello')
+    .or()
+    .text('goodbye')
+    .end()
+    .eof()
+    .get();
 
   expect(errors).toEqual([]);
   expect(root.code).toEqual([

@@ -26,6 +26,9 @@ jobs:
           yarn install --frozen-lockfile
           yarn clean
 
+      - name: Lint
+        run: yarn lint
+
       - name: Test
         run: yarn test
 

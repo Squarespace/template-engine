@@ -34,13 +34,30 @@ const CURRENCY_STYLE = new Set<CurrencyFormatStyleType>(['symbol', 'accounting',
 
 const CURRENCY_WIDTH = new Set<CurrencySymbolWidthType>(['default', 'narrow']);
 
-const ROUNDING_MODE = new Set<RoundingModeType>(['up', 'down', 'ceiling', 'floor', 'half-up', 'half-down', 'half-even']);
+const ROUNDING_MODE = new Set<RoundingModeType>([
+  'up',
+  'down',
+  'ceiling',
+  'floor',
+  'half-up',
+  'half-down',
+  'half-even',
+]);
 
 const FORMAT_WIDTH = new Set<FormatWidthType>(['short', 'medium', 'long', 'full']);
 
 const CONTEXT_TYPE = new Set<ContextType>(['middle-of-text', 'begin-sentence', 'standalone', 'ui-list-or-menu']);
 
-const TIMEPERIOD_FIELD = new Set<TimePeriodField>(['year', 'month', 'week', 'day', 'hour', 'minute', 'second', 'millis']);
+const TIMEPERIOD_FIELD = new Set<TimePeriodField>([
+  'year',
+  'month',
+  'week',
+  'day',
+  'hour',
+  'minute',
+  'second',
+  'millis',
+]);
 
 const DATEFIELD_WIDTH = new Set<DateFieldWidthType>(['short', 'narrow', 'wide']);
 

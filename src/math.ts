@@ -2,10 +2,11 @@ import { Context } from './context';
 import { Node } from './node';
 import { Variable } from './variable';
 import { splitVariable } from './util';
-import { Type } from './types';
-import { MatcherProps, hasStickyRegexp, StickyMatcherMixin, GlobalMatcherMixin } from './matchers';
+import { ExprOptions, Type } from './types';
+import { hasStickyRegexp, GlobalMatcherMixin, MatcherProps, StickyMatcherMixin } from './matchers';
 import { variableReference } from './patterns';
-import { expressionReduce } from './errors';
+
+export { ExprOptions };
 
 /**
  *  Expression evaluation using an extended version of Dijkstra's "shunting
@@ -68,7 +69,7 @@ class ExprMatcher implements MatcherProps {
     this.variableReference = this.compile(variableReference);
   }
 
-  init(str: string) {
+  init(str: string): void {
     this.str = str;
   }
 
@@ -207,7 +208,15 @@ export interface OperatorToken {
 
 export type LiteralToken = NullToken | NumberToken | BooleanToken | StringToken;
 
-export type Token = NullToken | NumberToken | BooleanToken | StringToken | CallToken | VarToken | OperatorToken | ArgsToken;
+export type Token =
+  | NullToken
+  | NumberToken
+  | BooleanToken
+  | StringToken
+  | CallToken
+  | VarToken
+  | OperatorToken
+  | ArgsToken;
 
 const ch = (s: string, i: number) => (i < s.length ? s[i] : '');
 
@@ -330,7 +339,7 @@ class Stack<T extends Token> {
   // statement.
   private _elems: (T | undefined)[] = [];
 
-  get length() {
+  get length(): number {
     return this._elems.length;
   }
   get top(): T | undefined {
@@ -344,7 +353,7 @@ class Stack<T extends Token> {
   get elems(): (T | undefined)[] {
     return this._elems;
   }
-  push(t: T) {
+  push(t: T): void {
     this._elems.push(t);
   }
   pop(): T | undefined {
@@ -399,15 +408,15 @@ const asnum = (t: Token): number => {
       switch (t.value[i]) {
         case '0':
           // check for a hexadecimal sequence
-          const c = ch(t.value, i + 1);
-          if (c === 'x' || c === 'X') {
+          const c1 = ch(t.value, i + 1);
+          if (c1 === 'x' || c1 === 'X') {
             // test for a valid hex sequence and find the bound, then
             // call parseInt to parse the full number including the sign
             j = hex(t.value, i + 2, len);
             return j === len ? parseInt(t.value, 16) : NaN;
           }
 
-        // fall through
+        // falls through
 
         case '1':
         case '2':
@@ -493,7 +502,7 @@ const asliteral = (ctx: Context, t: Token | undefined): LiteralToken | undefined
           case Type.NUMBER:
             return num(r.value);
           case Type.STRING:
-            return str(r.value);
+            return strToken(r.value);
           case Type.NULL:
           case Type.MISSING:
             return NULL;
@@ -533,10 +542,27 @@ export const bool = (value: boolean): BooleanToken => ({
 /**
  * Build a string token.
  */
-export const str = (value: string): StringToken => ({
+export const strToken = (value: string): StringToken => ({
   type: ExprTokenType.STRING,
   value,
 });
+
+export { strToken as str };
+
+/**
+ * JS loose equality restricted to literal token values (number, string,
+ * boolean, null). null only equals null; a boolean coerces to 1 or 0; a
+ * string compares against a number by numeric conversion. Kept explicit so
+ * the language's deliberate `==` semantics stay pinned by testJsDivergences.
+ */
+const eqv = (a: LiteralToken['value'], b: LiteralToken['value']): boolean => {
+  if (a === null || b === null) {
+    return a === b;
+  }
+  const x = typeof a === 'boolean' ? (a ? 1 : 0) : a;
+  const y = typeof b === 'boolean' ? (b ? 1 : 0) : b;
+  return typeof x === 'number' || typeof y === 'number' ? Number(x) === Number(y) : x === y;
+};
 
 // Constant tokens we may reference more than once
 const MINUS_ONE: NumberToken = num(-1);
@@ -608,7 +634,7 @@ const FUNCTIONS: { [name: string]: FunctionDef | undefined } = {
    * Convert first argument to a string.
    */
   str: (...tk: LiteralToken[]) => {
-    return tk.length ? str(asstr(tk[0])) : undefined;
+    return tk.length ? strToken(asstr(tk[0])) : undefined;
   },
   /**
    * Convert first argument to a boolean.
@@ -654,19 +680,10 @@ export const tokenDebug = (t: Token | undefined): string => {
 /**
  * Options to configure the expression engine.
  */
-export interface ExprOptions {
-  /**
-   * Maximum number of tokens an expression can contain. If an expression exceeds
-   * this limit it raises an error.
-   */
-  maxTokens?: number;
-
-  /**
-   * Maximum length of a string that can be constructed through concatenation.
-   * If string result of A + B exceeds the length it raises an error.
-   */
-  maxStringLen?: number;
-}
+const expressionReduce = (expr: string, err: string): { type: 'engine'; message: string } => ({
+  type: 'engine',
+  message: `RuntimeError: Error reducing expression: ${expr}: ${err}`,
+});
 
 /**
  * Parse and evaluate an expression.
@@ -771,15 +788,15 @@ export class Expr {
               continue;
             }
             case OperatorType.ASN: {
-              const b = asliteral(ctx, stack.pop());
-              const a = stack.pop();
+              const bv = asliteral(ctx, stack.pop());
+              const av = stack.pop();
               // Make sure the arguments to the assignment are valid
-              if (a !== undefined && a.type === ExprTokenType.VARIABLE && b !== undefined) {
-                const name = a.value;
+              if (av !== undefined && av.type === ExprTokenType.VARIABLE && bv !== undefined) {
+                const name = av.value;
                 // Make sure the variable is a definition
                 if (name.length === 1 && typeof name[0] === 'string' && name[0][0] === '@') {
                   // Set the variable in the context.
-                  ctx.setVar(name[0], new Variable(name[0], new Node(b.value)));
+                  ctx.setVar(name[0], new Variable(name[0], new Node(bv.value)));
                 }
               }
               // When an assignment operator is encountered, we consider the expression
@@ -821,7 +838,7 @@ export class Expr {
                   ctx.error(expressionReduce(this.raw, `Concatenation would exceed maximum string length ${this.maxStringLen}`));
                   break loop;
                 }
-                r = str(_a + _b);
+                r = strToken(_a + _b);
               } else {
                 r = num(asnum(a) + asnum(b));
               }
@@ -860,12 +877,10 @@ export class Expr {
               // is an explicit parity task, not a silent fix, because it
               // would break JS-faithful consumers. See the Expr class
               // docs and testJsDivergences.
-              // intentional == below
-              r = bool(a.value == b.value);
+              r = bool(eqv(a.value, b.value));
               break;
             case OperatorType.NEQ:
-              // intentional != below
-              r = bool(a.value != b.value);
+              r = bool(!eqv(a.value, b.value));
               break;
             case OperatorType.SEQ:
               r = bool(a.value === b.value);
@@ -904,10 +919,10 @@ export class Expr {
 
     // Return a valid literal from the top of the stack, or undefined
     // if an unexpected token is present.
-    const r = stack.top;
-    if (r) {
+    const result = stack.top;
+    if (result) {
       // Ensure the value is a literal
-      const v = asliteral(ctx, r);
+      const v = asliteral(ctx, result);
       if (v) {
         // We have a supported value
         return new Node(v.value);
@@ -998,7 +1013,8 @@ export class Expr {
                 top &&
                 (top.type !== ExprTokenType.OPERATOR ||
                   (top.value.type !== OperatorType.LPRN &&
-                    (top.value.prec > t.value.prec || (top.value.prec === t.value.prec && top.value.assoc === Assoc.LEFT))))
+                    (top.value.prec > t.value.prec ||
+                      (top.value.prec === t.value.prec && top.value.assoc === Assoc.LEFT))))
               ) {
                 out.push(ops.pop()!);
                 ({ top } = ops);
@@ -1096,9 +1112,9 @@ export class Expr {
   /**
    * Tokenize the string input.
    */
-  private tokenize(str: string, i: number, len: number) {
+  private tokenize(str: string, i: number, len: number): void {
     matcher.init(str);
-    const op = (op: OperatorToken) => this.push(op);
+    const op = (tok: OperatorToken) => this.push(tok);
 
     loop: while (i < len) {
       const c0 = str[i];
@@ -1268,7 +1284,7 @@ export class Expr {
    * Scan a decimal number and push a token, or an error message.
    * We use parseFloat() to convert the chars into the final decimal number.
    */
-  decimal(str: string, i: number, len: number): number {
+  private decimal(str: string, i: number, len: number): number {
     const j = decimal(str, i, len);
     switch (j) {
       case -2:
@@ -1294,7 +1310,7 @@ export class Expr {
   /**
    * Parse a hexadecimal integer number.
    */
-  hex(str: string, i: number, len: number): number {
+  private hex(str: string, i: number, len: number): number {
     const j = hex(str, i, len);
     if (i === j) {
       this.errors.push(`Expected digits after start of hex number`);
@@ -1308,7 +1324,7 @@ export class Expr {
   /**
    * Parse a string literal.
    */
-  string(str: string, i: number, len: number, end: string): number {
+  private string(str: string, i: number, len: number, end: string): number {
     // Accumulate decoded characters
     let s = '';
 
@@ -1384,13 +1400,13 @@ export class Expr {
             i += 2;
 
             // a unicode escape can contain 4 or 8 characters.
-            const lim = i + (c == 'u' ? 4 : 8);
+            const lim = i + (c === 'u' ? 4 : 8);
 
             // find end of hex char sequence
             const k = hex(str, i, lim < len ? lim : len);
 
             // escape sequence end must match limit
-            if (k != lim) {
+            if (k !== lim) {
               this.errors.push(E_INVALID_UNICODE);
               return -1;
             }

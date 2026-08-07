@@ -5,12 +5,11 @@ import { Patch } from './compat/patch';
 import { partialParseFail, partialRecursion, TemplateError } from './errors';
 import { Frame } from './frame';
 import { MISSING_NODE, Node } from './node';
-import { Opcode } from './opcodes';
-import { Type } from './types';
-import { Variable } from './variable';
 import { Code, RootCode } from './instructions';
+import { Opcode } from './opcodes';
 import { MessageFormats } from './plugins/messages';
-import { ExprOptions } from './math';
+import { ExprOptions, Type } from './types';
+import { Variable } from './variable';
 
 const DEFAULT_MAX_PARTIAL_DEPTH = 16;
 
@@ -93,12 +92,12 @@ export class Context {
   readonly enableExpr: boolean;
   readonly exprOpts?: ExprOptions;
   readonly enableInclude?: boolean;
-  private readonly formatters: Map<string, MessageFormats>;
 
   /**
    * Compatibility level for this execution.
    */
   compat: CompatLevel;
+  private readonly formatters: Map<string, MessageFormats>;
 
   protected partials: Partials;
   protected injects: any;
@@ -506,7 +505,9 @@ export class Context {
     // stack to scan for the variable binding. This ensures we always call
     // resolveName so that subclasses can detect the resolution.
     let node =
-      len >= 1 && names[0] === '@' ? this.resolveName(names[0], startingFrame) : this.lookupStack(names[0], startingFrame);
+      len >= 1 && names[0] === '@'
+        ? this.resolveName(names[0], startingFrame)
+        : this.lookupStack(names[0], startingFrame);
 
     for (let i = 1; i < names.length; i++) {
       if (node.isMissing() || node.isNull()) {

@@ -10,7 +10,7 @@ import { executeTemplate } from '../exec';
 import * as commerceutil from './util.commerce';
 import * as stringutil from './util.string';
 import { Type } from '../types';
-import { parseDecimal } from './util.i18n';
+import { parseDecimal } from './messages';
 
 // Template imports
 import addToCartBtnTemplate from './templates/add-to-cart-btn.json';
@@ -176,10 +176,10 @@ type ProductPriceTemplateData = {
 };
 
 export class ProductPriceFormatter extends Formatter {
-  private static BILLING_PERIOD_MONTHLY = 'MONTH';
-  private static BILLING_PERIOD_WEEKLY = 'WEEK';
-  private static BILLING_PERIOD_YEARLY = 'YEAR';
-  private static PER_YEAR = {
+  private static BILLING_PERIOD_MONTHLY: string = 'MONTH';
+  private static BILLING_PERIOD_WEEKLY: string = 'WEEK';
+  private static BILLING_PERIOD_YEARLY: string = 'YEAR';
+  private static PER_YEAR: { [key: string]: number } = {
     [this.BILLING_PERIOD_WEEKLY]: 52,
     [this.BILLING_PERIOD_MONTHLY]: 12,
   };
@@ -199,7 +199,7 @@ export class ProductPriceFormatter extends Formatter {
       ctx,
       productPriceTemplate as unknown as RootCode,
       new Node(templateData),
-      true,
+      true
     );
     first.set(priceInfo);
   }
@@ -208,9 +208,12 @@ export class ProductPriceFormatter extends Formatter {
     args: string[],
     ctx: Context,
     productNode: Node,
-    templateData: ProductPriceTemplateData,
-  ) {
-    if (commerceutil.hasVariedPrices(productNode, ctx.compatEnabled(Patch.VARIED_PRICES_NON_ARRAY))) {
+    templateData: ProductPriceTemplateData
+  ): void {
+    if (commerceutil.hasVariedPrices(
+      productNode,
+      ctx.compatEnabled(Patch.VARIED_PRICES_NON_ARRAY)
+    )) {
       const productPriceFromTextNode = ctx.resolve(PRODUCT_PRICE_FROM_TEXT_PATH);
 
       templateData.fromText = !productPriceFromTextNode.isMissing() ?
@@ -225,20 +228,24 @@ export class ProductPriceFormatter extends Formatter {
     }
 
     templateData.formattedNormalPriceText = '{price}';
-    templateData.formattedNormalPrice = commerceutil.getMoneyString(commerceutil.getNormalPrice(productNode), args, ctx);
+    templateData.formattedNormalPrice = commerceutil.getMoneyString(
+      commerceutil.getNormalPrice(productNode),
+      args,
+      ctx
+    );
   }
 
   resolveTemplateVariablesForSubscriptionProduct(
     args: string[],
     ctx: Context,
     productNode: Node,
-    templateData: ProductPriceTemplateData,
-  ) {
+    templateData: ProductPriceTemplateData
+  ): void {
     const billingPeriodNode = this.getSubscriptionPlanBillingPeriodNode(productNode);
 
     if (billingPeriodNode.isMissing()) {
       const productPriceUnavailableTextNode = ctx.resolve(['localizedStrings', 'productPriceUnavailable']);
-      
+
       templateData.fromText = !productPriceUnavailableTextNode.isMissing() ?
         productPriceUnavailableTextNode.asString() :
         'Unavailable';
@@ -251,7 +258,10 @@ export class ProductPriceFormatter extends Formatter {
       return;
     }
 
-    const hasMultiplePrices = commerceutil.hasVariedPrices(productNode, ctx.compatEnabled(Patch.VARIED_PRICES_NON_ARRAY));
+    const hasMultiplePrices = commerceutil.hasVariedPrices(
+      productNode,
+      ctx.compatEnabled(Patch.VARIED_PRICES_NON_ARRAY)
+    );
     const billingPeriodValue = this.getValueFromSubscriptionPlanBillingPeriod(billingPeriodNode);
     const billingPeriodUnit = this.getUnitFromSubscriptionPlanBillingPeriod(billingPeriodNode);
 
@@ -275,7 +285,7 @@ export class ProductPriceFormatter extends Formatter {
       `${hasMultiplePrices ? 'multiplePrices' : 'singlePrice'}__` +
       `${billingPeriodValue === 1 ? '1' : 'n'}${stringutil.capitalizeFirst(billingPeriodUnit)}ly__`;
 
-    if (durationValue == 0) {
+    if (durationValue === 0) {
       localizedStringKey += 'indefinite';
     } else {
       localizedStringKey += `limited__${durationValue === 1 ? '1' : 'n'}${stringutil.capitalizeFirst(durationUnit)}s`;
@@ -297,16 +307,24 @@ export class ProductPriceFormatter extends Formatter {
     }
 
     templateData.formattedNormalPriceText = templateForPrice;
-    templateData.formattedNormalPrice = commerceutil.getMoneyString(commerceutil.getNormalPrice(productNode), args, ctx);
+    templateData.formattedNormalPrice = commerceutil.getMoneyString(
+      commerceutil.getNormalPrice(productNode),
+      args,
+      ctx
+    );
   }
 
   // TODO: This is shitty. The formatter should, if necessary, look up the English string and use it.
   // NOTE: ^ This TODO was taken from the corresponding function in CommerceFormatters in template-compiler:
-  // https://github.com/Squarespace/template-compiler/blob/main/core/src/main/java/com/squarespace/template/plugins/platform/CommerceFormatters.java/#L438
-  defaultSubscriptionPriceString(ctx: Context, productNode: Node) {
+  // https://github.com/Squarespace/template-compiler/blob/main/core/src/main/java/com/squarespace/
+  // template/plugins/platform/CommerceFormatters.java/#L438
+  defaultSubscriptionPriceString(ctx: Context, productNode: Node): string {
     const billingPeriodNode = this.getSubscriptionPlanBillingPeriodNode(productNode);
 
-    const hasMultiplePrices = commerceutil.hasVariedPrices(productNode, ctx.compatEnabled(Patch.VARIED_PRICES_NON_ARRAY));
+    const hasMultiplePrices = commerceutil.hasVariedPrices(
+      productNode,
+      ctx.compatEnabled(Patch.VARIED_PRICES_NON_ARRAY)
+    );
     const billingPeriodValue = this.getValueFromSubscriptionPlanBillingPeriod(billingPeriodNode);
     const billingPeriodPlural = billingPeriodValue > 1;
     const billingPeriodUnit = this.getUnitFromSubscriptionPlanBillingPeriod(billingPeriodNode);
@@ -338,21 +356,21 @@ export class ProductPriceFormatter extends Formatter {
     return subPriceString;
   }
 
-  getSubscriptionPlanBillingPeriodNode(item: Node) {
+  getSubscriptionPlanBillingPeriodNode(item: Node): Node {
     // BillingPeriod is represented as {value, unit} and is the period of time in between recurring billings
     // e.g. {2, MONTH} means a subscriber is billed once every 2 months
     return item.path(['structuredContent', 'subscriptionPlan', 'billingPeriod']);
   }
 
-  getUnitFromSubscriptionPlanBillingPeriod(billingPeriodNode: Node) {
+  getUnitFromSubscriptionPlanBillingPeriod(billingPeriodNode: Node): string {
     return billingPeriodNode.path(['unit']).asString();
   }
 
-  getValueFromSubscriptionPlanBillingPeriod(billingPeriodNode: Node) {
+  getValueFromSubscriptionPlanBillingPeriod(billingPeriodNode: Node): number {
     return billingPeriodNode.path(['value']).asNumber();
   }
 
-  getNumBillingCyclesFromSubscriptionPlanNode(item: Node) {
+  getNumBillingCyclesFromSubscriptionPlanNode(item: Node): number {
     return item.path(['structuredContent', 'subscriptionPlan', 'numBillingCycles']).asNumber();
   }
 }
@@ -402,16 +420,16 @@ export class SubscriptionPriceFormatter extends Formatter {
       ctx,
       subscriptionPriceTemplate as unknown as RootCode,
       new Node(subscriptionResults),
-      true,
+      true
     );
     first.set(subscriptionPriceInfo);
   }
 
-  getSalePriceMoney(pricingOption: Node, args: string[], ctx: Context) {
+  getSalePriceMoney(pricingOption: Node, args: string[], ctx: Context): string {
     return commerceutil.getMoneyString(pricingOption.path(['salePriceMoney']), args, ctx);
   }
 
-  getPriceMoney(pricingOption: Node, args: string[], ctx: Context) {
+  getPriceMoney(pricingOption: Node, args: string[], ctx: Context): string {
     return commerceutil.getMoneyString(pricingOption.path(['priceMoney']), args, ctx);
   }
 }

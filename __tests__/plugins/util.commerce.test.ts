@@ -231,7 +231,9 @@ test('sale price', () => {
   let price = commerceutil.getSalePrice(item);
   expect(price).toEqual(new Node({ value: '0', currency: 'USD' }));
 
-  item = product.variants([{ priceMoney: { value: '100.0' } }, { onSale: true, salePriceMoney: { value: '75.0' } }]).node();
+  item = product
+    .variants([{ priceMoney: { value: '100.0' } }, { onSale: true, salePriceMoney: { value: '75.0' } }])
+    .node();
   price = commerceutil.getSalePrice(item);
   expect(price).toEqual(new Node({ value: '75.0' }));
 

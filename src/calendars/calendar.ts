@@ -333,7 +333,13 @@ export abstract class CalendarDate {
     return this.monthStart(y + 1, 0, false) - this.monthStart(y, 0, false);
   }
 
-  protected weekNumber(firstDay: number, minDays: number, desiredDay: number, dayOfPeriod: number, dayOfWeek: number): number {
+  protected weekNumber(
+    firstDay: number,
+    minDays: number,
+    desiredDay: number,
+    dayOfPeriod: number,
+    dayOfWeek: number
+  ): number {
     let psow = (dayOfWeek - firstDay - dayOfPeriod + 1) % 7;
     if (psow < 0) {
       psow += 7;

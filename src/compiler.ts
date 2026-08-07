@@ -11,7 +11,7 @@ import { Parser } from './parser';
 import { Code } from './instructions';
 import { Formatters, Predicates } from './plugins';
 import { Matcher, MatcherImpl } from './matcher';
-import { ExprOptions } from './math';
+import { ExprOptions } from './types';
 
 const EMPTY_CODE: Code = [Opcode.ROOT, 1, [], Opcode.EOF];
 
@@ -101,7 +101,7 @@ export class Compiler {
    * compile at the default level. If that changes, the level must join the
    * key or a level mismatch will serve a stale compile.
    */
-  private partialCache = new Map<string, ParseResult>();
+  private partialCache: Map<string, ParseResult> = new Map<string, ParseResult>();
 
   private props: CompilerProps;
 
@@ -128,29 +128,6 @@ export class Compiler {
       code: assembler.code(),
       errors: assembler.errors,
     };
-  }
-
-  /**
-   * Parse a raw partial on demand. Partials always compile at the default
-   * level (see the cache key note), which keeps the shared cache level-free.
-   * Reuses a previous compile of the same source: on a hit the cached tree
-   * is returned as-is, and on a miss only error-free compiles are stored, so
-   * a broken partial is re-parsed and its errors re-reported on every
-   * execution.
-   */
-  private parsePartial(source: string): ParseResult {
-    const cached = this.partialCache.get(source);
-    if (cached !== undefined) {
-      return cached;
-    }
-    const res = this.parse(source, CompatLevel.defaultLevel());
-    if (res.errors.length === 0) {
-      if (this.partialCache.size >= MAX_PARTIAL_CACHE) {
-        this.partialCache.clear();
-      }
-      this.partialCache.set(source, res);
-    }
-    return res;
   }
 
   /**
@@ -211,5 +188,28 @@ export class Compiler {
     errors.splice(errors.length, 0, ...ctx.errors);
 
     return { ctx, errors };
+  }
+
+  /**
+   * Parse a raw partial on demand. Partials always compile at the default
+   * level (see the cache key note), which keeps the shared cache level-free.
+   * Reuses a previous compile of the same source: on a hit the cached tree
+   * is returned as-is, and on a miss only error-free compiles are stored, so
+   * a broken partial is re-parsed and its errors re-reported on every
+   * execution.
+   */
+  private parsePartial(source: string): ParseResult {
+    const cached = this.partialCache.get(source);
+    if (cached !== undefined) {
+      return cached;
+    }
+    const res = this.parse(source, CompatLevel.defaultLevel());
+    if (res.errors.length === 0) {
+      if (this.partialCache.size >= MAX_PARTIAL_CACHE) {
+        this.partialCache.clear();
+      }
+      this.partialCache.set(source, res);
+    }
+    return res;
   }
 }

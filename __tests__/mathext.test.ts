@@ -21,7 +21,7 @@ test('random expression', () => {
   const len = syms.length;
   for (let i = 0; i < 10000; i++) {
     let s = '';
-    for (let i = 0; i < 32; i++) {
+    for (let j = 0; j < 32; j++) {
       const n = r();
       s += syms[n % len] + ' ';
     }
@@ -38,7 +38,7 @@ test('random number pattern', () => {
   const len = syms.length;
   for (let i = 0; i < 10000; i++) {
     let s = i % 2 ? '1' : '0';
-    for (let i = 0; i < 16; i++) {
+    for (let j = 0; j < 16; j++) {
       const n = r();
       s += syms[n % len];
     }

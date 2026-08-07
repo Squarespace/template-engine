@@ -9,7 +9,7 @@ import { Formatter } from '../plugin';
 import { getTimeZone } from './util.timezone';
 import { currencyOptions, datetimeOptions, decimalOptions, intervalOptions, relativetimeOptions } from './options';
 import { splitVariable } from '../util';
-import { humanizeDate, getZoneOffsetMs } from './util.content';
+import { getZoneOffsetMs, humanizeDate } from './util.content';
 
 export class DatetimeFormatter extends Formatter {
   validateArgs(args: string[]): void {

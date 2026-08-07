@@ -175,7 +175,9 @@ class Node {
 const legacyCompare = (left: Node, right: Node): number => {
   switch (left.type) {
     case Type.NUMBER:
-      return Number.isInteger(left.value) ? longCompare(left.value, asLong(right)) : doubleCompare(left.value, asDouble(right));
+      return Number.isInteger(left.value)
+        ? longCompare(left.value, asLong(right))
+        : doubleCompare(left.value, asDouble(right));
 
     case Type.STRING:
       return stringCompare(left.value, asText(right));

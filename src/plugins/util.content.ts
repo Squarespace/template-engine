@@ -21,7 +21,7 @@ export const getAltText = (ctx: Context, image: Node): string => {
   // Content items for image blocks were populated with an altText value with a migration.
   // See CMS-33805. for those, the content item value should always be used even if it is empty.
   const blockType = ctx.resolve(['blockType']);
-  if (!blockType.isMissing() && blockType.asNumber() == BlockType.IMAGE.code) {
+  if (!blockType.isMissing() && blockType.asNumber() === BlockType.IMAGE.code) {
     const altText = image.path(['altText']);
     return altText.asString().trim();
   }
@@ -146,7 +146,7 @@ export const outputImageMeta = (image: Node, ctx: Context, preferredAlt?: string
   const focalPoint = getFocalPoint(image);
   const origSize = image.get('originalSize').asString();
   const assetUrl = image.get('assetUrl').asString();
-  const altText = escapeHtmlAttributes(preferredAlt != undefined ? preferredAlt : getAltText(ctx, image));
+  const altText = escapeHtmlAttributes(preferredAlt != null ? preferredAlt : getAltText(ctx, image));
 
   let res = '';
   if (isLicensedAssetPreview(image)) {

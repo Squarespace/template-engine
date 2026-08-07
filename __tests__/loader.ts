@@ -127,11 +127,11 @@ export const parseProperties = (str: string): any => {
     if (trimmed === '' || trimmed.startsWith('#') || trimmed.startsWith('!')) {
       continue;
     }
-    const sep = trimmed.indexOf('=');
-    if (sep === -1) {
+    const eq = trimmed.indexOf('=');
+    if (eq === -1) {
       throw new Error(`Invalid property line: ${line}`);
     }
-    props[trimmed.slice(0, sep).trim()] = trimmed.slice(sep + 1).trim();
+    props[trimmed.slice(0, eq).trim()] = trimmed.slice(eq + 1).trim();
   }
   return props;
 };

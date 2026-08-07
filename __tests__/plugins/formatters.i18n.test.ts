@@ -75,14 +75,26 @@ const formatInterval = (cldr: CLDR | undefined, start: number, end: number, zone
   return vars[0].get();
 };
 
-const formatRelativeTime = (cldr: CLDR | undefined, start: number | undefined, vars: Variable[], args: string[], compat?: CompatLevel) => {
+const formatRelativeTime = (
+  cldr: CLDR | undefined,
+  start: number | undefined,
+  vars: Variable[],
+  args: string[],
+  compat?: CompatLevel
+) => {
   const impl = TABLE['relative-time'] as RelativeTimeFormatter;
   const ctx = new Context({}, { cldr, now: start, compat });
   impl.apply(args, vars, ctx);
   return vars[0].get();
 };
 
-const applyRelativeTime = (cldr: CLDR | undefined, start: number | undefined, vars: Variable[], args: string[], compat?: CompatLevel) => {
+const applyRelativeTime = (
+  cldr: CLDR | undefined,
+  start: number | undefined,
+  vars: Variable[],
+  args: string[],
+  compat?: CompatLevel
+) => {
   const impl = TABLE['relative-time'] as RelativeTimeFormatter;
   const ctx = new Context({}, { cldr, now: start, compat });
   impl.apply(args, vars, ctx);
@@ -141,7 +153,7 @@ test('money', () => {
 
   // Use value and currency instead of decimalValue and currencyCode
   money = { value: '155900.799', currency: 'EUR' };
-  let ctx: any = {};
+  const ctx: any = {};
   expect(formatMoney(EN, money, ['style:short'], ctx)).toEqual('€156K');
 });
 
@@ -279,7 +291,7 @@ test('datetime', () => {
   args = ['date:full', 'time:full'];
   expect(formatDatetime(EN, d, ZONE_NY, args)).toEqual('Monday, March 12, 2018 at 1:48:54 PM Eastern Daylight Time');
   expect(formatDatetime(DE, d, ZONE_NY, args)).toEqual(
-    'Montag, 12. März 2018 um 13:48:54 Nordamerikanische Ostküsten-Sommerzeit',
+    'Montag, 12. März 2018 um 13:48:54 Nordamerikanische Ostküsten-Sommerzeit'
   );
 
   args = ['time:medium'];
@@ -518,7 +530,7 @@ test('message url args', () => {
   const named = { m: 'd={url}' };
   expect(execute('{m|message url:https://user:pass@example.com}', named).ctx.render()).toEqual('d=');
   expect(execute('{m|message url:https://user:pass@example.com}', named, fixed).ctx.render()).toEqual(
-    'd=https://user:pass@example.com',
+    'd=https://user:pass@example.com'
   );
 
   // A name part that is not an identifier makes the argument positional
@@ -733,7 +745,13 @@ loader.paths('f-timesince-%N.html').forEach((path) => {
   test(`timesince - ${path}`, () => loader.execute(path));
 });
 
-const formatTimeSince = (cldr: CLDR | undefined, start: number | undefined, end: number, args: string[], compat?: CompatLevel) => {
+const formatTimeSince = (
+  cldr: CLDR | undefined,
+  start: number | undefined,
+  end: number,
+  args: string[],
+  compat?: CompatLevel
+) => {
   const impl = TABLE.timesince as TimeSinceFormatter;
   const ctx = new Context({}, { cldr, now: start, compat });
   const vars = variables(end);
@@ -750,7 +768,7 @@ test('timesince', () => {
   // These rows bucket on the raw epoch millis delta. The default level adds
   // the system zone's offset, so the fixed level keeps them deterministic.
   // The legacy path is covered by the zone offset rows below.
-  const fmt = (e: number) => formatTimeSince(EN, base, e, args, FIXED);
+  const fmt = (delta: number) => formatTimeSince(EN, base, delta, args, FIXED);
 
   e = start.add({ millis: 100 }).unixEpoch();
   expect(fmt(e)).toContain('less than a minute ago');

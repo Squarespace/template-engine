@@ -42,12 +42,14 @@ test('compiler empty props keep defaults', () => {
 
 test('compiler partial props keep the other defaults', () => {
   // Custom formatters override; predicates still resolve from the default table.
-  let { ctx, errors } = new Compiler({ formatters: {} }).execute({ code: '{.even? a}yes{.or}no{.end}', json: { a: 2 } });
+  const first = new Compiler({ formatters: {} }).execute({ code: '{.even? a}yes{.or}no{.end}', json: { a: 2 } });
+  const ctx = first.ctx;
+  let errors = first.errors;
   expect(errors).toEqual([]);
   expect(ctx.render()).toEqual('yes');
 
   // Explicit empty formatters table still wins over the default.
-  ({ errors } = new Compiler({ formatters: {} }).execute({ code: '{a|html}', json: { a: 'x' } }));
+  errors = new Compiler({ formatters: {} }).execute({ code: '{a|html}', json: { a: 'x' } }).errors;
   expect(errors.length).toBeGreaterThan(0);
 });
 
