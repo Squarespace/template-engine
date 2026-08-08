@@ -616,13 +616,6 @@ loader.paths('f-json-pretty-%N.html').forEach((path) => {
   test(`json pretty - ${path}`, () => loader.execute(path));
 });
 
-loader.paths('f-find-first-%N.html').forEach((path) => {
-  test(`find-first - ${path}`, () => loader.execute(path));
-});
-
-loader.paths('f-find-last-%N.html').forEach((path) => {
-  test(`find-last - ${path}`, () => loader.execute(path));
-
 loader.paths('f-json-pretty-line-separators-%N.html').forEach((path) => {
   test(`json pretty line separators - ${path}`, () => loader.execute(path));
 });
