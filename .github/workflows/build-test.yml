@@ -25,6 +25,7 @@ jobs:
         run: |
           yarn install --frozen-lockfile
           yarn clean
+          yarn build
 
       - name: Lint
         run: yarn lint
@@ -33,9 +34,7 @@ jobs:
         run: yarn test
 
       - name: Build UMD bundle
-        run: |
-          yarn build:es
-          yarn build:rollup
+        run: yarn build:rollup
 
 #      - uses: codecov/codecov-action@v1
 #        if: matrix.node-version == '16.x'

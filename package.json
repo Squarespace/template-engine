@@ -22,6 +22,7 @@
     "link-all": "ls --color=none node_modules/@phensley | xargs -I % yarn link @phensley/%",
     "unlink-all": "ls --color=none node_modules/@phensley | xargs -I % yarn unlink @phensley/%",
     "lint": "tslint -p ./tsconfig.lint.json",
+    "pretest": "yarn build:cj",
     "test": "NODE_ENV=test jest --coverage=true",
     "test:watch": "NODE_ENV=test jest --watch",
     "test:watchcover": "NODE_ENV=test jest --watch --coverage=true",
