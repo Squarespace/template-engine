@@ -9,7 +9,7 @@ export const BackgroundSource: EnumDecl<'BackgroundSource'> = enum_('BackgroundS
   NONE: [4, 'none'],
 });
 
-export type BlockType = EnumValue<'Blocktype'>;
+export type BlockType = EnumValue<'BlockType'>;
 export const BlockType: EnumDecl<'BlockType'> = enum_('BlockType', {
   UNDEFINED: [-1, 'undefined'],
   NAVIGATION: [1, 'navigation'],

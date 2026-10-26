@@ -19,7 +19,7 @@ export const getFocalPoint = (media: Node) => {
 
 export const getAltText = (ctx: Context, image: Node): string => {
   // Content items for image blocks were populated with an altText value with a migration.
-  // See CMS-33805. for those, the content item value should always be used even if it is empty.
+  // See CMS-33805. For those, the content item value should always be used even if it is empty.
   const blockType = ctx.resolve(['blockType']);
   if (!blockType.isMissing() && blockType.asNumber() === BlockType.IMAGE.code) {
     const altText = image.path(['altText']);
